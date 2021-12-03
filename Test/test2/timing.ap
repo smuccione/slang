@@ -1,0 +1,32 @@
+<[
+	local loop
+	local x
+	local session
+	
+	session = new ( "session" )
+
+	! sprintf ( "time1 = %ims<br>", start = session.elapsedTime );
+
+	for ( x = 0, loop = 0; loop < 100000; loop++ )
+	end
+	
+	! sprintf ( "time2 = %ims<br>", start = session.elapsedTime );
+
+	for ( x = 0, loop = 0; loop < 100000; loop++ )
+		x++;
+	end
+	
+	! sprintf ( "time3 = %ims<br>", start = session.elapsedTime - start );
+
+	for ( x = 0, loop = 0; loop < 100000; loop++ )
+		x = x + 1;
+	end
+	
+	! sprintf ( "time4 = %ims<br>", start = session.elapsedTime - start );
+
+	for ( x = 0, loop = 0; loop < 100000; loop++ )
+		x = x++ + 1;
+	end
+	
+	! sprintf ( "time4 = %ims<br>", start = session.elapsedTime - start );
+]>

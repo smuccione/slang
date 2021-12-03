@@ -1,0 +1,1419 @@
+f<[
+	library c:\fgl\libs\system.flb
+	.
+	class DropboxFileSystemInterface
+		inherit	DavFileSystemStatus
+		
+
+		private:
+			local	file
+			local	userId
+			
+			local	web
+			
+			local	appKey = "uzgkp8xgv9yoplk"
+			local	appSecret = "8xzshua5obltcod"
+
+
+		public:
+			method new ( userId, password )
+				
+				web = new ( "webClient")
+				web.domain = "api.Dropbox.com"
+				web.ssl = 1
+				web.submit ( "1/oauth/request_token", "" )
+				
+				x = web.page()
+				x = split2 ( web.page(), "=", "&" )
+				y = aArray()
+				y.add ( x )
+				
+				
+				
+				return ( 1 )
+			end
+
+			method GetWebDavProperties ( fName )
+				local data
+
+				fName = ::basePath + fName
+				
+				data = fileReadAscii ( fName+":WebDav$Data" )
+
+				if ( data )
+					return ( unpack ( data ) )
+				else
+					return aArray()
+				end
+			end
+
+			method SetWebDavProperties ( fName, props )
+				local data
+
+				fName = ::basePath + fName
+
+				return fileWriteAscii ( fName+":WebDav$Data", pack ( props ) )
+			end
+
+			method MakeDirectory ( dir )
+				dir = ::basePath + dir
+				if ( mkDir ( dir ) )
+					return 201
+				else
+					switch ( getLastError() )
+						case 3			// need intermediaries
+							return 409
+						case 183		// already exists
+							return 405
+						default:
+							return 403
+					end
+				end
+			end
+			
+			method Delete ( dir )
+				dir = ::basePath + dir
+				
+				if ( fEraseX ( dir ) )
+					return ( 204 )
+				end
+				return ( 404 )
+			end
+
+			method Move ( src, dst )
+				src = ::basePath + src
+				dst = ::basePath + dst
+				
+				if ( fMoveX ( src, dst ) )
+					return ( 204 )
+				end
+				return ( 404 )
+			end
+
+			method Copy ( src, dst )
+				src = ::basePath + src
+				dst = ::basePath + dst
+				
+				if ( fCopyX ( src, dst ) )
+					return ( 204 )
+				end
+				return ( 404 )
+			end
+
+			method GetDir ( pathP, depth )
+				local ret, ret2
+				
+				path = ::basePath + pathP;
+
+				switch ( upper ( depth ) )
+					case '0'
+						if ( path[len(path)] == '\' )
+							path = left ( path, len ( path ) - 1 )
+						end
+						
+						if ( path == '\' )
+							return ( { { '\', 0, webGmt(), 0, 0x00000010, 0 } })
+						end
+						ret = dir ( path )
+
+						if ( !ret && (path[1] != '\') )
+							ret = dir ( '\' + path )
+						end
+						
+						for ( loop = 1; loop <= len ( ret ); loop++ )
+							if ( !(ret[loop][5] & 0x00000010) )
+								ret[loop][7] = ::GetWebDavProperties ( pathP )
+							end
+						end
+//						debugBreak()
+						if ( pathP == "" )
+							ret[1][1] = ""
+						end
+						return ret;
+					case '1'
+						if ( right ( path, 1 ) == '\' )
+							path = path + '*'
+						end
+
+						if ( path == '\*' )
+							path = 'c:\*'
+						end
+						ret = dir ( path )
+						if ( !ret && (path[1] != '\') )
+							ret = dir ( '\' + path )
+						end
+						for ( loop = 1; loop <= len ( ret ); loop++ )
+							if ( !(ret[loop][5] & 0x00000010) )
+								ret[loop][7] = ::GetWebDavProperties ( pathP + '\' + ret[loop][1] )
+							end
+						end
+						break;
+					case 'INFINITY'
+						if ( right ( path, 1 ) == '\' )
+							path = path + '*'
+						end
+
+						ret = dir ( path )
+						for ( loop = 1; loop <= len ( ret ); loop++ )
+							if ( !(ret[loop][5] & 0x00000010) )
+								ret[loop][7] = ::GetWebDavProperties ( pathP + '\' + ret[loop][1] )
+							end
+						end
+						break;
+				end
+
+				if ( (len ( ret ) == 1) && (ret[1][5] & 0x00000010) && (depth != '0') )
+					return ( ::GetDir ( pathP + '\', depth ) )
+				end
+				
+				return ( ret )
+			end
+
+			method ReadFile ( fileName )
+				local data 
+
+				fileName = ::basePath + fileName;
+
+				return fileReadAscii ( fileName )
+			end
+
+			method WriteFile ( fileName, data )
+				local handle
+				
+				fileName = ::basePath + fileName;
+				
+				if ( isFile ( fileName, 0 ) )
+					openMode = FileConstants::_O_RDWR | FileConstants::_O_TRUNC | FileConstants::_O_BINARY
+				
+					if ( (handle = fOpen ( fileName, openMode )) == -1 )
+						return ( 404 );
+					end
+					fWrite ( handle, data )
+					fClose ( handle )
+					return ( 204 )
+				else
+					openMode = FileConstants::_O_RDWR | FileConstants::_O_CREAT | FileConstants::_O_BINARY
+						
+					if ( (handle = fOpen ( fileName, openMode )) == -1 )
+						return ( 403 );
+					end
+					fWrite ( handle, data )
+					fClose ( handle )
+					return ( 201 );
+				end
+			end
+
+	end
+
+    function loginDigest( userid, response, hashMethod, httpMethod, username, realm, qop, uri, nonce, clientnonce, nonceCount )
+		local   h1
+		local   h2
+		local   kd
+		local   pass
+		local 	a1, a2
+
+//		if ( ! ::user.GetRecord( userid ) )
+//			::errmsg = "Unable to locate user account."
+//			return( 0 )
+//		end
+//		pass = ::user.data.password
+		pass = "test"
+		
+		switch ( upper ( hashMethod ) )
+		  case "MD5"
+			a1 = userName + ":" +  realm + ":" + pass
+			h1 = hashMD5 ( a1 )
+			break;
+		  case "MD5-SESS"
+			a1 = userName + ":" +  realm + ":" + pass
+			h1 = hashMD5 ( hashMD5 ( a1 ) + ":" + nonce + ":" + clientnonce )
+			break;
+		end
+		
+		switch ( upper ( qop ) )
+		  case "AUTH-INT"
+			a2 = httpMethod +":" +  uri
+			h2 = hashMD5 ( a2 )
+			break;
+		  case "AUTH"
+		  default:
+			a2 = httpMethod +":" +  uri
+			h2 = hashMD5 ( a2 )
+			break;
+		end
+
+		switch ( upper ( qop ) )
+		  case "AUTH"
+		  case "AUTH-INT"
+			kd = sprintf ( "%s:%s:%s:%s:%s:%s", h1, nonce, nonceCount, clientNonce, qop, h2 )
+			kd = hashMD5 ( kd )
+			break;
+		  default:
+			kd = hashMD5 ( h1 + ":" + nonce + ":" + h2 )
+			break;
+		end
+
+		if ( kd != response )
+			// password doesn't match
+			return ( 0 )
+		end
+
+		new ( "cookie").set( "Zude", "logged in", webGmt( time + timeOut )  )
+
+		return( 1 )
+
+	END
+	
+	function convertPath ( path )
+		if ( upper ( left ( path, 7 ) ) == '\DAV.AP' )
+			path = mid ( path, 7, len ( path ) )
+		elseif ( upper ( left ( path, 4 ) ) == '\DAV' )
+			path = mid ( path, 4, len ( path ) )
+		end
+		return ( path )
+	end
+	
+	function encodeProp ( nameSpace, propName )
+		return ( webEncodeUrl ( nameSpace ) + ":" + webEncodeUrl ( propName ) )
+	end
+	
+	function decodePropNameSpace ( encProp )
+		return ( webDecodeUrl ( token ( encProp, ":", 1 ) ) )
+	end
+	
+	function decodePropName ( encProp )
+		return ( webDecodeUrl ( token ( encProp, ":", 2 ) ) )
+	end
+	
+	class DavFileSystemStatus
+		const	SUCCESS		= 0
+		const	FORBIDDEN	= 1
+		const	CONFLICT	= 2
+		const	UNSUPPORTED	= 3
+		const	DISK_FULL	= 4
+		const	LOCKED		= 5
+		const	NOT_FOUND	= 6
+	end
+
+	class DosFileSystemInterface
+		inherit	DavFileSystemStatus
+		
+		local	basePath = 'c:\tmp\'
+		
+		private:
+			local	file
+			local	userId
+
+
+		public:
+			method new ( userId, password )
+				return ( 1 )
+			end
+
+			method GetWebDavProperties ( fName )
+				local data
+
+				fName = ::basePath + fName
+				
+				data = fileReadAscii ( fName+":WebDav$Data" )
+
+				if ( data )
+					return ( unpack ( data ) )
+				else
+					return aArray()
+				end
+			end
+
+			method SetWebDavProperties ( fName, props )
+				local data
+
+				fName = ::basePath + fName
+
+				return fileWriteAscii ( fName+":WebDav$Data", pack ( props ) )
+			end
+
+			method MakeDirectory ( dir )
+				dir = ::basePath + dir
+				if ( mkDir ( dir ) )
+					return 201
+				else
+					switch ( getLastError() )
+						case 3			// need intermediaries
+							return 409
+						case 183		// already exists
+							return 405
+						default:
+							return 403
+					end
+				end
+			end
+			
+			method Delete ( dir )
+				dir = ::basePath + dir
+				
+				if ( fEraseX ( dir ) )
+					return ( 204 )
+				end
+				return ( 404 )
+			end
+
+			method Move ( src, dst )
+				src = ::basePath + src
+				dst = ::basePath + dst
+				
+				if ( fMoveX ( src, dst ) )
+					return ( 204 )
+				end
+				return ( 404 )
+			end
+
+			method Copy ( src, dst )
+				src = ::basePath + src
+				dst = ::basePath + dst
+				
+				if ( fCopyX ( src, dst ) )
+					return ( 204 )
+				end
+				return ( 404 )
+			end
+
+			method GetDir ( pathP, depth )
+				local ret, ret2
+				
+				path = ::basePath + pathP;
+
+				switch ( upper ( depth ) )
+					case '0'
+						if ( path[len(path)] == '\' )
+							path = left ( path, len ( path ) - 1 )
+						end
+						
+						if ( path == '\' )
+							return ( { { '\', 0, webGmt(), 0, 0x00000010, 0 } })
+						end
+						ret = dir ( path )
+
+						if ( !ret && (path[1] != '\') )
+							ret = dir ( '\' + path )
+						end
+						
+						for ( loop = 1; loop <= len ( ret ); loop++ )
+							if ( !(ret[loop][5] & 0x00000010) )
+								ret[loop][7] = ::GetWebDavProperties ( pathP )
+							end
+						end
+//						debugBreak()
+						if ( pathP == "" )
+							ret[1][1] = ""
+						end
+						return ret;
+					case '1'
+						if ( right ( path, 1 ) == '\' )
+							path = path + '*'
+						end
+
+						if ( path == '\*' )
+							path = 'c:\*'
+						end
+						ret = dir ( path )
+						if ( !ret && (path[1] != '\') )
+							ret = dir ( '\' + path )
+						end
+						for ( loop = 1; loop <= len ( ret ); loop++ )
+							if ( !(ret[loop][5] & 0x00000010) )
+								ret[loop][7] = ::GetWebDavProperties ( pathP + '\' + ret[loop][1] )
+							end
+						end
+						break;
+					case 'INFINITY'
+						if ( right ( path, 1 ) == '\' )
+							path = path + '*'
+						end
+
+						ret = dir ( path )
+						for ( loop = 1; loop <= len ( ret ); loop++ )
+							if ( !(ret[loop][5] & 0x00000010) )
+								ret[loop][7] = ::GetWebDavProperties ( pathP + '\' + ret[loop][1] )
+							end
+						end
+						break;
+				end
+
+				if ( (len ( ret ) == 1) && (ret[1][5] & 0x00000010) && (depth != '0') )
+					return ( ::GetDir ( pathP + '\', depth ) )
+				end
+				
+				return ( ret )
+			end
+
+			method ReadFile ( fileName )
+				local data 
+
+				fileName = ::basePath + fileName;
+
+				return fileReadAscii ( fileName )
+			end
+
+			method WriteFile ( fileName, data )
+				local handle
+				
+				fileName = ::basePath + fileName;
+				
+				if ( isFile ( fileName, 0 ) )
+					openMode = FileConstants::_O_RDWR | FileConstants::_O_TRUNC | FileConstants::_O_BINARY
+				
+					if ( (handle = fOpen ( fileName, openMode )) == -1 )
+						return ( 404 );
+					end
+					fWrite ( handle, data )
+					fClose ( handle )
+					return ( 204 )
+				else
+					openMode = FileConstants::_O_RDWR | FileConstants::_O_CREAT | FileConstants::_O_BINARY
+						
+					if ( (handle = fOpen ( fileName, openMode )) == -1 )
+						return ( 403 );
+					end
+					fWrite ( handle, data )
+					fClose ( handle )
+					return ( 201 );
+				end
+			end
+
+	end
+
+	class prop
+		const FILE_ATTRIBUTE_READONLY				= 0x00000001
+		const FILE_ATTRIBUTE_HIDDEN					= 0x00000002
+		const FILE_ATTRIBUTE_SYSTEM					= 0x00000004
+		const FILE_ATTRIBUTE_DIRECTORY				= 0x00000010
+		const FILE_ATTRIBUTE_ARCHIVE				= 0x00000020
+		const FILE_ATTRIBUTE_DEVICE					= 0x00000040
+		const FILE_ATTRIBUTE_NORMAL					= 0x00000080
+		const FILE_ATTRIBUTE_TEMPORARY				= 0x00000100
+		const FILE_ATTRIBUTE_SPARSE_FILE			= 0x00000200
+		const FILE_ATTRIBUTE_REPARSE_POINT			= 0x00000400
+		const FILE_ATTRIBUTE_COMPRESSED				= 0x00000800
+		const FILE_ATTRIBUTE_OFFLINE				= 0x00001000
+		const FILE_ATTRIBUTE_NOT_CONTENT_INDEXED	= 0x00002000
+		const FILE_ATTRIBUTE_ENCRYPTED				= 0x00004000
+
+		private:
+			local	userId
+			local	fEntry
+
+			method	new ( userId, fEntry )
+				::userId = userId
+				::fEntry = fEntry
+				return ( 1 )
+			end
+		public:
+			method 	genProp ( propName, failures )
+				local rsp
+
+				rsp = ""
+
+				if ( ::fEntry[5] & ::FILE_ATTRIBUTE_DIRECTORY )
+					// directory properties
+					switch ( upper ( propName ) )
+						case 'DAV%3A:SUPPORTED-LIVE-PROPERTY-SET'
+//							rsp += '
+							break;
+						case 'DAV%3A:SUPPORTED-METHOD-SET'
+							break;
+						case 'DAV%3A:CREATIONDATE'
+//							rsp += '<D:creationdate b:dt="dateTime.tz">' + webGmt() + '</D:creationdate>' + "\r\n"
+							rsp += '<D:creationdate b:dt="dateTime.tz">' + "2006-09-05T05:30:16.271Z" + '</D:creationdate>' + "\r\n"
+							break
+						case 'DAV%3A:DISPLAYNAME'
+							if ( propName )
+								rsp += '<D:displayname>/</D:displayname>' + "\r\n"
+							else
+								rsp += '<D:displayname>' + webEncodeDav ( ::fEntry[1] ) + '</D:displayname>' + "\r\n"
+							end
+//							rsp += '<D:displayname><![CDATA[' + webEncodeDav ( ::fEntry[1] ) + ']]></D:displayname>' + "\r\n"
+							break
+						case 'DAV%3A:GETCONTENTTYPE'
+//							rsp += '<D:getcontenttype>' + 'httpd/unix-directory' + '</D:getcontenttype>' + "\r\n"
+							rsp += '<D:getcontenttype/>' + "\r\n"
+							break
+						case 'DAV%3A:GETCONTENTLENGTH'
+							rsp += '<D:getcontentlength b:dt="int">' + 0 + '</D:getcontentlength>' + "\r\n"
+							break
+						case 'DAV%3A:RESOURCETYPE'
+							rsp += '<D:resourcetype>' +  '<D:collection/>' + '</D:resourcetype>' + "\r\n"
+							break;
+						case 'DAV%3A:GETETAG'
+							rsp += '<D:getetag>"' + hashsha1 ( ::userid + ::fEntry[1] ) + '"</D:getetag>' + "\r\n"
+							break
+						case 'DAV%3A:LOCKDISCOVERY'
+							rsp += '<D:supportedlock/>' + "\r\n"
+							break
+						case 'DAV%3A:ISCOLLECTION'
+							rsp += '<D:iscollection b:dt="boolean">1</D:iscollection>' + "\r\n"
+							break
+						case 'DAV%3A:ISHIDDEN'
+							if ( ::fEntry[5] & :: FILE_ATTRIBUTE_HIDDEN )
+								rsp += '<D:ishidden b:dt="boolean">1</D:ishidden>' + "\r\n"
+							else
+								rsp += '<D:ishidden b:dt="boolean">0</D:ishidden>' + "\r\n"
+							end
+							break
+						case 'DAV%3A:GETLASTMODIFIED'
+							rsp += '<D:getlastmodified b:dt="dateTime.rfc1123">' + webGmt() + '</D:getlastmodified>' + "\r\n"
+							break
+						case 'DAV%3A:GETCONTENTLENGTH'
+							rsp += '<D:getcontentlength b:dt="int">0</D:getcontentlength>' + "\r\n"
+							break
+					end
+				else
+					switch ( upper ( propName ) )
+						case 'DAV%3A:CREATIONDATE'
+//							rsp += '<D:creationdate b:dt="dateTime.tz">' + webGmt() + '</D:creationdate>' + "\r\n"
+							rsp += '<D:creationdate b:dt="dateTime.tz">' + "2006-09-05T05:30:16.271Z" + '</D:creationdate>' + "\r\n"
+							break
+						case 'DAV%3A:DISPLAYNAME'
+//							rsp += '<D:displayname><![CDATA[' + webEncodeDav ( ::fEntry[1] ) + ']]></D:displayname>' + "\r\n"
+							rsp += '<D:displayname>' + webEncodeDav ( ::fEntry[1] ) + '</D:displayname>' + "\r\n"
+							break
+						case 'DAV%3A:GETCONTENTLANGUAGE'
+							rsp += '<D:getcontentlanguage>en-us</D:getcontentlanguage>' + "\r\n"
+							break
+						case 'DAV%3A:GETCONTENTLENGTH'
+							rsp += '<D:getcontentlength b:dt="int">' + int ( ::fEntry[2] ) + '</D:getcontentlength>' + "\r\n"
+							break
+						case 'DAV%3A:GETCONTENTTYPE'
+							if ( !(contentType = GetContentType ( fparsefx ( ::fEntry[1] ) )) )
+								contentType = GetContentType ( ".BIN" )
+							end
+							rsp += '<D:getcontenttype>' + contentType + '</D:getcontenttype>' + "\r\n"
+							break
+						case 'DAV%3A:GETETAG'
+							rsp += '<D:getetag>"' + hashsha1 ( ::userid + ::fEntry[1] ) + '"</D:getetag>' + "\r\n"
+							break
+						case 'DAV%3A:GETLASTMODIFIED'
+							rsp += '<D:getlastmodified b:dt="dateTime.rfc1123">' + webGmt() + '</D:getlastmodified>' + "\r\n"
+							break
+						case 'DAV%3A:LOCKDISCOVERY'
+//							rsp += '<D:lockdiscovery>' + '</D:lockdiscovery>' + "\r\n"
+							rsp += '<D:lockdiscovery/>' + "\r\n"
+							break
+						case 'DAV%3A:RESOURCETYPE'
+							rsp += '<D:resourcetype/>' + "\r\n"
+							break
+						case 'DAV%3A:SUPPORTEDLOCK'
+							rsp += '<D:supportedlock>' + "\r\n"
+							rsp += '<D:lockentry>' + "\r\n"
+							rsp += '<D:lockscope><D:exclusive/></D:lockscope>' + "\r\n"
+							rsp += '<D:locktype><D:write/></D:locktype>' + "\r\n"
+							rsp += '</D:lockentry>' + "\r\n"
+							rsp += '</D:supportedlock>' + "\r\n"
+							break
+						case 'DAV%3A:ISCOLLECTION'
+							rsp += '<D:iscollection b:dt="boolean">0</D:iscollection>' + "\r\n"
+							break
+						default:
+							props = ::fEntry[7]
+							if ( props && props[propName] )
+								rsp += '<' + decodePropName ( propName )+ ' xmlns="' + decodePropNamespace ( propName ) + '">' + props[propName] + '</' + decodePropName ( propName )+ ">\r\n"
+							else
+								if ( decodePropNamespace ( propName ) )
+									failures += '<' + decodePropName ( propName ) + ' xmlns="' + decodePropNamespace ( propName ) + '"/>' + "\r\n"
+								else
+									failures += '<' + decodePropName ( propName ) + '/>' + "\r\n"
+								end
+							end
+					end
+				end
+				return ( rsp )
+			end
+
+			method genPropName ( )
+				local rsp
+
+				rsp  = '<creationdate/>'
+				rsp += '<displayname/>'
+				rsp += '<getcontentlanguage/>'
+				rsp += '<getcontentlength/>'
+				rsp += '<getcontenttype/>'
+				rsp += '<getetag/>'
+				rsp += '<getlastmodified/>'
+				rsp += '<lockdiscovery/>'
+				rsp += '<resourcetype/>'
+				rsp += '<supportedlock/>'
+				
+				if ( ::fEntry[7] )
+					entry = ::fEntry[7].first
+
+					while ( entry )
+						if ( entry[2] )
+							rsp += '<ns:' + ::fEntry[7].indicie + ' xmlns:ns="' + entry[1] + '"/>'
+						else
+							rsp += '<' + ::fEntry[7].indicie + '/>'
+						end
+						entry = ::fEntry[7].next
+					end
+				end
+				return ( rsp )
+			end
+
+			method genAll ( )
+				local 	rsp
+				local	loop
+
+				if ( ::fEntry[5] & ::FILE_ATTRIBUTE_DIRECTORY )
+					rsp += ::genProp ( "DAV%3A:GETCONTENTLENGTH" )
+					rsp += ::genProp ( "DAV%3A:CREATIONDATE" )
+					rsp += ::genProp ( "DAV%3A:DISPLAYNAME" )
+					rsp += ::genProp ( "DAV%3A:GETETAG" )
+					rsp += ::genProp ( "DAV%3A:GETLASTMODIFIED" )
+					rsp += ::genProp ( "DAV%3A:RESOURCETYPE" )
+					rsp += ::genProp ( "DAV%3A:LOCKDISCOVERY" )
+					rsp += ::genProp ( "DAV%3A:ISHIDDEN" )
+					rsp += ::genProp ( "DAV%3A:ISCOLLECTION" )
+					rsp += ::genProp ( "DAV%3A:GETCONTENTTYPE" )
+					
+					if ( ::fEntry[7] )
+						entry = ::fEntry[7].first
+						
+						while ( entry )
+							rsp += ::genProp ( ::fEntry[7].indicie )
+							entry = ::fEntry[7].next
+						end
+					end
+				else
+					rsp  = ::genProp ( "DAV%3A:CREATIONDATE" )
+					rsp += ::genProp ( "DAV%3A:DISPLAYNAME" )
+					rsp += ::genProp ( "DAV%3A:GETCONTENTLANGUAGE" )
+					rsp += ::genProp ( "DAV%3A:GETCONTENTLENGTH" )
+					rsp += ::genProp ( "DAV%3A:GETETAG" )
+					rsp += ::genProp ( "DAV%3A:GETLASTMODIFIED" )
+					rsp += ::genProp ( "DAV%3A:LOCKDISCOVERY" )
+					rsp += ::genProp ( "DAV%3A:RESOURCETYPE" )
+					rsp += ::genProp ( "DAV%3A:SUPPORTEDLOCK" )
+					rsp += ::genProp ( "DAV%3A:ISCOLLECTION" )
+
+					if ( ::fEntry[7] )
+						entry = ::fEntry[7].first
+						
+						while ( entry )
+							rsp += ::genProp ( ::fEntry[7].indicie )
+							entry = ::fEntry[7].next
+						end
+					end
+				end
+				return ( rsp );
+			end
+
+			method genPropList ( propArray, failures )
+				local	loop
+				rsp = "";
+				for ( loop = 1; loop <= len ( propArray ); loop++ )
+					rsp += ::genProp ( propArray[loop], failures )
+				end
+				return ( rsp )
+			end
+	end
+
+	class propStatus
+		private:
+			local  	prop
+			local  	propType
+			local	fEntry
+			local	baseUrl
+			local	depth
+
+		public:
+			method new ( userId, fEntry, baseUrl, propType, depth )
+				::propType	 = propType
+				::fEntry 	 = fEntry
+				::baseUrl	 = baseUrl
+				::depth 	 = depth
+
+				if ( fEntry )
+					::prop = new ( "prop" , userId, fEntry )
+				end
+				return ( 1 )
+			end
+			
+			method genHREF ()
+				if ( ::fEntry[5] & ::prop.FILE_ATTRIBUTE_DIRECTORY )
+//					if ( (::depth == '0') && (::baseUrl == ::fEntry[1] + '\') )
+					if ( (::depth == '0') )
+						return ( '<D:href>' + BuildUrl ( "", ::baseUrl ) + '</D:href>' + "\r\n" )
+					else
+						if ( right ( ::fEntry[1], 1 ) == '\' )
+							return ( '<D:href>' + BuildUrl ( ::fEntry[1], ::baseUrl ) + '</D:href>' + "\r\n" )
+						else
+							return ( '<D:href>' + BuildUrl ( ::fEntry[1], ::baseUrl ) + '/</D:href>' + "\r\n" )
+						end
+					end
+				else
+					return ( '<D:href>' + BuildUrl ( ::fEntry[1], ::baseUrl ) + '</D:href>' + "\r\n" )
+				end
+			end
+
+			method genPropStatus ()
+				local rsp
+
+				rsp  = '<D:propstat>' + "\r\n"
+				rsp += '<D:status>'
+				if ( ::prop )
+					rsp  += 'HTTP/1.1 200 OK'
+				else
+					rsp  += 'HTTP/1.1 404 Not Found'
+				end
+				rsp += '</D:status>' + "\r\n"
+				rsp += '<D:prop>' + "\r\n"
+				
+				failures = NULL
+				
+				if ( ::prop )
+					switch ( ::propType )
+						case 'genName'
+							rsp += ::prop.genPropName()
+							break;
+						case 'genAll'
+							rsp += ::prop.genAll()
+							break;
+						default:
+							rsp += ::prop.genPropList( ::propType, @failures )
+							break;
+					end
+				end
+				rsp += '</D:prop>' + "\r\n"
+				rsp += '</D:propstat>' + "\r\n"
+
+				if ( failures )
+					rsp += '<D:propstat>' + "\r\n"
+					rsp += '<D:status>HTTP/1.1 404 Not Found</D:status>' + "\r\n"
+					rsp += '<D:prop>' + "\r\n"
+					rsp += failures
+					rsp += '</D:prop>' + "\r\n"
+					rsp += '</D:propstat>' + "\r\n"
+				end
+				return ( rsp )
+			end
+	end
+
+	class response
+		private:
+			local	propStatus
+
+		public:
+			method new ( userId, fEntry, baseUrl, propType, depth )
+				::propStatus = new ( "propStatus", userId, fEntry,baseUrl, propType, depth )
+				return ( 1 );
+			end
+
+			method genResponse()
+				rsp = '<D:response>' + "\r\n"
+				rsp += ::propStatus.genHref()
+				rsp += ::propStatus.genPropStatus()
+				rsp += '</D:response>' + "\r\n"
+				return ( rsp )
+			end
+	end
+
+	function xmlPropListToArray ( prop )
+		local 	propArray
+		local	sib
+
+		propArray = {}
+
+		for ( loop = 0; loop <= len ( prop.childNodes.array ); loop++ )
+			if ( className ( prop.childNodes.Array[loop] ) == "ELEMENT" )
+				propArray[len(propArray) +1] = encodeProp ( prop.childNodes.Array[loop].namespaceUri, prop.childNodes.Array[loop].tagName )
+			end
+		end
+
+		return ( propArray )
+	end
+
+	function buildUrl ( fileName, urlRoot )
+		local url
+
+		fileName = strswap ( fileName, '\', '/' )
+		urlRoot  = strswap ( urlRoot, '\', '/' )
+
+		if ( left ( urlRoot, 1 ) == '/' )
+			urlRoot = right ( urlRoot, len ( urlRoot ) - 1 )
+		end
+
+		if ( right ( urlRoot, 1 ) == '/' )
+			urlRoot = left ( urlRoot, len ( urlRoot ) - 1)
+		end
+
+		if ( left ( fileName, 1 ) == '/' )
+			fileName = right ( fileName, len ( fileName ) - 1 )
+		end
+
+		if ( urlRoot )
+			url = 'http://localhost/dav/' + urlRoot + '/' + fileName
+		else
+			url = 'http://localhost/dav/' + fileName;
+		end
+		return ( url )
+	end
+
+	class lock
+		local	db
+		local	userId
+
+		method	new ( userId )
+			local fields
+
+			::userId = userId;
+
+			try
+				::db = dbOpen ( 'c:\zudedata\davLocks.db' )
+			catch ( error )
+				fields = 	{
+								{	'fileOwnerId',		"C",	64		},
+								{	'fileName',			"C",	264		},
+								{	'lockOwnerId',		"C",	64		},
+								{	'lockToken',		"C",	36		},
+								{	'lockExpireTime',	"N",	11,	0	}
+							}
+
+				dbCreate ( 'c:\zudedata\davLocks.db', fields )
+				::db = dbOpen ( 'c:\zudedata\davLocks.db' )
+			end
+
+			try
+				(::db)->dbOpenIndex ( 'c:\zudedata\davLocks.dx' );
+			catch ( error )
+				(::db)->dbCreateIndex	( 'c:\zudedata\davLocks.dx', 'field->locktoken', 0 )
+				(::db)->dbOpenIndex 	( 'c:\zudedata\davLocks.dx' );
+			end
+
+			try
+				(::db)->dbOpenIndex ( 'c:\zudedata\davLocks2.dx' );
+			catch ( error )
+				(::db)->dbCreateIndex 	( 'c:\zudedata\davLocks2.dx', 'field->fileOwnerId + field->fileName', 0 )
+				(::db)->dbOpenIndex 	( 'c:\zudedata\davLocks2.dx' );
+			end
+
+			return ( 1 )
+		end
+
+		method isLocked ( fileOwnerId, fileName )
+			(::db)->dbOrder ( 2 )
+
+			(::db)->dbSeek ( untrim ( fileOwnerId, 64 ) + untrim ( fileName, 264 ) )
+
+			if ( !(::db)->dbFound() )
+				return ( 0 )
+			end
+			if ( (::db)->lockExpireTime < seconds() )
+				return ( 1 )
+			else
+				return ( 0 )
+			end
+		end
+
+		method lockFile ( fileOwnerId, fileName, secs )
+			local	token
+
+			(::db)->dbOrder ( 2 )
+			(::db)->dbSeek ( untrim ( fileOwnerId, 64 ) + untrim ( fileName, 264 ) )
+
+			if ( !(::db)->dbFound() )
+				// need to make a new record
+				(::db)->dbAppend()
+			else
+				// already exists
+				if ( (::db)->lockExpireTime > seconds() )
+					// still a valid lock
+					return ( 0 )
+				end
+				if ( !(::db)->dbRLock() )
+					// someone else took it first
+					return ( 0 )
+				end
+			end
+
+			token = CreateUUID()
+
+			(::db)->fileOwnerId 	= fileOwnerId
+			(::db)->fileName		= fileName
+			(::db)->lockOwnerId		= ::userId
+			(::db)->lockToken		= token
+			(::db)->lockExpireTime	= seconds() + secs
+
+			(::db)->dbUnlock()
+
+			return ( token )
+		end
+
+		method unlockFile ( token )
+			(::db)->dbOrder ( 1 )
+			(::db)->dbSeek ( token )
+
+			if ( !(::db)->dbFound() )
+				// no such lock
+				return ( 0 )
+			end
+
+			if ( (::db)->lockOwnerId != untrim ( ::userId, 64 ) )
+				// we don't own it
+				return ( 0 )
+			end
+
+			if ( !(::db)->dbRLock() )
+				// someone else took it first
+				return ( 0 )
+			end
+
+			(::db)->dbDelete()
+			return ( 1 )
+		end
+
+		method lockRenew ( token, secs )
+			(::db)->dbOrder ( 1 )
+			(::db)->dbSeek ( token )
+
+			if ( !(::db)->dbFound() )
+				return ( 0 )
+			end
+
+			if ( !(::db)->dbRLock() )
+				// someone else taking ownership
+				return ( 0 )
+			end
+
+			if ( (::db)->lockOwnerId != untrim ( ::userId, 64 ) )
+				(::db)->dbUnlock()
+				return ( 0 )
+			end
+
+			(::db)->lockExpireTime	= seconds() + secs;
+			(::db)->dbUnlock()
+			return ( 1 )
+		end
+	end
+	
+	local 	fileSytem
+	local	session
+	local	zude
+	local	lookup
+
+	session = new( "session" )
+
+	fName = session.data ( "PATH_INFO" )
+	if ( !fName )
+		fName = session.url
+	end
+	
+	href = fName
+	
+	fName = webDecodeUrl ( fName )
+	if ( upper ( left ( fName, 5 ) ) == "/DAV/" )
+		fName = mid ( fName, 5, -1 )
+	elseif ( upper ( fName ) == "/DAV" )
+		fName = ""
+	end
+	
+	fName = urlToDos ( alltrim ( fName ) )
+	fName = convertPath ( fName )
+	
+	dgData = session.data ( "Authorization" )
+	
+	if ( !new ( "cookie").get ( "zude") != "logged in" )
+		if ( dgData )
+			// we have login data here... now authenticate it
+			
+			dgData = alltrim ( dgData )
+			if ( upper ( left ( dgData, 7) ) != "DIGEST " )
+				! 'Digest realm="zude", qop="auth, auth-int", nonce=' + hashMd5("" + rand_s) + ', opaque="0000000000000000", stale=false, algorithm=md5'
+				session.httpError ( 401 )
+				return ( 0 )
+			end
+
+			dgData = mid ( dgData, 7, len ( dgData ) )
+			dgData = alltrim ( dgData )
+
+			dgArr = split2 ( dgData, "=", "," )
+			for ( loop = 1; loop <= len( dgArr ); loop++ )
+				dgArr[loop][1] = alltrim ( dgArr[loop][1] )
+				dgArr[loop][2] = alltrim ( dgArr[loop][2] )
+				if ( dgArr[loop][2][1] == '"' )
+					dgArr[loop][2] = mid ( dgArr[loop][2], 1, len ( dgArr[loop][2] ) - 2 )
+				end
+			end
+			dgaa = Aarray()
+
+			dgaa["algorithm"] = "MD5";
+			dgaa.add ( dgarr )
+			
+			if ( strat ( "#", dgaa["uri"] ) )
+				session.httpError ( 400 )
+				return ( 0 )
+			end
+			
+			if ( !loginDigest ( 	dgaa["username"], 
+									webDecodeUrl ( dgaa["response"] ), 
+									webDecodeUrl ( dgaa["algorithm"] ), 
+									session.method, 
+									webDecodeUrl ( dgaa["username"] ), 
+									webDecodeUrl ( dgaa["realm"] ), 
+									webDecodeUrl ( dgaa["qop"] ), 
+									dgaa["uri"], 
+									webDecodeUrl ( dgaa["nonce"] ) , 
+									webDecodeUrl ( dgaa["cnonce"] ), 
+									webDecodeUrl ( dgaa["nc"] ) )
+								)
+									
+				! 'Digest realm="zude", qop="auth, auth-int", nonce="' + hashMd5("" + rand_s) + '", opaque="0000000000000000", stale=false, algorithm=md5'
+				session.httpError ( 401 )
+				return(0);
+			end
+			
+			userId = webDecodeUrl ( dgaa["username"] );
+		else
+			switch ( session.method )
+				case "OPTIONS"
+					session.AddHeader ( "DAV: 1,2" );
+					session.AddHeader ( "MS-Author-Via: DAV" );
+					session.AddHeader ( "Allow: OPTIONS, PUT, MKCOL, LOCK, GET, HEAD, POST, DELETE, UNLOCK, MOVE, COPY, PROPFIND, PROPPATCH, TRACE" );
+					return ( 1 );
+				default:
+					! 'Digest realm="zude", qop="auth, auth-int", nonce="' + hashMd5("" + rand_s) + '", opaque="0000000000000000", stale=false, algorithm=md5'
+					session.httpError ( 401 )
+					return(0);
+			end
+		end
+	end
+
+	fileSystem = new ( "DosFileSystemInterface", userId, NULL )
+
+//	try
+		rsp = new ( "serverBuffer" );
+
+		rsp = '<?xml version="1.0" encoding="utf-8"?>' + "\r\n"
+		x = session.data ( "query_string" );
+		switch ( session.method )
+			case "OPTIONS"
+				x = fileSystem.GetDir ( fName, "1"  )
+				if ( !len ( x ) )
+					// no output so no options!
+					session.AddHeader ( "DAV: 1,2" );
+					session.AddHeader ( "MS-Author-Via: DAV" );
+					session.AddHeader ( "Allow: OPTIONS, PUT, MKCOL, LOCK, GET, HEAD, POST, DELETE, UNLOCK, MOVE, COPY, PROPFIND, PROPPATCH, TRACE" );
+					return ( 1 )
+				else
+					session.AddHeader ( "DAV: 1,2" );
+					session.AddHeader ( "MS-Author-Via: DAV" );
+					session.AddHeader ( "Allow: OPTIONS, PUT, MKCOL, LOCK, GET, HEAD, POST, DELETE, UNLOCK, MOVE, COPY, PROPFIND, PROPPATCH, TRACE" );
+					return ( 1 );
+				end
+			case "GET"
+			case "HEAD"
+				if ( (data = fileSystem.ReadFile ( fName )) == NULL )
+					rsp = ""
+					session.httpError ( 404 )
+					return ( 0 )
+				end
+
+				session.mimeType = "." + fParseFx ( fName )
+				session.cache = "public, max-age=" + ( 60 * 60 * 24 * 7 )
+				session.contentDisposition = "filename=" + fName
+				session.response( data );
+				return ( 1 )
+			case "MKCOL"
+				rsp = ""
+				if ( session.postData ( 1 ) )
+					session.httpError ( 415 )
+				else
+					session.httpError ( fileSystem.MakeDirectory ( fName ) )
+				end
+				break;
+			case "DELETE"
+				result = fileSystem.Delete ( fName )
+				session.httpError ( result )
+				rsp = ""
+				break;
+				rsp += '<D:multistatus xmlns:D="DAV:" xmlns:b="urn:uuid:c2f41010-65b3-11d1-a29f-00aa00c14882/">' + "\r\n"
+				rsp += '<D:response>' + '\r\n'
+				rsp += '<D:href>'+ WebEncodeDav ( href ) +'</D:href>' + '\r\n'
+				switch ( result )
+					case 404:
+						rsp += '<D:status>HTTP/1.1 404 NOT FOUND</D:status>' + '\r\n'
+						break;
+					case 204:
+						rsp += '<D:status>HTTP/1.1 200 NO CONTENT</D:status>' + '\r\n'
+						break;
+					default:
+						rsp += '<D:status>HTTP/1.1 '+ result + '</D:status>' + '\r\n'
+						break;				
+				end
+				rsp += '</D:response>' + '\r\n'
+				rsp += '</D:multistatus>' + '\r\n'
+				break;
+			case "MOVE":
+				overwrite = upper ( session.data('overwrite') ) == "F" ? 0 : 1;
+				break;
+			case "COPY":
+				dest = session.data ( "destination" )
+				depth 		= session.data('depth')
+				overwrite 	= upper ( session.data('overwrite') ) == "F" ? 0 : 1;
+				break;
+			case "PUT"
+			case "POST"
+				lock = lock ( userId )
+
+				if ( lock.isLocked ( userId, fName ) )
+					session.httpError ( 423 )
+					return ( 0 )
+				end
+
+				session.httpError ( fileSystem.WriteFile (fName, session.postData ( 1 )) )
+				return ( 1 );
+			case "PROPFIND"
+//debugBreak()			
+				session.httpError ( 207 )
+				session.mimeType = ".xml"
+				
+				xml = new ( "xmlDocument", session.postData ( 1 ), 1 )
+				rsp += '<D:multistatus xmlns:D="DAV:" xmlns:b="urn:uuid:c2f41010-65b3-11d1-a29f-00aa00c14882/">' + "\r\n"
+				if ( !fid )
+					depth = session.data('DEPTH')
+					switch ( upper ( depth ) )
+						case '0'
+							if ( !session.postData(1) || xml.propfind.allprop )
+								x = fileSystem.GetDir ( fName, depth  )
+
+								if ( x && len ( x ) )
+									for ( loop = 1; loop <= len ( x ); loop++ )
+										o = new ( "response", userId, x[loop], fName, 'genAll', depth )
+										rsp += o.genResponse()
+									end
+								else
+									rsp += '<D:propstat>' + "\r\n"
+									rsp += '	<D:response>' + "\r\n"
+									rsp += '		<D:href>' + BuildUrl ( "", fName ) + '</D:href>' + "\r\n"
+									rsp += '	</D:response>' + "\r\n"
+									rsp += '	<D:status>HTTP/1.1 404 Not Found</D:status>' + "\r\n"
+									rsp += '</D:propstat>' + "\r\n"
+								end
+							elseif ( xml.propfind.propname )
+								x = fileSystem.GetDir ( fName, depth  )
+
+								if ( x && len ( x ) )
+									for ( loop = 1; loop <= len ( x ); loop++ )
+										o = new ( "response", userId, x[loop], fName, 'genName', depth )
+										rsp += o.genResponse()
+									end
+								else
+									rsp += '<D:propstat>' + "\r\n"
+									rsp += '	<D:response>' + "\r\n"
+									rsp += '		<D:href>' + BuildUrl ( "", fName ) + '</D:href>' + "\r\n"
+									rsp += '	</D:response>' + "\r\n"
+									rsp += '	<D:status>HTTP/1.1 404 Not Found</D:status>' + "\r\n"
+									rsp += '</D:propstat>' + "\r\n"
+								end
+							elseif ( xml.propfind.prop )
+								props = xmlPropListToArray ( xml.propfind.prop )
+
+								x = fileSystem.GetDir ( fName, depth  )
+
+								if ( x && len ( x ) )
+									for ( loop = 1; loop <= len ( x ); loop++ )
+										o = new ( "response", userId, x[loop], fName, props, depth )
+										rsp += o.genResponse()
+									end
+								else
+									rsp += '<D:propstat>' + "\r\n"
+									rsp += '	<D:response>' + "\r\n"
+									rsp += '		<D:href>' + BuildUrl ( "", fName ) + '</D:href>' + "\r\n"
+									rsp += '	</D:response>' + "\r\n"
+									rsp += '	<D:status>HTTP/1.1 404 Not Found</D:status>' + "\r\n"
+									rsp += '</D:propstat>' + "\r\n"
+								end
+							else
+							end
+							break
+						case '1'
+							if ( !session.postData(1) || xml.propfind.allprop )
+								x = fileSystem.GetDir ( fName, depth  )
+
+								if ( x && len ( x ) )
+									for ( loop = 1; loop <= len ( x ); loop++ )
+										o = new ( "response", userId, x[loop], fName, 'genAll', depth )
+										rsp += o.genResponse()
+									end
+								else
+									rsp += '<D:propstat>' + "\r\n"
+									rsp += '	<D:response>' + "\r\n"
+									rsp += '		<D:href>' + BuildUrl ( "", fName ) + '</D:href>' + "\r\n"
+									rsp += '	</D:response>' + "\r\n"
+									rsp += '	<D:status>HTTP/1.1 404 Not Found</D:status>' + "\r\n"
+									rsp += '</D:propstat>' + "\r\n"
+								end
+							elseif ( xml.propfind.propname )
+								x = fileSystem.GetDir ( fName, depth  )
+
+								if ( x && len ( x ) )
+									for ( loop = 1; loop <= len ( x ); loop++ )
+										o = new ( "response", userId, x[loop], fName, 'genName', depth )
+										rsp += o.genResponse()
+									end
+								else
+									rsp += '<D:propstat>' + "\r\n"
+									rsp += '	<D:response>' + "\r\n"
+									rsp += '		<D:href>' + BuildUrl ( "", fName ) + '</D:href>' + "\r\n"
+									rsp += '	</D:response>' + "\r\n"
+									rsp += '	<D:status>HTTP/1.1 404 Not Found</D:status>' + "\r\n"
+									rsp += '</D:propstat>' + "\r\n"
+								end
+							elseif ( xml.propfind.prop )
+								props = xmlPropListToArray ( xml.propfind.prop )
+
+								x = fileSystem.GetDir ( fName, depth  )
+
+								if ( x && len ( x ) )
+									for ( loop = 1; loop <= len ( x ); loop++ )
+										o = new ( "response", userId, x[loop], fName, props, depth )
+										rsp += o.genResponse()
+									end
+								else
+									rsp += '<D:propstat>' + "\r\n"
+									rsp += '	<D:response>' + "\r\n"
+									rsp += '		<D:href>' + BuildUrl ( "", fName ) + '</D:href>' + "\r\n"
+									rsp += '	</D:response>' + "\r\n"
+									rsp += '	<D:status>HTTP/1.1 404 Not Found</D:status>' + "\r\n"
+									rsp += '</D:propstat>' + "\r\n"
+								end
+							end
+							break
+						case 'INFINITY'
+							break
+					end
+				else
+				end
+				rsp += '</D:multistatus>' + "\r\n"
+				break
+			case "PROPPATCH"
+				xml = new ( "xmlDocument", session.postData ( 1 ), 1 )				
+				
+				xmlns = xml.propertyUpdate.Attributes.Array
+				props = fileSystem.GetWebDavProperties ( fName )
+				x = xml.propertyUpdate.firstChild
+				while ( x )
+					propName = encodeProp ( x.firstChild.firstChild.namespaceURI, x.firstChild.firstChild.NodeName )
+					switch ( upper ( x.NodeName ) )
+						case 'SET'
+							switch ( propName )
+								case 'urn:schemas-microsoft-com:Win32FileAttributes'		// need to webencode
+									break;
+								default:
+									props[propName] = x.firstChild.firstChild.value
+									break;
+							end
+							break
+						case 'REMOVE'
+							switch ( propName )
+								default:
+									props[propName] = x.firstChild.firstChild.value
+									break;
+							end
+							break
+					end
+					x = x.nextSibling
+				end
+				if ( props != NULL )
+					fileSystem.SetWebDavProperties ( fName, props )	
+					rsp = ""
+					session.httpError ( 200 )
+				else
+					rsp += '<D:multistatus xmlns:D="DAV:" xmlns:b="urn:uuid:c2f41010-65b3-11d1-a29f-00aa00c14882/">' + "\r\n"
+					session.httpError ( 405 )
+				end
+				break;
+			case "LOCK"
+				lock = new ( "lock", userId )
+				depth 		= session.data('depth')
+				secs = 1// 3600
+				if ( session.postData ( 1 ) )
+					xml = new ( "xmlDocument", session.postData ( 1 ), 1 )
+					owner = xml.lockinfo.owner.value
+debugBreak()
+					if ( upper ( xml.lockInfo.lockType.FirstChild.NodeName ) != "WRITE" )
+						rsp = ""
+						session.httpError ( 409 )
+						return ( 1 )
+					end
+
+					if ( upper ( xml.lockInfo.lockScope.FirstChild.NodeName ) != "EXCLUSIVE" )
+						rsp = ""
+						session.httpError ( 409 )
+						return ( 1 )
+					end
+
+					if ( !(token = lock.lockFile ( userId, fName, secs )) )
+						rsp = ""
+						session.httpError ( 409 )
+						return ( 1 )
+					end
+
+					depth = session.data('DEPTH')
+
+					rsp += '<D:prop xmlns:D="DAV:">' + "\r\n"
+					rsp += '   <D:lockdiscovery>' + "\r\n"
+					rsp += '      <D:activelock>' + "\r\n"
+					rsp += '         <D:locktype><D:write/></D:locktype>' + "\r\n"
+					rsp += '         <D:lockscope><D:exclusive/></D:lockscope>' + "\r\n"
+					rsp += '         <D:depth>' + depth + '</D:depth>' + "\r\n"
+					rsp += '         <D:timeout>Second-' + secs + '</D:timeout>' + "\r\n"
+					rsp += '         <D:owner>' + owner + '</D:owner>' + "\r\n"
+					rsp += '         <D:locktoken><D:href>uuid:' + token + '</D:href></D:locktoken>' + "\r\n"
+					rsp += '         <D:lockroot><D:href>' + session.url + '</D:href></D:lockroot>' + "\r\n"
+					rsp += '      </D:activelock>' + "\r\n"
+					rsp += '   </D:lockdiscovery>' + "\r\n"
+					rsp += '</D:prop>' + "\r\n"
+				else
+					// refresh the lock
+					token = session.data ( "IF" )
+					token = mid ( token, 7, 36 )
+
+					if ( !lock.lockRenew ( token, secs ) )
+						rsp = ""
+						session.httpError ( 409 )
+					else
+						rsp += '<D:prop xmlns:D="DAV:">' + "\r\n"
+						rsp += '   <D:lockdiscovery>' + "\r\n"
+						rsp += '      <D:activelock>' + "\r\n"
+						rsp += '         <D:locktype><D:write/></D:locktype>' + "\r\n"
+						rsp += '         <D:lockscope><D:exclusive/></D:lockscope>' + "\r\n"
+						rsp += '         <D:depth>Infinity</D:depth>' + "\r\n"
+						rsp += '         <D:timeout>Second-' + secs + '</D:timeout>' + "\r\n"
+						rsp += '         <D:owner>' + owner + '</D:owner>' + "\r\n"
+						rsp += '         <D:locktoken><D:href>uuid:' + token + '</D:href></D:locktoken>' + "\r\n"
+						rsp += '         <D:lockroot><D:href>' + session.url + '</D:href></D:lockroot>' + "\r\n"
+						rsp += '      </D:activelock>' + "\r\n"
+						rsp += '   </D:lockdiscovery>' + "\r\n"
+						rsp += '</D:prop>' + "\r\n"
+					end
+				end
+				break;
+			case "UNLOCK"
+				lock = new ( "lock", userId )
+
+				// refresh the lock
+				token = session.data ( "LOCK-TOKEN" )
+				token = mid ( token, 6, 36 )
+
+				if ( !lock.unlockFile ( token ) )
+					rsp = ""
+					session.httpError ( 403 )
+				else
+					session.httpError ( 204 )
+				end
+				break;
+		end
+
+		session.response( rsp.str );
+//	catch ( err )
+//		session.httpError ( 400 )
+//	end
+]>

@@ -1,0 +1,11 @@
+local x
+
+dbuse       ( 'dmtf\DMIattr', "attrib",    0 )
+
+x = { 1->name }
+y = { @1->name }
+
+println ( x[1], " : ", y[1] )
+dbskip ()
+println ( x[1], " : ", y[1] )
+ 

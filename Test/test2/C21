@@ -1,0 +1,34 @@
+function close ( num )
+   println ( "Closing: ", num )
+end
+
+class test
+   local handle
+   local block
+
+   method new ( x )
+      self.handle = x
+      return 1
+   end
+
+   method close()
+      close ( self.handle )
+   end
+
+   method set ( num, block )
+      self.block[num] = block
+   end
+
+   method dispatch ( num )
+      (self.block[num])()
+   end
+end
+
+
+local o
+
+o = new ( "test", 5 )
+o.set ( 1, {||o.close()} )
+o.dispatch ( 1 )
+
+ 

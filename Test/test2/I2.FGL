@@ -1,0 +1,105 @@
+//INSTALL.FGL (c) 1996 SmartDesk, Inc., All Rights Reserved.
+
+PROCEDURE dispHeading()
+    println("VirtualDESK Software Developer's Kit (VSDK) - version 1.0")
+    println("    (c) 1996 SmartDesk, Inc., All Rights Reserved.")
+    println("")
+    return
+END
+
+CLASS FileClass
+
+  PUBLIC:
+
+    METHOD copy()
+
+        LOCAL source, destin, hsource, hdestin, buffsize
+        LOCAL size, bytescopied, i , copybytes, data
+
+        source = param(2)
+        destin = param(3)
+
+        hsource = fileOpen(source, 0)
+        if (hsource < 1)
+            return(0)
+        end
+        hdestin = fileCreate(destin)
+        if (hdestin < 1)
+            fileclose(hsource)
+            return(0)
+        end
+
+        buffsize = 48000
+        size = flen(hsource)
+
+        bytescopied = 0
+        while (bytescopied < size)
+            i = size - bytescopied
+            copybytes = (i > buffsize) ? buffsize : i
+
+            data = fread(hsource, copybytes)
+            fwrite(hdestin, '' + data)
+
+            print('.')
+
+            bytescopied += len(data)
+
+            data = ""
+        end
+
+        fclose(hsource)
+        fclose(hdestin)
+
+        return(bytescopied)
+
+    END
+END
+
+// Main Program
+LOCAL file, yn, destin, sourcedrive
+
+file = new('FileClass')
+
+dispHeading()
+print("Continue (y/N) ? ")
+yn = upper(input(1))
+if (yn != 'Y')
+    cls()
+    csrxy(0,0)
+    return
+end
+
+yn = upper(input(1))
+if (yn != 'Y')
+    cls()
+    csrxy(0,0)
+    return
+end
+
+print("Source Drive: ")
+sourcedrive = 'A'
+sourcedrive = input(sourcedrive)
+println("")
+
+print("Destination:  ")
+destin = 'C:\VSDK'
+destin = ltrim(input(untrim(destin, 65)))
+println("")
+
+if (! isdir(destin))
+    print("Directory does not exist, create (Y/n) ? ")
+    yn = upper(input(1))
+    if (yn == 'N')
+        cls()
+        csrxy(0,0)
+        return
+    end
+    mkdir(destin)
+end
+
+println("")
+print("Copying files ")
+file.copy('e:\slang\test\sdebug.exe', destin + 'sdbg.exe')
+println("")
+println("Done.")
+ 

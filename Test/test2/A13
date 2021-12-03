@@ -1,0 +1,14 @@
+local dir
+local loop, loop2
+
+space = { 15, 10, 10, 10, 12 }
+
+dir = dir ( 'c:\slang\test\test2\*.*' )
+
+for ( loop = 1; loop <= len ( dir ); loop++ )
+   for ( loop2 = 1; loop2 <= len ( dir[loop] ); loop2++ )
+      print ( untrim ( str ( dir[loop,loop2] ), space[loop2] ), " " )
+   end
+   println ()
+end
+ 

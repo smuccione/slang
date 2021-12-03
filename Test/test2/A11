@@ -1,0 +1,27 @@
+x = "println"
+
+println ( "hello1" )
+
+"println" ( "hello2" )
+
+(x) ( "hello3" )
+
+{|x|println ( x )} ( "hello4" )
+
+{|x|"println" ( x )} ( "hello5" )
+
+x = {|x|"println" ( x )}
+(x) ( "hello6" )
+
+("println")( a = (( 1 + 2 ) + ( x ) ( "hello7" )) )
+
+{|x,y|(x)(y)}("println", "hello8")
+
+{|x,y|(x)(y)} ({|x|a = {|x|"println"(x)}, (a)(x)}, "hello9")
+
+&"println ('hello10')"
+
+x = &"{||println ('hello11')}"
+(x)()
+
+ 

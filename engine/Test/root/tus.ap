@@ -1,0 +1,131 @@
+<[
+	function convertTusFN ( fn )
+	{
+		local downloadDirectory = "c:\\ul\\"
+
+		x = mid ( fn, len ( "/tus" ) + 1, -1 );
+
+		x = downloadDirectory + x;
+		return x
+	}
+
+	local downloadDirectory = "c:\\ul\\"
+
+	s = new webSession;
+
+	s.addHeader ( "Tus-Resumable", "1.0.0" );
+
+	switch ( s.method )
+	{
+		case "POST":
+			s.addHeader ( "Access-Control-Allow-Origin", s.header("origin" ) );
+			local val = s.header("Upload-Metadata");
+			local num = numToken ( val, "," );
+
+			values = new map;
+			for ( index = 1; index <= num; index++ )
+			{
+				part = token ( val, ",", index );
+				name = token ( part, " ", 1 );
+				value = base64Decode ( token ( part, " ", 2 ) );
+				values[name] = value;
+			}
+			if ( !(0 + s.header("content-length")) )
+			{
+				s.status = 201;		// created
+				s.addHeader ( "Location", "http://" + s.domain + "/tus/" + values.fileName );
+			}
+			fname = downloadDirectory + values.fileName
+	
+			handle = fCreate ( fName )
+			if ( handle == -1 )
+			{
+				s.status = 403;
+				return;
+			}
+			fclose ( handle )
+
+			if ( 0 + s.header ( "Upload-length" ) )
+			{
+				fileWriteContents ( fName + ".metadata", s.header ( "Upload-length" ) );
+			} else if ( !(0 + s.header ( "Upload-Defer-Length" )) )
+			{
+				s.status = 400;
+				return;
+			}
+			break;
+		case "PATCH":
+			fname = convertTusFN ( s.url );
+			if ( isFile ( fName ) )
+			{
+				handle = fOpen ( fName );
+				l = fLen  ( handle );
+				offset = 0 + s.header("Upload-Offset" );
+				if ( offset != l )
+				{
+					s.status = 409;
+					return;
+				}
+				s.status = 204;
+
+				if  ( isFile ( fName + ".metadata" ) )
+				{
+					uploadLen = 0 + fileGetContents ( fName + ".metadata" );
+					if ( uploadLen == offset )
+					{
+						printf ( "upload complete\r\n" );
+					}
+				}
+
+				fSeek ( handle, offset, 0 );
+				data = s.postData(1);
+				fWrite ( handle, data );
+				fClose ( handle );
+
+				s.addHeader ( "Upload-Offset", offset + len ( data ) );
+
+				if ( 0 + s.header ( "Upload-length" ) )
+				{
+					fileWriteContents ( fName + ".metadata", s.header ( "Upload-length" ) );
+				}
+			} else
+			{
+				s.status = 404;
+			}
+			break;
+		case "HEAD":
+		case "GET":
+			fname = convertTusFN ( s.url );
+			if ( isFile ( fName ) )
+			{
+				handle = fOpen ( fName );
+				l = fLen  ( handle );
+				fClose ( handle )
+				s.addHeader ( "Upload-Offset", l );
+				s.sendFile ( fName )
+				s.mimeType = "." + fileExtension ( fName )
+
+				if  ( isFile ( fName + ".metadata" ) )
+				{
+					s.addHeader ( "Upload-Length", fileGetContents ( fName + ".metadata" ) );
+				} else
+				{
+					s.addHeader ( "Upload-Defer-Length", 1 );
+				}
+				return;
+			} else
+			{
+				s.status = 404;
+			}
+			break;
+		case "OPTIONS":
+			s.addHeader ( "Tus-Version", "1.0.0,0.2.2,0.2.1" );
+			s.addHeader ( "Tus-Extension", "creation");
+			//s.addHeader ( "Tus-Max-Size", "1000000000000");			// 1 terabyte max?
+			s.addHeader ( "Access-Control-Allow-Headers", "Tus-Resumable,Upload-Length,Upload-Metadata")
+			s.addHeader ( "Access-Control-Allow-Methods", "POST,PATCH")
+			s.addHeader ( "Access-Control-Allow-Origin", s.header("origin" ) );
+			s.status = 204;
+			break;
+	}
+]>

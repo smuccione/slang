@@ -1,0 +1,206 @@
+function MakeFile()
+   local db
+
+   if ( !isfile ( "d2.dbf", 0 ) )
+   compStruct   = { {"NAME",   "C", 20   },
+                    {"DESC",   "B"       },
+                    {"CRC",    "~"       }  }
+
+   if ( !dbcreate ( "d2.dbf", compStruct    ) )
+      println ( "ERROR: unable to create data files" )
+      return 0
+   end
+
+   dbuse ( "d2", "d2" , 1 )
+
+   dbAppend()
+   d2->name = "name1"
+   d2->desc 	= "age=37&smoker=yes&married=yes"
+   dbAppend()
+   d2->name = "name2"
+   d2->desc 	= "age=35&smoker=no&married=yes"
+   dbAppend()
+   d2->name = "name3"
+   d2->desc 	= "age=14&smoker=yes&married=yes"
+   dbAppend()
+   d2->name = "name4"
+   d2->desc 	= "age=24&smoker=no&married=yes"
+   dbAppend()
+   d2->name = "name5"
+   d2->desc 	= "age=44&smoker=yes&married=yes"
+   dbAppend()
+   d2->name = "name6"
+   d2->desc 	= "age=34&smoker=no&married=yes"
+   dbAppend()
+   d2->name = "name7"
+   d2->desc 	= "age=34&smoker=no&married=no"
+   dbAppend()
+   d2->name = "name8"
+   d2->desc 	= "age=14&smoker=yes&married=no"
+   dbAppend()
+   d2->name = "name9"
+   d2->desc 	= "age=34&smoker=no&married=no"
+   dbAppend()
+   d2->name = "name10"
+   d2->desc 	= "age=24&smoker=yes&married=no"
+   dbAppend()
+   d2->name = "name11"
+   d2->desc 	= "age=34&smoker=no&married=no"
+   dbAppend()
+   d2->name = "name12"
+   d2->desc 	= "age=44&smoker=yes&married=no"
+
+   d2->dbclose()
+   println ( "done." )
+   end
+end
+
+function Walk()
+   dbuse       ( "d2.dbf", "d2", 1 )
+
+   dbCreateFilter ( "d2 smoker.flt", 'ati ("smoker=yes", d2->desc ) != -1' );
+   dbCreateFilter ( "d2 married.flt", 'ati ("married=yes", d2->desc ) != -1' );
+
+   println ( "-------------------- NO FILTER ---------------- " );
+   d2->dbGoTop()
+   while ( !(d2->dbeof()) )
+      println ( d2->recno(), "   NAME: ", d2->name, d2->desc )
+      d2->dbskip()
+   end
+   println ( "\r\n\r\n" );
+
+   println ( "--------------------- NOT SMOKERS - BACKWARDS ----------------- " );
+   dbCloseFilter();
+   dbOpenFilter ( "d2 smoker.flt", 0 );
+   d2->dbGoBottom()
+   while ( !(d2->dbbof()) )
+      println ( d2->recno(), "   NAME: ", d2->name, d2->desc )
+	d2->dbskip( - 1)
+   end
+   println ( "\r\n\r\n" );
+
+   println ( "--------------------- NOT SMOKERS ----------------- " );
+   d2->dbGoTop()
+   dbCloseFilter();
+   dbOpenFilter ( "d2 smoker.flt", 0 );
+   while ( !(d2->dbeof()) )
+      println ( d2->recno(), "   NAME: ", d2->name, d2->desc )
+	d2->dbskip()
+   end
+   println ( "\r\n\r\n" );
+
+   println ( "--------------------- SMOKERS ----------------- " );
+   d2->dbGoTop()
+   dbCloseFilter();
+   dbOpenFilter ( "d2 smoker.flt", 1 );
+   while ( !(d2->dbeof()) )
+      println ( d2->recno(), "   NAME: ", d2->name, d2->desc )
+	d2->dbskip()
+   end
+   println ( "\r\n\r\n" );
+
+   println ( "--------------------- SMOKERS - REPEAT ----------------- " );
+   d2->dbGoTop()
+   while ( !(d2->dbeof()) )
+      println ( d2->recno(), "   NAME: ", d2->name, d2->desc )
+	d2->dbskip()
+   end
+   println ( "\r\n\r\n" );
+
+   println ( "--------------------- SMOKERS - BACKWARDS----------------- " );
+   d2->dbGoBottom()
+   while ( !(d2->dbbof()) )
+      println ( d2->recno(), "   NAME: ", d2->name, d2->desc )
+	d2->dbskip(-1)
+   end
+   println ( "\r\n\r\n" );
+
+   println ( "--------------------- MARRIED----------------- " );
+   d2->dbGoTop()
+   dbCloseFilter();
+   dbOpenFilter ( "d2 married.flt", 1 );
+   while ( !(d2->dbeof()) )
+      println ( d2->recno(), "   NAME: ", d2->name, d2->desc )
+	d2->dbskip()
+   end
+   println ( "\r\n\r\n" );
+
+   println ( "--------------------- SMOKERS & MARRIED----------------- " );
+   d2->dbGoTop()
+   dbCloseFilter();
+   dbOpenFilter ( "d2 smoker.flt", 1 );
+   dbOpenFilter ( "d2 married.flt", 1 );
+   while ( !(d2->dbeof()) )
+      println ( d2->recno(), "   NAME: ", d2->name, d2->desc )
+	d2->dbskip()
+   end
+   println ( "\r\n\r\n" );
+
+   println ( "---------------------MARRIED & SMOKERS ----------------- " );
+   d2->dbGoTop()
+   dbCloseFilter();
+   dbOpenFilter ( "d2 married.flt", 1 );
+   dbOpenFilter ( "d2 smoker.flt", 1 );
+   while ( !(d2->dbeof()) )
+      println ( d2->recno(), "   NAME: ", d2->name, d2->desc )
+	d2->dbskip()
+   end
+   println ( "\r\n\r\n" );
+
+   println ( "---------------------MARRIED & SMOKERS - REPEAT ----------------- " );
+   d2->dbGoTop();
+   while ( !(d2->dbeof()) )
+      println ( d2->recno(), "   NAME: ", d2->name, d2->desc )
+	d2->dbskip()
+   end
+   println ( "\r\n\r\n" );
+
+   println ( "---------------------MARRIED & SMOKERS - REPEAT -BACKWARDS ----------------- " );
+   d2->dbGoBottom();
+   while ( !(d2->dbbof()) )
+      println ( d2->recno(), "   NAME: ", d2->name, d2->desc )
+	d2->dbskip(-1)
+   end
+   println ( "\r\n\r\n" );
+
+   println ( "---------------------NOT MARRIED & SMOKERS ----------------- " );
+   d2->dbGoTop()
+   dbCloseFilter();
+   dbOpenFilter ( "d2 married.flt", 0 );
+   dbOpenFilter ( "d2 smoker.flt", 1 );
+   while ( !(d2->dbeof()) )
+      println ( d2->recno(), "   NAME: ", d2->name, d2->desc )
+	d2->dbskip()
+   end
+   println ( "\r\n\r\n" );
+
+   println ( "---------------------MARRIED & NOT SMOKERS ----------------- " );
+   d2->dbGoTop()
+   dbCloseFilter();
+   dbOpenFilter ( "d2 married.flt", 1 );
+   dbOpenFilter ( "d2 smoker.flt", 0 );
+   while ( !(d2->dbeof()) )
+      println ( d2->recno(), "   NAME: ", d2->name, d2->desc )
+	d2->dbskip()
+   end
+   println ( "\r\n\r\n" );
+
+   println ( "---------------------NOT MARRIED & NOT SMOKER ----------------- " );
+   dbCloseFilter();
+   d2->dbGoTop()
+   dbOpenFilter ( "d2 married.flt", 0 );
+   dbOpenFilter ( "d2 smoker.flt", 0 );
+   while ( !(d2->dbeof()) )
+      println ( d2->recno(), "   NAME: ", d2->name, d2->desc )
+	d2->dbskip()
+   end
+   println ( "\r\n\r\n" );
+
+   d2->dbclose()
+end
+
+function main()
+	println ( "starting" );
+	MakeFile();
+	Walk();
+end

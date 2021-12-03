@@ -1,0 +1,67 @@
+function Walk()
+   println ( "Checking database integrity" );
+
+   dbuse       ( "dmtf_bak\\DMIcomp", "component", 1 )
+
+   dbuse       ( "dmtf_bak\\DMIgrp",  "group",     1 )
+   group ->dbCreateIndex ( "dmtf_bak\\DMIgrp.ftx",  "PARENT", 0 )
+
+   dbuse       ( "dmtf_bak\\DMIattr", "attrib",    1 )
+   attrib->dbCreateIndex ( "dmtf_bak\\DMIattr.ftx", "PARENT", 0 )
+
+   component->dbrelate ( "dbrecno()", "group"  )
+   group    ->dbrelate ( "dbrecno()", "attrib" )
+
+   component->dbgotop()
+
+   while ( !(component->dbeof()) )
+      println ( "NAME: ", component->name )
+      if ( component->desc )
+         println ( "DESC: ", component->desc )
+      end
+
+geof = group->dbeof();
+crec = component->dbrecno();
+gpar = group->parent;
+
+      while ( !(group->dbeof()) && (component->dbrecno() == group->parent) )
+         println ( "GROUP:  ", group->name )
+
+         if ( group->desc )
+            println ( "  DESC: ", group->desc )
+         end
+
+         while ( group->dbrecno() == attrib->parent )
+            println    ( "    ATTRIB: ", alltrim ( attrib->name ), "   VALUE = ", attrib->value )
+
+            if ( attrib->desc )
+               println ( "      DESC:   ", attrib->desc )
+            end
+            attrib->dbskip()
+         end
+         group->dbskip()
+      end
+      component->dbskip()
+   end
+
+   component->dbclose()
+   group->dbclose()
+   attrib->dbclose()
+end
+
+function main()
+   debugBreak();
+
+   dbuse       ( "dmtf\\DMIcomp", "component", 1 )
+   dbuse       ( "dmtf\\DMIgrp",  "group",     1 )
+   dbuse       ( "dmtf\\DMIattr", "attrib",    1 )
+
+   dbCopy ( "dmtf_bak" );
+
+   attrib->dbClose();
+   group->dbClose();
+   component->dbClose();
+
+   println ( "Walking..." )
+   walk()
+end

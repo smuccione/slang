@@ -1,0 +1,22 @@
+class test
+	access IDSTYLE_SHORT
+		return( 1 )
+	end
+
+
+	METHOD DisplayRecord( style )
+		local s
+		
+		switch ( style )
+			case ::IDSTYLE_SHORT
+				println ( "here" )
+			break
+		end
+		return( s )
+
+	END
+end
+
+o = new test()
+
+o.DisplayRecord ( 1 )

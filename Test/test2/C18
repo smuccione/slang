@@ -1,0 +1,56 @@
+class a
+   local val
+
+   operator = ( b )
+      return self.val = b
+   end
+
+   operator associative + ( b )
+      switch ( type ( b ) )
+         case 'O'
+            switch ( classname ( b ) )
+               case 'B'
+                  return ( self.val + b.val )
+                  break
+            end
+            break
+         default
+            break;
+      end
+      except ( 33 )  // illegal operand
+   end
+end
+
+class b
+   local val
+
+   operator = ( b )
+      return self.val = b
+   end
+
+   operator associative + ( b )
+      switch ( type ( b ) )
+         case 'O'
+            except ( 33 )
+         default
+            return self.val + b
+         break
+      end
+   end
+end
+
+
+local o1, o2
+
+o1 = new ( "a" )
+o2 = new ( "b" )
+
+o1 = 5
+o2 = 6
+
+println ( o2 + 5 )
+println ( o1 + o2, " should equal ", o2 + o1 )
+
+
+
+ 

@@ -1,0 +1,118 @@
+<[
+
+CLASS repos
+  PUBLIC:
+  	local session, SrcFile, DestinFile, xOffset, yOffset, cmd
+  	
+  	METHOD new( session )
+  		::session = session
+		::load( )
+  		return( 1 )
+  	END
+  	
+  	METHOD load( )
+		::SrcFile = ::session.var( "SrcFile" )
+		::DestinFile = ::session.var( "DestinFile" )
+		::xOffset = 0 + ::session.var( "xOffset" )
+		::yOffset = 0 + ::session.var( "yOffset" )
+		::cmd = upper( ::session.var( "cmd" ) )
+println ( "cmd = ", ::cmd )
+  		return( 1 )
+  	END
+  	
+  	METHOD process( )
+  		local s="", hsource, hdestin, line, key, data, subline, i
+  	
+		if ( ::cmd != "UPDATE" )
+			return( "" )
+		end
+		
+		hsource = fopen( ::SrcFile, 0 )
+		if ( hsource < 1 )
+			return( "error opening source file" )
+		end
+		
+		hdestin = fcreate( ::DestinFile )
+		while ( ! feof( hsource ) )
+			line = freadline( hsource )
+			
+			x = strat( "<div", line )
+			if ( x < 1 )
+				fwriteline( hdestin, line )
+				continue
+			end
+			
+			x = strat( "style=", line )
+			if ( x < 1 )
+				fwriteline( hdestin, line )
+				continue
+			end
+			lstr = left( line, x ) + "tyle=\""
+			rstr = right( line, len( line ) - ( x + 6 ) )
+			mstr = strextract( rstr, "\"", 1 )
+			rstr = right( rstr, len( rstr ) - len( mstr ) )
+
+			str = ""
+			i = 1
+			while ( 1 )
+				subline = strextract( mstr, ";", i++ )
+				if ( strempty( subline ) )
+					break
+				end
+				key = alltrim( strextract( subline, ":", 1 ) )
+				data = alltrim( strextract( subline, ":", 2 ) )
+				
+				if ( upper( key ) == "TOP" )
+					data = ( 0 + data ) + ::yOffset
+				elseif ( upper( key ) == "LEFT" )
+					data = ( 0 + data ) + ::xOffset
+				end
+				str += key + ":" + data + ";"
+			end
+			mstr = str
+			
+			fwriteline( hdestin, lstr + mstr + rstr )
+			
+		end
+  		
+  		fclose( hdestin )
+  		fclose( hsource )
+  	
+  		return( s )
+  	END
+  	
+END
+
+	_apGenerate( )
+	
+	session = new( "session", param( 1 ), param( 2 ) )
+
+	repos = new( "repos", session )	
+
+]>
+
+<html>
+<body>
+
+<form method="get" action="repos.ap">
+<input type=hidden name=cmd value="update">
+
+<center>
+DIV OFFSET PROGRAM<br><br>
+<table border=0>
+ <tr><td align=right>Source File:</td><td><input type=text name=SrcFile value="<[ ! repos.SrcFile ]>" size=50></td></tr>
+ <tr><td align=right>Destin File:</td><td><input type=text name=DestinFile value="<[ ! repos.DestinFile ]>" size=50></td></tr>
+ <tr><td align=right>xOffset:</td><td><input type=text name=xOffset value="<[ ! repos.xOffset ]>"></td></tr>
+ <tr><td align=right>yOffset:</td><td><input type=text name=yOffset value="<[ ! repos.yOffset ]>"></td></tr>  
+</table><br>
+<input type=submit><br><br>
+
+<[ ! repos.process( ) ]>
+
+
+</center>
+</form>
+
+</body>
+</html>
+

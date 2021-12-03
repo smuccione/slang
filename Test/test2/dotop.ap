@@ -1,0 +1,15 @@
+<[
+
+(1).println()
+
+"test".println()
+
+x = "test"
+
+!x.upper()
+
+x = "a b c d"
+
+!x.substr ( 3, 3 )
+
+]>

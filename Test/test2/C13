@@ -1,0 +1,70 @@
+class a
+//   protected:
+
+   method test()
+      println ( "in class a" )
+   end
+end
+
+class b
+   protected:
+
+   local a
+
+   method test()
+      println ( "in class b" )
+      self.a = "this is a test"
+
+      sender.testSender ("this is a test of sender")
+   end
+
+   method testSender ()
+      println ( "sender test 2" )
+   end
+end
+
+class c
+   method test()
+      println ( "in class c" )
+   end
+end
+
+class combine
+   inherit a, b
+
+   public:
+      local x
+
+      message doit is test in b
+      message doit2 is test in x
+      message test in b
+      message test2 is test in a
+      message var is a in b
+
+   protected:
+      method testSender ( var )
+         println ( var )
+         sender.testSender()
+      end
+
+   private:
+      method new()
+         self.x = new ( "c" )
+         return 1
+      end
+end
+
+local a
+
+a = new ( "combine" )
+
+debugBreak()
+
+a.a.test()
+
+a.doit()
+a.doit2()
+a.test()
+a.test2()
+println ( a.var )
+ 

@@ -1,0 +1,33 @@
+class a
+    method test()
+        println ( "in class a" )
+    end
+end
+
+class b
+    method test()
+        println ( "in class b" )
+    end
+end
+
+class c
+    inherit a
+    inherit b
+
+    method test2()
+        ::a.test()
+        ::b.test()
+    end
+end
+
+
+o = new ( "c" )
+
+
+o.test()        // as expected
+x = o.a
+x.test()
+o.a.test()
+
+
+o.test2()

@@ -1,0 +1,23 @@
+<[
+
+class test
+	const IDSTYLE_SHORT = 1
+
+	METHOD DisplayRecord( style )
+		local s
+		
+		switch ( style )
+			case ::IDSTYLE_SHORT
+				println ( "here" )
+			break
+		end
+		return( 1 )
+
+	END
+end
+
+o = test()
+
+o.DisplayRecord ( test::IDSTYLE_SHORT )
+
+]>

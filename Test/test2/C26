@@ -1,0 +1,28 @@
+class a
+   local var
+
+   operator = ( b )
+      self.var = b
+      return b
+   end
+end
+
+class b
+   inherit a
+
+   operator + ( x )
+      return self.a.var + x
+   end
+end
+
+
+local o
+
+o = new ( "b" )
+
+o = 5
+
+println ( o + 5 )
+
+
+ 

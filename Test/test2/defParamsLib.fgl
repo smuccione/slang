@@ -1,0 +1,14 @@
+	class cTest
+		method new ( a = "def a", b = "def b", c )
+			println ( a, " ", b, " ", c )
+			return 1
+		end
+		
+		method test ( a = "def a", b = "def b", c )
+			println ( a, " ", b, " ", c )
+		end
+	end
+	
+	function test ( a, b = "b def", c = "c def", d )
+		println ( a, " ", b, " ", c, " ", d )
+	end

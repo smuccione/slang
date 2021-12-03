@@ -1,0 +1,29 @@
+class test
+
+   private:
+      local x
+
+      assign set ( x )
+         println ( "setting ", x )
+         self.x = x
+      end
+
+      access set
+         println ( "accessing" )
+         return self.x
+      end
+
+   public:
+      operator [ ( value )
+         return @(self.set)
+      end
+end
+
+local o, x
+
+o = new ( "test" )
+
+o[5] = 10
+x = o[5]
+
+println ( x ) 

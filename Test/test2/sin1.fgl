@@ -1,0 +1,11 @@
+// test of the SIN( ) function
+
+function main( )
+
+	println("sin(0) = " + sin(0) )
+	println("sin(0.7854) = " + sin(0.7854) )
+	println("sin(1.57) = " + sin(1.57) )
+	println("sin(3.14159) = " + sin(3.14159) )
+
+end
+

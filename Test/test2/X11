@@ -1,0 +1,39 @@
+function test
+	return "1"
+end
+
+{|x,y|(x)(y)}("println", "hello8")
+
+{|x,y|(x)(y)} ({|x|a = {|x|"println"(x)}, (a)(x)}, "hello9")
+
+
+x = &"1" + &"2"
+println ( x )
+
+x = (&"1") + (&"2")
+println ( x )
+
+x = "println"
+
+println ( "hello1" )
+
+"println" ( "hello2" )
+
+(x) ( "hello3" )
+
+{|x|println ( x )} ( "hello4" )
+
+{|x|"println" ( x )} ( "hello5" )
+
+x = {|x|"println" ( x )}
+(x) ( "hello6" )
+
+("println")( a = (( 1 + 2 ) + ( x ) ( "hello7" )) )
+
+
+{|x,y|(x)(y)}("println", "hello8")
+
+{|x,y|(x)(y)} ({|x|a = {|x|"println"(x)}, (a)(x)}, "hello9")
+
+x = &test()
+println ( x )

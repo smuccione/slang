@@ -1,0 +1,48 @@
+#table 1
+
+public function task1()
+  local x
+  local str
+
+  str = "hello " + "there"
+
+  for ( x = 1; x < 100; x++ )
+     println ( "TASK1:" + "     ", x )
+     if ( str != "hello there" )
+        println ( "shit" )
+        break
+     end
+  end
+end
+
+public function task2()
+  local x
+  local str
+
+  str = "hello " + "there2"
+
+  for ( y = 1; y < 50; y++ )
+     println ( "TASK2:" + " ", y )
+     if ( str != "hello there2" )
+        println ( "shit2" )
+        break
+     end
+  end
+end
+
+function start()
+  spawn ( "task1", "task1()" )
+  spawn ( "task2", "task2()" )
+end
+
+
+function main()
+   local loop
+
+   start()
+   for ( loop = 0; loop < 10; loop++ )
+      println ( "here" )
+   end
+end
+
+ 

@@ -1,0 +1,11 @@
+for ( x = 1; x < 4; x++ )
+   switch ( x )
+     case 1
+     case 2
+     case 3
+        b = {'a','b','c'}[x]
+        println ( b )
+        break
+   end
+end
+ 

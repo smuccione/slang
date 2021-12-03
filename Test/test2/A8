@@ -1,0 +1,9 @@
+function x()
+  a = "hello"
+  x = {{||println ( a )}}
+  return x
+end
+
+a = x()
+a[1]()
+ 

@@ -1,0 +1,63 @@
+library c:\slang\test\test2\httplib.flb
+
+function dump ( obj, indent )
+   local val
+
+   while ( obj )
+      print  ( space ( indent ), obj.nodeName )
+
+	x = classElements ( obj )
+
+	try
+		if ( obj.id )
+			print ( " - ", obj.id )
+		end
+	catch ( e )
+	end
+
+	if ( obj.nodeName == "#text" )
+		val = strswap ( obj.data, "\r", "\\r" )
+		val = strswap ( val, "\n", "\\n" )
+//		print ( " - ", val )
+	end
+
+
+	println()
+
+	for ( loop = 1; loop <= len ( x ); loop++ )
+		switch ( x[loop][2] )
+			case 0
+			case 6
+				switch ( x[loop][1] )
+					case "FIRSTCHILD"
+						val = obj.(x[loop][1]);
+						if ( type ( val ) == "O" )
+							dump ( val, indent + 2 )
+						end
+						break;
+					default
+						break;
+				end
+				break;
+		end
+	end
+
+
+	try 
+	      obj = obj.nextSibling
+	catch ( error )
+		return
+	end
+   end
+
+end
+
+x = webPageGet ( 127.0.0.1, "GET", "insmgmt/index.ap" )
+
+page = x[len(x)]
+
+dom = new ( "htmldocument", page )
+debugbreak()
+dump ( dom, 0 )
+
+

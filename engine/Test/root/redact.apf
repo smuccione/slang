@@ -1,0 +1,38 @@
+<[
+
+FUNCTION jsEncode( data, encSpace=0 )
+	if ( ! data )
+		return( "" )
+	end
+	if ( encSpace )
+		//return( webEncodeURL( data.strswap( " ", "&#32" ) ) )
+		return( webEncodeURL( data.strswap( " ", "%20" ) ) )
+	end
+	return( webEncodeURL( data ) )
+END
+FUNCTION jsDecode( data, decSpace=0 )
+	if ( ! data )
+		return( "" )
+	end
+	if ( decSpace )
+		return( webDecodeURL( data ).strswap( "%20", " " ).strswap( "&#32", " " ) )
+		//return( webEncodeURL( data ).strswap( "&#32", " " ) ) ?????
+	end
+	return( webDecodeURL( data ) )
+END
+
+
+	session = new( "session" )
+	
+	fname = session.var( "fname" )
+	service = session.var( "service" )
+	if ( ! service )
+		service = "C:\Program Files (x86)\Adobe\Acrobat DC\Acrobat\Acrobat.exe"
+	end
+
+	println( ">>> REDACT: " + fname )
+	
+	runanddetatch( 'c:\agisent\localGateway', service + " " + fname, '' )	
+
+	! "ok"
+]>

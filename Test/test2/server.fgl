@@ -1,0 +1,4 @@
+serverLogInit ( "transLog.txt",  0, 256, 0 );
+serverLogInit ( "systemLog.txt", 1, 256, 1 );
+webServerStart ( "server.ini", 80,  "TEST"   );
+//webServerStart ( "server.ini", 443, "SECURE" );

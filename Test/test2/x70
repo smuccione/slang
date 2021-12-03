@@ -1,0 +1,19 @@
+function error( str, num )
+	1/0
+end
+
+function main()
+	try
+		error( "test", 5 )
+	catch ( eObj )
+		printf ( "errorNum      = %i\r\n", eObj.errorNum )
+		printf ( "errorLine     = %i\r\n", eObj.errorLine )
+		printf ( "errorFile     = %s\r\n", eObj.errorFile )
+		printf ( "errorFunction = %s\r\n", eObj.errorFunction )
+		
+		printf ( "errorCallstack\r\n" )
+		for ( loop = 1; loop <= len ( eObj.errorCallstack ); loop++ )
+			printf ( "   %s\r\n", eObj.errorCallstack[loop] );
+		end
+	end
+end

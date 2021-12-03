@@ -1,0 +1,52 @@
+class ostream
+   operator << ( b )
+      switch ( type ( b ) )
+         case 'O'
+            b.print()
+            break
+         default
+            print ( b )
+            break
+      end
+      return self
+   end
+end
+
+class integer
+   public:
+      local val
+
+
+      method print
+         print ( self.val )
+      end
+
+      operator + ( b )
+         return ( self.val += b )
+      end
+
+      operator = ( b )
+         return ( self.val = b )
+      end
+
+      operator < ( b )
+         return self.val < b
+      end
+
+      operator ++ ( void )
+         return ( self.val++ )
+      end
+end
+
+
+local i, cout
+
+i    = new ( "integer" )
+cout = new ( "ostream" )
+
+i = 0
+
+for ( i = 0; i < 1000; i++ )
+   cout << i << "  "
+end
+ 

@@ -1,0 +1,163 @@
+//INSTALL.FGL (c) 1996 SmartDesk, Inc., All Rights Reserved.
+
+PROCEDURE dispHeading()
+    cls()
+    csrxy(0,0)
+    println("VirtualDESK Software Developer's Kit (VSDK) - version 1.0")
+    println("    (c) 1996 SmartDesk, Inc., All Rights Reserved.")
+    println("")
+    return
+END
+
+CLASS FileClass
+
+  PUBLIC:
+
+    METHOD copy()
+
+        LOCAL source, destin, hsource, hdestin, buffsize
+        LOCAL size, bytescopied, i , copybytes, data
+
+        source = param(2)
+        destin = param(3)
+
+        hsource = fileOpen(source, 0)
+        if (hsource < 1)
+            return(0)
+        end
+        hdestin = fileCreate(destin)
+        if (hdestin < 1)
+            fileclose(hsource)
+            return(0)
+        end
+
+        buffsize = 60000
+        size = flen(hsource)
+
+        println ( "buff size = ", buffsize )
+
+        bytescopied = 0
+
+        while (bytescopied < size)
+            i = size - bytescopied
+            copybytes = (i > buffsize) ? buffsize : i
+
+            retry = 1
+            while ( retry )
+               copybytes = (i > buffsize) ? buffsize : i
+
+println ( "buff size = ", buffsize )
+               try
+                  data = fread(hsource, copybytes)
+                  retry = 0
+               catch ( error )
+                  if ( error == 1 )
+                    retry = 1
+                    if ( (buffSize = buffSize >> 1) == 0 )
+                       except ( error )
+                    end
+                  end
+               end
+            end
+
+            if ( data )
+               fwrite(hdestin, data)
+
+               print('.')
+
+               bytescopied += len(data)
+            end
+
+//            data = ""
+        end
+
+        fclose(hsource)
+        fclose(hdestin)
+
+        return(bytescopied)
+
+    END
+END
+
+// Main Program
+LOCAL file, yn, destin, sourcedrive
+
+file = new('FileClass')
+
+dispHeading()
+println("This program will install the VSDK to your hard disk and automatically")
+println("configure it for optimum operation for your system.  License to use this")
+println("product is granted FREE of charge, provided the user fully complies with")
+println("the following terms and conditions...")
+println("")
+print("Continue (y/N) ? ")
+yn = upper(input(1))
+if (yn != 'Y')
+    cls()
+    csrxy(0,0)
+    return
+end
+
+cls()
+csrxy(0,0)
+
+println("TERMS AND CONDITIONS:")
+println("")
+println("You may freely use and distribute the VirtualDESK Software Developer's kit")
+println("(VSDK) provided you do not charge for it and it is distributed in its original")
+println("form with all accompanying components.")
+println("")
+println("The VSDK and any programs created with it may be freely distributed without")
+println("restriction provided (a) all users acknowledge that said VSDK and programs are")
+println("provided \"AS-IS\" and they agree to hold SmartDesk, Inc. and all of its agents")
+println("harmless in any claims resulting in its use, and (b) the distributed program")
+println("shall contain the following statement prominently displayed in the product and")
+println("its documentation:")
+println("")
+println("  \"Portions of this product were created with the VirtualDESK Software")
+println("   Developer's Kit (VSDK), Go SMARTDESK or http://www.virtualdesk.com for")
+println("   information. VSDK (c) 1995-96 SmartDesk, Inc., All Rights Reserved.\"")
+println("")
+println("Use of any portion of the VSDK constitutes acceptance of the terms and")
+println("conditions as provided herein.")
+println("")
+print(">>> DO YOU AGREE TO ABIDE BY THE ABOVE TERMS AND CONDITIONS (y/N) ? ")
+yn = upper(input(1))
+if (yn != 'Y')
+    cls()
+    csrxy(0,0)
+    return
+end
+
+cls()
+csrxy(0,0)
+println("VSDK Install Program v1.0 (c) 1996 by SmartDesk, Inc., All Rights Reserved.")
+println("")
+
+print("Source Drive: ")
+sourcedrive = 'A'
+sourcedrive = input(sourcedrive)
+println("")
+
+print("Destination:  ")
+destin = 'C:\VSDK'
+destin = ltrim(input(untrim(destin, 65)))
+println("")
+
+if (! isdir(destin))
+    print("Directory does not exist, create (Y/n) ? ")
+    yn = upper(input(1))
+    if (yn == 'N')
+        cls()
+        csrxy(0,0)
+        return
+    end
+    mkdir(destin)
+end
+
+println("")
+print("Copying files ")
+file.copy('e:\slang\test\sdebug.exe', destin + '\sdbg.exe')
+println("")
+println("Done.")
+ 

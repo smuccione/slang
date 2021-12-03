@@ -1,0 +1,14 @@
+<[
+
+sendmail ( "pop.bluetie.com",
+           "fgl_mail.brtsystems",
+           "p@ssw0rd",
+           "fgl_mail@brtsystems.com",
+           "stephen muccione - test",
+           "muccione@earthlink.net",
+           "stevie",
+           "this is a test of sendmail",
+           "how the hell are ya?"
+         )
+
+]>

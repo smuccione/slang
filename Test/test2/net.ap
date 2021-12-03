@@ -1,0 +1,6 @@
+<[
+
+   netRegister ( 'c:\slang\test\test2\t1.dll', "MyNamespace.SimpleClass", "MsgBox" );
+   println ( MsgBox ( "hello from net" ) );
+
+]>

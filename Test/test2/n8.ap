@@ -1,0 +1,146 @@
+<[
+//	HTTP interface library
+
+function webPageGet ( ipAddress, method, uri, data, isSSL, cookie )
+	local requestString
+	local dataString
+	local nData
+	local	loop
+	local newUri
+	local	oldParams
+	local	arr
+
+	// acutal request
+	if ( uri[1] == '/' )
+		requestString = method + " " + uri + " HTTP/1.1\r\n"
+	else
+		requestString = method + " /" + uri + " HTTP/1.1\r\n"
+	end
+
+	// any other headers insert here
+
+	requestString += "Host: BRT Inc.\r\n"
+	requestString += "User-Agent: Mozilla/5.0 (Windows; U; Windows NT5.1; en-US; rv:1.5) Gecko/20031007\r\n"
+	requestString += "Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,image/jpeg,image/gif;q=0.2,*/*;q=0.1\r\n"
+	requestString += "Accept-Language: en-us,en;q=0.5\r\n"
+	requestString += "Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7\r\n"
+	requestString += "Connection: Close\r\n"
+
+	if ( cookie )
+		requestString += "Cookie: "
+		for ( loop = 1; loop <= len ( cookie ); loop++ )
+			requestString += cookie[loop] + "; "
+		end
+		requestString += "\r\n"
+	end
+
+	// end of other headers
+
+	if ( data )
+		dataString = ""
+		nData = len ( data )
+		for ( loop = 1; loop <= nData; loop++ )
+			dataString += webEncodeURL ( data[loop][1] ) + "=" + webEncodeURL (data[loop][2] )
+			if ( loop < nData )
+				dataString += "&"
+			end
+		end
+		requestString += "Content-Length: " + len ( dataString ) + "\r\n"
+
+		requestString += "\r\n"
+		requestString += dataString
+	else
+		requestString += "\r\n"
+	end
+
+	printf ( "-------------------<request>--------------------\r\n" )
+	printf ( "%s\r\n", requestString )
+	printf ( "-----------------<end request>------------------\r\n" );
+
+debugBreak()
+	if ( isSSL )
+		// get the page use https
+		arr = webSend ( ipAddress, 443, requestString )
+	else
+		// get the page
+		arr = webSend ( ipAddress, 80, requestString )
+	end
+
+	printf ( "-------------------<response>--------------------\r\n" )
+	for ( loop = 1; arr[loop]; loop++ )
+		println ( arr[loop] )
+	end
+	printf ( "-----------------<end response>------------------\r\n" );
+
+	cookie={}
+	for ( loop = 1; loop <= len ( arr ); loop++ )
+		if ( upper ( mid ( arr[loop], 0, 12 ) ) == "SET-COOKIE: " )
+			c = right ( arr[loop], len ( arr[loop] ) - 12 )
+			if ( strat ( ";", c ) != -1 )
+				cn = left ( c, strat ( ";", c ) - 1 )
+			else
+				cn = c;
+			end
+			cookie[len(cookie) + 1 ] = cn
+		end
+	end
+
+	for ( loop = 1; loop <= len ( arr ); loop++ )
+		if ( upper ( mid ( arr[loop], 0, 10 ) ) == "LOCATION: " )
+			newUri = right ( arr[loop], len ( arr[loop] ) - 10 )
+debugBreak()
+			for ( loop2 = len ( newUri ); loop2 >= 1; loop2-- )
+				if ( newUri[loop2] == '.' )
+					break;
+				elseif ( newUri [loop2] == '/' )
+					newUri = left ( newUri, loop2 )
+					break;
+				end
+			end
+			return ( webPageGet ( ipAddress, "GET", newUri, NULL, isSSL, cookie ) )
+		end
+	end
+
+	return ( arr )
+end
+
+local ip, x, cookies, loop, page, a, dom
+
+// we need to do a GET first in order to receive any cookies that we need
+ip = webAddrFromHost ( "safesite.safeco.com" )
+cookies={}
+x = webPageGet ( ip, "GET", "safecoplaza/yourbusiness/administration/loginform/login.asp?OriginalURL=/commercial/client/", a, 1, @cookies )
+
+page = x[len(x)]
+
+// take the page to fill in and create a DOM object out of it
+dom = new ( "htmldocument", page )
+
+// now get a list of everything that we need to fill in out of this DOM
+a = dom.GetPostData();
+
+// loop through everything that we need to fill in... hopefully if they change anything it'll just be page
+//   formatting and they'll leave the actual input names alone... this let's us just work with the names
+
+for ( loop = 1; loop <= len ( a ); loop++ )
+	switch ( upper ( a[loop][1] ) )		// test against the input names
+		case "TXTUSERID"
+			a[loop][2] = "151191"
+			break
+		case "TXTPASSWORD"
+			a[loop][2] = "rate"
+			break
+	end
+end
+
+// ok... we've filled in the array with what we want... now we just need to POST it back to the website
+x = webPageGet ( ip, "POST", "safecoplaza/yourbusiness/administration/loginform/login.asp?OriginalURL=/commercial/client/v", a, 1, @cookies  )
+
+page = x[len(x)]
+
+debugBreak()
+dom = new ( "htmldocument", page );
+
+!page
+
+]>

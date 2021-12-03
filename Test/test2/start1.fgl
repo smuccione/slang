@@ -1,0 +1,11 @@
+
+
+println("starting start")
+serverLogInit ( "transLog.txt",  0, 256, 1 );
+serverLogInit ( "systemLog.txt", 1, 256, 1 );
+webServerStart ( "config.txt", 80,  "TEST"   );
+webServerStart ( "config.txt", 443, "SECURE" );
+
+
+println("ending start")
+

@@ -1,0 +1,6 @@
+library lib1.flb
+
+parse()
+println ( "Walking..." )
+walk()
+ 

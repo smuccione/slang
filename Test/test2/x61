@@ -1,0 +1,17 @@
+class x
+	access default ( msg )
+		return 1
+	end
+	
+	assign default ( msg, val )
+		return
+	end
+
+	access steve
+		return 2
+	end
+	
+end
+ 
+o = new ( "x" )
+o.steve = "test"

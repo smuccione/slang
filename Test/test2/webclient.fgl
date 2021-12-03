@@ -1,0 +1,488 @@
+// Web Client Class
+
+FUNCTION _webEncodeURL( str )
+	if ( type( str ) != "C" )
+		return( str )
+	end
+	return( webEncodeURL( str ) )
+END
+
+
+class WebClient
+	private:
+		local	IpAddress
+		local	UrlAddress
+		local	Dom
+		local	iHeaders
+		local	Cookies
+		local	isSSL
+		local _domain
+		local _pageDate
+		local _referer
+
+		//  takes a cookie string, parses it, saves off the important bits... replacing any older entries
+		method setCookie ( str )
+			local	path
+			local	domain		
+			local	secure
+			local	expires
+			local	v, s1, s2
+			local	loop
+			local	numCookie
+			local	cookie
+			local	name
+
+			secure	= 0
+			path		= "/"
+			domain	= NULL
+
+			for ( loop = 1, v = token ( str, ";", loop ); v; )
+				s1 = token ( v, "=", 1 )
+				s2 = token ( v, "=", 2 )
+
+				s1 = alltrim ( upper ( s1 ) )
+				s2 = alltrim ( upper ( s2 ) )
+
+				switch ( s1 )
+					case "PATH"
+						path = s2
+						if ( path[len(path)] != "/" )
+							path = path + "/"
+						end
+						break
+					case "EXPIRES"
+						expires = s2
+						break
+					case "DOMAIN"
+						domain = s2
+						break
+					case "SECURE"
+						secure = 1
+						break
+					default
+						name = s1
+						cookie = v
+						break
+				end
+				v = token ( str, ";", ++loop )
+			end
+
+			if ( !::cookies )
+				::cookies = {}
+			end
+
+			name = upper ( name )
+
+			numCookie = len ( ::cookies )
+
+			for ( loop = 1; loop <= numCookie; loop++ )
+				if ( ::cookies[loop][1] == name )
+					break
+				end
+			end
+			
+			::cookies[loop][1] = name
+			::cookies[loop][2] = cookie
+			::cookies[loop][3] = upper ( path )
+			::cookies[loop][4] = domain
+			::cookies[loop][5] = expires
+			::cookies[loop][6] = secure
+			::cookies[loop][7] = expires ? webToTime ( expires ) : NULL
+			break
+		end
+
+		// gets the pertinent cookies for the specified URL (if any)
+		method getCookie ( url )
+			local	nICookies
+			local	nCookies
+			local	loop
+			local	l
+			local	cookies
+			local pt, ct
+
+			local tmp;
+			local l1, l2, loop2, loop3
+
+			nICookies = len ( ::cookies )
+
+			for ( loop = 1; loop <= nICookies; loop++ )
+				for ( loop2 = loop; loop2 <= nICookies; loop2++ )
+					l1 = len ( ::cookies[loop][3] )
+					l2 = len ( ::cookies[loop2][3] )
+
+					if ( l2 > l1 )
+						for( loop3 = 1; loop3 <= 7; loop3++ )
+							tmp = ::cookies[loop][loop3]
+							::cookies[loop][loop3] = ::cookies[loop2][loop3]
+							::cookies[loop2][loop3] = tmp
+						end
+// should work... why doesn't it... locks up the server... infinite dereference loop
+//						tmp  = @(::cookies[loop])
+//						tmp2 = @(::cookies[loop2])
+//						::cookies[loop]  = tmp2
+//						::cookies[loop2] = tmp
+					end
+				end
+			end
+
+			cookies = {}
+			nCookies = 1
+
+			for ( loop = 1; loop <= nICookies; loop++ )
+				l = len ( ::cookies[loop][3] )
+				if ( upper ( left ( url, l ) ) == ::cookies[loop][3] )
+					pt = webToTime ( ::_pageDate ? ::_pageDate : "" )
+					ct = ::cookies[loop][7] ? ::cookies[loop][7] : 0
+					if ( !ct || (pt < ct) )
+	//printf ( "Cookie: %s; %s; %s\r\n", ::cookies[loop][2],::cookies[loop][3],::cookies[loop][5] );
+						cookies[nCookies]= ::cookies[loop][2]
+						nCookies++
+					end
+				end
+			end
+
+			return ( cookies )
+		end
+		
+		// actually does the page load
+		method webPageGet ( httpMethod, data )
+			local	requestString
+			local	dataString
+			local	nData
+			local	loop, loop2
+			local	newUri
+			local	arr
+			local	rc
+			local	cookie, path
+
+			// create the request string
+
+			httpMethod = upper ( httpMethod)
+
+			if ( httpMethod== "GET" )
+				requestString = httpMethod + " " + ::urlAddress
+				if ( data )
+					requestString += "?"
+					nData = len ( data )
+					for ( loop = 1; loop <= nData; loop++ )
+						if (data[loop][1] != NULL)
+							requestString += _webEncodeURL ( data[loop][1] ) + "=" + _webEncodeURL (data[loop][2] )
+							if ( loop < nData )
+								requestString += "&"
+							end
+						end
+					end
+				end
+				requestString += " HTTP/1.1\r\n"
+			else
+				requestString = httpMethod+ " " + ::urlAddress + " HTTP/1.1\r\n"
+			end
+
+//			printf ( "-----------------------------------------\r\n%s\r\n", requestString )
+
+			// any other headers insert here
+
+			requestString += "Host: " + ::_domain + "\r\n"
+			requestString += "User-Agent: Mozilla/5.0 (Windows; U; Windows NT5.1; en-US; rv:1.5) Gecko/20031007\r\n"
+			requestString += "Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,image/jpeg,image/gif;q=0.2,*/*;q=0.1\r\n"
+			requestString += "Accept-Language: en-us,en;q=0.5\r\n"
+			requestString += "Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7\r\n"
+			requestString += "Accept-Encoding: gzip\r\n"
+			if ( httpMethod == "POST" )			
+				requestString += "Content-Type: application/x-www-form-urlencoded\r\n"
+			end
+			requestString += "Connection: Close\r\n"
+			if ( ::_referer )
+				requestString += "Referer: " + ::_referer + "\r\n"
+			end
+
+			cookie = ::getCookie ( ::urlAddress )
+			if ( cookie )
+				requestString += "Cookie: "
+				for ( loop = 1; loop <= len ( cookie ); loop++ )
+					requestString += cookie[loop]
+					if ( loop != len ( cookie ) )
+						requestString += '; '
+					end
+				end
+				requestString += "\r\n"
+			end
+
+			// end of other headersasdfasdf
+			if ( httpMethod == "POST" )
+				if ( data )
+					dataString = ""
+					nData = len ( data )
+					for ( loop = 1; loop <= nData; loop++ )
+						if (data[loop][1] != NULL)
+							dataString += _webEncodeURL ( data[loop][1] ) + "=" + _webEncodeURL (data[loop][2] )
+							if ( loop < nData )
+								dataString += "&"
+							end
+						end
+					end
+					requestString += "Content-Length: " + len ( dataString ) + "\r\n"
+	
+					requestString += "\r\n"
+					requestString += dataString
+				else
+					requestString += "\r\n"
+				end
+			else
+				requestString += "\r\n"
+			end
+
+//printf ( "\r\n%s\r\n\r\n", requestString );
+			if ( ::isSSL )
+				// get the page use https
+				arr = webSend ( ::ipAddress, 443, requestString )
+			else
+				// get the page
+				arr = webSend ( ::ipAddress, 80, requestString )
+			end
+
+if ( type( arr ) != "A" )
+	println( "Error on WEBSEND using \"" + requestString + "\"" )
+end
+
+if( 0 )
+for ( loop = 1; loop < len ( arr ); loop++ )
+  arr[loop] ? printf ( "%s\r\n", arr[loop] ) : 0;
+end
+end
+//printf ( "\r\n" );
+
+			// process any headers that we need
+			cookie={}
+			for ( loop = 1; loop <= len ( arr ); loop++ )
+				if ( upper ( mid ( arr[loop], 0, 12 ) ) == "SET-COOKIE: " )
+					::SetCookie ( right ( arr[loop], len ( arr[loop] ) - 12 ) )
+				elseif ( upper ( mid ( arr[loop], 0, 6 ) ) == "DATE: " )
+					::_pageDate = right ( arr[loop], len ( arr[loop] ) - 6 )
+				end
+			end
+
+			rc = 0 + token ( arr[1], " ", 2 )
+
+			if ( rc == "302" )
+				// handle any redirection automatically
+				for ( loop = 1; loop <= len ( arr ); loop++ )
+					if ( upper ( mid ( arr[loop], 0, 10 ) ) == "LOCATION: " )
+						newUri = right ( arr[loop], len ( arr[loop] ) - 10 )
+						for ( loop2 = len ( newUri ); loop2 >= 1; loop2-- )
+							if ( newUri[loop2] == '.' )
+								break;
+							elseif ( newUri [loop2] == '/' )
+								newUri = left ( newUri, loop2 )
+								break;
+							end
+						end
+
+						if ( newUri[1] != '/' )
+							path = fparsefp ( ::urlAddress )
+							newUri = path + '/' + newUri
+						end
+
+						::_referer = (::isSSL ? "https://" : "http://") + ::_domain + ::UrlAddress
+						::urlAddress = newUri
+						return ( ::webPageGet ( "GET", null ) )
+					end
+				end
+			end
+
+			// do any uncompression if necessary
+			for ( loop = 1; loop <= len ( arr ); loop++ )
+				if ( upper ( mid ( arr[loop], 0, 18 ) ) == "CONTENT-ENCODING: " )
+					if ( upper ( alltrim ( ( right ( arr[loop], len ( arr[loop] ) - 18 ) ) ) ) == "GZIP" )
+						arr[len(arr)] = inflate ( arr[len(arr)] )
+					end
+				end
+			end
+			return ( arr )
+		end
+		
+	protected:
+		method new ()
+			::IpAddress		= NULL
+			::UrlAddress	= NULL
+			::Dom			= NULL
+			::iHeaders		= {}
+			::Cookies		= {}
+			::isSSL			= 0
+			
+			if ( pcount() > 1 )
+				:: domain = param ( 2 )
+				if ( pcount() > 2 )
+					if ( pcount() > 3 )
+						::ssl = param (4)
+					end
+					::url = param ( 3 )
+				end
+			end
+			return ( 1 )
+		end
+
+	public:
+		assign Domain ( v )
+			::Dom		 = 0
+			::iHeaders	 = {}
+			::UrlAddress = 0
+
+			::_domain = v
+
+			switch ( type ( v ) )
+				case 'N':
+					::IpAddress = 0.0.0.0 + v
+					break
+				case 'C':
+					::IpAddress = WebAddrFromHost ( v )
+					break
+				case 'I':
+					::IpAddress = v
+					break
+			end
+
+			return
+		end
+
+		access Domain
+			return ( ::IpAddress )
+		end
+
+		assign Url ( page )
+			if ( page[1] != '/' )
+				page = "/" + page
+			end
+
+			::_referer = (::isSSL ? "https://" : "http://") + ::_domain + ::UrlAddress
+			::UrlAddress = page
+			::Dom = NULL
+
+			::iheaders = ::webPageGet ( "GET", NULL )
+
+			if ( ::headers )
+				return
+			else
+				return
+			end
+		end		
+
+		assign SSL ( isSSL )
+			if ( isSSL )
+				::isSSL = 1
+			else
+				::isSSL = 0
+			end
+		end
+
+		access SSL
+			return ( ::isSSL )
+		end
+
+		access Url ( )
+			return ( ::UrlAddress )
+		end
+
+		access Document ()
+			if ( !::Dom )
+				if ( ::iheaders )
+					::Dom = new ( "htmlDocument", ::iheaders[len(::iheaders)] )
+				end
+			end
+			return ( ::Dom )
+		end
+
+		access Headers ()
+			return ( ::iHeaders )
+		end
+
+		access page ()
+			local maxElement
+		
+			if ( ::headers )
+				maxElement = len(::iHeaders)
+				return ( ::iHeaders[len(::iHeaders)] )
+			else
+				return ""
+			end
+		end
+
+		method submit ( data, page )
+			if ( !data )
+				if ( ::dom )
+					data = ::dom.GetPostData()
+				end
+			end
+
+			::_referer = (::isSSL ? "https://" : "http://") + ::_domain + ::UrlAddress
+			if ( page )
+				if ( page[1] != '/' )
+					page = "/" + page
+				end
+				::UrlAddress = page
+			end
+
+			::iheaders = ::webPageGet ( "POST", data )
+
+			::Dom = NULL
+
+			if ( ::headers )
+				return ( 1 )
+			else
+				return ( 0 )
+			end
+			
+		end
+
+		method get ( page,  data )
+			if ( page[1] != '/' )
+				page = "/" + page
+			end
+
+			::_referer = NULL
+			::UrlAddress = page
+			
+			if ( !data )
+				if ( ::dom )
+					data = ::dom.GetPostData()
+				end
+			end
+
+			::iheaders = ::webPageGet ( "GET", data )
+
+			::Dom = NULL
+
+			if ( ::headers )
+				return ( 1 )
+			else
+				return ( 0 )
+			end
+			
+		end
+		
+		method head ( head,  data )
+			if ( page[1] != '/' )
+				page = "/" + page
+			end
+
+			::_referer = NULL
+			::UrlAddress = page
+			
+			if ( !data )
+				if ( ::dom )
+					data = ::dom.GetPostData()
+				end
+			end
+
+			::iheaders = ::webPageGet ( "HEAD", data )
+
+			::Dom = NULL
+
+			if ( ::headers )
+				return ( 1 )
+			else
+				return ( 0 )
+			end
+			
+		end
+end

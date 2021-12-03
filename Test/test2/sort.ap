@@ -1,0 +1,54 @@
+<[
+	function sort ( array, col )
+		local loop, loop2, tmp
+
+		for ( loop = 1; loop < len ( array ); loop++ )
+			if ( array[loop][col] )
+				for ( loop2 = loop + 1; loop2 <= len ( array ); loop2++ )
+					if ( array[loop2][col] && (array[loop][col] > array[loop2][col]) )
+						tmp = @array[loop];
+						array[loop]  = @array[loop2];
+						array[loop2] = tmp;
+					end
+				end
+			end
+		end
+	end
+
+
+	local arr
+
+	arr[1][2] = "hello"
+	arr[3][2] = "there"
+	arr[5][2] = "how"
+	arr[7][2] = "you"
+
+	!"----------------<br>"
+	!arr[1][2] + "<br>"
+	!arr[2][2] + "<br>"
+	!arr[3][2] + "<br>"
+	!arr[4][2] + "<br>"
+	!arr[5][2] + "<br>"
+	!arr[6][2] + "<br>"
+	!arr[7][2] + "<br>"
+	!"----------------<br>"
+]>
+<br>
+<br>
+SORTED
+<br>
+<br>
+<[
+	sort ( arr, 2 )
+
+	!"----------------<br>"
+	!arr[1][2] + "<br>"
+	!arr[2][2] + "<br>"
+	!arr[3][2] + "<br>"
+	!arr[4][2] + "<br>"
+	!arr[5][2] + "<br>"
+	!arr[6][2] + "<br>"
+	!arr[7][2] + "<br>"
+	!"----------------<br>"
+]>
+

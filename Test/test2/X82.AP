@@ -1,0 +1,22 @@
+<[
+
+DebugBreak()
+
+apSource  = '<html>' + "\r\n"
+apSource += '<body>' + "\r\n"
+apSource += '<[' + "\r\n"
+apSource += '    ! "hello"' + "\r\n"
+apSource += ']>' + "\r\n"
+apSource += '</body>' + "\r\n"
+apSource += '</html>' + "\r\n"
+
+translatedPage = apTranslate( null, 0 )
+
+translatedPage = apTranslate( apSource, 1 )
+y = compile ( translatedPage, "test", "testMain" )
+
+testMain()
+
+out = __outputstring.str
+
+]>

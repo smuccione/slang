@@ -1,0 +1,48 @@
+function ains ( array, start )
+   local loop
+
+   loop = start
+
+   for ( loop := len ( array ); loop >= start; loop-- )
+      array[loop + 1] := array[loop]
+   end
+
+   array[start] = NIL
+end
+
+function adel ( array, start )
+   local loop
+
+   for ( loop := start; loop <= len ( array ) - 1; loop++ )
+      array[loop] = array[loop + 1]
+   end
+
+   array[loop] = NIL
+end
+
+function disp ( array )
+  println ( "-----------------------" )
+
+  for ( loop := 1; loop <= len ( array ); loop++ )
+     print ( array[loop], " " )
+  end
+  println()
+end
+
+
+local loop
+local arr
+
+
+arr =  { 1, 2, 3,4,5,6,7,8,9,10}
+
+println ( len ( arr ) )
+disp ( arr )
+
+ains ( arr, 5 )
+arr[5]="hello"
+disp ( arr )
+
+adel ( arr, 5 )
+disp ( arr )
+ 

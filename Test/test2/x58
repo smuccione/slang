@@ -1,0 +1,23 @@
+class x
+   local a
+   local b
+   
+   method test()
+     println ( "here" )
+   end
+end
+
+function main ( a, b, c, d, e )
+
+debugBreak()
+
+arr[1][1] = new ( "x" )
+arr[1][1].b = "here"
+
+o = new ( "x" )
+o.a = arr
+
+x = o.a[1][1].b
+x = o.a[1].b
+
+end

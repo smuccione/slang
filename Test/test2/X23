@@ -1,0 +1,7 @@
+local a
+local b, c = 5
+local d = 6, e
+local f
+
+println ( a, b, c, d, e, f )
+ 

@@ -1,0 +1,137 @@
+<[
+	session = session()
+
+	cmd = session.Var ( "cmd" )
+
+	if ( cmd == "post" )
+		x = session.Var ( "email" )
+		! x
+
+		! "<br><br>"
+
+		nFiles = 0 + session.Var ( "nFiles" )
+		for ( loop = 0; loop < nFiles; loop++ )
+			x = session.Var ( "fileName" + (loop + 1) )
+		   ! "attachment = " + x + "<br>"
+		end
+		return
+	end
+
+]>
+
+<HTML>
+<HEAD>
+<TITLE>Test page for object DropTarget</TITLE>
+</HEAD>
+
+<BODY BACKGROUND="background.gif">
+
+<form method=post name=upform action="DropTarget.ap"  >
+	<input type=hidden name=cmd VALUE="post" >
+	<input type=hidden name=email value="" >
+	<input type=hidden name=nFiles value="" >
+	<input type=hidden name="fileName1" value="" >
+	<input type=hidden name="fileData1" value="" >
+	<input type=hidden name="fileName2" value="" >
+	<input type=hidden name="fileData2" value="" >
+	<input type=hidden name="fileName3" value="" >
+	<input type=hidden name="fileData3" value="" >
+	<input type=hidden name="fileName4" value="" >
+	<input type=hidden name="fileData4" value="" >
+	<input type=hidden name="fileName5" value="" >
+	<input type=hidden name="fileData5" value="" >
+	<input type=hidden name="fileName6" value="" >
+	<input type=hidden name="fileData6" value="" >
+	<input type=hidden name="fileName7" value="" >
+	<input type=hidden name="fileData7" value="" >
+	<input type=hidden name="fileName8" value="" >
+	<input type=hidden name="fileData8" value="" >
+	
+	<script type="text/javascript">
+		function DoSubmit()
+		{
+			var loop
+			var	numFiles
+			var name
+			var x,y
+			var tmp;
+
+			tmp = upform.DropTarget.RegistryRead ( "HKEY_CURRENT_USER", "Software\\Microsoft\\Internet Explorer\\PageSetup", "footer" );
+			tmp = tmp + " add"
+			upform.DropTarget.RegistryWrite ( "HKEY_CURRENT_USER", "Software\\Microsoft\\Internet Explorer\\PageSetup", "footer", tmp );
+
+			upform.email.value = upform.DropTarget.GetEmail()
+			upform.cmd.value = "post"
+
+			upform.nFiles.value = upform.DropTarget.NumFiles
+
+			numFiles = upform.DropTarget.NumFiles
+
+			for ( loop = 0; loop < numFiles; loop++ )
+			{
+				eval ( "upform.fileData" + (loop + 1) + ".value = upform.DropTarget.GetFileData( loop )" )
+				eval ( "upform.fileName" + (loop + 1) + ".value = upform.DropTarget.GetShortFileName( loop )" )
+			}
+			upform.submit()
+		}
+
+		var x
+
+		function simpleAlert()
+		{
+			alert ( "in alert" )
+			x()
+		}
+
+		window.onBeforePrint = simpleAlert
+
+	</script>
+
+	<script type="text/javascript" for="DropTarget" event="EmailDropped">
+		// do any processing here for an email being dropped... alert the user some how
+		//alert ( "email was dropped on me" );
+	</script>
+	
+	<script type="text/javascript" for="DropTarget" event="FileDropped">
+		// do any processing stuff here for file dropped... alert the user some how
+		alert ( "file was dropped on me: " + upform.DropTarget.NumFiles );
+	</script>
+
+	<script type="text/javascript" for="DropTarget" event="TextDropped">
+		// do any processing stuff here for file dropped... alert the user some how
+		//alert ( "text was dropped on me" );
+	</script>
+
+
+	<OBJECT CLASSID="clsid:5220cb21-c88d-11cf-b347-00aa00a28331">
+		<PARAM NAME="LPKPath" VALUE="DropTarget.lpk">
+	</OBJECT>
+
+	<OBJECT ID="DropTarget" 
+			CLASSID="CLSID:C29A0936-5E0D-4C8E-BCE4-A106B75E037B"
+			CODEBASE="http://localhost/DropTarget.cab#Version=-1,-1,-1,-1"
+	>
+		<!--
+			these are optional...
+
+			DisplayString sets a text string to be displayed instead of an image OR during image download on a slow link
+			<PARAM NAME="DisplayString" VALUE="test this">
+
+			This enables white in the image to be the background in the browser (tricky since we have to make the browser actually render it which it doesn't want to due 
+			<PARAM NAME="TransparentBackground" VALUE=true >
+
+			This is the url of the image to display for the control
+			<PARAM NAME="ImageURL" VALUE="c:\upload\upload\DropZone.bmp">
+		-->
+		<PARAM NAME="SmartHTML" VALUE=true >
+		<PARAM NAME="OpenDialogOnClick" VALUE=true >
+	</OBJECT>
+
+	<br>
+	<input type=button name="Submit" value="Submit" onclick="DoSubmit()">
+	<input type=file name="ieFile"  >
+	<br><input type=button name="Browse" value="Browse" onclick="upform.DropTarget.DisplayOpenDialog()">
+</form>
+
+</BODY>
+</HTML>

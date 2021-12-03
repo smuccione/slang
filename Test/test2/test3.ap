@@ -1,0 +1,12 @@
+<html>
+<body>
+<[
+	session = new ( "session" )
+
+	session.data ( "test_name", "this is a test" )
+	! session.dataGet ( "server_name" )
+	! session.data ( "test_name" )
+	! session.data ( "test_name2" )
+]>
+</body>
+</html>

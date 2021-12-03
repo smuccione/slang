@@ -1,0 +1,739 @@
+<[
+class serverconfig
+	public:
+  		local fhandle, filename, _compression, _apCompression, _usage, _executeTime, _secureCert, _serverRoot, _secureKey, _upLoadDir 
+  		
+	METHOD new ( fName )
+		::_compression = ""
+		::_apCompression = ""
+		::_usage = ""
+		::_executeTime = ""
+		::_secureCert = ""
+		::_serverRoot = ""
+		::_secureKey = ""
+		::_upLoadDir = ""
+		::fhandle = fileOpen ( fName, 2 )
+		::filename = fName
+		return ( 1 )
+	END
+
+	ACCESS cgi 
+		local data, fileLine, counter
+		data = {}
+		counter = 1
+		WHILE ( ! feof( ::fhandle ) )
+			fileLine = fileReadLine( ::fhandle )
+			IF (    ( allTrim ( lower ( strextract ( fileLine, "=", 1 ) ) ) ) ==   "cgi_dir" )
+				data[counter] = fileLine
+				++ counter
+
+			END
+		END
+		fSeek( ::fhandle, 0, 0)
+		return ( data )
+	END
+
+	METHOD parsegroup( a )
+		local data, counter, fileLine
+		data = {}
+		counter = 1
+		a = upper ( allTrim ( a ) )
+		WHILE ( ! feof( ::fhandle ) )
+			fileLine = fileReadLine( ::fhandle )
+			IF ( ( allTrim ( upper ( fileLine ) ) ) == ( "[" + a + "]" ) )
+				fileLine = fileReadLine( ::fhandle )
+				WHILE ( ( ! feof( ::fhandle ) ) && ( ( left ( fileLine, 1 ) ) != "[" ) )
+					IF ( fileLine != "" )
+						data[counter] = fileLine
+					END
+					fileLine = fileReadLine( ::fhandle )
+				counter = counter + 1
+				END
+			END
+		END
+		fSeek( ::fhandle, 0, 0)
+		return ( data )
+	END
+
+	METHOD deleteuser ( a )
+		local fileLine, data, slen
+		slen = len( a )
+		a = allTrim( upper ( a ) )
+		data = ""
+		WHILE ( ! feof( ::fhandle ) )
+			fileLine = fileReadLine( ::fhandle )
+			IF ( ( upper ( strextract ( fileLine, ":", 1 ) ) ) == a )
+				fileLine = fileReadLine( ::fhandle )
+			END
+			data += fileLine + "\r\n"
+		END
+		fWrite( ( fileCreate ( ::filename ) ), data )
+		fSeek( ::fhandle, 0, 0)
+		return ( 1 )
+	END
+
+	METHOD createuser ( gname, username, password )
+		local fileLine, data, a
+		data = ""
+		a = username + ":" + password
+		WHILE ( ! feof( ::fhandle ) )
+			fileLine = fileReadLine( ::fhandle )
+			IF ( "[" + ( upper ( allTrim ( gname ) ) ) + "]"  )
+				data += fileLine + "\r\n" + a + "\r\n"
+				fileLine = fileReadLine( ::fhandle )
+			END
+			IF ( ( allTrim ( upper ( username ) ) ) == ( allTrim ( upper ( strextract ( fileLine, ":", 1 ) ) ) ) )
+				fSeek( ::fhandle, 0, 0)
+				return ( 0 )
+			END
+			data += fileLine + "\r\n"
+		END
+		fWrite( ( fileCreate ( ::filename ) ), data )
+		fSeek( ::fhandle, 0, 0)
+		return ( 1 )
+	END
+
+	ACCESS apCompression
+		return ( ::getOneLine ( "AP_COMPRESSION" ) )
+	END
+
+	ASSIGN apCompression( a )
+		a = allTrim ( lower ( a ) )
+		IF ( ! isdigit ( a ) )
+			return
+		END
+		::setOneLine ( a, "AP_COMPRESSION" )
+	END
+
+	ACCESS usage
+		return ( ::getOneLine ( "USAGE_LOGGING" ) )
+	END
+
+	ASSIGN usage ( a )
+		IF ( ! isdigit ( a ) )
+			return
+		END
+		::setOneLine ( a, "USAGE_LOGGING" )
+	END
+
+	ACCESS secureCert
+		return ( ::getOneLine ( "CERTIFICATE" ) )
+	END
+
+	ASSIGN secureCert ( a )
+		IF ( fparsefp ( a ) == "" || ( fparsedr ( a ) == "" ) )
+			return
+		END
+		::setOneLine ( a, "CERTIFICATE" ) 
+	END
+
+	ACCESS exeCuteTime
+		return ( ::getOneLine ( "MAX_EXECUTE_TIME" ) )
+	END
+
+	ASSIGN executeTime ( a )
+		if ( TYPE ( a ) == "C" )
+			a = 0 + a
+		end
+
+		if ( TYPE ( a ) != "N" )
+			return
+		end
+
+		::setOneLine ( a, "MAX_EXECUTE_TIME" )
+	END
+
+	ACCESS secureKey
+		return ( ::getOneLine ( "KEY" ) )
+	END
+
+	ASSIGN secureKey ( a )
+		IF ( fparsefp ( a ) == "" || ( fparsedr ( a ) == "" ) )
+			return
+		END
+		::setOneLine ( a, "KEY" ) 
+	END
+
+	ACCESS compression
+		return( ::_compression = ( ::getOneLine ( "COMPRESSION" ) ) )
+	END
+
+	ASSIGN compression( a )
+		a = allTrim ( lower ( a ) )
+		IF ( ( a != "on" ) && ( a != "off" ) )
+			return
+		END
+		::setOneLine ( a, "COMPRESSION" )
+	END
+
+	ACCESS serverRoot
+		return ( ::getOneLine ( "SERVER_ROOT" ) )
+	END
+
+	ASSIGN serverRoot ( a )
+		IF ( fparsefp ( a ) == "" || ( fparsedr ( a ) == "" ) )
+			return
+		END
+		::setOneLine ( a, "SERVER_ROOT" ) 
+	END
+
+	ACCESS upLoadDir
+		return ( ::getOneLine ( "UPLOAD_DIR" ) )
+	END
+
+	ASSIGN upLoadDir ( a )
+		IF ( fparsefp ( a ) == "" || ( fparsedr ( a ) == "" ) )
+			return
+		END
+		::setOneLine ( a, "UPLOAD_DIR" ) 
+	END
+
+	ACCESS realm
+		return ( ::getArray ( "[realms]" ) )
+	END
+
+	ACCESS group
+		return ( ::getArray ( "[GROUPS]" ) )
+	END
+
+	MEthod createCgi ( a )
+		local fileLine, data, exit
+		data = ""
+		exit = 0
+		IF ( fparsefp ( a ) == "" || ( fparsedr ( a ) == "" ) )
+		println ( "no dir" )
+			return ( 0 )
+		END
+		WHILE ( ! feof( ::fhandle ) )
+				fileLine = fileReadLine( ::fhandle )
+			IF ( ( allTrim ( lower ( strextract ( fileLine, "=", 1 ) ) ) ) == "cgi_dir" && ( exit != 1 ) )
+				data = data + "cgi_dir = " + a + "\r\n"
+				exit = 1
+			END
+			data += fileLine + "\r\n"
+		END
+		fWrite( ( fileCreate ( ::filename ) ), data )
+		fSeek( ::fhandle, 0, 0)
+		return ( 1 )
+	END
+
+	METHOD deleteCgi ( a )
+		local fileLine, data
+		data = ""
+		WHILE ( ! feof( ::fhandle ) )
+			fileLine = fileReadLine( ::fhandle )
+			IF ( ( allTrim ( upper ( strextract ( fileLine, "=", 2 ) ) ) ) == ( allTrim ( upper ( a ) ) ) )
+				fileLine = fileReadLine( ::fhandle )
+			END
+			data += fileLine + "\r\n"
+		END
+		fWrite( fileCreate ( ::filename ), data )
+		fSeek( ::fhandle, 0, 0)
+		return ( 1 )
+	END
+
+	METHOD creategroup ( gname )
+		return ( ::setAdditionalLine ( "[GROUPS]", gname, "" ) )
+	END
+
+	METHOD createrealm ( rname, directory )
+		return ( ::setAdditionalLine ( "[REALMS]", rname, directory ) )
+	END
+
+	METHOD deleterealm ( rname )
+		return ( ::deleteLine ( rname ) )
+	END
+
+	METHOD deletegroup ( gname )
+		return ( ::deleteLine ( gname ) )
+	END
+
+	PRIVATE:
+
+		METHOD setOneLine ( newdesignation, olddesignation )
+			local data,fileLine
+			data = ""
+			WHILE ( ! feof( ::fhandle ) )
+				fileLine = fileReadLine( ::fhandle )
+					IF ( ( allTrim ( upper ( strextract ( fileLine, "=", 1 ) ) ) ) == ( olddesignation ) )
+						data += ( lower ( olddesignation ) ) + " = " + newdesignation + "\r\n"
+						fileLine = fileReadLine( ::fhandle )
+					END
+				data += fileLine + "\r\n"
+			END
+			fSeek( ::fhandle, 0, 0)
+			fWrite( ( fileCreate ( ::filename ) ), data )
+			return ( 1 )
+		END
+
+		METHOD deleteline (  b )
+			local fileLine, data
+			data = ""
+			WHILE ( ! feof( ::fhandle ) )
+				fileLine = fileReadLine( ::fhandle )
+				IF ( ( allTrim ( upper ( strextract ( fileLine, "=", 1 ) ) ) ) == ( allTrim ( upper ( b ) ) ) )
+					fileLine = fileReadLine( ::fhandle )
+				END
+				IF ( ( "[" + ( upper( allTrim ( b ) ) ) + "]" ) == ( upper ( allTrim ( fileLine ) ) ) )
+					fileLine = fileReadLine( ::fhandle )
+					WHILE ( ( ! feof( ::fhandle ) ) && ( ( left ( fileLine, 1 ) ) != "[" ) )
+						fileLine = fileReadLine( ::fhandle )
+					END
+				END
+				data += fileLine + "\r\n"
+			END
+			fWrite( fileCreate ( ::filename ), data )
+			fSeek( ::fhandle, 0, 0)
+			return ( 1 )
+		END
+
+		METHOD setAdditionalLine( designation, b, directory )
+			local fileLine, data, c
+			data = ""
+			IF ( directory != "" )
+				c = b + " = " + directory
+			ELSE
+				c = b
+			END
+			WHILE ( ! feof( ::fhandle ) )
+				fileLine = fileReadLine( ::fhandle )
+				IF ( ( allTrim ( upper ( fileLine ) ) ) == designation  )
+					data += fileLine + "\r\n"
+					fileLine = fileReadLine( ::fhandle )
+					data += c + "\r\n"
+					data += fileLine + "\r\n"
+					WHILE ( ( ! feof ( ::fhandle ) ) && ( ( left ( fileLine, 1 ) ) != "[" ) )
+						fileLine = fileReadLine( ::fhandle )
+						IF ( ( allTrim ( upper ( b ) ) ) == ( allTrim ( upper ( strextract ( fileLine, "=", 1 ) ) ) ) )
+							fSeek( ::fhandle, 0, 0)
+							return ( 0 )
+						END
+						data += fileLine + "\r\n"
+					END
+					fileLine = fileReadLine( ::fhandle )
+				END
+				data += fileLine + "\r\n"
+				IF ( feof( ::fhandle ) )
+					data += "\r\n" + "[" + ( lower ( b ) ) + "]" + "\r\n"
+				END
+			END
+			fWrite( ( fileCreate ( ::filename ) ), data )
+			fSeek( ::fhandle, 0, 0)
+			return ( 1 )
+		END
+
+		METHOD getArray( a )
+			local data, fileLine, counter
+			data = {}
+			counter = 1
+			WHILE ( ! feof( ::fhandle ) )
+				fileLine = fileReadLine( ::fhandle )
+				IF ( ( allTrim ( upper ( fileLine ) ) ) == ( a ) )
+					fileLine = fileReadLine( ::fhandle )
+					WHILE ( ! feof( ::fhandle ) && ( left ( fileLine, 1 ) ) != "[" )
+						IF ( fileLine != "")
+							data[counter] = fileLine
+							fileLine = fileReadLine( ::fhandle )
+						ELSE
+							fileLine = fileReadLine( ::fhandle )
+						END
+					counter += 1
+					END
+				END
+			END
+			fSeek( ::fhandle, 0, 0)
+			return ( data )
+		END
+
+		METHOD getOneLine ( a )
+			local data,fileLine
+			data = ""
+			WHILE ( ! feof( ::fhandle ) )
+				fileLine = fileReadLine( ::fhandle )
+				IF ( ( allTrim ( upper (strextract ( fileLine, "=", 1 ) ) ) )  == ( a ) )
+					data = allTrim ( strextract( fileLine, "=", 2) )
+				END
+			END
+			fSeek( ::fhandle, 0, 0)
+			return ( data )
+		END
+END
+
+class engineconfig
+	public:
+		local fhandle, filename, _debugger,_console, _cacheEntries, _cacheSize, _monitorPeriod, _systemLog
+
+	METHOD new ( fName )
+		::fhandle = fileOpen ( fName, 2 )
+		::filename = fName
+		return ( 1 )
+	END
+
+	METHOD createserver ( sname, pnum, mon )
+		local  data, name, slen, rightside, fileLine
+		data = ""
+		IF ( upper ( allTrim ( mon ) ) == "OFF" )
+			name = "server=" + sname + "," + pnum + "," + sname + ".ini"
+		ELSE 
+			name = "server=" + sname + "," + pnum + "," + sname + ".ini,MONITOR"
+		END 
+		WHILE ( ! feof( ::fhandle ) )
+			IF ( ( left ( fileLine, 7 ) ) == "server=" )
+				data += name + "\r\n"
+				While ( ( ! feof( ::fhandle ) ) && ( ( left ( fileLine, 1 ) ) != "#" ) && ( ( left ( fileLine, 1 ) ) != "[" ) )
+					fileLine = fileReadLine( ::fhandle )
+					data += fileLine + "\r\n"
+					slen = len ( fileLine )
+					rightside = ( right ( fileLine, ( slen - 7 ) ) )
+					IF ( ( upper ( strextract ( rightside, ",", 1 ) ) ) == (upper ( sname ) ) )
+						fSeek( ::fhandle, 0, 0)
+						return ( 0 )
+					END
+				END
+			END
+			fileLine = fileReadLine( ::fhandle )
+			data += fileLine + "\r\n"
+		END
+		fWrite( ( fileCreate ( ::filename ) ), data )
+		fSeek( ::fhandle, 0, 0)
+		return ( 1 )
+	END
+
+	METHOD deleteserver ( a )
+		local  data, slen, fileLine, exit
+		data = ""
+		a = "server=" + a
+		slen = len ( a )
+		WHILE ( ! feof( ::fhandle ) )
+			fileLine = fileReadLine( ::fhandle )
+			IF ( upper ( a ) == ( upper ( allTrim ( left ( fileLine, slen ) ) ) ) )
+				fileLine = fileReadLine( ::fhandle )
+				exit = 1
+			END
+			data += fileLine + "\r\n"
+		END
+		IF ( exit == 1 )
+			fWrite( ( fileCreate ( ::filename ) ), data )
+			fSeek( ::fhandle, 0, 0)
+			return ( 1 )
+		ELSE
+			fSeek( ::fhandle, 0, 0)
+			return ( 0 )
+		END
+	END
+
+	ACCESS cacheSize(  )
+		local data,fileLine
+		data = ""
+		WHILE ( ! feof( ::fhandle ) )
+			fileLine = fileReadLine( ::fhandle )
+			IF ( ( allTrim ( upper ( strextract ( fileLine, "=", 1 ) ) ) ) == ( "CACHE_SIZE" ) )
+				data = allTrim ( strextract( fileLine, "=", 2) )
+			END
+		END
+		fSeek( ::fhandle, 0, 0)
+		return ( data )
+	END 
+
+	ACCESS server (  )
+		local data, counter, fileLine
+		data = {}
+		counter = 1
+		WHILE ( ! feof( ::fhandle ) )
+			fileLine = fileReadLine( ::fhandle )
+			IF ( ( allTrim ( upper ( strextract ( fileLine, "=", 1 ) ) ) ) == ( "SERVER" ) )
+				WHILE ( ( ! feof( ::fhandle ) ) && ( ( left ( fileLine, 1 ) ) != "#" ) && ( ( left ( fileLine, 1 ) ) != "[" ) )
+				IF ( fileLine != "" )
+					data[counter] = fileLine
+				END
+				fileLine = fileReadLine( ::fhandle )
+				counter = counter + 1
+				END
+			END
+		END
+		fSeek( ::fhandle, 0, 0)
+		return ( data )
+	END
+
+	ACCESS systemLog(  )
+		return ( ::getOneLine ( "SYSTEM_LOG" ) )
+	END 
+
+	ACCESS debugger (  )
+		return ( ::getOneLine ( "DEBUGGER" ) )
+	END
+
+	ACCESS console(  )
+		return ( ::getOneLine ( "CONSOLE" ) )
+	END
+
+	ACCESS cacheEntries(  )
+		return ( ::getOneLine ( "CACHE_ENTRIES" ) )
+	END
+
+	ACCESS monitorPeriod(  )
+		return ( ::getOneLine ( "MONITOR_PERIOD"  ) )
+	END
+
+	Method setDebugger ( a )
+		a = allTrim ( lower ( a ) )
+		IF ( ( a != "on" ) && ( a != "off" ) )
+			return ( 0 )
+		END
+		return ( ::setOneLine ( "DEBUGGER", "debugger=" + a + "\r\n" ) )
+	END
+
+	Method setconsole ( a )
+		a = allTrim ( lower ( a ) )
+		IF ( ( a != "hidden" ) && ( a != "visible" ) )
+			return ( 0 )
+		END
+		return ( ::setOneLine ( "CONSOLE", "console=" + a + "\r\n" ) )
+	END 
+
+
+	Method setCacheEntries ( a )
+		a = allTrim ( lower ( a ) )
+		IF ( ( ! isdigit ( a ) ) || ( a < 16 ) )
+			return ( 0 )
+		END
+		a = allTrim ( lower ( a ) )
+		return ( ::setOneLine ( "CACHE_ENTRIES", "cache_entries=" + a + "\r\n" ) )
+	END 
+
+	Method setCacheSize ( a )
+		a = allTrim ( lower ( a ) )
+		IF ( ! isdigit ( a ) ) 
+			return ( 0 )
+		END
+		return ( ::setOneLine ( "CACHE_SIZE", "cache_size=" + a + "\r\n" ) )
+	END 
+
+	Method setMonitorPeriod ( a )
+		a = allTrim ( lower ( a ) )
+		IF ( ! isdigit ( a ) ) 
+			return ( 0 )
+		END
+		return ( ::setOneLine ( "MONITOR_PERIOD", "monitor_period=" + a + "\r\n" ) )
+	END 
+
+	Method setSystemLog( fileName, history, output )
+		return ( ::setOneLine ( "SYSTEM_LOG", "system_log=" + fileName + "," + history + "," + output + "\r\n" ) )
+	END 
+
+	PRIVATE:
+		METHOD setOneLine ( designation, a )
+			local data,fileLine
+			data = ""
+			WHILE ( ! feof( ::fhandle ) )
+				fileLine = fileReadLine( ::fhandle )
+				IF ( ( allTrim ( upper ( strextract ( fileLine, "=", 1 ) ) ) ) == ( designation ) )
+					data += a
+					fileLine = fileReadLine( ::fhandle )
+				END
+				data += fileLine + "\r\n"
+			END
+			fSeek( ::fhandle, 0, 0)
+			fWrite( ( fileCreate ( ::filename ) ), data )
+			return ( 1 )
+		END
+
+		Method getOneLine ( a )
+			local data,fileLine
+			data = ""
+			WHILE ( ! feof( ::fhandle ) )
+
+				fileLine = fileReadLine( ::fhandle )
+				IF ( ( allTrim ( upper ( strextract ( fileLine, "=", 1 ) ) ) ) == ( a ) )
+					data = allTrim ( strextract( fileLine, "=", 2) )
+				END
+			END
+			fSeek( ::fhandle, 0, 0)
+			return ( data )
+		END
+END
+
+ LOCAL object, session
+session = new ( "session" )
+<%
+<html>
+<head>
+</head>
+<body>
+%>
+
+// to parse realm/group attributes
+//	local counter,slen, x
+//	object = new ( "serverconfig", "server.ini" )
+//	x = object.parsegroup( "testrealm" )
+//	FOR ( counter = 1, slen = len ( x ) ; counter < ( slen + 1 ); ++counter )
+//		! ( x[counter] ) + "<br>"
+//	END
+
+// to retrieve all realms
+//	local counter, slen, x
+//	object = new( "serverconfig", "server.ini" )
+//	x = object.realm
+//	FOR ( counter = 1, slen = len ( x ) ; counter < ( slen + 1 ); ++counter )
+//		! ( x[counter] ) + "<br>"
+//	END
+
+// to retrieve allgroups
+//	local counter, slen, x
+//	object = new( "serverconfig", "server.ini" )
+//	x = object.group
+//	FOR ( counter = 1, slen = len ( x ) ; counter < ( slen + 1 ); ++counter ) 
+//		! ( x[counter] ) + "<br>"
+//	END
+
+// to delete a group 
+//	object = new( "serverconfig", "server.ini" )
+//	println ( object.deletegroup( "master" ) )
+
+// to create a new group
+//	object = new( "serverconfig", "server.ini" )
+//	println ( object.creategroup( "jaysgroup" ) )
+
+// to create a user to a group or realm
+//	object = new( "serverconfig", "server.ini" )
+//	println ( object.createuser( "group1", "jay2", "12345" ) )
+
+// to delete an existing username
+//	object = new( "serverconfig", "server.ini" )
+//	println ( object.deleteuser( "jay" ) )
+	
+// to create a realm
+//	object = new( "serverconfig", "server.ini" )
+//	println( object.createrealm( "testrealm3", "c:\\test\\test") )
+
+// to delete a realm
+//	object = new( "serverconfig", "server.ini" )
+//	println ( object.deleterealm( "testrealm" ) )
+
+// to set and retrieve compression 
+//	object = new( "serverconfig", "server.ini" )
+//	object.compression = "off"
+//	println ( object.compression  )
+
+// to set and retrieve ap_compression
+//	object = new( "serverconfig", "server.ini" )
+//	object.apCompression = "8191" 
+//	println ( object.apCompression )
+
+// to set and retrieve usage logging
+//	object = new( "serverconfig", "server.ini" )
+//	object.usage = "400"
+//	println ( object.usage )
+
+// to set and retrieve max execute time
+//	object = new( "serverconfig", "server.ini" )
+//	object.executeTime = 10
+//	println ( object.executeTime )
+
+// to set and retrieve secure certification
+//	object = new( "serverconfig", "server.ini" )
+//	object.secureCert = "c:\\slang\\jay\\jay2\\cakey.pem"
+//	println ( object.secureCert )
+
+// to set and retrieve server root
+//	object = new( "serverconfig", "server.ini" )
+//	object.serverRoot = "f:\\Workfolder\\test\\"
+//	println ( object.serverRoot )
+
+// to set and retrieve secure key
+//	object = new( "serverconfig", "server.ini" )
+//	object.secureKey = "c:\\slang\\jay\\jay2\\cakey.pem"
+//	println ( object.securekey )
+
+// to set and retrieve upload dir
+//	object = new( "serverconfig", "server.ini" )
+//	object.upLoadDir = "c:\\slang\\jay\\jay2\\upload"
+//	println ( object.upLoadDir )
+
+// to retrieve cgi
+//	local counter, slen, x
+//	object = new( "serverconfig", "server.ini" )
+//	x = object.cgi
+//	FOR ( counter = 1, slen = len ( x ) ; counter < ( slen + 1 ); ++counter ) 
+//		! ( x[counter] ) + "<br>"
+//	END
+
+// to add a new cgi
+//	object = new( "serverconfig", "server.ini" )
+//	println ( object.createCgi ( "c:\\slang\\jay\\jay2\\upload\\"  )
+
+// to delete an old cgi 
+//	object = new( "serverconfig", "server.ini" )
+//	println ( object.deleteCgi ( "c:\\slang\\test\\test2\\cgi\\"  ) )
+
+// to create a new server 
+//	object = new( "engineconfig", "engine.ini" )
+//	println ( object.createserver( "jay", "80", "on" ) )
+
+// to delete existing server
+//	object = new ( "engineconfig", "engine.ini" )
+//	println ( object.deleteserver( "jay" ) )
+
+// to retrieve all servers, x
+//	local counter, slen
+//	object = new( "engineconfig", "engine.ini" )
+//	x = object.server
+//	FOR ( counter = 1, slen = len ( x ) ; counter < ( slen + 1 ); ++counter ) 
+//		! ( x[counter] ) + "<br>"
+//	END
+
+// to retrieve debugger mode
+//	object = new( "engineconfig", "engine.ini" )
+//	println ( object.debugger )
+
+// to set degguber mode
+//	object = new( "engineconfig", "engine.ini" )
+//	println ( object.setDebugger( "off") )
+
+// to retrieve console mode
+//	object = new( "engineconfig", "engine.ini" )
+//	println ( object.console )
+
+// to set consoler mode
+//	object = new( "engineconfig", "engine.ini" )
+//	println ( object.setconsole( "hidden") )
+
+// to retrieve cache entries
+//	object = new( "engineconfig", "engine.ini" )
+//	println ( object.cacheEntries )
+
+// to set cache entries
+//	object = new( "engineconfig", "engine.ini" )
+//	println ( object.setCacheEntries( "2048" ) )
+
+// to retrieve cache size
+//	object = new( "engineconfig", "engine.ini" )
+//	println ( object.cacheSize )
+
+// to set cache size
+//	object = new( "engineconfig", "engine.ini" )
+//	println ( object.setCacheSize( "100" ) )
+
+// to retrieve the monitor period
+//	object = new( "engineconfig", "engine.ini" )
+//	println ( object.monitorPeriod )
+
+// to set the monitor period
+//	object = new( "engineconfig", "engine.ini" )
+//	println ( object.setMonitorPeriod( "80" ) )
+
+// to retrieve system log
+//	object = new( "engineconfig", "engine.ini" )
+//	println ( object.systemLog )
+
+// to set system log
+//	object = new( "engineconfig", "engine.ini" )
+//	( object.setSystemLog ( "c:\\systemLog.txt", "258", "1" ) )
+
+// dumbcache? default page? server name?
+
+// module?, run?
+
+]>
+</body>
+</html>

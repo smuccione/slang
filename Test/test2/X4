@@ -1,0 +1,28 @@
+#table 1
+
+function x ( d )
+  a = "hello"
+  b = {||print ( a, '  ' ), a}
+  c[0] = b
+omcollect()
+
+  d = {||a = "there "}
+
+  return c
+end
+
+debugbreak()
+
+for ( loop = 0; loop < 1000; loop++ )
+   a=x(@b)
+
+   print ( loop, '  ' )
+
+   (a[0])()
+//  omCollect()
+
+   (b)()
+   (a[0])()
+   println()
+end
+ 

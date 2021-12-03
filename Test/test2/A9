@@ -1,0 +1,31 @@
+function Walk()
+   local name, x, g
+   local desc
+
+   name ="hello"
+   g = " great "
+
+   dbuse       ( 'dmtf\DMIcomp', "component", 1 )
+
+   println ( name, " : ", alltrim ( field->name ), " : ", alltrim ( dbselect()->name ) )
+
+   x = 1->(desc + name)
+   println ( x )
+
+   component->dbclose()
+
+   dbuse       ( 'dmtf\DMIcomp', "component", 1 )
+
+   x = component->("" + name +  desc + "")
+   println ( x )
+
+   x = component->(name + desc)
+   println ( x )
+
+   component->dbclose()
+
+
+end
+
+walk()
+ 

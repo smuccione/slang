@@ -1,0 +1,1473 @@
+<ManuScript>
+  <properties manuscriptID="R3ce32805-6d95-4fd6-8702-81125e3223b" versionID="R3ce32805-6d95-4fd6-8702-81125e3223b" versionDate="2006-06-05" version="1" boolean="1" fieldCache="1" caption="Simple Personal Auto" inherited="" image="" dataSchema="">
+    <keys>
+      <keyInfo name="lob" value="PAUTO" />
+      <keyInfo name="state" value="US" />
+      <keyInfo name="effectiveDateNew" value="2006-06-01" />
+      <keyInfo name="effectiveDateRenewal" value="2006-06-01" />
+    </keys>
+    <contexts />
+    <notes />
+  </properties>
+  <model defaultValue="PoliyPremium.TermPremium">
+    <object id="data" path="data">
+      <minOccurs value="1" />
+      <maxOccurs value="1" />
+      <object id="Account" path="account">
+        <minOccurs value="1" />
+        <maxOccurs value="1" />
+        <public id="Account.InsuredName" path="InsuredName" type="string">
+          <definition>
+            <caption value="Insured Name" />
+          </definition>
+        </public>
+        <public id="Account.Address" path="Address" type="string">
+          <definition>
+            <caption value="Address" />
+          </definition>
+        </public>
+        <public id="Account.Address2" path="Address2" type="string">
+          <definition>
+            <caption value="Address 2" />
+          </definition>
+        </public>
+        <public id="Account.City" path="City" type="string">
+          <definition>
+            <caption value="City" />
+          </definition>
+        </public>
+        <public id="Account.County" path="County" type="string">
+          <definition>
+            <caption value="County" />
+            <options idref="Territory" name="County" />
+          </definition>
+        </public>
+        <public id="Account.State" path="State" type="string">
+          <definition>
+            <caption value="State" />
+            <options idref="States" name="State" />
+          </definition>
+        </public>
+        <public id="Account.ZIPCode" path="ZIPCode" type="string">
+          <definition>
+            <caption value="ZIP Code" />
+          </definition>
+        </public>
+        <public id="Account.PhoneNumber" path="PhoneNumber" type="string">
+          <definition>
+            <caption value="Phone Number" />
+          </definition>
+        </public>
+        <public id="Account.FaxNumber" path="FaxNumber" type="string">
+          <definition>
+            <caption value="Fax Number" />
+          </definition>
+        </public>
+      </object>
+      <object id="Policy" path="policy">
+        <minOccurs value="1" />
+        <maxOccurs value="1" />
+        <object id="Vehicle" path="vehicle">
+          <minOccurs value="1" />
+          <maxOccurs value="*" />
+          <public id="Vehicle.Premium" path="Premium" type="float">
+            <definition>
+              <caption value="Premium" />
+            </definition>
+            <rules>
+              <value>
+                <calculation>
+                  <argument op="eq" idref="BIPremium.TermPremium" type="float" />
+                  <argument op="add" idref="PDPremium.TermPremium" type="float" />
+                  <argument op="add" idref="COLLPremium.TermPremium" type="float" />
+                  <argument op="add" idref="OTCPremium.TermPremium" type="float" />
+                </calculation>
+              </value>
+            </rules>
+          </public>
+          <public id="Vehicle.Year" path="Year" type="string">
+            <definition>
+              <caption value="Year" />
+            </definition>
+          </public>
+          <public id="Vehicle.Make" path="Make" type="string">
+            <definition>
+              <caption value="Make" />
+            </definition>
+          </public>
+          <public id="Vehicle.Model" path="Model" type="string">
+            <definition>
+              <caption value="Model" />
+            </definition>
+          </public>
+          <public id="Vehicle.VIN" path="VIN" type="string">
+            <definition>
+              <caption value="VIN" />
+            </definition>
+          </public>
+          <public id="Vehicle.Symbol" path="Symbol" type="string">
+            <definition>
+              <caption value="Symbol" />
+              <options idref="SymbolFactor" name="Symbol" />
+            </definition>
+            <rules>
+              <default value="10" />
+            </rules>
+          </public>
+          <public id="Vehicle.Usage" path="Usage" type="string">
+            <definition>
+              <caption value="Usage" />
+              <options>
+                <option value="P" caption="Pleasure" />
+                <option value="W" caption="Work" />
+                <option value="B" caption="Business" />
+                <option value="F" caption="Farm" />
+              </options>
+            </definition>
+            <rules>
+              <default value="P" />
+            </rules>
+          </public>
+          <public id="Vehicle.MilesToWork" path="MilesToWork" type="int">
+            <definition>
+              <caption value="Miles To Work" />
+            </definition>
+          </public>
+          <object id="BICoverage">
+            <minOccurs value="1" />
+            <maxOccurs value="1" />
+            <public id="BICoverage.Limit" path="Coverage[Code=&quot;BI&quot;]/Limit" type="string">
+              <definition>
+                <caption value="Limit" />
+                <options idref="BILimitFactor" name="Limit" />
+              </definition>
+              <rules>
+                <default value="50/100" />
+              </rules>
+            </public>
+            <object id="BIPremium">
+              <minOccurs value="1" />
+              <maxOccurs value="1" />
+              <public id="BIPremium.TermPremium" path="Coverage[Code=&quot;BI&quot;]/TermPremium" type="float">
+                <definition>
+                  <caption value="BI Premium" />
+                </definition>
+                <rules>
+                  <value>
+                    <calculation>
+                      <argument op="eq" idref="BICoverage.BaseRate" type="float" />
+                      <argument op="multiply" round="10" roundType="round" idref="BICoverage.LimitFactor" type="float" />
+                      <argument op="multiply" round="1" roundType="round" idref="Vehicle.ClassFactor" type="float" />
+                      <argument op="multiply" round="1" roundType="round" idref="PolicyInfo.MultiCarDiscount" type="float" />
+                      <argument op="multiply" round="1" roundType="round" idref="PolicyInfo.TermFactor" type="float" />
+                    </calculation>
+                  </value>
+                </rules>
+              </public>
+              <public id="BIPremium.WrittenPremium" path="Coverage[Code=&quot;BI&quot;]/WrittenPremium" type="float">
+                <definition>
+                  <caption value="Written Premium" />
+                </definition>
+                <rules>
+                  <value value="0" />
+                </rules>
+              </public>
+              <public id="BIPremium.Charge" path="Coverage[Code=&quot;BI&quot;]/Charge" type="float">
+                <definition>
+                  <caption value="Charge" />
+                </definition>
+              </public>
+            </object>
+            <private id="BICoverage.BaseRate" caption="" type="float">
+              <value>
+                <lookup>
+                  <tableRef value="LiabilityBaseRates" />
+                  <fieldRef value="BI" />
+                  <keyRef idref="Location.Territory" type="string" name="Territory" />
+                </lookup>
+              </value>
+            </private>
+            <private id="BICoverage.LimitFactor" caption="" type="float">
+              <value>
+                <lookup>
+                  <tableRef value="BILimitFactor" />
+                  <fieldRef value="Value" />
+                  <keyRef idref="BICoverage.Limit" type="string" name="Limit" />
+                </lookup>
+              </value>
+            </private>
+          </object>
+          <object id="PDCoverage">
+            <minOccurs value="1" />
+            <maxOccurs value="1" />
+            <private id="PDCoverage.BaseRate" caption="" type="float">
+              <value>
+                <lookup>
+                  <tableRef value="LiabilityBaseRates" />
+                  <fieldRef value="PD" />
+                  <keyRef idref="Location.Territory" type="string" name="Territory" />
+                </lookup>
+              </value>
+            </private>
+            <public id="PDCoverage.Limit" path="Coverage[Code=&quot;PD&quot;]/Limit" type="string">
+              <definition>
+                <caption value="PD Coverage Limit" />
+                <options idref="PDLimitFactor" name="Limit" />
+              </definition>
+              <rules>
+                <default value="50" />
+              </rules>
+            </public>
+            <object id="PDPremium">
+              <minOccurs value="1" />
+              <maxOccurs value="1" />
+              <public id="PDPremium.Charge" path="Coverage[Code=&quot;PD&quot;]/Charge" type="float">
+                <definition>
+                  <caption value="PD Premium Charge" />
+                </definition>
+              </public>
+              <public id="PDPremium.TermPremium" path="Coverage[Code=&quot;PD&quot;]/TermPremium" type="float">
+                <definition>
+                  <caption value="PD Premium" />
+                </definition>
+                <rules>
+                  <value>
+                    <calculation>
+                      <argument op="eq" idref="PDCoverage.BaseRate" type="float" />
+                      <argument op="multiply" round="10" roundType="round" idref="PDCoverage.LimitFactor" type="float" />
+                      <argument op="multiply" round="1" roundType="round" idref="Vehicle.ClassFactor" type="float" />
+                      <argument op="multiply" round="1" roundType="round" idref="PolicyInfo.MultiCarDiscount" type="float" />
+                      <argument op="multiply" round="1" roundType="round" idref="PolicyInfo.TermFactor" type="float" />
+                    </calculation>
+                  </value>
+                </rules>
+              </public>
+              <public id="PDPremium.WrittenPremium" path="Coverage[Code=&quot;PD&quot;]/WrittenPremium" type="float">
+                <definition>
+                  <caption value="PD Premium Written Premium" />
+                </definition>
+                <rules>
+                  <value value="0" />
+                </rules>
+              </public>
+            </object>
+            <private id="PDCoverage.LimitFactor" caption="" type="float">
+              <value>
+                <lookup>
+                  <tableRef value="PDLimitFactor" />
+                  <fieldRef value="Value" />
+                  <keyRef idref="PDCoverage.Limit" type="string" name="Limit" />
+                </lookup>
+              </value>
+            </private>
+          </object>
+          <object id="OTCCoverage">
+            <minOccurs value="1" />
+            <maxOccurs value="1" />
+            <private id="OTCCoverage.BaseRate" caption="" type="float">
+              <value>
+                <lookup>
+                  <tableRef value="OTCRate" />
+                  <fieldRef value="Value" />
+                  <keyRef idref="OTCCoverage.Deductible" type="string" name="Deductible" />
+                  <keyRef idref="Location.Territory" type="string" name="Territory" />
+                </lookup>
+              </value>
+            </private>
+            <public id="OTCCoverage.Deductible" path="Coverage[Code=&quot;OTC&quot;]/Deductible" type="string">
+              <definition>
+                <caption value="OTC Coverage Deductible" />
+                <options idref="OTCRate" name="Deductible" />
+              </definition>
+              <rules>
+                <default value="250" />
+              </rules>
+            </public>
+            <object id="OTCPremium">
+              <minOccurs value="1" />
+              <maxOccurs value="1" />
+              <public id="OTCPremium.Charge" path="Coverage[Code=&quot;OTC&quot;]/Charge" type="float">
+                <definition>
+                  <caption value="OTC Premium Charge" />
+                </definition>
+              </public>
+              <public id="OTCPremium.TermPremium" path="Coverage[Code=&quot;OTC&quot;]/TermPremium" type="float">
+                <definition>
+                  <caption value="OTC Premium" />
+                </definition>
+                <rules>
+                  <value>
+                    <calculation>
+                      <argument op="eq" idref="OTCCoverage.BaseRate" type="float" />
+                      <argument op="multiply" idref="Vehicle.SymbolFactor" type="float" />
+                      <argument op="multiply" round="1" roundType="round" idref="Vehicle.ClassFactor" type="float" />
+                      <argument op="multiply" round="1" roundType="round" idref="PolicyInfo.MultiCarDiscount" type="float" />
+                      <argument op="multiply" round="1" roundType="round" idref="PolicyInfo.TermFactor" type="float" />
+                    </calculation>
+                  </value>
+                </rules>
+              </public>
+              <public id="OTCPremium.WrittenPremium" path="Coverage[Code=&quot;OTC&quot;]/WrittenPremium" type="float">
+                <definition>
+                  <caption value="OTC Premium Written Premium" />
+                </definition>
+                <rules>
+                  <value value="0" />
+                </rules>
+              </public>
+            </object>
+          </object>
+          <object id="COLLCoverage">
+            <minOccurs value="1" />
+            <maxOccurs value="1" />
+            <private id="COLLCoverage.BaseRate" caption="" type="float">
+              <value>
+                <lookup>
+                  <tableRef value="CollRate" />
+                  <fieldRef value="Value" />
+                  <keyRef idref="COLLCoverage.Deductible" type="string" name="Deductible" />
+                  <keyRef idref="Location.Territory" type="string" name="Territory" />
+                </lookup>
+              </value>
+            </private>
+            <public id="COLLCoverage.Deductible" path="Coverage[Code=&quot;COLL&quot;]/Deductible" type="string">
+              <definition>
+                <caption value="COLL Coverage Deductible" />
+                <options idref="CollRate" name="Deductible" />
+              </definition>
+              <rules>
+                <default value="50" />
+              </rules>
+            </public>
+            <object id="COLLPremium">
+              <minOccurs value="1" />
+              <maxOccurs value="1" />
+              <public id="COLLPremium.Charge" path="Coverage[Code=&quot;COLL&quot;]/Charge" type="float">
+                <definition>
+                  <caption value="COLL Premium Charge" />
+                </definition>
+              </public>
+              <public id="COLLPremium.TermPremium" path="Coverage[Code=&quot;COLL&quot;]/TermPremium" type="float">
+                <definition>
+                  <caption value="COLL Premium" />
+                </definition>
+                <rules>
+                  <value>
+                    <calculation>
+                      <argument op="eq" idref="COLLCoverage.BaseRate" type="float" />
+                      <argument op="multiply" idref="Vehicle.SymbolFactor" type="float" />
+                      <argument op="multiply" round="1" roundType="round" idref="Vehicle.ClassFactor" type="float" />
+                      <argument op="multiply" round="1" roundType="round" idref="PolicyInfo.MultiCarDiscount" type="float" />
+                      <argument op="multiply" round="1" roundType="round" idref="PolicyInfo.TermFactor" type="float" />
+                    </calculation>
+                  </value>
+                </rules>
+              </public>
+              <public id="COLLPremium.WrittenPremium" path="Coverage[Code=&quot;COLL&quot;]/WrittenPremium" type="float">
+                <definition>
+                  <caption value="COLL Premium Written Premium" />
+                </definition>
+                <rules>
+                  <value value="0" />
+                </rules>
+              </public>
+            </object>
+          </object>
+          <public id="Vehicle.DriverID" path="DriverID" type="string">
+            <definition>
+              <caption value="Driver ID" />
+              <options codeRef="Driver" captionRef="Driver.Name" />
+            </definition>
+            <rules>
+              <default idref="Driver.DriverID" />
+            </rules>
+          </public>
+          <public id="Vehicle.LocationID" path="LocationID" type="string">
+            <definition>
+              <caption value="Location ID" />
+              <options codeRef="Location" captionRef="Location.SummaryText" />
+            </definition>
+            <rules>
+              <default idref="Location.LocationID" />
+            </rules>
+          </public>
+          <relationships>
+            <relationship>
+              <relatedObject idref="Driver" />
+              <foreignKey idref="Vehicle.DriverID" />
+            </relationship>
+            <relationship>
+              <relatedObject idref="Location" />
+              <foreignKey idref="Vehicle.LocationID" />
+            </relationship>
+          </relationships>
+          <public id="Vehicle.ClassFactor" path="ClassFactor" type="float" comment="Hard code for now">
+            <definition>
+              <caption value="Class Factor" />
+            </definition>
+            <rules>
+              <value>
+                <lookup>
+                  <tableRef value="ClassFactor" />
+                  <fieldRef value="Factor" />
+                </lookup>
+              </value>
+            </rules>
+          </public>
+          <public id="Vehicle.ClassCode" path="ClassCode" type="string">
+            <definition>
+              <caption value="Class Code" />
+            </definition>
+          </public>
+          <private id="Vehicle.SymbolFactor" caption="" type="float">
+            <value>
+              <lookup>
+                <tableRef value="SymbolFactor" />
+                <fieldRef value="Value" />
+                <keyRef idref="Vehicle.Symbol" type="string" name="Symbol" />
+              </lookup>
+            </value>
+          </private>
+          <table id="ClassFactor" tableType="local">
+            <fields>
+              <field type="int" name="Code" />
+              <field type="int" name="Factor" />
+            </fields>
+            <rowKeys type="int" name="rowIndex">
+              <if>
+                <condition>
+                  <comparison compare="le">
+                    <operand idref="Driver.Age" type="int" />
+                    <operand type="int" value="17" />
+                  </comparison>
+                </condition>
+                <then>
+                  <if>
+                    <condition>
+                      <comparison compare="and">
+                        <comparison compare="eq">
+                          <operand idref="Driver.GoodStudent" type="boolean" />
+                          <operand idref="True" type="boolean" />
+                        </comparison>
+                        <comparison compare="eq">
+                          <operand idref="Driver.MaritalStatus" type="string" />
+                          <operand type="string" value="M" />
+                        </comparison>
+                      </comparison>
+                    </condition>
+                    <then value="0" />
+                  </if>
+                  <if>
+                    <condition idref="True" />
+                    <then value="1" />
+                  </if>
+                </then>
+              </if>
+              <if>
+                <condition>
+                  <comparison compare="and">
+                    <comparison compare="ge">
+                      <operand type="int" value="1" />
+                      <operand type="int" value="18" />
+                    </comparison>
+                    <comparison compare="le">
+                      <operand idref="Driver.Age" type="int" />
+                      <operand type="int" value="20" />
+                    </comparison>
+                  </comparison>
+                </condition>
+                <then>
+                  <if>
+                    <condition>
+                      <comparison compare="and">
+                        <comparison compare="eq">
+                          <operand idref="Driver.Gender" type="string" />
+                          <operand type="string" value="F" />
+                        </comparison>
+                        <comparison compare="eq">
+                          <operand idref="Driver.MaritalStatus" type="string" />
+                          <operand type="string" value="M" />
+                        </comparison>
+                      </comparison>
+                    </condition>
+                    <then value="2" />
+                  </if>
+                  <if>
+                    <condition>
+                      <comparison compare="eq">
+                        <operand idref="Driver.Gender" type="string" />
+                        <operand type="string" value="F" />
+                      </comparison>
+                    </condition>
+                    <then value="3" />
+                  </if>
+                  <if>
+                    <condition idref="True" />
+                    <then value="4" />
+                  </if>
+                </then>
+              </if>
+              <if>
+                <condition>
+                  <comparison compare="and">
+                    <comparison compare="gt">
+                      <operand idref="Driver.Age" type="int" />
+                      <operand type="int" value="21" />
+                    </comparison>
+                    <comparison compare="lt">
+                      <operand idref="Driver.Age" type="int" />
+                      <operand type="int" value="55" />
+                    </comparison>
+                  </comparison>
+                </condition>
+                <then value="5" />
+              </if>
+              <if>
+                <condition>
+                  <comparison compare="ge">
+                    <operand idref="Driver.Age" type="int" />
+                    <operand type="int" value="55" />
+                  </comparison>
+                </condition>
+                <then>
+                  <if>
+                    <condition>
+                      <comparison compare="gt">
+                        <operand idref="Driver.AccidentCount" type="float" />
+                        <operand type="int" value="0" />
+                      </comparison>
+                    </condition>
+                    <then value="6" />
+                  </if>
+                  <if>
+                    <condition idref="True" />
+                    <then value="7" />
+                  </if>
+                </then>
+              </if>
+            </rowKeys>
+            <colKeys type="int" name="colIndex">
+              <if>
+                <condition>
+                  <comparison compare="eq">
+                    <operand idref="Vehicle.Usage" type="string" />
+                    <operand type="string" value="P" />
+                  </comparison>
+                </condition>
+                <then value="0" />
+              </if>
+              <if>
+                <condition>
+                  <comparison compare="eq">
+                    <operand idref="Vehicle.Usage" type="string" />
+                    <operand type="string" value="W" />
+                  </comparison>
+                </condition>
+                <then>
+                  <if>
+                    <condition>
+                      <comparison compare="lt">
+                        <operand idref="Vehicle.MilesToWork" type="int" />
+                        <operand type="int" value="15" />
+                      </comparison>
+                    </condition>
+                    <then value="1" />
+                  </if>
+                  <if>
+                    <condition>
+                      <comparison compare="ge">
+                        <operand idref="Vehicle.MilesToWork" type="int" />
+                        <operand type="int" value="15" />
+                      </comparison>
+                    </condition>
+                    <then value="2" />
+                  </if>
+                </then>
+              </if>
+              <if>
+                <condition>
+                  <comparison compare="is">
+                    <operand idref="Vehicle.Usage" type="string" />
+                    <operand type="string" value="B,F" />
+                  </comparison>
+                </condition>
+                <then value="3" />
+              </if>
+            </colKeys>
+            <data>
+              <row value="8092,2.80,8094,2.98,8095,2.85,8096,2.85" />
+              <row value="8082,3.89,8084,3.70,8085,3.90,8086,3.90" />
+              <row value="8100,2.55,8104,2.65,8105,2.65,8106,2.65" />
+              <row value="8110,2.65,8114,2.87,8115,2.87,8116,2.87" />
+              <row value="8120,2.70,8124,2.90,8125,2.90,8126,2.90" />
+              <row value="8130,1.00,8134,1.30,8135,1.30,8136,1.30" />
+              <row value="8140,1.10,8144,1.10,8145,1.10,8146,1.10" />
+              <row value="8150,0.90,8154,1.00,8155,1.00,8156,1.00" />
+            </data>
+          </table>
+        </object>
+        <object id="Driver" path="driver">
+          <minOccurs value="1" />
+          <maxOccurs value="*" />
+          <object id="Violations" path="violations">
+            <minOccurs value="0" />
+            <maxOccurs value="*" />
+            <public id="Violations.OccurenceDate" path="OccurenceDate" type="date">
+              <definition>
+                <caption value="Occurence Date" />
+              </definition>
+            </public>
+            <public id="Violations.Code" path="Code" type="string">
+              <definition>
+                <caption value="Code" />
+                <options>
+                  <option value="SPD" caption="Speeding" />
+                  <option value="DUI" caption="DUI" />
+                  <option value="AFA" caption="At Fault Accident" />
+                  <option value="NFA" caption="Not-at-Fault Accident" />
+                  <option value="OTH" caption="Other" />
+                </options>
+              </definition>
+            </public>
+            <public id="Violations.BIAmount" path="BIAmount" type="float">
+              <definition>
+                <caption value="BI Amount" />
+                <applicable idref="Violations.IsAccidentCode" />
+              </definition>
+            </public>
+            <public id="Violations.PDAmount" path="PDAmount" type="float">
+              <definition>
+                <caption value="PD Amount" />
+                <applicable idref="Violations.IsAccidentCode" />
+              </definition>
+            </public>
+            <private id="Violations.IsAccidentCode" caption="" type="boolean">
+              <value>
+                <comparison compare="is">
+                  <operand idref="Violations.Code" type="string" />
+                  <operand type="string" value="AFA,NFA" />
+                </comparison>
+              </value>
+            </private>
+          </object>
+          <public id="Driver.Name" path="Name" type="string">
+            <definition>
+              <caption value="Name" />
+            </definition>
+          </public>
+          <public id="Driver.BirthDate" path="BirthDate" type="date">
+            <definition>
+              <caption value="Birth Date" />
+            </definition>
+          </public>
+          <public id="Driver.Age" path="Age" type="int">
+            <definition>
+              <caption value="Age" />
+            </definition>
+            <rules>
+              <value>
+                <dateDifference unit="years">
+                  <dateArgument idref="Driver.BirthDate" />
+                  <dateArgument idref="Policy.EffectiveDate" />
+                </dateDifference>
+              </value>
+            </rules>
+          </public>
+          <public id="Driver.Gender" path="Gender" type="string">
+            <definition>
+              <caption value="Gender" />
+              <options>
+                <option value="M" caption="Male" />
+                <option value="F" caption="Female" />
+              </options>
+            </definition>
+            <rules>
+              <default value="M" />
+            </rules>
+          </public>
+          <public id="Driver.MaritalStatus" path="MaritalStatus" type="string">
+            <definition>
+              <caption value="Marital Status" />
+              <options>
+                <option value="M" caption="Married" />
+                <option value="S" caption="Single" />
+              </options>
+            </definition>
+            <rules>
+              <default value="S" />
+            </rules>
+          </public>
+          <public id="Driver.GoodStudent" path="GoodStudent" type="boolean">
+            <definition>
+              <caption value="Good Student" />
+              <options>
+                <option value="0" caption="No" />
+                <option value="1" caption="Yes" />
+              </options>
+            </definition>
+            <rules>
+              <default value="0" />
+            </rules>
+          </public>
+          <public id="Driver.DriverTraining" path="DriverTraining" type="boolean">
+            <definition>
+              <caption value="Driver Training" />
+              <options>
+                <option value="0" caption="No" />
+                <option value="1" caption="Yes" />
+              </options>
+            </definition>
+            <rules>
+              <default value="0" />
+            </rules>
+          </public>
+          <public id="Driver.DriverID" path="@id" type="string">
+            <definition>
+              <caption value="Driver ID" />
+            </definition>
+          </public>
+          <private id="Driver.AccidentCount" caption="" type="float">
+            <value>
+              <iterator />
+            </value>
+          </private>
+        </object>
+        <object id="Location" path="location">
+          <minOccurs value="1" />
+          <maxOccurs value="*" />
+          <public id="Location.Address" path="Address" type="string">
+            <definition>
+              <caption value="Address" />
+            </definition>
+          </public>
+          <public id="Location.Address2" path="Address2" type="string">
+            <definition>
+              <caption value="Address 2" />
+            </definition>
+          </public>
+          <public id="Location.City" path="City" type="string">
+            <definition>
+              <caption value="City" />
+            </definition>
+          </public>
+          <public id="Location.State" path="State" type="string">
+            <definition>
+              <caption value="State" />
+              <options idref="States" name="State" />
+            </definition>
+          </public>
+          <public id="Location.County" path="County" type="string">
+            <definition>
+              <caption value="County" />
+              <options idref="Territory" name="County" />
+            </definition>
+          </public>
+          <public id="Location.ZIPCode" path="ZIPCode" type="string">
+            <definition>
+              <caption value="ZIP Code" />
+            </definition>
+          </public>
+          <public id="Location.LocationID" path="@id" type="string">
+            <definition>
+              <caption value="Location ID" />
+            </definition>
+          </public>
+          <public id="Location.Territory" path="Territory" type="string">
+            <definition>
+              <caption value="Territory" />
+            </definition>
+            <rules>
+              <default value="15" />
+            </rules>
+          </public>
+          <private id="Location.SummaryText" caption="" type="string">
+            <value>
+              <calculation>
+                <argument op="eq" idref="Location.Address" type="string" />
+                <argument op="add" type="string" value=" " />
+                <argument op="add" idref="Location.City" type="string" />
+                <argument op="add" type="string" value=" " />
+                <argument op="add" idref="Location.ZIPCode" type="string" />
+              </calculation>
+            </value>
+          </private>
+        </object>
+        <object id="PoliyPremium">
+          <minOccurs value="1" />
+          <maxOccurs value="1" />
+          <public id="PoliyPremium.TermPremium" path="TermPremium" type="float">
+            <definition>
+              <caption value="Term Premium" />
+            </definition>
+            <rules>
+              <value>
+                <iterator type="float" scope="all" action="sum" idref="Vehicle">
+                  <reference idref="Vehicle.Premium" type="float" />
+                </iterator>
+              </value>
+            </rules>
+          </public>
+          <public id="PoliyPremium.WrittenPremium" path="WrittenPremium" type="float">
+            <definition>
+              <caption value="Written Premium" />
+            </definition>
+          </public>
+          <public id="PoliyPremium.Charge" path="Charge" type="float">
+            <definition>
+              <caption value="Charge" />
+            </definition>
+          </public>
+        </object>
+        <public id="Policy.EffectiveDate" path="EffectiveDate" type="date">
+          <definition>
+            <caption value="Effective Date" />
+          </definition>
+          <rules>
+            <default>
+              <session sessionValue="date" />
+            </default>
+          </rules>
+        </public>
+        <public id="Policy.ExpirationDate" path="ExpirationDate" type="date">
+          <definition>
+            <caption value="Expiration Date" />
+          </definition>
+          <rules>
+            <value>
+              <dateAdd>
+                <dateArgument idref="Policy.EffectiveDate" />
+                <dateUnit idref="Policy.Term" unit="months" />
+              </dateAdd>
+            </value>
+          </rules>
+        </public>
+        <public id="Policy.Term" path="Term" type="int">
+          <definition>
+            <caption value="Term" />
+            <options>
+              <option value="3" caption="3 month" />
+              <option value="6" caption="6 month" />
+              <option value="12" caption="12 month" />
+            </options>
+          </definition>
+          <rules>
+            <default value="6" />
+          </rules>
+        </public>
+        <object id="PolicyInfo">
+          <minOccurs value="1" />
+          <maxOccurs value="1" />
+          <private id="PolicyInfo.MultiCarDiscount" caption="" type="float">
+            <value>
+              <if>
+                <condition>
+                  <comparison compare="gt">
+                    <operand idref="PolicyInfo.VehicleCount" type="int" />
+                    <operand type="int" value="1" />
+                  </comparison>
+                </condition>
+                <then value="0.85" />
+                <else value="1.0" />
+              </if>
+            </value>
+          </private>
+          <private id="PolicyInfo.TermFactor" caption="" type="float">
+            <value>
+              <select idref="Policy.Term">
+                <case type="float" value="0.5" select="3" />
+                <case type="float" value="1.0" select="6" />
+                <case type="float" value="2.0" select="12" />
+                <otherwise type="float" value="1.0" />
+              </select>
+            </value>
+          </private>
+          <private id="PolicyInfo.VehicleCount" caption="" type="int">
+            <value>
+              <iterator type="int" scope="all" action="count" idref="Vehicle" />
+            </value>
+          </private>
+        </object>
+        <public id="Policy.PolicyNumber" path="PolicyNumber" type="string">
+          <definition>
+            <caption value="Policy Number" />
+          </definition>
+        </public>
+        <public id="Policy.AgencyName" path="AgencyName" type="string">
+          <definition>
+            <caption value="Agency Name" />
+          </definition>
+        </public>
+        <public id="Policy.ProducerName" path="ProducerName" type="string">
+          <definition>
+            <caption value="Producer Name" />
+          </definition>
+        </public>
+        <public id="Policy.Status" path="Status" type="string">
+          <definition>
+            <caption value="Status" />
+          </definition>
+        </public>
+        <public id="Policy.Description" path="Description" type="string">
+          <definition>
+            <caption value="Description" />
+          </definition>
+        </public>
+      </object>
+      <table id="Territory" tableType="local">
+        <fields>
+          <field type="int" name="Value" />
+        </fields>
+        <rowKeys name="County" type="int" find="eq">
+          <key value="Addison" />
+          <key value="Baylor" />
+          <key value="Baxter" />
+          <key value="Carter" />
+          <key value="Christian" />
+          <key value="Dade" />
+          <key value="Douglas" />
+          <key value="Everest" />
+          <key value="Fern" />
+          <key value="Galivan" />
+          <key value="Harris" />
+          <key value="James" />
+          <key value="Johnson" />
+          <key value="King" />
+          <key value="Lamar" />
+          <key value="Madison" />
+          <key value="Neely" />
+          <key value="Polk" />
+          <key value="Rogers" />
+          <key value="Sullivan" />
+          <key value="Thomas" />
+          <key value="Verne" />
+          <key value="Washington" />
+          <key value="Young" />
+        </rowKeys>
+        <data>
+          <row value="10" />
+          <row value="12" />
+          <row value="23" />
+          <row value="10" />
+          <row value="21" />
+          <row value="14" />
+          <row value="11" />
+          <row value="13" />
+          <row value="15" />
+          <row value="20" />
+          <row value="15" />
+          <row value="17" />
+          <row value="22" />
+          <row value="12" />
+          <row value="18" />
+          <row value="21" />
+          <row value="11" />
+          <row value="19" />
+          <row value="16" />
+          <row value="24" />
+          <row value="25" />
+          <row value="10" />
+          <row value="15" />
+          <row value="17" />
+        </data>
+      </table>
+      <table id="States" tableType="local">
+        <fields>
+          <field type="int" name="Value" />
+        </fields>
+        <rowKeys name="State" type="int" find="eq">
+          <key value="AL" />
+          <key value="AK" />
+          <key value="AR" />
+          <key value="AZ" />
+          <key value="CA" />
+          <key value="CO" />
+          <key value="CT" />
+          <key value="DE" />
+          <key value="DC" />
+          <key value="FL" />
+          <key value="GA" />
+          <key value="HI" />
+          <key value="ID" />
+          <key value="IL" />
+          <key value="IN" />
+          <key value="IA" />
+          <key value="KS" />
+          <key value="KY" />
+          <key value="LA" />
+          <key value="ME" />
+          <key value="MD" />
+          <key value="MA" />
+          <key value="MI" />
+          <key value="MN" />
+          <key value="MS" />
+          <key value="MO" />
+          <key value="MT" />
+          <key value="NE" />
+          <key value="NV" />
+          <key value="NH" />
+          <key value="NJ" />
+          <key value="NM" />
+          <key value="NY" />
+          <key value="NC" />
+          <key value="ND" />
+          <key value="OH" />
+          <key value="OK" />
+          <key value="OR" />
+          <key value="PA" />
+          <key value="RI" />
+          <key value="SC" />
+          <key value="SD" />
+          <key value="TN" />
+          <key value="TX" />
+          <key value="UT" />
+          <key value="VT" />
+          <key value="VA" />
+          <key value="WA" />
+          <key value="WV" />
+          <key value="WI" />
+          <key value="WY" />
+        </rowKeys>
+        <data>
+          <row value="Alabama" />
+          <row value="Alaska" />
+          <row value="Arkansas" />
+          <row value="Arizona" />
+          <row value="California" />
+          <row value="Colorado" />
+          <row value="Connecticut" />
+          <row value="Delaware" />
+          <row value="District of Columbia" />
+          <row value="Florida" />
+          <row value="Georgia" />
+          <row value="Hawaii" />
+          <row value="Idaho" />
+          <row value="Illinois" />
+          <row value="Indiana" />
+          <row value="Iowa" />
+          <row value="Kansas" />
+          <row value="Kentucky" />
+          <row value="Louisiana" />
+          <row value="Maine" />
+          <row value="Maryland" />
+          <row value="Massachusetts" />
+          <row value="Michigan" />
+          <row value="Minnesota" />
+          <row value="Mississippi" />
+          <row value="Missouri" />
+          <row value="Montana" />
+          <row value="Nebraska" />
+          <row value="Nevada" />
+          <row value="New Hampshire" />
+          <row value="New Jersey" />
+          <row value="New Mexico" />
+          <row value="New York" />
+          <row value="North Carolina" />
+          <row value="North Dakota" />
+          <row value="Ohio" />
+          <row value="Oklahoma" />
+          <row value="Oregon" />
+          <row value="Pennsylvania" />
+          <row value="Rhode Island" />
+          <row value="South Carolina" />
+          <row value="South Dakota" />
+          <row value="Tennessee" />
+          <row value="Texas" />
+          <row value="Utah" />
+          <row value="Vermont" />
+          <row value="Virginia" />
+          <row value="Washington" />
+          <row value="West Virginia" />
+          <row value="Wisconsin" />
+          <row value="Wyoming" />
+        </data>
+      </table>
+      <table id="LiabilityBaseRates" tableType="local">
+        <fields>
+          <field type="int" name="BI" />
+          <field type="int" name="PD" />
+        </fields>
+        <rowKeys name="Territory" type="int" find="range">
+          <key value="10" />
+          <key value="11-13" />
+          <key value="14,18" />
+          <key value="15-17" />
+          <key value="19" />
+          <key value="20" />
+          <key value="21" />
+          <key value="22-24" />
+          <key value="25" />
+        </rowKeys>
+        <data>
+          <row value="80,20" />
+          <row value="92,23" />
+          <row value="100,35" />
+          <row value="99,31" />
+          <row value="103,42" />
+          <row value="110,44" />
+          <row value="108,45" />
+          <row value="123,51" />
+          <row value="131,52" />
+        </data>
+      </table>
+      <table id="BILimitFactor" tableType="local">
+        <fields>
+          <field type="int" name="Value" />
+        </fields>
+        <rowKeys name="Limit" type="string" find="eq">
+          <key value="None" />
+          <key value="25/50" />
+          <key value="50/100" />
+          <key value="100/300" />
+          <key value="250/500" />
+          <key value="500/1000" />
+        </rowKeys>
+        <data>
+          <row value="0.00" />
+          <row value="0.95" />
+          <row value="1.00" />
+          <row value="1.08" />
+          <row value="1.11" />
+          <row value="1.23" />
+        </data>
+      </table>
+      <table id="PDLimitFactor" tableType="local">
+        <fields>
+          <field type="int" name="Value" />
+        </fields>
+        <rowKeys name="Limit" type="string" find="eq">
+          <key value="None" />
+          <key value="50" />
+          <key value="100" />
+          <key value="250" />
+          <key value="500" />
+        </rowKeys>
+        <data>
+          <row value="0.00" />
+          <row value="1.00" />
+          <row value="1.12" />
+          <row value="1.24" />
+          <row value="1.56" />
+        </data>
+      </table>
+      <table id="CollRate" tableType="local">
+        <fields>
+          <field type="int" name="Value" />
+        </fields>
+        <rowKeys name="Deductible" type="int" find="eq">
+          <key value="None" />
+          <key value="Full" />
+          <key value="50" />
+          <key value="100" />
+          <key value="250" />
+          <key value="500" />
+          <key value="1000" />
+        </rowKeys>
+        <colKeys name="Territory" type="int" find="range">
+          <key value="10" />
+          <key value="11-15" />
+          <key value="15-20" />
+          <key value="21-25" />
+        </colKeys>
+        <data>
+          <row value="0,0,0,0" />
+          <row value="190,200,202,205" />
+          <row value="180,183,188,193" />
+          <row value="155,161,168,173" />
+          <row value="130,135,141,150" />
+          <row value="110,113,120,133" />
+          <row value="90,94,100,122" />
+        </data>
+      </table>
+      <table id="OTCRate" tableType="local">
+        <fields>
+          <field type="int" name="Value" />
+        </fields>
+        <rowKeys name="Deductible" type="int" find="eq">
+          <key value="None" />
+          <key value="Full" />
+          <key value="50" />
+          <key value="100" />
+          <key value="250" />
+          <key value="500" />
+          <key value="1000" />
+        </rowKeys>
+        <colKeys name="Territory" type="int" find="range">
+          <key value="10-15" />
+          <key value="16-17" />
+          <key value="18-20" />
+          <key value="21-25" />
+        </colKeys>
+        <data>
+          <row value="0,0,0,0" />
+          <row value="102,107,109,110" />
+          <row value="96,98,101,103" />
+          <row value="83,86,90,92" />
+          <row value="70,72,76,80" />
+          <row value="59,60,64,71" />
+          <row value="48,50,54,66" />
+        </data>
+      </table>
+      <table id="SymbolFactor" tableType="local">
+        <fields>
+          <field type="int" name="Value" />
+        </fields>
+        <rowKeys name="Symbol" type="int" find="eq">
+          <key value="1" />
+          <key value="2" />
+          <key value="3" />
+          <key value="4" />
+          <key value="5" />
+          <key value="6" />
+          <key value="7" />
+          <key value="8" />
+          <key value="10" />
+          <key value="11" />
+          <key value="12" />
+          <key value="13" />
+          <key value="14" />
+          <key value="15" />
+          <key value="16" />
+          <key value="17" />
+          <key value="18" />
+          <key value="19" />
+          <key value="20" />
+          <key value="21" />
+          <key value="22" />
+          <key value="23" />
+        </rowKeys>
+        <data>
+          <row value="0.56" />
+          <row value="0.62" />
+          <row value="0.72" />
+          <row value="0.88" />
+          <row value="0.96" />
+          <row value="1.00" />
+          <row value="1.04" />
+          <row value="1.08" />
+          <row value="1.11" />
+          <row value="1.19" />
+          <row value="1.21" />
+          <row value="1.25" />
+          <row value="1.29" />
+          <row value="1.32" />
+          <row value="1.37" />
+          <row value="1.39" />
+          <row value="1.42" />
+          <row value="1.45" />
+          <row value="1.48" />
+          <row value="1.50" />
+          <row value="1.54" />
+          <row value="1.65" />
+        </data>
+      </table>
+      <object id="Constants">
+        <minOccurs value="1" />
+        <maxOccurs value="1" />
+        <private id="False" caption="" type="boolean">
+          <value value="0" />
+        </private>
+        <private id="True" caption="" type="boolean">
+          <value value="1" />
+        </private>
+      </object>
+    </object>
+  </model>
+  <mapping mappingCount="18">
+    <reference name="Client Name" idref="Account.InsuredName" />
+    <reference name="Policy Status" idref="Policy.Status" />
+    <reference name="Policy Number" idref="Policy.PolicyNumber" />
+    <reference name="Effective Date" idref="Policy.EffectiveDate" />
+    <reference name="Expiration Date" idref="Policy.ExpirationDate" />
+    <reference name="Policy Premium" idref="PoliyPremium.TermPremium" />
+    <reference name="Address" idref="Account.Address" />
+    <reference name="Address2" idref="Account.Address2" />
+    <reference name="City" idref="Account.City" />
+    <reference name="State" idref="Account.State" />
+    <reference name="ZIP Code" idref="Account.ZIPCode" />
+    <reference name="Phone Number" idref="Account.PhoneNumber" />
+    <reference name="Fax Number" idref="Account.FaxNumber" />
+    <reference name="Producer" idref="Policy.ProducerName" />
+    <reference name="Agency" idref="Policy.AgencyName" />
+    <reference name="Description" idref="Policy.Description" />
+    <reference name="TransactionDate" idref="Policy.EffectiveDate" />
+    <reference name="Description2" idref="Policy.Description" />
+  </mapping>
+  <topics>
+    <topic name="Main">
+      <page name="Account" caption="Account">
+        <group object="Account" iterMax="*" iterStep="1">
+          <layout direction="down" captionPosition="before" showCaption="once">
+            <reference idref="Account.InsuredName" />
+            <reference idref="Account.County" />
+            <reference idref="Account.Address" />
+            <reference idref="Account.Address2" />
+            <reference idref="Account.City" />
+            <reference idref="Account.State" />
+            <reference idref="Account.ZIPCode" />
+          </layout>
+        </group>
+      </page>
+      <page name="Policy" caption="Policy">
+        <group object="Policy" iterMax="*" iterStep="1">
+          <layout direction="down" captionPosition="before" showCaption="once">
+            <reference idref="Policy.EffectiveDate" />
+            <reference idref="Policy.Term" />
+            <reference idref="Policy.Description" />
+          </layout>
+        </group>
+      </page>
+      <page name="Locations" caption="Locations">
+        <group object="Location" iterMax="*" iterStep="1">
+          <layout direction="down" captionPosition="before" showCaption="once">
+            <reference idref="Location.Address" />
+            <reference idref="Location.Address2" />
+            <reference idref="Location.City" />
+            <reference idref="Location.County" />
+            <reference idref="Location.State" />
+            <reference idref="Location.Territory" />
+            <reference idref="Location.ZIPCode" />
+            <action command="delete" caption="Delete">
+              <nameValues />
+            </action>
+          </layout>
+          <action command="add" caption="Add Location">
+            <nameValues />
+          </action>
+        </group>
+      </page>
+      <page name="Driver" caption="Driver">
+        <group object="Driver" iterMax="*" iterStep="1">
+          <layout direction="across" captionPosition="above" showCaption="once">
+            <reference idref="Driver.Name" />
+            <reference idref="Driver.Gender" />
+            <reference idref="Driver.MaritalStatus" />
+            <reference idref="Driver.BirthDate" />
+            <reference idref="Driver.DriverTraining" />
+            <reference idref="Driver.GoodStudent" />
+            <action command="delete" caption="Delete Driver">
+              <nameValues />
+            </action>
+            <layout direction="down" captionPosition="before" showCaption="once">
+              <group iterMax="*" iterStep="1" object="Violations">
+                <layout direction="across" captionPosition="above" showCaption="once">
+                  <reference idref="Violations.OccurenceDate" />
+                  <reference idref="Violations.Code" onBlur="1" />
+                  <reference idref="Violations.BIAmount" />
+                  <reference idref="Violations.PDAmount" />
+                  <action command="delete" caption="X">
+                    <nameValues />
+                  </action>
+                </layout>
+                <action command="add" caption="Add Violation">
+                  <nameValues />
+                </action>
+              </group>
+            </layout>
+          </layout>
+          <action command="add" caption="Add Driver">
+            <nameValues />
+          </action>
+        </group>
+      </page>
+      <page name="Vehicle" caption="Vehicle">
+        <group object="Vehicle" iterMax="*" iterStep="1">
+          <layout direction="down" captionPosition="before" showCaption="once">
+            <layout direction="down" captionPosition="before" showCaption="once">
+              <layout direction="down" captionPosition="before" showCaption="once" caption="Vehicle Information">
+                <reference idref="Vehicle.Year" />
+                <reference idref="Vehicle.Make" />
+                <reference idref="Vehicle.Model" />
+                <reference idref="Vehicle.Symbol" />
+                <reference idref="Vehicle.VIN" />
+                <reference idref="Vehicle.Usage" />
+                <reference idref="Vehicle.MilesToWork" />
+                <reference idref="Vehicle.DriverID" />
+                <reference idref="Vehicle.LocationID" />
+              </layout>
+              <layout direction="down" captionPosition="before" showCaption="once">
+                <reference idref="BICoverage.Limit" />
+                <reference idref="PDCoverage.Limit" />
+                <reference idref="OTCCoverage.Deductible" />
+                <reference idref="COLLCoverage.Deductible" />
+              </layout>
+            </layout>
+            <action command="delete" caption="Delete Vehicle">
+              <nameValues />
+            </action>
+          </layout>
+          <action command="add" caption="Add Vehicle">
+            <nameValues />
+          </action>
+        </group>
+      </page>
+      <page name="Summary" caption="Summary" calculate="2">
+        <group object="Policy" iterMax="*" iterStep="1">
+          <layout direction="down" captionPosition="before" showCaption="once">
+            <layout direction="down" captionPosition="before" showCaption="once">
+              <layout direction="across" captionPosition="above" showCaption="once" readOnly="1">
+                <reference idref="Policy.EffectiveDate" />
+                <reference idref="Policy.ExpirationDate" />
+                <reference idref="Policy.PolicyNumber" />
+                <reference idref="PoliyPremium.TermPremium" />
+              </layout>
+            </layout>
+            <layout direction="down" captionPosition="before" showCaption="once">
+              <group iterMax="*" iterStep="1" object="Vehicle">
+                <layout direction="down" captionPosition="before" showCaption="once" readOnly="1" caption="Vehicle">
+                  <layout direction="down" captionPosition="before" showCaption="none">
+                    <layout direction="across" captionPosition="before" showCaption="none" caption="Vehicle">
+                      <reference idref="Vehicle.Year" />
+                      <reference idref="Vehicle.Make" />
+                      <reference idref="Vehicle.Model" />
+                    </layout>
+                  </layout>
+                  <layout direction="down" captionPosition="before" showCaption="once">
+                    <reference idref="BIPremium.TermPremium" />
+                    <reference idref="PDPremium.TermPremium" />
+                    <reference idref="OTCPremium.TermPremium" />
+                    <reference idref="COLLPremium.TermPremium" />
+                    <reference idref="Vehicle.Premium" />
+                  </layout>
+                </layout>
+              </group>
+            </layout>
+          </layout>
+        </group>
+        <nameValues>
+          <nameValue idref="True" name="readOnly" />
+        </nameValues>
+      </page>
+    </topic>
+  </topics>
+  <documents>
+    <documentSet name="ACORD50" paperBinNum="0" printDefault="Selected">
+      <scope name="data" increment="1" startIter="1" endIter="*" />
+      <document>
+        <subdoc name="ACORD50.DOC" path="" />
+      </document>
+      <merge>
+        <mergeField name="PolicyInfoPolicyNumber" idref="Policy.PolicyNumber" dataField="PolicyInfoPolicyNumber" iter="1" formatValue="" />
+        <mergeField name="PolicyInfoEffectiveDate" idref="Policy.EffectiveDate" dataField="PolicyInfoEffectiveDate" iter="1" formatValue="" />
+        <mergeField name="PolicyInfoExpirationDate" idref="Policy.ExpirationDate" dataField="PolicyInfoExpirationDate" iter="1" formatValue="" />
+        <mergeField name="VehicleInfoYear" idref="Vehicle.Year" dataField="VehicleInfoYear" iter="1" formatValue="" />
+        <mergeField name="VehicleInfoMake" idref="Vehicle.Make" dataField="VehicleInfoMake" iter="1" formatValue="" />
+        <mergeField name="VehicleInfoModel" idref="Vehicle.Model" dataField="VehicleInfoModel" iter="1" formatValue="" />
+        <mergeField name="VehicleInfoVIN" idref="Vehicle.VIN" dataField="VehicleInfoVIN" iter="1" formatValue="" />
+        <mergeField name="AgencyAgencyName" idref="Policy.AgencyName" dataField="AgencyAgencyName" iter="1" formatValue="" />
+        <mergeField name="AgencyAddress1" idref="Policy.AgencyName" dataField="AgencyAddress1" iter="2" formatValue="" />
+        <mergeField name="AgencyCity" idref="" dataField="AgencyCity" iter="" formatValue="" />
+        <mergeField name="AgencyState" />
+        <mergeField name="AgencyZIP" />
+        <mergeField name="ApplicantName" idref="Account.InsuredName" dataField="ApplicantName" iter="1" formatValue="" />
+        <mergeField name="ApplicantAddress1" idref="Account.Address" dataField="ApplicantAddress1" iter="1" formatValue="" />
+        <mergeField name="ApplicantAddress2" idref="Account.Address2" dataField="ApplicantAddress2" iter="1" formatValue="" />
+        <mergeField name="ApplicantCity" idref="Account.City" dataField="ApplicantCity" iter="1" formatValue="" />
+        <mergeField name="ApplicantState" idref="Account.State" dataField="ApplicantState" iter="1" formatValue="" />
+        <mergeField name="ApplicantZipCode" idref="Account.ZIPCode" dataField="ApplicantZipCode" iter="1" formatValue="" />
+      </merge>
+    </documentSet>
+    <printJob name="ACORD50">
+      <printDoc name="ACORD50" />
+    </printJob>
+  </documents>
+</ManuScript>

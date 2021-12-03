@@ -1,0 +1,26 @@
+class integer
+   public:
+      local val
+
+
+      method print
+         print ( self.val )
+      end
+
+      operator + ( b )
+         return ( self.val += b )
+      end
+
+      operator = ( b )
+         return ( self.val = b )
+      end
+
+      operator < ( b )
+         return self.val < b
+      end
+
+      operator ++ ( void )
+         return ( self.val++ )
+      end
+end
+ 

@@ -1,0 +1,146 @@
+<[
+
+	LIBRARY c:\sdweb\home\insmgmt\insmgmt.flb
+
+	function RemoveQuotes ( s )
+		if ( len( s ) > 2 )
+			return( substr( s, 2, len( s ) - 2 ) )
+		else
+			return ( "" )
+		end
+	end
+	
+	function MemfWriteLine ( s, Errline )
+		s += Errline + "\r\n"
+		return( s )
+	end
+
+	function ScrubString ( s )
+		s = strswap( s, ".", "" )
+		s = strswap( s, " ", "" )
+		s = strswap( s, ",", "" )
+		s = strswap( s, "(", "" )
+		s = strswap( s, ")", "" )
+		s = strswap( s, "-", "" )
+		s = strswap( s, "/", "" )
+		
+		return(s)
+	end
+	
+	function FormatPhone(s)
+		local ln
+		
+		s = ScrubString( s )
+		ln = len( s )
+		
+		
+		if ( ln < 7 )
+			return ( s )
+		end
+		
+		if ( ln < 10 )
+			return ( left( s, 3 ) + "-" + substr( s, 4, ln - 3 ) )
+		else
+			return ( left( s, 3 ) + "-" + substr( s, 4, 3 ) + "-" + substr( s, 7, ln - 6 ) )
+		end
+	end
+	
+	function FormatSSN(s)
+		local ln
+		
+		s = ScrubString( s )
+		ln = len( s )
+		
+		
+		if ( ln < 9 )
+			return ( s )
+		end
+		
+		return ( left( s, 3 ) + "-" + substr( s, 4, 2 ) + "-" + substr( s, 6, ln - 5 ) )
+	end
+
+
+	local formid, formrev, debugflag, g, html, userhdr, companyid, userid, appid
+	local cmd, _d_, quoteid, clientid, quote, insmgmt, q, entity
+	local fName, fNameOut, inCnt, OutCnt, ErrCnt, a, lenVars, errLine, s
+	local dt, time, session, inPrem, calcPrem, tmp, appfrm, lenAppVars, j, MasterApp, insdata
+	local IsErr
+	local QuoteVars, AppVars, QuoteVarsCount, AppVarsCount
+	local Vars, PolStatus, x, NoVar, saveAgency, PolID, polnum
+	local TransAmt, DateStr, TypeStr, RefStr
+	
+
+	g = new( "GlobalParams" )
+	html = new( "FormatHTML" )
+	userhdr = new( "UserHeader", html.session )
+	session = new( "session" )
+
+	fname = 'c:\northPoint\tblInforce.txt'
+	fnameOut = 'c:\sdweb\home\insmgmt\products\northpoint\wbPrint.ap'
+
+	inCnt =0
+	ClaimCnt = 0
+	
+	hfile = fopen( fname, 0 )
+	if ( hfile < 1 )
+		! "error accessing file (" + fname + ")"
+		return( 0 )
+	end
+	hFileOut = fCreate( fNameOut )
+	
+	fWriteLine( hFileOut,"<html><body><script language='Javascript' src='/insmgmt/common.js'></script>")
+	fWriteLine( hFileOut,"<script language=JavaScript>")
+	fWriteLine( hFileOut,"function v( doc ) {")
+	fWriteLine( hFileOut,"  OpenWindow( -1, -1, 780, 580, 'v', '/insmgmt/formviewer.htm?' + doc, 'POPUP' );")
+	fWriteLine( hFileOut,"}")
+	fWriteLine( hFileOut,"</script>")
+	fWriteLine( hFileOut,"<pre>")	
+debugbreak( )
+
+	while ( 1 )
+
+		line = freadline( hfile )
+		if ( strempty( line ) )
+			break
+		end
+
+		a = split( line, "\t" )
+		inCnt++
+		s = "" + incnt + ". Policy #" + a[1] 
+		if ( 0 + a[28])
+			ClaimCnt++
+			s+= "<font color=red><b> [WITH CLAIM] </b></font><i>" + a[2] + "</i>\r\n"
+			s+= "\t<a href=\"javascript:v('url=/insmgmt/products/NorthPoint/mailer.ap&insname="
+			s+= webEncodeURL(a[2]) + "&insstreet=" + webEncodeURL(a[3] + " " + a[4])  + "&inscity=" + webEncodeURL(a[5])
+			s+= "&insstate=" + webEncodeURL(a[6])  + "&inszip=" + webEncodeURL(a[7]) + "');\">INSURED - Mailer</a>\r\n"
+			s+= "\t<a href=\"javascript:v('url=/insmgmt/products/NorthPoint/wbasican_b.ap&insname="
+			s+= webEncodeURL(a[2]) + "&insstreet=" + webEncodeURL(a[3]) + "&insstreet2=" + webEncodeURL(a[4]) + "&inscity=" + webEncodeURL(a[5])
+			s+= "&insstate=" + webEncodeURL(a[6])  + "&inszip=" + webEncodeURL(a[7]) + "');\">INSURED - Cancellation Letter</a>\r\n"
+			fWriteLine( hFileOut, s )
+		else
+			s+= " [NO CLAIM] <i>" + a[2] + "</i>\r\n"
+			s+= "\t<a href=\"javascript:v('url=/insmgmt/products/NorthPoint/mailer.ap&insname="
+			s+= webEncodeURL(a[2]) + "&insstreet=" + webEncodeURL(a[3] + " " + a[4])  + "&inscity=" + webEncodeURL(a[5])
+			s+= "&insstate=" + webEncodeURL(a[6])  + "&inszip=" + webEncodeURL(a[7]) + "');\">INSURED - Mailer</a>\r\n"
+			s+= "\t<a href=\"javascript:v('url=/insmgmt/products/NorthPoint/wbasican_a.ap&insname="
+			s+= webEncodeURL(a[2]) + "&insstreet=" + webEncodeURL(a[3]) + "&insstreet2=" + webEncodeURL(a[4]) + "&inscity=" + webEncodeURL(a[5])
+			s+= "&insstate=" + webEncodeURL(a[6])  + "&inszip=" + webEncodeURL(a[7]) + "');\">INSURED - Cancellation Letter</a>\r\n"
+			s+= "\t<a href=\"javascript:v('url=/insmgmt/products/NorthPoint/wbNPCIC_InsNoClaims.ap&agency="
+			s+= webEncodeURL(a[8]) + "&agencyphone=" + webEncodeURL(a[9]) + "');\">INSURED - North Pointe Letter</a>\r\n"
+			fWriteLine( hFileOut, s )
+		end
+	end
+
+	fclose( hfile )
+	s = "</pre>\r\n<br>" + ClaimCnt + " with claims, " + ( inCnt - ClaimCnt ) + " without claims, " + inCnt + " total </body></html>"
+   fWriteLine( hFileOut, s )
+	fclose( hFileOut )
+	!"Done"
+
+	return( 1 )
+
+
+
+
+]>
+

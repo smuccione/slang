@@ -1,0 +1,5 @@
+local loop
+
+for ( loop = 0; loop < 100; loop++ )
+   println ( hrtime() )
+end

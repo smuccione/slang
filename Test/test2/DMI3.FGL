@@ -1,0 +1,62 @@
+function Walk()
+   println ( "Checking database integrity" );
+
+   if ( !dbcheck ( "dmtf\\DMIcomp" ) )
+      println ( "Databases have been corrupted1" )
+      exit()
+   end
+
+   if ( !dbcheck ( "dmtf\\DMIgrp"  ) )
+      println ( "Databases have been corrupted2" )
+      exit()
+   end
+
+   if ( !dbcheck ( "dmtf\\DMIattr" ) )
+      println ( "Databases have been corrupted3" )
+      exit()
+   end
+
+   dbuse       ( "dmtf\\DMIcomp", "component", 1 )
+
+   dbuse       ( "dmtf\\DMIgrp",  "group",     1 )
+   dbOpenIndex ( "dmtf\\DMIgrp.ftx"              )
+
+   dbuse       ( "dmtf\\DMIattr", "attrib",    1 )
+   dbOpenIndex ( "dmtf\\DMIattr.ftx"             )
+
+   component->dbrelate ( "dbrecno()", "group"  )
+   group->dbrelate     ( "dbrecno()", "attrib" )
+
+   component->dbgotop()
+
+   while ( !(component->dbeof()) )
+      println ( "NAME: ", component->name )
+      if ( component->desc )
+         println ( "DESC: ", component->desc )
+      end
+
+      while ( !(group->dbeof()) && (component->dbrecno() == group->parent) )
+         println ( "GROUP:  ", group->name )
+
+         if ( group->desc )
+            println ( "  DESC: ", group->desc )
+         end
+
+         while ( group->dbrecno() == attrib->parent )
+            println    ( "    ATTRIB: ", alltrim ( attrib->name ), "   VALUE = ", attrib->value )
+
+            if ( attrib->desc )
+               println ( "      DESC:   ", attrib->desc )
+            end
+            attrib->dbskip()
+         end
+         group->dbskip()
+      end
+      component->dbskip()
+   end
+
+   component->dbclose()
+   group->dbclose()
+   attrib->dbclose()
+end
+ 

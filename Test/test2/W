@@ -1,0 +1,14 @@
+x=""
+for ( loop = 0; loop <= 255; loop++ )
+	x += chr ( loop )
+	
+	y = webEncodeUrl ( x )
+	z = webDecodeUrl ( y )
+
+	if ( z == x )
+		println ( "passed ", loop )
+	else
+		println ( "failed ", loop )
+	end
+end
+

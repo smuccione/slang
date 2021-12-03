@@ -1,0 +1,64 @@
+<[
+class c
+	local userid = "steve"
+	local password="test"
+	
+	METHOD CookieGet( )
+		local cookie, c
+
+		cookie = new ( "cookie" )
+		c = cookie.get( "Zude" )
+
+		if ( ! c )
+			return( NULL )
+		end
+
+		c = webDecodeURL( c )
+		::userid = webDecodeURL( token( c, "|", 1 ) )
+
+		return( c )
+	END
+
+
+	METHOD CookieCreate( )
+		// use HASH to create a secure cookie
+		local cookie, time, timeOut, str
+
+		if ( strempty( ::userid ) || strempty( ::password ) )
+			return( 0 )
+		end
+
+		cookie = new ( "cookie" )
+		time = seconds()
+		timeOut = 60*60*24*7
+
+		str = webEncodeURL( ::userid ) + "|" + webEncodeURL( "" + time ) + "|" + webEncodeURL( hashSHA1 ( ::password + time ) )
+		cookie.set( "Zude", webEncodeURL( str ), '/', webGmt( time + timeOut ) )
+
+		return( 1 )
+	END
+
+	METHOD CookieDelete( )
+		local cookie = new ( "cookie" )
+//		cookie.set( "Zude", "", "/", null )
+//		cookie.set( "Zude" )
+		cookie.delete ( "Zude" )
+		return( 1 )
+	END
+end
+
+
+x = new ( "c" )
+
+v = x.cookieGet()
+
+if ( v )
+	! "existing cookie = " + v
+	
+	x.cookiedelete()
+else
+	! "creating cookie<br>"
+	x.cookiecreate()
+end
+
+]>

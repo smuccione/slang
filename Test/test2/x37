@@ -1,0 +1,32 @@
+println ( "         11111111112222222222333333333344444444445" )
+println ( "12345678901234567890123456789012345678901234567890" )
+
+println();
+printf ( "%,12.2f\r\n", 1234567890.45678912340 )
+printf ( "%,12f\r\n", 1234567890.45678912340 )
+printf ( "%,12e\r\n", 1234567890.45678912340 )
+printf ( "%,12g\r\n", 1234567890.45678912340 )
+println();
+printf ( "%,20f\r\n", 1234567890.45678912340 )
+printf ( "%,20e\r\n", 1234567890.45678912340 )
+printf ( "%,20g\r\n", 1234567890.45678912340 )
+println();
+printf ( "%,20i\r\n", 123456789 )
+printf ( "%,20i\r\n", 12345678 )
+printf ( "%,20i\r\n", 1234567 )
+printf ( "%,20i\r\n", 123456 )
+printf ( "%,20i\r\n", 12345 )
+printf ( "%,20i\r\n", 1234 )
+printf ( "%,20i\r\n", 123 )
+printf ( "%,20i\r\n", 12 )
+printf ( "%,20i\r\n", 1 )
+
+
+printf ( "%+7.5i\r\n", 23 )
+printf ( "%+7.5i\r\n", -23 )
+
+
+printf ( "this %s of the %u version\r\n", "is a test", 1 )
+printf ( "this %20s of the %u version\r\n", "is a test", 1 )
+printf ( "this %3.4s of the %u version\r\n", "is a test", 1 )
+

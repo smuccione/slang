@@ -1,0 +1,20 @@
+<[
+	//library c:\slang\test\test2\test_lib.flb
+	
+
+class testClass2
+
+	method new ()
+		x = 5
+	end
+end
+	local x
+	
+	a = " "
+	for ( x = 0; x < 5; x++ )
+		a = a + a
+	end
+	
+]>
+
+done

@@ -1,0 +1,990 @@
+// Generic Setup Program
+// (c) 1996 by Advanced Desktop Research, Inc., All Rights Reserved
+
+STATIC prodname
+
+//LIBRARY sysclass
+
+
+//
+// SYSCLASS.FGL - System Classes
+//
+// (c) 1996 Advanced Desktop Research, Inc., All Rights Reserved.
+//
+// Classes in this library:
+//
+//                    Access  Assign  Method
+//    Window     
+//      new             -       -       X
+//      aliasID         -       -       X       // old
+//      AliasFromId     -       -       X
+//      bkframe         X       X       -
+//      bkimage         X       X       -
+//      bkpaint         X       X       -
+//      bkwindow        X       X       -
+//      close           -       -       X
+//      controls        -       -       X
+//      CurEventId      -       -       X
+//      CurEventObj     -       -       X
+//      debug           X       X       -
+//      display         -       -       X
+//      hicon           X       X       -
+//      hide            -       -       X
+//      IdFromAlias     -       -       X
+//      ObjFromAlias    -       -       X
+//      ObjFromId       -       -       X
+//      pageControls    -       -       X
+//      pageCreate      -       -       X
+//      pageDisplay     -       -       X
+//      processEvents   -       -       X
+//      runBuffer       -       -       X
+//      show            -       -       X
+//      sound           X       X       -
+//      spy             -       -       X
+//      TextFromAlias   -       -       X           // get the text assoc with an object from its alias
+//      valid           X       -       -
+//      
+//    WinControl
+//      new             -       -       X
+//      delete          -       -       X
+//      display         -       -       X
+//      hide            -       -       X
+//
+//    WinPages
+//      new             -       -       X
+//
+//    iniFile
+//      new             -       -       X
+//      GetString       -       -       X
+//      SetString       -       -       X
+//
+//
+     
+     
+CLASS window
+  PRIVATE:
+    local IsDebug, IsSound
+    local v_bkwindow
+
+  PUBLIC:
+
+    local handle, hparent, hbkwin, prevpage
+    local curevent
+    local sndCreateFile
+    local numEvents
+    local numctrls
+    local ctrls
+    local numpages
+    local pages
+    local dblclick
+    local onLeftClick
+    local onRightClick
+    local onSound
+    local onControl
+    local curpage
+    local bkwinclr
+    local IsTab
+    local onOK
+    local onHelp
+    local onCancel
+    local onPageSet
+    local IsSpy
+
+    METHOD new( parent, title, x, y, width, height, style, bkclr, bkwindowclr, isbkwin )
+        self.curevent     = 0
+        self.curpage      = 0
+        self.dblclick     = 0
+        self.bkwinclr     = bkwindowclr
+        self.hparent      = parent
+        self.hbkwin       = 0
+        self.IsDebug      = 0
+        self.IsSound      = 1
+        self.IsTab        = 0
+        self.numevents    = 0
+        self.numctrls     = 0
+        self.numpages     = 0
+        self.v_bkwindow    = isbkwin
+        self.prevpage     = 0
+        self.IsSpy        = 0
+
+        if (isbkwin)
+            // create the background window
+            // NOTE: Windows with separate background windows cannot have a parent!!!
+            self.hbkwin = dlgCreate(0, "DLG", "", -1, -1, scrGetWidth() + 100, scrGetHeight() + 100, 0, self.bkwinclr)
+            self.hparent = self.hbkwin
+        end    
+        // create the main window
+        self.handle = dlgCreate(self.hparent, "DLG", title, x, y, ((width >= 0) ? width : scrGetWidth()), ((height >= 0) ? height : scrGetHeight()), style, bkclr)
+        return(1)
+    END
+
+    METHOD AliasID( val )
+        local x, alias
+
+        alias = upper( val )    
+        for ( x=1; x<=self.numctrls; x++ )
+            if ( upper( self.ctrls[ x ].alias ) == alias )
+                return( self.ctrls[ x ].id )
+            end
+        end
+        return( 0 )        
+    END
+
+    METHOD AliasFromId( id )
+        local x
+
+        for ( x=1; x<=self.numctrls; x++ )
+            if ( self.ctrls[ x ].id == id )
+                return( self.ctrls[ x ].alias )
+            end
+        end
+        return( '' )        
+    END
+
+    ACCESS bkframe
+        return( ! ( dlgExStyle(self.handle) & 1 ) )
+    END
+
+    ASSIGN bkframe(flag)
+        if (flag)
+            dlgExStyle(self.handle, dlgExStyle(self.handle) & ~1)
+        else
+            dlgExStyle(self.handle, dlgExStyle(self.handle) | 1)
+        end
+    END
+
+    ACCESS bkimage
+        return(dlgBkImage(self.handle))
+    END
+
+    ASSIGN bkimage(file)
+        dlgBkImage(self.handle, file)
+    END
+
+    ACCESS bkpaint
+        return(dlgExStyle(self.handle))
+    END
+
+    ASSIGN bkpaint(flag)
+        if (flag)
+            dlgExStyle(self.handle, dlgExStyle(self.handle) & ~2)
+        else
+            dlgExStyle(self.handle, dlgExStyle(self.handle) | 2)
+        end
+    END
+
+    ACCESS bkwindow
+        return(self.v_bkwindow)
+    END
+
+    ASSIGN bkwindow(flag)
+        self.v_bkwindow = flag
+
+        if (flag && (! self.hbkwin))
+            // create the background window
+            self.hbkwin = dlgCreate(0, "DLG", "", -1, -1, scrGetWidth() + 100, scrGetHeight() + 100, 0, self.bkwinclr)
+        end
+
+        if (winIsVisible(self.handle))
+            winShow(self.hbkwin, (self.v_bkwindow) ? 5 : 0)
+        end
+    END
+
+    METHOD close
+        // close the main window
+        dlgEnd(self.handle)
+        self.handle = 0
+
+        // close the background window
+        if (self.hbkwin)
+            dlgEnd(self.hbkwin)
+            self.hbkwin = 0
+        end
+    END
+
+    METHOD controls(type, text, x, y, width, height, style, cmd, sound, hfont, bkclr, alias)
+        // controls registered here are part of page #0, the master page
+        
+        local i, title
+        
+        if ( upper( type ) == 'TAB' )
+            self.IsTab = 1
+            if ( strempty( text ) )
+                // get the page descriptions
+                title = ''
+                for ( i=1; i<=self.numpages; i++ )
+                    title += ( self.pages[ i ].title + ';' )
+                end
+            end
+        end
+        self.numctrls++
+        self.ctrls[ self.numctrls ] = new( 'wincontrol', self, 0, type, strempty( text ) ? title : text, x, y, width, height, style, cmd, sound, hfont, bkclr, alias )
+        return( self.ctrls[ self.numctrls ] )
+    END
+
+    ACCESS debug
+        return(self.IsDebug)
+    END
+
+    ASSIGN debug(flag)
+        if (flag == 1)
+            dlgExStyle(self.handle, dlgExStyle(self.handle) | 16)  // show hotspots
+        else
+            dlgExStyle(self.handle, dlgExStyle(self.handle) & ~16) // no show hotspots
+        end
+        self.IsDebug = flag
+        return
+    END
+
+    METHOD display( )
+        self.show()
+    END
+
+    METHOD CurEventId( )
+        return( dlgEventID( self.handle ) )
+    END
+    
+    METHOD CurEventObj( )
+        return( self.ObjFromId( dlgEventID( self.handle ) ) )
+    END
+
+    ACCESS hicon
+        return( dlgIcon( self.handle ) )
+    END
+
+    ASSIGN hicon( val )
+        dlgIcon( self.handle, val )
+    END
+
+    METHOD hide( )
+        self.show( 0 )
+    END
+
+    METHOD IdFromAlias( alias )
+        local x, _alias
+
+        _alias = upper( alias )    
+        for ( x=1; x<=self.numctrls; x++ )
+            if ( upper( self.ctrls[ x ].alias ) == _alias )
+                return( self.ctrls[ x ].id )
+            end
+        end
+        return( 0 )
+    END
+
+    METHOD ObjFromAlias( alias )
+        local x, _alias
+
+        _alias = upper( alias )    
+        for ( x=1; x<=self.numctrls; x++ )
+            if ( upper( self.ctrls[ x ].alias ) == _alias )
+                return( self.ctrls[ x ] )
+            end
+        end
+        return( 0 )
+    END
+
+    METHOD ObjFromId( id )
+        local x
+
+        for ( x=1; x<=self.numctrls; x++ )
+            if ( self.ctrls[ x ].id == id )
+                return( self.ctrls[ x ] )
+            end
+        end
+        return( 0 )        
+    END
+
+    METHOD pageControls(page, type, text, x, y, width, height, style, cmd, sound, hfont, bkclr, alias )
+        self.numctrls++
+        self.ctrls[self.numctrls] = new('wincontrol', self, page, type, text, x, y, width, height, style, cmd, sound, hfont, bkclr, alias )
+        return(self.ctrls[self.numctrls])
+    END
+
+    METHOD pageCreate(title, bkimage)
+        self.numpages++
+        self.pages[self.numpages] = new( 'winpages', self, title, bkimage )
+        return(self.numpages)
+    END
+
+    METHOD pageDisplay( page )
+        local x, y, isfirst=0, obj
+
+//        dlgCursorSet( self.handle, sysSetCursor( "WAIT" ) )
+        mouseCapture( self.handle )
+
+        // process PageSet handler
+        if ( type( self.onPageSet ) == 'B' )
+            x = self.curpage
+            self.curpage = page
+            ( self.onPageSet ) ( )
+            self.curpage = x
+        end
+
+        // check if already on this page
+        if ( self.curpage == page )
+            self.show( ) 
+//            dlgCursorSet( self.handle, 0 )
+            mouseCaptureRelease( )
+            return( 1 )
+        end
+
+        winSetRedraw( self.handle, 0 )
+
+        isfirst = ( self.curpage ) ? 0 : 1
+
+        if ( isfirst )
+            if (self.hbkwin)
+                if (self.v_bkwindow)
+                    winShow(self.hbkwin, ((pcount() == 2) ? 5 : param(2)))
+                else
+                    winShow(self.hbkwin, 0)
+                end
+            end
+//            self.show( )
+        end
+        
+        y = self.numctrls
+        for ( x=1; x<=y; x++ )
+
+            // hide the previous page's controls
+            obj = self.ctrls[ x ]
+            if ( self.curpage )
+                if ( obj.page == self.curpage )
+                    dlgSetHiddenFlag( self.handle, obj.id, 1 )
+                    continue
+                end
+            end
+
+            // unhide the new page's controls        
+            if ( obj.page == page )
+                dlgSetHiddenFlag( self.handle, obj.id, 0 )
+            end
+        end
+        
+        self.prevpage = self.curpage
+        self.curpage = page
+
+        // set the background image
+        if ( ! strempty( self.pages[ self.curpage ].bkimage ) )
+            self.bkimage = self.pages[ self.curpage ].bkimage
+        end    
+    
+        winSetRedraw( self.handle, 1 )
+
+        if ( isfirst )
+            winUpdate( self.handle, 1 )
+        elseif ( ! self.IsTab )
+            winUpdate( self.handle, self.bkframe ? 2 : 1 )
+        else 
+            tabUpdate( self.handle )
+        end
+        mouseCaptureRelease( )
+//        dlgCursorSet( self.handle, 0 )
+
+        return(1)
+    END
+
+    METHOD ProcessEvents
+        local x, id, obj
+        local DLG_QUIT = -9
+        local DLG_LEFTCLICK = 2
+        local DLG_LEFTDBLCLICK = 3
+        local DLG_RIGHTCLICK = 4
+        local DLG_CONTROL = 8
+        local DLG_TABEVENT = 10
+        local IDOK = 1
+        local IDCANCEL = 2
+        local IDHELP = 197
+        local TAB_BUTTON = 1
+        local TAB_SETPAGE = 2
+        local TAB_DELETE = 3
+        
+        // activate the window
+        winActive( self.handle )
+        winSendKeys( self.handle, '<TAB>' );
+        
+        // process the events
+        while ( winIsValid( self.handle) )
+            
+            // get the current event
+            x = dlgEvent(self.handle)
+            self.curevent = x
+            if ( x == DLG_QUIT )
+                break
+            end
+
+            if ((self.curevent == DLG_LEFTCLICK) && (! self.dblclick))
+                id = dlgEventId(self.handle)
+                self.spy( 'event=DLG_LEFTCLICK, id=' + id )
+            elseif ((self.curevent == DLG_LEFTDBLCLICK) && (self.dblclick))
+                id = dlgEventId(self.handle)
+                self.spy( 'event=DLG_LEFTDBLCLICK, id=' + id )
+            elseif ( self.curevent == DLG_RIGHTCLICK )
+                id = dlgEventId(self.handle)
+                self.spy( 'event=DLG_RIGHTCLICK, id=' + id )
+            elseif (self.curevent == DLG_TABEVENT)
+                id = dlgEventId(self.handle)
+                self.spy( 'event=DLG_TABEVENT, id=' + id )
+            elseif (self.curevent == DLG_CONTROL)
+                id = dlgEventId(self.handle)
+                self.spy( 'event=DLG_CONTROL, id=' + id )
+            else
+                continue
+            end
+
+            if ( self.curevent == DLG_TABEVENT )
+
+                switch( id )
+
+                  case TAB_BUTTON
+
+                    switch ( dlgEventParam( self.handle ) )
+
+                      case IDOK
+                        self.runBuffer( self.onOK, 'id=TAB_BUTTON onOK( )' )
+                        break
+
+                      case IDCANCEL
+                        self.runBuffer( self.onCancel, 'id=TAB_BUTTON onCancel( )' )
+                        break
+
+                      case IDHELP
+                        self.runBuffer( self.onHelp, 'id=TAB_BUTTON onHelp( )' )
+                        break
+                        
+                    end
+                    break
+
+                  case TAB_SETPAGE
+                    self.spy( 'id=TAB_SETPAGE, param=' + dlgEventParam(self.handle) )
+                    self.pageDisplay( dlgEventParam( self.handle ) )
+                    break
+
+                  case TAB_DELETE
+                    self.spy( 'id=TAB_DELETE, param=' + dlgEventParam(self.handle) + ' (NOT USED)' )
+                    break
+
+                end
+                continue
+            end    
+
+            for ( x=1; x<=self.numctrls; x++ )
+                if ( self.ctrls[ x ].id != id )
+                    continue
+                end
+                obj = self.ctrls[ x ]
+
+                // process right click action
+                if (self.curevent == DLG_RIGHTCLICK)
+                    self.runBuffer( self.onRightClick, 'id=' + id + ' onRightClick( )', obj )
+                    continue
+                end
+
+                // process sound
+                if (self.IsSound)
+                    switch ( type( self.onSound ) )
+                      case 'C'
+                        if ( ! strempty( self.onSound ) )
+                            self.spy( 'Processing onSound( ) [string], id=' + id )
+                            &( self.onSound )              // no parameter passing
+                        else
+                            if ( ! strempty( obj.sound ) )
+                                self.spy( 'Playing default sound, id=' + id )
+                                sndPlayWaveFile( obj.sound )
+                            end                                
+                        end    
+                        break
+
+                      case 'B'
+                        self.spy( 'Processing onSound( ) [codeblock], id=' + id )
+                        ( self.onSound )( obj )
+                        break
+
+                      default
+                        if ( ! strempty( obj.sound ) )
+                            self.spy( 'Playing default sound, id=' + id )
+                            sndPlayWaveFile( obj.sound )
+                        end                                
+                    end
+                end
+
+                // process commands, must be last!!!
+
+                // check for handlers
+                switch ( self.curevent )
+
+                  case DLG_LEFTCLICK
+                    if ( self.runBuffer( self.onLeftClick, 'id=' + id + ' onLeftClick( )', obj ) )
+                        continue
+                    end
+                    break
+                  
+                  case DLG_LEFTDBLCLICK
+                    if ( self.runBuffer( self.onLeftDblClick, 'id=' + id + ' onLeftDblClick( )', obj ) )
+                        continue
+                    end
+                    break
+                  
+                  case DLG_CONTROL
+                    if ( self.runBuffer( self.onControl, 'id=' + id + ' onControl( )', obj ) )
+                        continue
+                    end
+                    break
+                  
+                end
+                
+                // process attached command if no handler installed
+                self.runBuffer( obj.cmd, 'id=' + id + ' obj.cmd( )', obj )
+                
+            end
+        end
+        return(self.curevent)
+    END
+
+    METHOD runBuffer( buf, desc, obj )
+ 
+        local param, file
+
+        // process attached command if no handler installed
+
+        switch ( type( buf ) )
+
+          case 'C'
+            if ( strempty( buf ) )
+                // nothing to process
+                return( 0 );
+            end
+
+            param = strextract( buf, ' ', 1 )
+            if ( at( '.', param) < 1 )
+                // must be a command
+                self.spy( desc + ' [string]' )
+                &( buf )
+            else
+                // first parameter is a file...
+                        
+                // morework: Add CD-ROM drive substitution and other string translation here...
+                file = fileFindFullName( param )
+                if ( fileExists( file ) )
+                    self.spy( desc + ' [smartrun]' )
+                    smartrun( buf )
+                else
+                    return( 0 )
+                end
+            end                        
+            return( 1 )
+                        
+          case 'B'
+            self.spy( desc + ' [codeblock]' )
+            if ( type( obj ) == 'O' )
+                ( buf )( obj )
+            else
+                ( buf )( )
+            end    
+            return( 1 )
+
+        end
+        return( 0 )
+    END
+
+    METHOD show
+        if (self.hbkwin)
+            if (self.v_bkwindow)
+                winShow(self.hbkwin, ((pcount() == 1) ? 5 : param(2)))
+            else
+                winShow(self.hbkwin, 0)
+            end
+        end
+        winShow(self.handle, ((pcount() == 1) ? 5 : param(2)))
+    END
+  
+    ACCESS sound
+        return(self.IsSound)
+    END
+
+    ASSIGN sound(flag)
+        self.IsSound = flag
+        return
+    END
+
+    METHOD spy( str )
+        if ( self.IsSpy )
+            println( str )
+        end
+        return( 1 )
+    END
+
+    METHOD TextFromAlias( alias )
+        local obj
+        obj = self.ObjFromAlias( alias )
+        if ( type( obj ) == 'O' )
+            return( winGetText( obj.handle ) )
+        end
+        return( '' )
+    END
+
+    ACCESS valid
+        return(winIsValid(self.handle))
+    END
+    
+END
+
+
+CLASS wincontrol
+  PUBLIC:
+    local dlg, page, type, text, x, y, width, height, style, cmd, id, handle, sound, hidden, hfont, bkclr, alias
+
+    METHOD new(pdlg, page, type, text, x, y, width, height, style, cmd, snd, hfont, bkclr, alias)
+        self.dlg    = pdlg
+        self.page   = page
+        self.type   = upper(type)
+        self.text   = text
+        self.x      = x
+        self.y      = y
+        self.width  = width
+        self.height = height
+        self.style  = style
+        self.cmd    = cmd
+        self.sound  = snd
+        self.hfont  = hfont
+        self.bkclr  = bkclr
+        self.hidden = (page == 0) ? 0 : 1
+        self.alias  = type( alias ) == 'C' ? alias : ''
+        self.id     = dlgCreate(self.dlg.handle, type, text, ((x > 0) ? xadj(x) : x), ((y > 0) ? yadj(y) : y), ((width > 0) ? xadj(width) : width), ((height > 0) ? yadj(height) : height), style, (self.type == 'TAB') ? 1 : self.bkclr)
+        self.handle = dlgWinFromId(self.dlg.handle, self.id)
+
+        if (hfont)
+            fontset(self.handle, hfont)
+        end
+
+        // hide the control if not part of the master page
+        dlgSetHiddenFlag(self.dlg.handle, self.id, self.hidden)
+
+        return(1)
+    END
+
+
+    METHOD delete()
+        dlgDeleteControl(self.dlg.handle, self.id)
+    END
+
+
+    METHOD display
+        return(dlgSetHiddenFlag(self.dlg.handle, self.id, 0))
+    END
+
+    METHOD hide
+        return(dlgSetHiddenFlag(self.dlg.handle, self.id, 1))
+    END
+END
+
+
+CLASS winpages
+  PUBLIC:
+    local dlg, title, bkimage
+
+    METHOD new( dlg, title, bkimage )
+        self.dlg     = dlg
+        self.title   = title
+        self.bkimage = type( bkimage ) == 'C' ? bkimage : ''
+        return(1)
+    END
+
+END
+
+
+CLASS iniFile
+  // new(inifile)
+  // destroy()
+  // GetString(section, key, defval)
+  // SetString(section, key, value)
+
+  PUBLIC:
+    local filename, hfile
+
+    METHOD new( inifile )
+        local file
+
+        file = fileFindFullName( inifile )
+        if ( strempty( file ) )
+            return( 0 )
+        end
+        self.filename = file
+        return( 1 )
+    END
+
+    METHOD GetString(section, key, defval)
+        return( iniGetString( self.filename, section, key, defval ) )
+    END
+
+
+    METHOD SetString(section, key, val)
+        return( iniSetString( self.filename, section, key, val ) )
+    END
+
+END
+
+
+FUNCTION IsVFW( )  
+    // check if video for windows is installed
+    if ( IsWin32( ) )
+        return( 1 )
+    end
+    if ( fileExists( dirWindows( ) + '\msvideo.dll' ) || fileExists( dirSystem( ) + '\msvideo.dll' ) )
+        return( 1 )
+    end
+    return( 0 )
+END
+
+
+FUNCTION InstallLauncher( win )
+    
+    local idDestin, idStatus, dirSource, dirDestin, file
+    local fData, cnt, i, j, line, fOrig, fCopy, fAction, fdisk, obj, curdisk
+
+    idDestin = win.AliasID( 'Destin' )
+    idStatus = win.AliasID( 'Status' )
+    if ( ! ( idDestin && idStatus ) )
+        return( 0 )
+    end
+
+    lbZap( win.handle, idStatus )
+
+    // source
+
+    if ( fileExists( taskModulePath( ) + '\execspla.tif' ) )   // support non-floppy installs
+        dirSource = taskModulePath( )
+    else
+        dirSource = lower( left( drivestrx( 8192 ), 1 ) )
+        if ( strempty( dirSource ) )
+            msgDelay( 3000, '3 1/2" floppy drive required to install the launcher')
+            return( 0 )
+        end
+        dirSource += ':'
+    end
+        
+    // destination
+    dirDestin = lower( editGetText( win.handle, idDestin ) )
+
+    lbAddLine( win.handle, idStatus, 'Installing the ' + upper( prodname ) )
+    lbAddLine( win.handle, idStatus, 'from ' + upper( dirSource ) + ' to ' + upper( dirDestin ) )
+
+    win.pageDisplay( 3 )    // status screen
+
+    if ( isdir( dirDestin ) )
+        lbAddLine( win.handle, idStatus, 'Using ' + upper( dirDestin ) + '...' )
+    else
+        lbAddLine( win.handle, idStatus, 'Creating ' + upper( dirDestin ) + '...' )
+        mkdir( dirDestin )
+        if ( ! isdir( dirDestin ) )
+            return( 0 )
+        end
+    end    
+
+    // load the data file
+    fdata = fileReadASCII( dirSource + '\files.dat' )
+    if ( ! fdata )
+        return( 0 )
+    end
+    
+    curdisk = 1
+    cnt = chrcount( "\n", fdata ) 
+    j = 0
+    while ( 1 )
+        for ( i=1; i<=cnt; i++ )
+        
+            line = strextract( strextract( fdata, "\n", i ), "\r", 1 )
+            if ( ! line )
+                break
+            end
+    
+            fOrig = strextract( line, ',', 1 )
+            fCopy = strextract( line, ',', 2 )
+            fAction = 0 + strextract( line, ',', 3 )
+            fDisk = 0 + strextract( line, ',', 4 )
+            
+            if ( fDisk == curdisk )
+                
+                if ( upper( fOrig ) == 'MSVIDEO.DLL' )          // don't copy over msvideo if it's not required
+                    if ( IsVFW( ) )
+                        j++
+                        continue
+                    end            
+                end
+
+                if ( ( upper( fOrig ) == 'SDRUN.EXE' ) ||       // don't install the runtime
+                     ( upper( fOrig ) == 'SDLOAD.EXE' ) ||   
+                     ( upper( fOrig ) == 'SDIMAGE.DLL' ) ||                    
+                     ( upper( fOrig ) == 'SDRUN.EXE' ) )
+                     j++
+                     continue                     
+                end
+
+                if ( strat( 'DISK.00', upper( fOrig ) ) == 0 )  // skip disk marker files
+                    j++
+                    continue
+                end
+                
+                if ( fAction == 0 )
+                    lbAddLine( win.handle, idStatus, 'Copying ' + lower( dirDestin + '\' + fOrig + '...' ) )
+                    fileCopy( '', dirSource + '\' + fCopy, '', dirDestin + '\' + fOrig )
+                else
+                    lbAddLine( win.handle, idStatus, 'Decompressing ' + lower( dirDestin + '\' + fOrig + '...' ) )
+                    fileDecompress( dirSource + '\' + fCopy, dirDestin + '\' + fOrig )
+                end
+                j++
+            end    
+        end
+        if ( j >= cnt )
+            break
+        end    
+        // change disks
+        curdisk++
+        
+        file = dirSource + '\disk.00' + curdisk
+        while ( ! fileExists( file ) )
+            if ( ! msgDlg( win.handle, 1 | 16 | 128 | 512, "SmartDesk Screen Launcher", "Place the diskette #" + curdisk + " into the " + dirSource + " drive and press OK to continue or CANCEL to exit." ) )
+                return( 0 )
+            end
+        end
+
+    end
+    
+    if ( ddeStart( ) )
+        ddeSend( 'PROGMAN', '[CreateGroup(SmartDesk)]' )
+        file = 'sdrun.exe ' + dirDestin + '\exec.fgx'
+        ddeSend( 'PROGMAN', '[ AddItem( ' + file + ',Executive Screen Launcher, ' + file + ', 0 ) ]' )
+        file = dirDestin + '\setup.exe'
+        ddeSend( 'PROGMAN', '[ AddItem( ' + file + ',Executive Setup, ' + file + ', 0 ) ]' )
+        ddeEnd( )
+    end
+
+    lbAddLine( win.handle, idStatus, 'Done.' )
+    obj = win.ObjFromAlias( 'Cancel' )
+    winSetText( obj.handle, 'E&xit' )
+    obj.cmd = { || StartApp( win, dirDestin + '\exec.fgx' ) }
+
+    return( 1 )
+
+END
+
+
+FUNCTION StartApp( win, app )
+    driveCurrent( left( app, 2 ) )
+    dirCurrent( filePath( app ) )
+    smartrun( app )
+    win.close( )
+    return( 1 )
+END
+
+
+////////////////////////////////////////////////////////////////
+//                      Main Program                          //
+////////////////////////////////////////////////////////////////
+
+local pg_main, pg_help, pg_stat
+local dlg, err, hbigfont, hsmallfont, hvsmallfont
+local title, image, textmsg, defdir, oktext, canceltext, helptext, returntext
+local titleclr, textclr, head, body, tail, tail2, drivetext, dirtext, contacttext, contacttext2, locatext
+
+TRY
+
+// system parameters
+title      = 'SmartDesk Screen Launcher Setup Program'
+image      = 'EXECSPLA.TIF'
+textmsg    = 'Where would you like to install the Screen Launcher?'
+prodname   = 'Executive Screen Launcher'
+defdir     = 'C:\SDESK\EXEC'
+oktext     = '&OK'
+canceltext = '&Cancel'
+helptext   = '&Help'
+returntext = '&Back'
+locatext   = 'Select the location to install to:'
+drivetext  = '&Drives'
+dirtext    = 'D&irectories'
+titleclr   = RGB( 0, 0, 128 )
+textclr    = RGB( 0, 0, 128 )
+hVSmallFont= fontCreate('Arial', 11, 0, 0, 0, 0)
+hSmallFont = fontCreate('Arial', 12, 0, 0, 0, 0)
+hBigFont   = fontCreate('Arial', 18, 0, 0, 0, 0)
+head[1] = 'SmartDesk'
+head[2] = 'Screen Launcher'
+head[3] = 'v2.5'
+head[4] = '(c) 1996, SmartDesk, Inc.'
+head[5] = "All Rights Reserved.\r714-582-4020"
+body    = "This program installs the SmartDesk Screen Launcher onto your system. "
+body   += "Specify the LOCATION to install the launcher. Click OK when ready or CANCEL to exit.\r\r"
+body   += "For additional information and help, contact:\r\r" 
+body   += "           SmartDesk, Inc.\r            Laguna Hills, California\r            714-582-4020 voice, 714-348-0006 fax\r            www.smartdesk.com"
+tail    = "Screen Launcher is a trademark of SmartDesk, Inc."
+tail2   = 'Setup & Launcher created with VirtualDESK'
+contacttext = 'Visit us at www.smartdesk.com'
+contacttext2 = 'Setup & Launcher created with VirtualDESK'
+
+// create the primary dialog box
+dlg = new( 'window', 0, 'SmartDesk Screen Launcher v2.5', -1, -1, 200, 203, ( 0x7FFFFFFF + 1 ), RGB( 192, 192, 192 ), RGB( 0, 0, 0 ), 0 )
+if ( type( dlg ) != 'O' )
+   msgDelay( 2000, 'Unable to create primary window' )
+   logoff( )
+   return( 0 )
+end
+
+// initialize the window before displaying
+dlg.bkframe  = 1
+dlg.bkpaint  = 1
+dlg.dblclick = 0
+dlg.debug    = 0
+dlg.sound    = 0
+
+// pages
+pg_main = dlg.pageCreate( 'Main' )
+pg_help = dlg.pageCreate( 'Help' )
+pg_stat = dlg.pageCreate( 'Status' )
+
+// controls 
+dlg.pageControls( pg_main, 'text',  title,         9,   6, 180,  12, -1, '', '', hBigFont, titleclr )
+dlg.pageControls( pg_main, 'image', image,        10,  19, 180, 135,  8, '', '' )
+
+dlg.pageControls( pg_main, 'text',  textmsg,      10, 156, 170,   9,  0, '', '', hSmallFont, textclr )
+dlg.pageControls( pg_main, 'edit',  defdir,       11, 166, 178,   9,  0, '', '', hSmallFont, 0, 'Destin' )
+dlg.pageControls( pg_main, 'pb',    oktext,       44, 183,  39,  12,  0, { || InstallLauncher( dlg ) },     '', hsmallfont )
+dlg.pageControls( pg_main, 'pb',    canceltext,   85, 183,  39,  12,  0, { || dlg.close( ) }, '', hsmallfont )
+dlg.pageControls( pg_main, 'pb',    helptext,    126, 183,  39,  12,  0, { || dlg.pageDisplay( pg_help ) },   '', hsmallfont )
+
+dlg.pageControls( pg_help, 'image', image,        10,  10, 100,  75,  8, '', '' )
+dlg.pageControls( pg_help, 'text',  head[1],     115,  23,  75,   9,  0, '', '', hbigfont, titleclr )
+dlg.pageControls( pg_help, 'text',  head[2],     115,  32,  75,   9,  0, '', '', hbigfont, titleclr )
+dlg.pageControls( pg_help, 'text',  head[3],     115,  41,  75,   9,  0, '', '', hbigfont, titleclr )
+dlg.pageControls( pg_help, 'text',  head[4],     115,  56,  75,   8,  0, '', '', hsmallfont, titleclr )
+dlg.pageControls( pg_help, 'text',  head[5],     115,  63,  75,   8,  0, '', '', hsmallfont, titleclr )
+dlg.pageControls( pg_help, 'text',  body,         10,  92, 180, 100,  0, '', '', hsmallfont )
+dlg.pageControls( pg_help, 'text',  tail,         10, 182, 140,   7, -1, '', '', hvsmallfont, titleclr )
+dlg.pageControls( pg_help, 'text',  tail2,        10, 188, 140,   7, -1, '', '', hvsmallfont, titleclr )
+dlg.pageControls( pg_help, 'pb',    returntext,  151, 183,  39,  12,  0, { || dlg.pageDisplay( pg_main ) },   '', hsmallfont )
+
+dlg.pageControls( pg_stat, 'image', image,        10,  10, 100,  75,  8, '', '' )
+dlg.pageControls( pg_stat, 'text',  head[1],     115,  23,  75,   9,  0, '', '', hbigfont, titleclr )
+dlg.pageControls( pg_stat, 'text',  head[2],     115,  32,  75,   9,  0, '', '', hbigfont, titleclr )
+dlg.pageControls( pg_stat, 'text',  head[3],     115,  41,  75,   9,  0, '', '', hbigfont, titleclr )
+dlg.pageControls( pg_stat, 'text',  head[4],     115,  56,  75,   8,  0, '', '', hsmallfont, 0 )
+dlg.pageControls( pg_stat, 'text',  head[5],     115,  63,  75,  20,  0, '', '', hsmallfont, 0 )
+dlg.pageControls( pg_stat, 'lb',   '',            12,  94, 176,  80, -1, '', '', hsmallfont, 0, 'Status' )
+dlg.pageControls( pg_stat, 'text',  contacttext,  10, 180, 140,   9, -1, '', '', hbigfont, titleclr )
+dlg.pageControls( pg_stat, 'text',  contacttext2, 10, 189, 140,   7, -1, '', '', hsmallfont, 0 )
+dlg.pageControls( pg_stat, 'pb',    canceltext,  151, 183,  39,  12,  0, { || dlg.pageDisplay( pg_main ) },   '', hsmallfont, 0, 'Cancel' )
+
+dlg.pageDisplay( pg_main )  // display the window
+dlg.ProcessEvents( )        // process the events
+dlg.close( )                // all done.
+
+fontDestroy( hBigFont )
+fontDestroy( hsmallfont )
+
+logoff( )
+
+CATCH ( err )
+    msgDelay( 3000, 'Error ' + err.errornum + ' at line ' + err.errorline + ' (' + ErrorAsText( err.errornum ) + ')' )
+    logoff( )
+END
+

@@ -1,0 +1,14 @@
+#table 1
+
+function x()
+  local a = 5
+  local b, c
+  local d := "hello"
+  local e = a
+
+  println ( d )
+  println ( e, ' ', a )
+end
+
+x()
+ 

@@ -1,0 +1,66 @@
+<[
+	
+	LIBRARY \fgl\libs\system.flb
+	
+	a = {
+		"walk.ap"
+//		"/images/CornerOfficeLogo.jpg"
+//		"/farmers/portal/consumer/main.htm?companyid=FARMERS&clientid=STEVE_REPETTI_5G_COM&userid=CONSUMER&password=marvin&IsConsumer=1&",
+//		"/nia/portal/agent/apps_list.htm?_url_=/nia/portal/agent/apps_list.htm&companyid=BRT&userid=SREPETTI&subcmd=AGENTPORTAL&theme=Agent&defCarrier=NIA",
+//		"/insmgmt/agency/AgencyList.htm?_title_=Gathering%20Agency%20Information&_url_=/insmgmt/agency/AgencyList.htm&companyid=BRT&userid=SREPETTI&agencyid=BRT&subcmd=AGENCYPORTAL&theme=Admin&xcarrier=&defCarrier=DEMO"
+//		"/CountryWide/portal/agent/PropertyDetail.htm?id=1000000",
+//		"/CountryWide/portal/agent/LeadDetail.htm?id=1000008",
+//		"/insmgmt/products/OATXAU00/polSummary.htm?companyid=BRT&userid=SREPETTI&theme=Underwriting&defcompany=&xcarrier=&IsNP=0&policynum=OATXAU00-10000002-01-01&policyid=MCCALLFRANK783821.OATXAU00.P100006&IsEnhanced=1",
+//		"/insmgmt/polBillingStatementDetail.htm?companyid=BRT&userid=SREPETTI&defCarrier=APHI&xcarrier=&theme=Agent&policyid=NNANDINAALICEM871141.AFNMAU00.P1093932",
+//		"/WEBSITES/FGLDEV/developers.htm",
+//		"/insmgmt/agentsbt.htm?companyid=BRT&userid=SREPETTI&curpage=pgnum&currec=2&pagesize=500",
+//		"/WEBSITES/FGLDEV/newsgroups.htm"
+	}
+
+
+	session = new( "session" )
+	domain = session.var( "domain" )
+
+	web = new( "WebClient" )
+	web.domain = strempty( domain ) ? "127.0.0.1" : domain
+
+	max = 100000
+
+	start = timeh( )
+	ttlbytes = 0
+
+	cnt = len( a )
+	k=1
+	while ( 1 )
+		if ( k > max )
+			break
+		end
+		for ( i=1; i<=cnt; i++ )
+			println( ">>> [" + (k++) + "] " + a[i] )
+			web.url = a[i]
+			ttlbytes += len( web.page )
+		end
+	end
+	
+	endtime = timeh( )
+	
+	println( "\r\n*******************************" )
+	println( "*** SERVER TEST COMPLETE" )
+	println( "*******************************" )
+	println( "*** Iterations:     " + strcommas( (k-1) ) )
+	println( "*** Total tests:    " + strcommas( ((k-1)*len(a)) ) )
+	println( "*** Bytes received: " + strcommas( ttlbytes ) )
+	println( "*** Start time:     " + start )
+	println( "*** End time:       " + endtime )
+	println( "*******************************\r\n" )
+
+
+	! "*******************<br>"
+	! "*** SERVER TEST ***<br>"
+	! "*******************<br><br>"
+	! ">>> " + (k-1) + " iterations<br>"
+	! "start=" + start + "<br>"
+	! "end&nbsp;=" + endtime + "<br>"
+	! "ttlbytes=" + ttlbytes
+	
+]>

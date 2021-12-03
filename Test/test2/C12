@@ -1,0 +1,31 @@
+class test1
+   public:
+      static v1
+      local  v2
+end
+
+class test2
+   inherit test1
+end
+
+
+local a, b
+
+debugbreak()
+
+a = new ( "test2" )
+b = new ( "test2" )
+
+a.v1 = "hello there "
+a.v2 = "Donna"
+b.v2 = "Steve"
+
+omcollect()
+
+print   ( a.v1 )
+println ( a.v2 )
+
+print   ( b.v1 )
+println ( b.v2 )
+
+ 

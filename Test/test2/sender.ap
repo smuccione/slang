@@ -1,0 +1,23 @@
+<[
+	class base
+		method test
+			x = type ( sender )
+			y = className ( sender )
+		end
+	end
+	
+	class super
+		inherit base
+		
+		method test
+			::base.test()
+		end
+	end
+	
+	o = super()
+	
+	debugBreak()
+	
+	o.test()
+	
+]>

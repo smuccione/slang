@@ -1,0 +1,52 @@
+<[ 
+
+function doIndent ( loop )
+	while ( loop-- )
+//		! "&nbsp"
+	end
+end
+function dump ( buildName, obj, indent, stripName )
+	local name
+
+	while ( obj )
+		try
+			id = obj.GetAttribute ( "id" )
+			if ( token ( id, ".", 1 ) == stripName )
+				name = mid ( id, len ( stripName ) + 1, len ( id ) )
+			else
+				name = id
+			end
+		catch ( error )
+			name = ""
+		end
+		switch ( lower ( obj.tagName ) )
+			case "object"
+				doIndent ( indent )
+				! buildName + name+ " <br>" 
+				dump ( buildName + name + ".", obj.firstchild, indent + 3, obj.GetAttribute ( "id" ) )
+				break;
+			case "public"
+				doIndent ( indent )
+				! buildName + "public." + name + "<br>" 
+				break;
+			case "private"
+				doIndent ( indent )
+				! buildName + "private." + name + "<br>" 
+				break;
+		end
+		try
+			obj = obj.nextSibling
+		catch ( error )
+		end
+	end
+end
+
+x = FileReadAscii ( 'PAUTO_ManuScript.xml' );
+//x = FileReadAscii ( 'x1.xml' );
+
+o = new ( "XMLDOCUMENT", x, 1 )
+
+//DebugBreak()
+dump ( "Manifest.", o.model.firstChild, 0, "Manifest." )
+
+]>

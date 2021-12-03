@@ -1,0 +1,10 @@
+<script language="fgl">
+	! "hello"
+</script>
+
+<script language=fgl>
+	! " there<br>"
+</script>
+
+ 
+ 

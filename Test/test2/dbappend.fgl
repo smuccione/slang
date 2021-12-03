@@ -1,0 +1,76 @@
+function copy ( file )
+   local dbfStruct
+   local loop
+   local cnt
+   local x
+
+   src = 'c:\sdweb\home\insmgmt\data\' + file + '.db'
+   dst = 'c:\sdweb\home\insmgmt\data\_' + file + '.db'
+
+   if ( !dbUse ( src, "SRC", 1 ) )
+      println ( "error: can't open ", src )
+      return(0)
+   end
+
+   if ( !dbUse ( src, "SRC", 1 ) )
+      println ( "error: can't open ", src )
+      return(0)
+   end
+
+   if ( !dbUse ( dst, "DST", 1 ) )
+      println ( "error: can't open ", dst )
+      return(0)
+   end
+
+   printf ( "appending %s -> %s\r\n", src, dst )
+   
+   cnt = src->dbFieldCount()
+
+   println ( "records to append - ", src->dbLastRec() )
+
+   x = 0
+   while ( !src->dbEOF () )
+      if( ++x % 100 == 0 )
+         printf ( "record: %u\r", src->dbRecno() )
+      end
+      if ( !src->dbisdeleted() )
+         dst->dbAppend()
+         for ( loop = 1; loop <= cnt; loop++ )
+            dst->dbFieldPut ( loop, src->dbFieldGet ( loop ) )
+            a = src->dbFieldGet ( loop )
+            b = dst->dbFieldGet ( loop )
+            
+            if ( a != b )
+            	DebugBreak()
+            end
+         end
+      end
+      src->dbSkip()
+   end
+
+   src->dbClose()
+   dst->dbClose()
+end
+
+function main()
+//	copy ( "accountingdata" )
+//	copy ( "accounttrans" )
+//	copy ( "accts" )
+//	copy ( "accttran" )
+//	copy ( "asflterr" )
+//	copy ( "comm" )
+//	copy ( "contact" )
+//	copy ( "datadict" )
+//	copy ( "eft" )
+//	copy ( "entity" )
+//	copy ( "events" )
+//	copy ( "glaccounts" )
+//      copy ( "insdata" )
+//	copy ( "lookup" )
+//	copy ( "prntjobs" )
+//      copy ( "prntmail" )
+//	copy ( "reflib" )
+      copy ( "trans" )
+//	copy ( "zipcodes" )
+
+end

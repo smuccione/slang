@@ -1,0 +1,974 @@
+<[
+
+library c:\sdweb\home\websites\fgl\libs\system.flb
+
+class soapAllType
+		local	node
+		local	minOccurs
+		local	maxOccurs
+		local	children
+
+		method GenCode ( schemaNS, elems, code, defs, init, top, genElems, name )
+			local loop;
+
+			for ( loop = 1; loop <= len ( ::children ); loop++ )
+				::children[loop].GenCode ( schemaNS, elems, code, defs, init, 0, genElems, name )
+			end
+
+			return ( 1 )
+			top;
+		end
+
+		method	New ( node )
+			local loop
+
+			::node = node
+			::minOccurs	= ::node.Attributes.GetNamedItem ( "minOccurs" )
+			::maxOccurs	= ::node.Attributes.GetNamedItem ( "maxOccurs" )
+
+			::node = node
+
+			::children={}
+
+			for ( loop = 0; loop < node.ChildNodes.Length;  loop++ )
+				switch ( UPPER ( node.ChildNodes.Array[loop].TagName ) )
+					case "ELEMENT"
+						::children[len(::children) +1] = new ( "soapElementType", node.ChildNodes.Array[loop] )
+						break;
+					case "SIMPLETYPE"
+						::children[len(::children) +1] = new ( "soapSimpleType", node.ChildNodes.Array[loop] )
+						break;
+					case "SEQUENCE"
+						::children[len(::children) +1] = new ( "soapSequenceType", node.ChildNodes.Array[loop] )
+						break;
+					case "EXTENSION"
+						::children[len(::children) +1] = new ( "soapExtensionType", node.ChildNodes.Array[loop] )
+						break;
+					default:
+						return ( 0 );
+				end
+			end
+
+			return ( 1 )
+		end
+end
+
+class soapRestrictionType
+	local	node
+	local	base
+	local 	enumerations
+	local	fractionDigits
+	local	maxExclusive
+	local	maxInclusive
+	local	maxLength
+	local	minExclusive
+	local	minInclusive
+	local	minLength
+	local	pattern
+	local	totalDigits
+	local	whiteSpace
+	local	child
+
+	method GenCode ( schemaNS, elems, code, defs, init, top, genElems, name )
+		if ( ::child )
+			::child.GenCode ( schemaNS, elems, code, defs, init, 0, genElems, name )
+		end
+
+		if ( ::enumerations )
+			init += "		::" + name + " = \"" + ::enumerations[1] + "\"\r\n"
+		end
+
+		return ( 1 )
+		top;
+	end
+
+	method New ( node )
+		local loop
+
+		::node = node
+		::base		= ::node.Attributes.GetNamedItem ( "base" )
+
+		for ( loop = 0; loop < node.ChildNodes.Length;  loop++ )
+			switch ( UPPER ( node.ChildNodes.Array[loop].TagName ) )
+				case "MAXEXCLUSIVE"
+					::maxExclusive = node.ChildNodes.Array[loop].Attributes.GetNamedItem ( "value" )
+					break;
+				case "MAXINCLUSIVE"
+					::maxInclusive = node.ChildNodes.Array[loop].Attributes.GetNamedItem ( "value" )
+					break;
+				case "MAXLENGTH"
+					::maxLength = node.ChildNodes.Array[loop].Attributes.GetNamedItem ( "value" )
+					break;
+				case "MINEXCLUSIVE"
+					::minExclusive = node.ChildNodes.Array[loop].Attributes.GetNamedItem ( "value" )
+					break;
+				case "MININCLUSIVE"
+					::minInclusive = node.ChildNodes.Array[loop].Attributes.GetNamedItem ( "value" )
+					break;
+				case "MINLENGTH"
+					::minLength = node.ChildNodes.Array[loop].Attributes.GetNamedItem ( "value" )
+					break;
+				case "PATTERN"
+					::pattern = node.ChildNodes.Array[loop].Attributes.GetNamedItem ( "value" )
+					break;
+				case "TOTALDIGITS"
+					::totalDigits = node.ChildNodes.Array[loop].Attributes.GetNamedItem ( "value" )
+					break;
+				case "WHITESPACE"
+					::whiteSpace = node.ChildNodes.Array[loop].Attributes.GetNamedItem ( "value" )
+					break;
+				case "ENUMERATION"
+					::enumerations[len ( ::enumerations ) + 1] = node.ChildNodes.Array[loop].Attributes.GetNamedItem ( "value" )
+					break;
+				case "SIMPLETYPE"
+					::child = new ( "soapSimpleType", node.ChildNodes.Array[loop] )
+					break;
+				case "SEQUENCE"
+					::child = new ( "soapSequenceType", node.ChildNodes.Array[loop] )
+					break;
+				case "ALL"
+					::child = new ( "soapAllType", node.ChildNodes.Array[loop] )
+					break;
+				default:
+					return ( 0 );
+			end
+		end
+
+
+		return ( 1 )
+	end
+end
+
+class soapExtensionType
+		local	name
+		local	node
+		local	base
+		local	child
+
+	public:
+
+		method GenCode ( schemaNS, elems, code, defs, init, top, genElems, name )
+			elems[token ( ::base, ":", 2 )][1].GenCode ( schemaNS, elems, code, defs, init, 0, genElems, name )
+			if ( ::child )
+				::child.GenCode ( schemaNS, elems, code, defs, init, 0, genElems, name )
+			end
+
+			return ( 1 )
+			top;
+		end
+
+		method New ( node )
+			::node = node
+
+			::name		= ::node.Attributes.GetNamedItem ( "name" )
+			::base		= ::node.Attributes.GetNamedItem ( "base" )
+
+
+			if ( node.FirstChild )
+				switch ( UPPER ( node.FirstChild.tagName ) )
+					case "GROUP"
+						::child = new ( "soapGroupType", node.FirstChild )
+						break;
+					case "SEQUENCE"
+						::child = new ( "soapSequenceType", node.FirstChild )
+						break;
+					case "ALL"
+						::child = new ( "soapAllType", node.FirstChild )
+						break;
+					default:
+						return ( 0 );
+				end
+			end
+
+			return ( 1 )
+		end
+end
+
+class soapSequenceType
+		local 	name
+		local	node
+		local	minOccurs
+		local	maxOccurs
+		local	children
+
+		method GenCode ( schemaNS, elems, code, defs, init, top, genElems, name )
+			local loop;
+
+			for ( loop = 1; loop <= len ( ::children ); loop++ )
+				::children[loop].GenCode ( schemaNS, elems, code, defs, init, 0, genElems, name )
+			end
+
+			return ( 1 )
+			top;
+		end
+
+		method	New ( node )
+			local loop
+
+			::node = node
+			::name		= ::node.Attributes.GetNamedItem ( "name" )
+			::minOccurs	= ::node.Attributes.GetNamedItem ( "minOccurs" )
+			::maxOccurs	= ::node.Attributes.GetNamedItem ( "maxOccurs" )
+
+			::node = node
+
+			::children={}
+
+			for ( loop = 0; loop < node.ChildNodes.Length;  loop++ )
+				switch ( UPPER ( node.ChildNodes.Array[loop].TagName ) )
+					case "ELEMENT"
+						::children[len(::children) +1] = new ( "soapElementType", node.ChildNodes.Array[loop] )
+						break;
+					case "SIMPLETYPE"
+						::children[len(::children) +1] = new ( "soapSimpleType", node.ChildNodes.Array[loop] )
+						break;
+					case "SEQUENCE"
+						::children[len(::children) +1] = new ( "soapSequenceType", node.ChildNodes.Array[loop] )
+						break;
+					default:
+						return ( 0 );
+				end
+			end
+
+			return ( 1 )
+		end
+end
+
+class soapComplexType
+		local	name
+		local	node
+		local	abstract
+		local	mixed
+		local	block
+		local	final
+		local	children
+
+	public:
+
+		method GenCode ( schemaNS, elems, code, defs, init, top, genElems, name )
+			local loop
+
+			if ( top )
+				if ( !elems[::name][2] )
+					elems[::name][2] = 1
+					defs += "	inherit	soap_msg_base\r\n"
+				end
+			end
+
+			for ( loop = 1; loop <= len ( ::children ); loop++ )
+				::children[loop].GenCode ( schemaNS, elems, code, defs, init, 0, genElems, name )
+			end
+
+			return ( 1 )
+		end
+
+		method New ( node )
+			local loop
+
+			::node = node
+			::name		= ::node.Attributes.GetNamedItem ( "name" )
+			::abstract	= ::node.Attributes.GetNamedItem ( "abstract" )
+			::mixed		= ::node.Attributes.GetNamedItem ( "mixed" )
+			::block		= ::node.Attributes.GetNamedItem ( "block" )
+			::final		= ::node.Attributes.GetNamedItem ( "final" )
+
+			::children={}
+			for ( loop = 0; loop < node.ChildNodes.Length;  loop++ )
+				switch ( UPPER ( node.ChildNodes.Array[loop].TagName ) )
+					case "SEQUENCE"
+						::children[len(::children) +1] = new ( "soapSequenceType", node.ChildNodes.Array[loop] )
+						break;
+					case "SIMPLETYPE"
+						::children[len(::children) +1] = new ( "soapSimpleType", node.ChildNodes.Array[loop] )
+						break;
+					case "SIMPLECONTENT"
+						::children[len(::children) +1] = new ( "soapSimpleContent", node.ChildNodes.Array[loop] )
+						break;
+					case "COMPLEXCONTENT"
+						::children[len(::children) +1] = new ( "soapComplexContent", node.ChildNodes.Array[loop] )
+						break;
+					case "ALL"
+						::children[len(::children) +1] = new ( "soapAllType", node.ChildNodes.Array[loop] )
+						break;
+					default:
+						return ( 0 );
+				end
+			end
+
+			return ( 1 )
+		end
+end
+
+class soapSimpleType
+		local	name
+		local	node
+		local	minOccurs
+		local	maxOccurs
+		local	type
+		local	default
+		local	ref
+		local	child
+
+	public:
+
+		method GenCode ( schemaNS, elems, code, defs, init, top, genElems, name )
+			if ( ::child )
+				::child.GenCode ( schemaNS, elems, code, defs, init, 0, genElems, name ? name : ::name )
+			end
+
+			return ( 0 )
+			top;
+		end
+
+		method New ( node )
+			::node = node
+
+			::name		= ::node.Attributes.GetNamedItem ( "name" )
+			::minOccurs	= ::node.Attributes.GetNamedItem ( "minOccurs" )
+			::maxOccurs	= ::node.Attributes.GetNamedItem ( "maxOccurs" )
+			::type		= ::node.Attributes.GetNamedItem ( "type" )
+			::default	= ::node.Attributes.GetNamedItem ( "default" )
+			::ref		= ::node.Attributes.GetNamedItem ( "default" )
+
+
+			if ( node.FirstChild )
+				switch ( UPPER ( node.FirstChild.tagName ) )
+					case "RESTRICTION"
+						::child = new ( "soapRestrictionType", node.FirstChild )
+						break;
+					case "EXTENSION"
+						::child = new ( "soapExtensionType", node.FirstChild )
+						break;
+					default:
+						return ( 0 );
+				end
+			end
+
+			return ( 1 )
+		end
+end
+
+class  soapSimpleContent
+		local	name
+		local	node
+		local	minOccurs
+		local	maxOccurs
+		local	type
+		local	default
+		local	ref
+		local	child
+
+	public:
+
+		method GenCode ( schemaNS, elems, code, defs, init, top, genElems, name )
+			if ( ::child )
+				::child.GenCode ( schemaNS, elems, code, defs, init, 0, genElems, name )
+			end
+
+			return ( 1 )
+			top;
+		end
+
+
+		method New ( node )
+			::node = node
+
+			::name		= ::node.Attributes.GetNamedItem ( "name" )
+
+			if ( node.FirstChild )
+				switch ( UPPER ( node.FirstChild.tagName ) )
+					case "RESTRICTION"
+						::child = new ( "soapRestrictionType", node.FirstChild )
+						break;
+					case "EXTENSION"
+						::child = new ( "soapExtensionType", node.FirstChild )
+						break;
+					case "SIMPLETYPE"
+						::child = new ( "soapSimpleType", node.FirstChild )
+						break;
+					default:
+						return ( 0 );
+				end
+			end
+
+			return ( 1 )
+		end
+end
+
+class soapComplexContent
+		local	name
+		local	node
+		local	minOccurs = 0
+		local	maxOccurs = 1
+		local	type
+		local	default
+		local	ref
+		local	child
+
+	public:
+
+		method GenCode ( schemaNS, elems, code, defs, init, top, genElems, name )
+			if ( ::child )
+				::child.GenCode ( schemaNS, elems, code, defs, init, 0, genElems, name )
+			end
+
+			return ( 1 )
+			top;
+		end
+
+		method New ( node )
+			::node = node
+
+			::name		= ::node.Attributes.GetNamedItem ( "name" )
+			::minOccurs	= ::node.Attributes.GetNamedItem ( "minOccurs" )
+			::maxOccurs	= ::node.Attributes.GetNamedItem ( "maxOccurs" )
+			::type		= ::node.Attributes.GetNamedItem ( "type" )
+			::default	= ::node.Attributes.GetNamedItem ( "default" )
+			::ref		= ::node.Attributes.GetNamedItem ( "default" )
+
+			if ( node.FirstChild )
+				switch ( UPPER ( node.FirstChild.tagName ) )
+					case "RESTRICTION"
+						::child = new ( "soapRestrictionType", node.FirstChild )
+						break;
+					case "EXTENSION"
+						::child = new ( "soapExtensionType", node.FirstChild )
+						break;
+					default:
+						return ( 0 );
+				end
+			end
+
+			return ( 1 )
+		end
+end
+
+class  soapElementType
+		local	name
+		local	node
+		local	minOccurs
+		local	maxOccurs
+		local	type
+		local	default
+		local	ref
+		local	child
+
+	public:
+
+		method GenCode ( schemaNS, elems, code, defs, init, top, genElems, name )
+			local 	newDefs
+			local	newInit
+			local	newGenElems
+			local	newCode
+			local	emitCode
+			local	loop
+
+			if ( top )
+				if ( !elems[::node.name][2] )
+					elems[::node.name][2] = 1
+					defs += "	inherit	soap_msg_base\r\n"
+				end
+			else
+				// child element (sequence or such)
+				if ( ::name )
+					genElems[len(genElems) + 1][1] = ::name
+					genElems[len(genElems)    ][2] = ::type
+					genElems[len(genElems)    ][3] = ::minOccurs
+					genElems[len(genElems)    ][4] = ::maxOccurs
+
+					if ( !elems[token ( ::type, ":", 2 )][2] )
+						emitCode = 1
+					else
+						emitCode = 0
+					end
+
+					if ( token ( ::type, ":", 1 ) != schemaNS )
+						defs += "	local	" + ::name + "\r\n"
+
+						newInit = serverBuffer()
+						newDefs = serverBuffer()
+						newCode	= serverBuffer()
+						newGenElems = {}
+
+						if ( elems[token ( ::type, ":", 2 )][1].GenCode ( schemaNS, elems, newCode, newDefs, newInit, 1, newGenElems, ::name ) )
+							if ( 0 + ::maxOccurs > 1 )
+								if ( upper ( schemaNS ) != upper ( token ( ::type, ":", 1 ) ) )
+									init += "		::" + ::name + " = new ( \"" + token ( ::type, ":", 2 ) + "\", \"" + ::name + "\", \"" + ::type 				  + "\", " + ::minOccurs + ", " + ::maxOccurs + " )\r\n"
+								else
+									init += "		::" + ::name + " = new ( \"" + token ( ::type, ":", 2 ) + "\", \"" + ::name + "\", \"" + token ( ::type, ":", 2 ) + "\", " + ::minOccurs + ", " + ::maxOccurs + " )\r\n"
+								end
+							else
+								init += "		::" + ::name + " = new ( \"" + token ( ::type, ":", 2 ) + "\" )\r\n"
+							end
+
+							if ( emitCode )
+								code += newCode.str
+								code +=	"CLASS " + token ( ::type, ":", 2 ) + "\r\n"
+								code += newDefs.str
+
+								if ( newGenElems )
+									code += "\r\n	ACCESS genElems\r\n"
+									code += "		return { "
+									for ( loop = 1; loop <= len ( newGenElems ); loop++ )
+										code += "{"
+										code += "\"" + newGenElems[loop][1] + "\", "
+										if ( upper ( schemaNS ) == upper ( token ( newGenElems[loop][2], ":", 1 ) ) )
+											code += "\"" + token ( newGenElems[loop][2], ":", 2 ) + "\", "
+										else
+											code += "\"" + newGenElems[loop][2] + "\", "
+										end
+										code += newGenElems[loop][3] + ", "
+										code += newGenElems[loop][4]
+										code += "}"
+
+										if ( loop != len ( newGenElems ) )
+											code += ", "
+										end
+									end
+									code += " }\r\n"
+									code += "	END\r\n"
+								end
+
+								if ( newInit.Str )
+									code += "\r\n	METHOD New()\r\n"
+									code += newInit.str
+									code += "		return 1\r\n"
+									code += "	END\r\n"
+								end
+								code += "END\r\n\r\n"
+							else
+							end
+						else
+							defs += newDefs.str
+							init += newInit.str
+							for ( loop = 1; loop <= len ( newGenElems ); loop++ )
+								genElems[len ( genElems ) + 1] = newGenElems[loop]
+							end
+						end
+					else
+						defs += "	local	" + ::name
+						if ( 0 + ::minOccurs  )
+							switch ( UPPER ( token ( ::type, ":", 2 ) ) )
+								case "STRING":
+									defs += " = \"\"";
+									break;
+								case "INT":
+									defs += " = 0"
+									break;
+								case "BOOLEAN":
+									defs += " = \"false\"";
+									break;
+								case "DATETIME":
+									defs += " = \"0001-01-01T00:00:00\"";
+									break;
+							end
+						end
+						defs += "\r\n"
+					end
+				else
+				end
+			end
+			if ( ::child )
+				::child.GenCode ( schemaNS, elems, code, defs, init, 0, genElems, ::name )
+			end
+		end
+
+		method New ( node )
+			::node = node
+
+			::name		= ::node.Attributes.GetNamedItem ( "name" )
+			::minOccurs	= ::node.Attributes.GetNamedItem ( "minOccurs" )
+			::maxOccurs	= ::node.Attributes.GetNamedItem ( "maxOccurs" )
+			::type		= ::node.Attributes.GetNamedItem ( "type" )
+			::default	= ::node.Attributes.GetNamedItem ( "default" )
+			::ref		= ::node.Attributes.GetNamedItem ( "default" )
+
+			if ( upper ( ::maxOccurs ) == "UNBOUNDED" )
+				::maxOccurs = 2147483647
+			end
+			::maxOccurs = 0 + ::maxOccurs
+
+			if ( node.FirstChild )
+				switch ( UPPER ( node.FirstChild.tagName ) )
+					case "COMPLEXTYPE"
+						::child = new ( "soapComplexType", node.FirstChild )
+						break;
+					case "COMPLEXCONTENT"
+						::child = new ( "soapComplexContent", node.FirstChild )
+						break;
+					case "RESTRICTION"
+						::child = new ( "soapRestrictionType", node.FirstChild )
+						break;
+					case "SIMPLETYPE"
+						::child = new ( "soapSimpleType", node.FirstChild )
+						break;
+					default:
+						return ( 0 );
+				end
+			end
+
+			return ( 1 )
+		end
+end
+
+class	soapWrapper
+
+	private:
+		local	xml
+		local 	wsdlNS
+		local 	schemaNS
+		local	targetNS
+
+		local 	typeList
+		local 	elementList
+		local	elems
+		local 	oppList
+		local	actionUrl
+
+	public:
+		local aSoapClasses = {}
+
+		method ParseWsdl ( xml )
+			local ops
+			local loop
+			local loop2
+			local schema
+			local definitions;
+			local binding;
+			local msg;
+			local obj;
+
+			// parse name space definitions
+			definitions = xml."definitions".Attributes.Array
+
+			for ( loop = 0; loop <= len ( definitions ); loop++ )
+				switch ( definitions[loop][2] )
+					case "http://www.w3.org/2001/XMLSchema":
+						::schemaNS = token (  definitions[loop][1], ":", 2 )
+						break;
+					case "http://schemas.xmlsoap.org/wsdl/":
+						::wsdlNS = token (  definitions[loop][1], ":", 2 )
+						break;
+				end
+			end
+
+			::actionUrl = xml."service"."port"."address".Attributes.GetNamedItem ( "location" )
+
+			// build the list of operations from the port list
+
+			ops = xml."portType".GetElementsByName ( "operation" )
+
+			::oppList={}
+			for ( loop = 1; loop <= ops.length; loop++ )
+				::oppList[len ( ::oppList ) + 1][1] = ops.Array[loop].Attributes.GetNamedItem ( "name" )
+				::oppList[len ( ::oppList )    ][2] = ops.Array[loop]."Input".Attributes.GetNamedItem ( "message" );
+				::oppList[len ( ::oppList )    ][3] = ops.Array[loop]."Output".Attributes.GetNamedItem ( "message" );
+			end
+
+			// add in the bindings
+			binding = xml."binding".GetElementsByNameNS ( "operation", ::wsdlNS );
+
+			for ( loop = 1; loop <= len ( ::oppList ); loop++ )
+				for ( loop2 = 1; loop2 <= binding.length; loop2++ )
+					if ( upper ( ::oppList[loop][1] ) == upper ( binding.Array[loop2].Attributes.GetNamedItem ( "name" ) ) )
+						::oppList[loop][4] = binding.Array[loop2]."Operation".FirstChild."Operation".Attributes.GetNamedItem ( "soapAction" )
+						break
+					end
+				end
+			end
+
+			// parse out the message's
+			msg = xml.GetElementsByNameNS ( "message", ::wsdlNS )
+			for ( loop = 1; loop <= len ( ::oppList ); loop++ )
+				for ( loop2 = 1; loop2 <= msg.Length; loop2++ )
+					if ( token ( ::oppList[loop][2], ":", 2 ) == msg.Array[loop2].Attributes.GetNamedItem ( "name" ) )
+						::oppList[loop][5] = msg.Array[loop2]."part".Attributes.GetNamedItem ( "element" )
+						break
+					end
+				end
+			end
+
+			::targetNS = xml."types"."schema".Attributes.GetNamedItem ( "targetNamespace" )
+
+			// parse out the schema types
+			schema = xml."types"."schema".ChildNodes.Array
+
+			::elems = new ( "AArray" )
+
+			for ( loop = 0; loop <= len ( schema ); loop++ )
+				switch ( upper ( schema[loop].tagName ) )
+					case "ELEMENT":
+						obj = new ( "soapElementType", schema[loop] );
+						::elems[obj.name] = { obj, 0 }
+						break;
+					case "COMPLEXTYPE"
+						obj= new ( "soapComplexType", schema[loop] );
+						::elems[obj.name] = { obj, 0 }
+						break;
+					case "SIMPLETYPE"
+						obj = new ( "soapSimpleType", schema[loop] );
+						::elems[obj.name] = { obj, 0 }
+						break;
+					default:
+						return ( 0 )
+				end
+			end
+
+			return 1
+		end
+
+		method GenCode ( op )
+			local	code
+			local	defs
+			local	init
+			local	ns
+			local	func
+			local	loop
+			local	loop2
+			local	genElems
+			local	name
+
+			code = new ( "serverBuffer" )
+			defs = new ( "serverBuffer" )
+			init = new ( "serverBuffer" )
+
+			for ( loop = 1; loop <= len ( ::oppList ); loop++ )
+				func 	= ::oppList[loop][5]
+				ns 		= token (  func, ":", 1 )
+				name 	= token (  func, ":", 2 )
+				if ( !op || (op == name) )
+
+					defs = ""
+					init = ""
+					genElems={}
+
+					::elems[name][1].GenCode ( ::schemaNS, ::elems, @code, @defs, @init, 1, @genElems, NULL )
+
+					::aSoapClasses[ len( ::aSoapClasses ) + 1 ] = name
+
+					code +=	"CLASS " + name + "\r\n"
+					code += defs.str
+					code +=	"	local	targetNS\r\n"
+					code +=	"	local	msg\r\n"
+					code +=	"	local	actionUrl\r\n"
+					code += "	local	soapAction\r\n"
+					if ( genElems )
+						code += "\r\n	ACCESS genElems\r\n"
+						code += "		return { "
+						for ( loop2 = 1; loop2 <= len ( genElems ); loop2++ )
+							code += "{"
+							code += "\"" + genElems[loop2][1] + "\", "
+							if ( upper ( ::schemaNS ) == upper ( token ( genElems[loop2][2], ":", 1 ) ) )
+								code += "\"" + token ( genElems[loop2][2], ":", 2 ) + "\", "
+							else
+								code += "\"" + genElems[loop2][2] + "\", "
+							end
+							code += genElems[loop2][3] + ", "
+							code += genElems[loop2][4]
+							code += "}"
+
+							if ( loop2 != len ( genElems ) )
+								code += ", "
+							end
+						end
+						code += " }\r\n"
+						code += "	END\r\n\r\n"
+					end
+					if ( init.Str )
+						code += "	METHOD New()\r\n"
+						code += init.str
+						code += "		::msg =\"" + name + "\"\r\n"
+						code += "		::targetNS =\"" + ::targetNS + "\"\r\n"
+						code += "		::actionUrl =\"" + ::actionurl + "\"\r\n"
+						code += "		::soapAction =\"" + ::oppList[loop][4] + "\"\r\n"
+						code += "		return 1\r\n"
+						code += "	END\r\n"
+					end
+					code += "END\r\n\r\n"
+				end
+			end
+
+			return ( code.str )
+		end
+
+		method New ( wsdl )
+			::xml = xmlDocument ( wsdl, 1 )
+			return ::ParseWsdl( ::xml )
+		end
+end
+
+class soap_msg_base
+	local	name
+	local	type
+	local	max
+	local	min
+	local	data
+
+	Method New ( name, type, max, min )
+		::name = name
+		::type = type
+		::max = max
+		::min = min
+		return 1
+	end
+
+	operator [ ( index )
+		if ( TYPE ( ::data[index] ) == "U" )
+			if ( token ( ::type, ":", 2 ) )
+				::data[index] = new ( token ( ::type, ":", 2 ) )
+			end
+		end
+		return ( ::data[index] )
+	end
+
+	method GenOutput ( buffer, indent )
+		local	elems
+		local	loop
+
+		elems = sender.GenElems
+		if ( !::data )
+			for ( loop = 1; loop <= len ( elems ); loop++)
+				buffer += space ( indent )
+
+				if ( type ( sender.(elems[loop][1]) ) == "O" )
+					buffer += "<" + elems[loop][1]   + ">\r\n"
+					sender.(elems[loop][1]).GenOutput ( buffer, indent + 4 )
+					buffer += space ( indent )
+					buffer += "</" + elems[loop][1] + ">\r\n"
+				else
+					if ( type ( sender.(elems[loop][1]) ) != "U" )
+						buffer += "<" + elems[loop][1] + ">"
+						buffer += sender.(elems[loop][1])
+						buffer += "</" + elems[loop][1] + ">\r\n"
+					else
+						buffer += "<" + elems[loop][1] + "/>\r\n"
+					end
+				end
+			end
+		else
+			for ( loop = 1; loop <= len ( ::data ); loop++)
+				::data[loop].GenOutput ( buffer, indent )
+			end
+		end
+		return buffer
+	end
+
+	method soapMessage()
+		local	buffer = new ( "serverBuffer" )
+
+		buffer += "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n"
+		buffer += "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\r\n"
+		buffer += "    <soap:Body>\r\n"
+		buffer += "        <" + sender.msg + " xmlns=\"" + sender.targetNS + "\">\r\n"
+		::GenOutput ( buffer, 12 )
+		buffer += "        </" + sender.msg + ">\r\n"
+		buffer += "    </soap:Body>\r\n"
+		buffer += "</soap:Envelope>\r\n"
+		return ( buffer.str )
+	end
+end
+
+if ( 1 )
+
+// idst testing
+
+// here we load the wsdl soap definition file from idst
+// there are different url's in the document for different interface types, but there are MULTIPLE messages in one wsdl ( usually )
+// each message becomes a class of same name as the message (see example below
+
+	web = new ( "WebClient" );
+	web.domain = "dev1.mlmtc.com"
+	web.ssl = 0
+	web.url = "/esnet2/services/DistributorServices.asmx?WSDL"
+	wsdl = web.page
+
+// build a soapWrapper around the wsdl
+	x = new ( "soapWrapper", wsdl );
+
+// generate the FGL code from the wrapper
+	c = x.GenCode()
+	println ( "-----------------------------------------------" )
+	println ( c )
+	o = compile ( c,"idst", "nomain" )
+// here you should cache the code... it'll change only VERY infrequently (should... or idst is being a bitch to their customers
+
+// now create a soap message... remember, class is same name as the message
+// look at the class in the variable window.... it is complex (e.g. may contain variables that contain sub-classes (automatically generated)
+	idst = new ( "Distributor_CreateOnly" )
+
+// fill in whatever values you want... note, many are mandatory... read the spec!
+	idst.Request.ApiKey 	= "0438EAB1F56B411AB95D1713F04AF591"
+	idst.Request.CompanyID 	= 344
+	idst.Request.distributor.RankTypeID = 15;
+	idst.request.distributor.DistributorID = 0
+	idst.request.distributor.EnrollerDistributorID = 1
+	idst.request.distributor.PrimaryName.FirstName = "stephen"
+	idst.request.distributor.PrimaryName.LastName = "muccione"
+	idst.request.distributor.Email = email
+
+// now we generate the message to send... this builds the entire soap envelope
+	out = idst.soapMessage()
+	uri = URI ( idst.actionUrl )
+	action = idst.soapAction
+
+else
+
+// aria testing
+
+// here we load the wsdl soap definition file from aria
+// there are different url's in the document for different interface types, but there are MULTIPLE messages in one wsdl ( usually )
+// each message becomes a class of same name as the message (see example below
+
+	web = new ( "WebClient" );
+	web.domain = "secure.future.stage.ariasystems.net"
+	web.ssl = 1
+	web.url = "/api/Advanced/wsdl/account_services-doc_literal.wsdl"
+	wsdl = web.page
+
+DebugBreak()
+// build a soapWrapper around the wsdl
+	x = new ( "soapWrapper", wsdl );
+
+// generate the FGL code from the wrapper
+//	c = x.GenCode( "create_acct_complete"  )
+	c = x.GenCode()
+	println ( "-----------------------------------------------" )
+	println ( c )
+	o = compile ( c,"aria", "nomain" )
+// here you should cache the code... it'll change only VERY infrequently (should... or aria is being a bitch to their customers
+
+// now create a soap message... remember, class is same name as the message
+// look at the class in the variable window.... it is complex (e.g. may contain variables that contain sub-classes (automatically generated)
+	aria = new ( "create_acct_complete" )
+
+// fill in whatever values you want... note, many are mandatory... read the spec!
+	aria.client_no = 1
+	aria.functional_acct_groups.functional_acct_groups_row[1].functional_acct_groups = 1
+	aria.functional_acct_groups.functional_acct_groups_row[2].functional_acct_groups = 2
+	aria.functional_acct_groups.functional_acct_groups_row[3].functional_acct_groups = 3
+	aria.functional_acct_groups.functional_acct_groups_row[4].functional_acct_groups = 4
+	aria.functional_acct_groups.functional_acct_groups_row[5].functional_acct_groups = 5
+
+// now we generate the message to send... this builds the entire soap envelope
+	out = aria.soapMessage()
+	uri = URI ( aria.actionUrl )
+	action = aria.soapAction
+	
+end
+
+	println ( "-----------------------------------------------" )
+	println ( out )
+
+//now send the request to idst (we decode the address and it's stored in actionUrl)
+	web.contentType = "text/xml; charset=utf-8";
+	web.extraHeaders = { "SOAPAction", action }
+	web.submit ( out, uri )
+	println ( "-----------------------------------------------" )
+	println (web.page )
+
+// here you would parse out any results you want
+//	response = xmlDocument ( web.page )
+	! web.page
+
+
+]>

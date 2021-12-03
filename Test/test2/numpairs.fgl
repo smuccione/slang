@@ -1,0 +1,52 @@
+
+
+FUNCTION f( val )
+	return( 3.14 * val )
+END
+
+// scenario A	(average 7 seconds)
+	println( "Start 1: " + time( ) )
+	buf = strswap( fileReadASCII( 'c:\fgl\docs\test\numpairs.dat' ), "\r\n", "\n" )
+	abuf = split2( buf, "\n", "\t" )
+	s = new( "ServerBuffer" )
+	cnt = len( abuf )
+	for ( i=1; i<=cnt; i++ )
+		x = abuf[i,1]
+		y = f( abuf[i,2] )
+		s += x + "\t" + y + "\r\n"
+	end
+	hfile = fcreate( 'c:\fgl\docs\test\numpairs2.dat' )
+	fwrite( hfile, s.str, len( s ) )
+	fclose( hfile )
+	println( "End 1: " + time( ) )
+
+// scenario B	(average 12 seconds)
+	println( "Start 2: " + time( ) )
+	buf = strswap( fileReadASCII( 'c:\fgl\docs\test\numpairs.dat' ), "\r\n", "\n" )
+	abuf = split2( buf, "\n", "\t" )
+	hfile = fcreate( 'c:\fgl\docs\test\numpairs2.dat' )
+	for ( i=1; i<=cnt; i++ )
+		x = abuf[i,1]
+		y = f( abuf[i,2] )
+		fwriteline( hfile, x + "\t" + y )
+	end
+	fclose( hfile )
+	println( "End 2: " + time( ) )
+
+
+// 3rd party results:
+//Read 100 000 (x,y) data from file and
+//write (x,f(y)) out again  Pure Python: 4s  
+//
+// Pure Perl: 3s  
+//
+// Pure Tcl: 11s  
+//
+// Pure C (fscanf/fprintf): 1s  
+//
+// Pure C++ (iostream): 3.6s  
+//
+// Pure C++ (buffered streams): 2.5s  
+//
+// Numerical Python modules: 2.2s (!)  
+

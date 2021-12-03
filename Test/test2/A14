@@ -1,0 +1,22 @@
+// This routine shows some potentially undesirable behaviour under the
+// multi-tasking system.  We may want to change this so local statics
+// are instance aware.
+
+function a ()
+  static x = 0
+
+  return ++x
+end
+
+public function test()
+   for ( loop = 0; loop < 10; loop++ )
+      println ( a() )
+   end
+end
+
+spawn ( "t1", "test()" )
+spawn ( "t2", "test()" )
+
+for ( loop = 0; loop < 100; loop++ )
+end
+ 

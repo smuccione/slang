@@ -1,0 +1,56 @@
+<[
+	library c:\fgl\libs\system.flb
+
+	session = session()
+	
+	cmd = upper ( session.var ( "name", 2 ) )
+	
+	if ( cmd == "UPLOADFILE" )
+		csv = session.postData(2);
+		a = parseCsv ( csv );
+		
+		for ( loop = 2; loop < len ( a ); loop++ )
+			x = new ( "webClient" )
+			x.domain="www.terracycle.com"
+			x.url = "en-US/colgateshopriteplayground"
+			
+			doc = new ( "htmlDocument", x.page )
+			pd = doc.getPostData()
+			
+			post = { { "utf8", "%E2%9C%93" },
+					 { pd[5][1], pd[5][2] },
+					 { pd[6][1], a[loop][1] + " " + a[loop][2] },
+					 { pd[7][1], a[loop][3] },
+					 { pd[8][1], "Beloved Community Charter School - Jersey CIty, NJ 07302" },
+					 { pd[9][1], "398516" },
+					 { pd[10][1], pd[10][2] },
+					 { pd[12][1], pd[12][2] },
+					 { pd[14][1], pd[14][2] },
+					 { pd[16][1], pd[16][2] },
+					}
+	
+			x.submit ( post, "/en-US/colgateshopriteplayground/vote.html", 0 )
+		end
+		<%
+			<html>
+			<body>
+			<h1>Done</h1>
+			</body>
+			</html>
+		%>
+		return ( 1 )
+	end
+]>
+
+<html>
+	<head>
+		<body>
+			<center>
+				<form method="post" name="upform" action="/test.ap" enctype="multipart/form-data">
+					<input type="file" name="uploadfile" type="hidden">
+					<input type="button" name="Submit" value="Submit" onclick="form.submit()">
+				</form>
+			</center>
+		</body>
+	</head>
+</html>

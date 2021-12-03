@@ -1,0 +1,393 @@
+<[
+	LIBRARY c:\sdweb\home\insmgmt\insmgmt.flb
+	LIBRARY c:\sdweb\home\insmgmt\policy.flb
+	LIBRARY c:\sdweb\home\insmgmt\claims.flb
+
+	local session, companyid, userid, policyid, claimid, claimnum, policy, qstr, claims, g, html
+	local reserves, DateOfLoss
+
+	session = new( "session" )
+	
+	companyid = session.var( "companyid" )
+	userid = session.var( "userid" )
+	policyid = session.var( "policyid" )
+	claimid = session.var( "claimid" )
+	claimnum = strextract( claimid, ".", 3 )
+
+	ShowReservesFlag = 0 + session.var( "ShowReservesFlag" )
+
+	policy = new( "MasterPolicy" )
+	if ( ! policy.GetRecord( policyid ) )
+		session.response( "Unable to locate policy " + policyid )
+		return( 1 )
+	end
+	
+	qstr = "companyid=" + companyid + "&userid=" + userid
+	lstr = qstr + "&policyid=" + policyid + "&claimid=" + claimid
+
+	claims = new( "MasterClaim" )
+	if ( ! claims.GetRecord( claimid ) )
+		session.response( "Unable to locate claim " + claimid )
+		return( 1 )
+	end
+
+	g = new( "GlobalParams" )
+	html = new( "FormatHTML" )
+
+	reserves = new( "ClaimReserves" )
+//	reserves.UpdateFromClaim( claims )
+
+	DateOfLoss = strextract( claims.data.DateofLoss, " ", 1 )
+
+	features = new( "features", claims )
+	reserves.UpdateFromClaim( claims, features )
+
+//claims.data.RelatedClaims = "C1000000;C12312312;"
+]>
+
+<html>
+<head>
+<title>Claim Detail</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+
+<style>
+  A { COLOR: #808080; FONT-FAMILY: Arial, helvetica, sans-serif; text-decoration: none; }
+  A:hover { COLOR: #FF0000; FONT-FAMILY: Arial, helvetica, sans-serif; text-decoration: underline; }
+  .title { COLOR: #000000; font-size:11pt; FONT-FAMILY: Arial, helvetica, sans-serif; text-decoration: none; }
+  .subtitle { COLOR: #000000; font-size:9pt; FONT-FAMILY: Arial, helvetica, sans-serif; text-decoration: none; }
+  .text { COLOR: #000000; font-size:10pt; FONT-FAMILY: Arial, helvetica, sans-serif; text-decoration: none; }
+  .summarytxt { COLOR: #000000; font-size:8pt; FONT-FAMILY: Arial, helvetica, sans-serif; text-decoration: none; }
+  .txt { COLOR: #000000; font-size:8pt; FONT-FAMILY: Arial, helvetica, sans-serif; text-decoration: none; }
+  .txtB { COLOR: #000000; font-size:8pt; FONT-FAMILY: Arial, helvetica, sans-serif; text-decoration: none; font-weight:900; }
+  .smtxt { COLOR: #000000; font-size:7pt; FONT-FAMILY: Arial, helvetica, sans-serif; text-decoration: none; }
+  .smtxtB { COLOR: #000000; font-size:7pt; FONT-FAMILY: Arial, helvetica, sans-serif; text-decoration: none;font-weight:600; }
+  .spcr { COLOR: #000000; font-size:6pt; FONT-FAMILY: Arial, helvetica, sans-serif; text-decoration: none; }
+  .menu { COLOR: #000000; font-size:8pt; FONT-FAMILY: Arial, helvetica, sans-serif; text-decoration: none; }
+
+  .hdrTitle {font-size:14pt;font-family:Arial;color:#000000;}
+  .hdrTxt {font-size:8pt;font-family:Arial;color:#000000;}
+  .hdrSmTxt {font-size:12pt;font-family:Arial;color:#000000;}
+  .hdrVsmTxt {font-size:7pt;font-family:Arial;color:#000000;}
+
+</style>
+
+<script language=JavaScript>
+
+function GotoClaims( ) {
+	parent.document.location="/insmgmt/claims.htm?<[ ! qstr ]>";
+}
+
+function FirstReport( flag ) {
+	c = window.document.all.item( "FirstReport" )
+	
+	if ( flag ) {
+		if ( c.innerHTML == "" ) {
+			c.innerHTML = "<table bgcolor=#E0E0E0 border=0 width=100% cellpadding=10 class=txt><tr><td><[ ! strswap( claims.data.FirstReport, "\r\n", "" ) ]><br><input type=button value='Close Initial Statement' class=txt onClick='FirstReport( 0 );'><input type=button value='Undock' class=txt onClick='UndockFirstReport( );'></td></tr></table>";
+		}
+		else {
+			c.innerHTML = "";
+		}
+	}
+	else {
+		c.innerHTML = "";
+	}
+}
+
+function UndockFirstReport( ) {
+  FirstReport( 0 );
+  var base =  ", width=600, height=400, left=20, top=20, status=no, location=no, toolbar=no, scrollbars=yes, menubar=no, directories=no, resizable=yes";
+  var win = window.open( "/insmgmt/claims/ViewFirstReport.htm?<[ ! qstr + "&policyid=" + policyid + "&claimid=" + claimid ]>", "ViewFirstReport", base );
+  win.focus( );
+}
+
+
+function ShowReserves( flag ) {
+	c = window.document.all.item( "Reserves" )
+
+	if ( flag ) {
+		var s = "<table width=100% border=1 cellpadding=5 cellspacing=0 class=hdrTxt>";
+		s += "<tr align=center bgcolor=#F0F0F0 onMouseover=\"this.style.cursor='hand';window.status='Close reserve detail...';\" onMouseOut=\"window.status='';\" onClick='ShowReserves( 0 );'><td width=* align=left><img src='/insmgmt/images/arrow_down.gif' width=12 height=11 border=0>&nbsp;<b>R E S E R V E S</b></td><td width=60><b>COLL</b></td><td width=60><b>BI</b></td><td width=60><b>MED</b></td><td width=60><b>PIP</b></td><td width=60><b>PD</b></td><td width=60><b>UM/UIM</b></td><td width=60><b>COMP</b></td><td width=75><b>TOTALS</b></td></tr>";
+		s += "<tr align=right><td align=left><b>ALLOCATED</b></td><td><[ ! g.DollarFormat( reserves.rColl, 1 ) ]></td><td><[ ! g.DollarFormat( reserves.rBI, 1 ) ]></td><td><[ ! g.DollarFormat( reserves.rMed, 1 ) ]></td><td><[ ! g.DollarFormat( reserves.rPIP, 1 ) ]></td><td><[ ! g.DollarFormat( reserves.rPD, 1 ) ]></td><td><[ ! g.DollarFormat( reserves.rUM, 1 ) ]></td><td><[ ! g.DollarFormat( reserves.rComp, 1 ) ]></td><td><[ ! g.DollarFormat( reserves.rTtl, 1 ) ]></td></tr>";
+		s += "<tr align=right><td align=left><b>L.A.E.</b></td><td><[ ! g.DollarFormat( reserves.lColl, 1 ) ]></td><td><[ ! g.DollarFormat( reserves.lBI, 1 ) ]></td><td><[ ! g.DollarFormat( reserves.lMed, 1 ) ]></td><td><[ ! g.DollarFormat( reserves.lPIP, 1 ) ]></td><td><[ ! g.DollarFormat( reserves.lPD, 1 ) ]></td><td><[ ! g.DollarFormat( reserves.lUM, 1 ) ]></td><td><[ ! g.DollarFormat( reserves.lComp, 1 ) ]></td><td><[ ! g.DollarFormat( reserves.lTtl, 1 ) ]></td></tr>";
+		s += "<tr align=right onMouseover=\"this.style.cursor='hand';this.style.backgroundColor='#E0E0FF';window.status='Show payment information...';\" onMouseOut=\"this.style.backgroundColor='white';window.status='';\" onClick=\"ShowPayments( );\"><td align=left><b>PAID</b></td><td><[ ! g.DollarFormat( reserves.pColl, 1 ) ]></td><td><[ ! g.DollarFormat( reserves.pBI, 1 ) ]></td><td><[ ! g.DollarFormat( reserves.pMed, 1 ) ]></td><td><[ ! g.DollarFormat( reserves.pPIP, 1 ) ]></td><td><[ ! g.DollarFormat( reserves.pPD, 1 ) ]></td><td><[ ! g.DollarFormat( reserves.pUM, 1 ) ]></td><td><[ ! g.DollarFormat( reserves.pComp, 1 ) ]></td><td><[ ! g.DollarFormat( reserves.pTtl, 1 ) ]></td></tr>";
+		s += "<tr align=right><td align=left><b>BALANCE</b></td><td><[ ! g.DollarFormat( reserves.bColl, 1 ) ]></td><td><[ ! g.DollarFormat( reserves.bBI, 1 ) ]></td><td><[ ! g.DollarFormat( reserves.bMed, 1 ) ]></td><td><[ ! g.DollarFormat( reserves.bPIP, 1 ) ]></td><td><[ ! g.DollarFormat( reserves.bPD, 1 ) ]></td><td><[ ! g.DollarFormat( reserves.bUM, 1 ) ]></td><td><[ ! g.DollarFormat( reserves.bComp, 1 ) ]></td><td><[ ! g.DollarFormat( reserves.bTtl, 1 ) ]></td></tr>";
+		s += "<tr align=right><td align=left><b>% REMAINING</b></td><td><[ ! g.DollarFormat( reserves.pctColl, 0, 0 ) ]>%</td><td><[ ! g.DollarFormat( reserves.pctBI, 0, 0 ) ]>%</td><td><[ ! g.DollarFormat( reserves.pctMed, 0, 0 ) ]>%</td><td><[ ! g.DollarFormat( reserves.pctPIP, 0, 0 ) ]>%</td><td><[ ! g.DollarFormat( reserves.pctPD, 0, 0 ) ]>%</td><td><[ ! g.DollarFormat( reserves.pctUM, 0, 0 ) ]>%</td><td><[ ! g.DollarFormat( reserves.pctComp, 0, 0 ) ]>%</td><td><[ ! g.DollarFormat( reserves.pctTtl, 0, 0 ) ]>%</td></tr></table>";
+		c.innerHTML = s;
+	}
+	else {
+		c.innerHTML = "<table onMouseover=\"this.style.cursor='hand';window.status='Click to access detailed reserve information...';\" onMouseOut=\"window.status='';\" onClick='ShowReserves( 1 );' bgcolor='#F0F0F0' border=1 width=100% cellspacing=0 cellpadding=5 class=txt><tr><td><table border=0 width=100% cellspacing=0 cellpadding=0 class=txt><tr><td><img src='/insmgmt/images/arrow4.gif' width=12 height=11 border=0>&nbsp;<b>R E S E R V E S</b></td><td align=right>Reserved: <b><[ ! g.DollarFormat( reserves.rTtl + reserves.lTtl, 1 ) ]></b> &nbsp; Available: <b><[ ! g.DollarFormat( reserves.bTtl, 1 ) ]></b> &nbsp;(<b><[ ! alltrim( g.DollarFormat( reserves.pctTtl, 0, 0 ) ) ]>%</b>)&nbsp;</td></tr></table></td></tr></table>";
+	}
+}
+
+
+function ShowPayments( ) {
+	alert( "Show Payments - coming soon!" );
+}
+
+
+function UpdateReserves( ) {
+  	OpenWindow( "/insmgmt/claims/UpdateReserves.htm?<[ ! qstr + "&policyid=" + policyid + "&claimid=" + claimid ]>", 600, 400, "UpdateReserves" );
+}
+
+function DeleteFeature( ) {
+  	OpenWindow( "/insmgmt/claims/FeatureDelete.htm?<[ ! qstr + "&policyid=" + policyid + "&claimid=" + claimid ]>", 600, 400, "DeleteFeature" );
+}
+
+function UpdateFeature( ftype, id ) {
+
+	if ( ftype == "" ) {
+		var feature = document.input.FeatureType[ document.input.FeatureType.selectedIndex ].value;
+	}
+	else {
+		var feature = ftype;
+	}
+	switch ( feature ) {
+	  case "Claims_Insured":
+	  case "CLAIMS_INSURED":
+		OpenWindow( "/insmgmt/claims/Insured.htm?<[ ! lstr ]>&feature=" + feature + "&id=" + id, 600, 500, "FeatureIIP" );
+	  	break
+	  case "Claims_Claimant":
+	  case "CLAIMS_CLAIMANT":
+		OpenWindow( "/insmgmt/claims/Claimant.htm?<[ ! lstr ]>&feature=" + feature + "&id=" + id, 600, 500, "FeatureIIP" );
+	  	break
+	  case "Claims_Other":
+	  case "CLAIMS_OTHER":
+		OpenWindow( "/insmgmt/claims/Other.htm?<[ ! lstr ]>&feature=" + feature + "&id=" + id, 600, 500, "FeatureIIP" );
+	  	break
+	}
+
+	ShowFeatures( 0 );
+}
+
+
+function OpenWindow( url, x, y, id ) {
+  var base =  ", width=" + x + ", height=" + y + ", status=no, location=no, toolbar=no, scrollbars=yes, menubar=no, directories=no, resizable=yes";
+//  var base =  ", width=" + x + ", height=" + y + ", status=yes, location=no, toolbar=no, scrollbars=yes, menubar=no, directories=no, resizable=yes";
+  var left = ( screen.availWidth - x ) / 2;
+  var top = ( screen.availHeight - y ) / 2;
+  var str = "left=" + left + " top=" + top;
+  var win = window.open( url, id, str + base );
+  win.focus( );
+}
+
+var DisableExpansion = 0;
+
+function UpdateSubFeatures( feature, id ) {
+	OpenWindow( "/insmgmt/claims/UpdateSubFeatures.htm?<[ ! lstr ]>&feature=" + feature + "&id=" + id, 600, 500, "SubFeature" );
+}
+
+function UpdateSubFeaturesElements( feature, id, NewFlag ) {
+	if ( DisableExpansion ) {
+		DisableExpansion = 0;
+		return;
+	}
+	OpenWindow( "/insmgmt/claims/UpdateSubFeaturesElements.htm?<[ ! lstr ]>&feature=" + feature + "&id=" + id + "&NewFlag=" + NewFlag, 600, 500, "SubFeature" );
+}
+
+function UndockClaimsDetail( ) {
+	document.location = "ClaimsBlank.htm";
+	OpenWindow( "ClaimDetail.htm?<[ ! lstr ]>", 800, 600, "ClaimsDetail" );
+}
+
+</script>
+
+</head>
+
+<body bgcolor=white text=black class=txt topmargin=1>
+<form name=input>
+
+<center>
+<table border=0 width=766 cellspacing=0 cellpadding=0 class=txt><tr><td width=17>&nbsp;</td><td valign=top align=center>
+
+<table border=0 width=100% cellspacing=0 cellpadding=0 class=txt>
+ <tr><td width=100>&nbsp;</td><td align=center><font class=title><b>C L A I M &nbsp; &nbsp; D E T A I L</b></font><td align=right><a href="javascript:UndockClaimsDetail( );"><b>[...]</b></a>&nbsp;</td></tr>
+</table>
+<!-- Summary -->
+<table width=100% border=1 cellpadding=5 cellspacing=0 class=hdrTxt>
+ <tr align=center>
+  <td width=90 bgcolor=#F0F0F0><b>DATE OF LOSS</b></td>
+  <td width=90 bgcolor=#F0F0F0><b>FIRST REPORTED</b></td>
+  <td width=140 bgcolor=#F0F0F0><b>RELATED CLAIMS</b></td>
+  <td width=140 bgcolor=#F0F0F0><b>PRIOR CLAIMS</b></td>
+  <td width=* bgcolor=#F0F0F0><b>ADJUSTER</b></td>
+  <td width=120 bgcolor=#F0F0F0><b>INITIAL STATEMENT</b></td>
+ </tr>
+ <tr align=center>
+  <td><[ ! DateOfLoss ]></td>
+  <td><[ ! g.NormalizeDate( g.ExtractDateFromKey( claims.data.DateReported ) ) ]></td>
+  <td><[ ! html.SelectFromString( strempty( claims.data.RelatedClaims ) ? "none" : claims.data.RelatedClaims, "RelatedClaims", 1, "", "txt", "style=width:110px;" ) ]><input type=button value="..." class=txtB onClick=""></td>
+  <td><[ ! html.SelectFromString( strempty( claims.data.PriorClaims ) ? "none" : claims.data.PriorClaims, "PriorClaims", 1, "", "txt", "style=width:110px;" ) ]><input type=button value="..." class=txtB onClick=""></td>
+  <td><[ ! ( strempty( claims.data.adjuster ) ? "<a href=''>Unassigned...</a>" : claims.data.adjuster ) ]></td>
+  <td><a href="javascript:FirstReport( 1 );">View Statement...</a></td>
+ </tr>
+</table>
+
+<a name="FirstReport"></a>
+<br>
+
+<a name="Reserves"></a>
+<br>
+
+<table border=1 width=100% cellspacing=0 cellpadding=5 class=txt>
+ <tr bgcolor='#F0F0F0'>
+  <td>
+   <table border=0 width=100% cellspacing=0 cellpadding=0 class=txt>
+    <tr>
+     <td><img src='/insmgmt/images/arrow4.gif' width=12 height=11 border=0>&nbsp;<b>F E A T U R E S / D E T A I L S</b></td>
+     <td align=right>
+      <b><a href="javascript:MassExpand( 1 );">[ + ]</a> <a href="javascript:MassExpand( 0 );">[ - ]</a> <a href="javascript:ShowFeatures( 1 )">[new]</a> <a href="javascript:DeleteFeature( )">[delete]</a></b>
+     </td>
+    </tr>
+   </table>
+  </td>
+ </tr>
+ <tr height=80>
+  <td valign=top>
+   <table border=0 width=100% cellspacing=0 cellpadding=10 class=txt><tr><td valign=top><a name="NewFeature"></a>
+   <table border=0 width=100% cellspacing=2 cellpadding=2 class=txt>
+   
+<[
+	MassExpand = ""
+	cnt = features.NumFeatures
+
+	if ( ! cnt )
+		! "<tr><td>&nbsp;</td></tr>\r\n"
+	else	
+		for ( i=1; i<=cnt; i++ )
+			obj = features.GetByIndex( i )
+
+			if ( chrcount( ".", obj.id ) )
+				continue
+			end
+
+			! "<tr onMouseover=\"this.style.cursor='hand';this.style.backgroundColor='#FFD0D0';\" onMouseOut=\"this.style.backgroundColor='white';\" onClick=\"Expand" + obj.id + "( );\"><td><img src='/insmgmt/images/arrow4.gif' width=12 height=11 border=0 name='img_" + obj.id + "'>&nbsp;<b><u>" + obj.name + "</u></b> (<font color=#000088>" + features.FeatureType + "</font>)" + " &nbsp;<a href=\"javascript:UpdateSubFeatures( '" + obj.objname + "', '" + obj.id + "' );\" onClick=\"DisableExpansion=1;\"><b>[add]</b></a></td></tr><tr><td align=right><a name='" + obj.id + "'</a></td></tr>\r\n"
+			! "  <script language=javascript>function Expand" + obj.id + "( ) { ExpandFeature( '" + obj.id + "', '" + obj.GetSummary( ) + "', -1, '98%' ); } </script>\r\n"
+			MassExpand += "ExpandFeature( '" + obj.id + "', '" + obj.GetSummary( ) + "', flag, '98%' );\r\n"
+
+			id = obj.id
+
+			for ( j=i; j<=cnt; j++ )
+			
+				obj = features.GetByIndex( j )
+
+				if ( chrcount( ".", obj.id ) != 1 )
+					continue
+				end
+
+				tempid = strextract( obj.id, ".", 1 )
+				tempid2 = strextract( obj.id, ".", 2 )
+				if ( tempid == id )
+					if ( ! obj.status )
+						obj.status = 1
+					end
+				
+					! "<tr onMouseover=\"this.style.cursor='hand';this.style.backgroundColor='#FFFFA0';\" onMouseOut=\"this.style.backgroundColor='white';\" onClick=\"Expand" + strswap( obj.id, ".", "_" ) + "( );\"><td> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <img src='/insmgmt/images/arrow4.gif' width=12 height=11 border=0 name='img_" + obj.id + "'>&nbsp;<b>" + claims.GetSubFeatureDesc( obj.FeatureType ) + "</b> (<font color=#FF8080>" + lower( claims.GetStatusDesc( obj.status ) ) + "</font>)" + ( strempty( "" + obj.TerminationDate ) ? "" : " (<font color=#FF8080>" + obj.TerminationDate + "</font>)" ) + " &nbsp;<a href=\"javascript:UpdateSubFeaturesElements( '" + obj.FeatureType + "', '" + obj.id + "', 1 );\" onClick=\"DisableExpansion=1;\"><b>[add]</b></a></td></tr><tr><td align=right><a name='" + obj.id + "'</a></td></tr>\r\n"
+					! "  <script language=javascript>function Expand" + strswap( obj.id, ".", "_" ) + "( ) { ExpandFeature( '" + obj.id + "', '" + obj.GetSummary( ) + "', -1, '91%' ); } </script>\r\n"
+					MassExpand += "ExpandFeature( '" + obj.id + "', '" + obj.GetSummary( ) + "', flag, '91%' );\r\n"
+
+					for ( k=j+1; k<=cnt; k++ )
+				
+						obj = features.GetByIndex( k )
+
+						if ( tempid != strextract( obj.id, ".", 1 ) )
+							continue
+						end
+
+						if ( strextract( obj.id, ".", 2 ) == tempid2 )
+							if ( ! obj.status )
+								obj.status = 1
+							end
+					
+							paystatus = lower( g.Lookup2dArray( obj.aPayStatus, 0 + obj.PayStatus ) )
+					
+							! "<tr onMouseover=\"this.style.cursor='hand';this.style.backgroundColor='#C0FFC0';\" onMouseOut=\"this.style.backgroundColor='white';\" onClick=\"Expand" + strswap( obj.id, ".", "_" ) + "( );\"><td> &nbsp; &nbsp;  &nbsp; &nbsp; &nbsp;  &nbsp; &nbsp; &nbsp;  &nbsp; &nbsp; &nbsp; <img src='/insmgmt/images/arrow4.gif' width=12 height=11 border=0 name='img_" + obj.id + "'>&nbsp;<font color=#808080><b>" + obj.docname + "</b></font> " + ( 0 + obj.PayStatus < 2 ? "" : "(<font color=#FF8080>" + paystatus + "</font>)" ) + ( strempty( obj.docdesc ) ? "" : " - " + g.AbbreviateString( obj.docdesc, 50 ) ) + "</td></tr><tr><td align=right><a name='" + obj.id + "'</a></td></tr>\r\n"
+							! "  <script language=javascript>function Expand" + strswap( obj.id, ".", "_" ) + "( ) { ExpandFeature( '" + obj.id + "', '" + obj.GetSummary( ) + "', -1, '84%' ); } </script>\r\n"
+							MassExpand += "ExpandFeature( '" + obj.id + "', '" + obj.GetSummary( ) + "', flag, '84%' );\r\n"
+						end
+
+					end
+				end
+
+			end
+
+		end
+	end
+]>
+   </table>
+   </td></tr></table>
+  </td>
+ </tr>
+</table>
+
+
+
+</td></tr></table><br><br>
+</center>
+
+<script language=JavaScript>
+
+ShowReserves( <[ ! ShowReservesFlag ]> )
+
+var str="";
+
+function ShowFeatures( flag ) {
+	if ( DisableExpansion ) {
+		DisableExpansion = 0;
+		return;
+	}
+	c = window.document.all.item( "NewFeature" )
+
+	if ( flag ) {
+		if ( c.innerHTML == "" ) {
+			c.innerHTML = "<div align=right><table border=0 class=txt cellspacing=0 cellpadding=0><tr><td><table border=1 cellspacing=0 cellpadding=2 class=txt bgcolor=#F0F0F0><tr height=51><td>Select the desired feature to add and then press the CREATE button. Specific information will then be provided in a popup window. Complete the information and select the OK button to add or update the feature for this claim. Otherwise, select the CANCEL button to exit.</td></tr></table></td><td width=10>&nbsp;</td><td><table border=1 cellspacing=0 cellpadding=3 class=txt><tr bgcolor='#F0F0F0'><td align=center><b>New Feature/Detail</b></td></tr><tr><td><[ ! strswap( html.SelectFrom2dArray( claims.aFeatureType, "FeatureType", 1, "Claim_Insured", "txt", "style='width:120px;'" ), "\"", "'" ) ]><input type=button class=txt value='Create' onClick='UpdateFeature( str, str );'></td></tr></table></td></tr></table></div><br>"
+		}
+		else {
+			c.innerHTML = "";
+		}
+ 	}
+	else {
+		c.innerHTML = "";
+	}
+}
+
+function ExpandFeature( vname, data, flag, width ) {
+	if ( DisableExpansion ) {
+		DisableExpansion = 0;
+		return;
+	}
+	c = window.document.all.item( vname )	
+
+	var img = window.document.all.item( "img_" + vname )
+
+	if ( flag == -1 ) {
+		if ( c.innerHTML != "" ) {
+			c.innerHTML = "";
+			img.src = '/insmgmt/images/arrow4.gif';
+		}
+		else {
+			c.innerHTML = "<table border=0 bgcolor=#F0F0F0 width=" + width + " cellspacing=0 cellpadding=0 class=txt><tr><td>" + data + "</td></tr></table><br>";
+			img.src = '/insmgmt/images/arrow_down.gif';
+		}
+	}
+	else if ( flag == 0 ) {
+		c.innerHTML = "";
+		img.src = '/insmgmt/images/arrow4.gif';
+	}
+	else {
+		c.innerHTML = "<table border=0 bgcolor=#F0F0F0 width=" + width + " cellspacing=0 cellpadding=0 class=txt><tr><td>" + data + "</td></tr></table><br>";
+		img.src = '/insmgmt/images/arrow_down.gif';
+	}
+}
+
+function MassExpand( flag ) {
+<[
+	! MassExpand
+]>
+}
+
+
+</script>
+</form>
+</body>
+</html>
+

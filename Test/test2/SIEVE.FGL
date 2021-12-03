@@ -1,0 +1,35 @@
+procedure init ( a )
+   local i
+
+   for ( i = 1; i < 1000; i++ )
+      a[i] = 1;
+   end
+end
+
+function main()
+   local i, j
+   local a
+
+   if ( 0 )
+//      taskAdd ( "", "" )
+   end
+
+   init ( @a )
+
+   for ( i = 2; i <= int ( 1000 / 2 ); i++ )
+      for ( j = 2; j <= int ( 1000 / i ); j++ )
+         a[i*j] = 0;
+      end
+   end
+
+   for ( i = 1; i < 1000; i++ )
+      if ( a[i] )
+         print ( i, "     " )
+      end
+   end
+
+   println();
+   println ( "All done!" )
+end
+
+ 

@@ -1,0 +1,8 @@
+local w
+
+w = dbOpen ( 'c:\play2shop\user.db', 'user' )
+
+x = dbStruct()
+
+println ( w )
+

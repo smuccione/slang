@@ -1,0 +1,61 @@
+<[
+debugBreak()
+
+a = aArray( 0 )
+
+
+x = { 	{	"name1", "val1"	},
+	 	{	"name2", "val2"	},
+	 	{	"name3", "val3"	}
+	 }
+	 
+y = "name4=val4;name5=val5;name6=val6;name7=val7"
+
+a2 = split2 ( y, "=", ";" )
+
+a.add ( x )
+a.add ( a2 )
+
+println ( a["name2"] )
+println ( a["name6"] )
+
+a["a"] = 1
+a["B"] = 2
+a["c"] = 3
+
+c = pack ( a );
+d = unpack ( c );
+
+println ( d["a"] )
+println ( d["b"] )
+println ( d["c"] )
+
+println ( "len = ", a.len() );
+
+println ( a["a"] )
+println ( a["b"] )
+println ( a["c"] )
+
+a.delete ( "b" )
+
+println ( "len = ", a.len() );
+
+println ( a["a"] )
+println ( a["c"] )
+
+println ( "first = ", a.first )
+println ( "last = ", a.last )
+
+println ( "traverse:" )
+println ( a.first )
+while ( x = a.next )
+	println ( x )
+end
+
+println ( "traverse:" )
+println ( a.last )
+while ( x = a.prev )
+	println ( x )
+end
+
+]>

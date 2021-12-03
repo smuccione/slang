@@ -1,0 +1,43 @@
+<[
+
+    LIBRARY \fgl\libs\system.flb
+
+    
+
+    sys = new( "objSystem" )
+
+    
+
+    // get the contents of a web page
+
+    page = sys.webGetPage( "/join.htm", "www.fglfoundation.org" )
+
+ 
+
+    // convert the html to a DOM object
+
+debugbreak()
+
+    obj = new( "htmlDocument", page )
+
+ 
+
+    // get an array of elements
+
+    a = obj.GetPostData( )
+
+    
+
+    // list the elements
+
+    cnt = len( a )
+
+    for ( i=1; i<=cnt; i++ )
+
+        ! "" + a[i,1] + "=" + a[i,2] + "<br>"
+
+    end
+
+]>
+
+ 

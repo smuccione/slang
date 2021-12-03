@@ -1,0 +1,12 @@
+<[
+	function test ()
+		! "this is a test"
+	end
+]>
+<html>
+<body>
+<[
+test()
+]>
+</html>
+</body>

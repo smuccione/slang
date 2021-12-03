@@ -1,0 +1,11 @@
+local dbf
+
+
+dbf = { "dat", "c", 4 }
+
+if ( !dbcreate ( "test.dbf", dbf ) )
+   println ( "error" )
+   return
+end
+
+for ( loop = 

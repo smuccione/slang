@@ -1,0 +1,58 @@
+<[
+	library c:\slang\test\test2\oAuth.flb
+	
+	
+	class	googleDrive
+		inherit	oAuth2
+		
+		method new ( tok = null ): oAuth2 ( "accounts.google.com" )
+			::userGrantEndpoint			= "o/oauth2/auth"
+			::accessGrantEndpoint		= "o/oauth2/token"
+			::client_id					= "179501163929-3h5p62pkba3a2hp79qf6pf5ms22eievt.apps.googleusercontent.com"
+			::scope						= 'https://www.googleapis.com/auth/drive.file'
+			::client_Secret				= "L_NmTDD4HYijxkAyTSVes-Ml" 
+			::callbackURL				= "https://www.thefinalstagehomestageing.com/oAuth2"
+			
+			if ( tok )
+				::accessToken 	= tok.access_token
+			end
+				
+			return 1		// successfully created the object
+		end
+	end
+	
+	session = new ( "session" )
+	
+	DebugBreak()
+	if ( session.var ( "code" ) )
+		c = new ( "cookie" )
+		u = c.get ( "user" )
+		
+		o = new ( "googleDrive" )
+		
+		tok = o.RequestAccessToken ( session.var ( "code" ) )
+		
+		// save tok... it's a json object and has what's necessary to get what we need
+		// we use our cookie to find out who we are... we've previously logged in to the site so we have all that info
+		
+		// here we're refreshing the access token using the refresh token
+		tok = o.refreshAccessToken ( tok )
+		// need to save tok as old one is no longer any good
+		
+		
+		DebugBreak()
+	else
+		o = new ( "googleDrive" )
+		
+		url = o.makeRedirectUrl (  )
+		
+		
+		c = new ( "cookie" )
+		c.set ( "user", "muccione@comcast.net" )
+		
+		
+		session.redir ( url )
+		return
+	end
+]>
+

@@ -1,0 +1,15 @@
+<[
+    // create a fixed array
+    a = array( 25 )
+    ! "" + len( a ) + "<br>"
+
+    // resize the array
+    a = asize( a, 50 )
+    ! "" + len( a ) + "<br>"
+    
+    // resize the array
+    a = asize( a, 10 )
+    ! "" + len( a ) + "<br>"    
+]>
+
+ 

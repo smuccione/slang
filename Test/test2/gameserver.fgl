@@ -1,0 +1,24 @@
+function main
+	local listen
+	local client
+
+	printf ( "starting policy server\r\n" )
+	
+	listen = socket ()
+	
+	listen.bind ( 843 )
+	
+	listen.listen()
+	
+	policy  = '<?xml version="1.0"?>' + "\r\n"
+	policy += '<!DOCTYPE cross-domain-policy SYSTEM "/xml/dtds/cross-domain-policy.dtd">' + "\r\n"
+	policy += '<cross-domain-policy>' + "\r\n"
+	policy += '<site-control permitted-cross-domain-policies="master-only"/>' + "\r\n"
+	policy += '<allow-access-from domain="*" to-ports="843" />' + "\r\n"
+	policy += '</cross-domain-policy>' + "\r\n"
+		
+	while ( client = listen.accept() )
+		client.send ( policy )
+		client.close ()
+	end
+end

@@ -1,0 +1,26 @@
+<[
+	a = { 	{ "steve", 42 },
+	 	{ "donna", 42 },
+	 	{ "justin", 19 },
+	 	{ "morganne", 17 },
+	 	{ "sam", 13 },
+	 	{ "aislinn", 12 },
+	 	{ "kiersten", 9 },
+	 	{ "richard", 19 },
+	 	{ "nazir", 2 },
+	 }
+
+
+	o = aarray ( 0 )	// 1 if you want case sensitive
+	
+	o.add ( a )
+	
+	
+	! "" + o["steve"] + "\r\n"
+
+	! "" + o["sam"] + "\r\n"
+	
+	! "" + o["aislinn"] + "\r\n"
+
+
+]>

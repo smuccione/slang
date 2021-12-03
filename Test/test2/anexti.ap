@@ -1,0 +1,35 @@
+<[
+
+	a[4] = "this"
+	a[7] = "is"
+	a[23] ="a"
+	a[24] ="test"
+	a[25] ="of"
+	a[1025] = "the"
+	a[9999] = "aNextI()"
+	a[10000] = "function"
+	
+	i = aMinI ( a )
+	
+	while ( i )
+		! a[i] + "<br>"
+		i = a.aNextI ( i )
+	end
+
+	i = aMinI ( a )
+	
+	while ( i )
+		! a[i] + "<br>"
+		i = aNextI ( a, i )
+	end	
+	
+	
+	i = aMaxI ( a )
+	
+	while ( i )
+		! a[i] + "<br>"
+		i = aPrevI ( a, i )
+	end	
+	
+	
+]>

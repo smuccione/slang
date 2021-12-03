@@ -1,0 +1,9 @@
+<html>
+<body>
+<[
+	! "jdate() = " + jdate() + "<br>"
+	! "filedate() = " + filedate ( "test5.ap" ) + "<br>"
+	! "datej(filedate()) = " + datej ( filedate ( "test5.ap" ) ) + "<br>"
+]>
+</body>
+</html>

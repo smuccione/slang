@@ -1,0 +1,27 @@
+function x ( d )
+  local a, b, c
+
+  a = "hello"
+
+  b = {||print ( a, '  ' ), a}
+
+  c[0] = b
+
+  d = {||a = "there "}
+
+  return c
+end
+
+local a, b, c, d
+
+   a=x(@b)
+   c=x(@d)
+
+   (a[0])()
+   (b)()
+   (a[0])()
+   (c[0])()
+   (d)()
+   (c[0])()
+
+ 

@@ -1,0 +1,14 @@
+class ostream
+   operator << ( b )
+      switch ( type ( b ) )
+         case 'O'
+            b.print()
+            break
+         default
+            print ( b )
+            break
+      end
+      return self
+   end
+end
+

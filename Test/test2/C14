@@ -1,0 +1,55 @@
+class a
+	local a
+	
+   private:
+
+   method virtual out ( a )
+      print ( "in a: ", a )
+   end
+
+   public:
+
+   method outln ( a )
+      self.out ( a )
+      println ()
+   end
+end
+
+
+class b
+   inherit a
+   
+   local b
+
+   method out ( a ) in a
+      print ( "in b: ", a )
+   end
+end
+
+class c
+	local c
+	
+   inherit a
+end
+
+
+local b, c
+
+b = new ( "b" )
+c = new ( "c" )
+
+
+b.outln ( "test1" )
+c.outln ( "test2" )
+
+try
+   b.out   ( "test3" )
+catch ( error )
+   if ( error.errorNum != 75 )
+      println ( "error: out method is not invisible or other error" )
+   else
+      println ( "private virtual method test passed" )
+   end
+   exit()
+end
+ 

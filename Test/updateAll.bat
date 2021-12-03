@@ -1,0 +1,10 @@
+@call safeEngineUpdate 192.168.4.1 engine.exe *.ini *.bat *.key *.crt *.dll
+@call safeEngineUpdate 192.168.4.2 engine.exe *.ini *.bat *.key *.crt *.dll
+@call safeEngineUpdate 192.168.4.3 engine.exe *.ini *.bat *.key *.crt *.dll
+@call safeEngineUpdate 192.168.4.4 engine.exe *.ini *.bat *.key *.crt *.dll
+@call safeEngineUpdate 192.168.4.5 engine.exe *.ini *.bat *.key *.crt *.dll
+@call safeEngineUpdate 192.168.4.6 engine.exe *.ini *.bat *.key *.crt *.dll
+@call safeEngineUpdate 192.168.4.7 engine.exe *.ini *.bat *.key *.crt *.dll
+@call safeEngineUpdate 192.168.4.8 engine.exe *.ini *.bat *.key *.crt *.dll
+@call safeEngineUpdate 192.168.4.9 engine.exe *.ini *.bat *.key *.crt *.dll
+@call safeEngineUpdate 192.168.4.10 engine.exe *.ini *.bat *.key *.crt *.dll

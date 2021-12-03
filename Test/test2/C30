@@ -1,0 +1,70 @@
+class dbFile
+   method open
+   end
+
+   method close
+   end
+end
+
+class dbRecord
+   inherit dbFile
+
+   protected:
+      local record
+
+   public:
+      assign recno ( recno )
+         println ( "skipping to record ", recno )
+         ::record = recno
+         return
+      end
+
+      access recno
+         return ::record
+      end
+
+      assign default ( name, var )
+         println ( "assign field ", name, " with ", var )
+      end
+
+      access default ( name )
+         println ( "accessing field ", name )
+         return "'TEST VALUE'"
+      end
+end
+
+
+class database
+   inherit dbRecord
+
+   method seek ( var )
+      println ( "seeking ", var )
+      return NIL
+   end
+
+   operator [ ( record )
+      ::recno = record
+      return ::dbRecord
+   end
+
+end
+
+
+local o, o2
+
+o = new ( "database" )
+
+o2 = o[5]
+
+println ( o2.address )
+
+o.seek ( "'SEEK VALUE'" )
+o.name = "'Stephen Muccione'"
+println ( o.name )
+
+o[5].name = "'Stephen Muccione'"
+o[6].name = "'Stephen Muccione'"
+
+println ( o[7].name )
+println ( o[5].name )
+ 

@@ -1,0 +1,20 @@
+<html>
+<body>
+
+upload some stuff<br>
+
+<OBJECT WIDTH=500 HEIGHT=200
+ID="UploadCtl"
+CLASSID="CLSID:A8097921-BBE4-4BA6-B088-A65129D65339"
+CODEBASE="c:\upload\upload\Debug\Upload.dll">
+<PARAM NAME="DisplayString" VALUE="test this">
+</OBJECT>
+
+<FORM name="myform" >
+<INPUT TYPE=hidden name="cmd" value = "MyUploadTarget" >
+</FORM>
+<INPUT TYPE=BUTTON VALUE="Upload!" onClick="UploadCtl.Upload()" >
+
+
+</body>
+</html>

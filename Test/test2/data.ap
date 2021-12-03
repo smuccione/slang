@@ -1,0 +1,8 @@
+<[
+   session = new ( "session" )
+
+   x = session.data ( "test" )
+
+   ! x
+
+]>

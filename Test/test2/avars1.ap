@@ -1,0 +1,154 @@
+<[
+//	aVars Generator v1.0
+// (c) 2002 by Business Risk Technologies, Inc., All Rights Reserved
+
+FUNCTION CalcAVARS( str )
+	local s, i, j, a, val
+
+	s = strswap( str, "local", " " )
+	s = strswap( s, ", ", "," )
+	s = chrswap( s, " ", "," )
+	s = strswap( s, chr(13) + chr( 10 ), "" )
+	s = strswap( s, "\t", "" )
+	for ( i=1, j=1; i<=(chrcount( ",", s )+1); i++ )
+		val = alltrim( strextract( s, ",", i ) )
+		if ( strempty( val ) )
+			continue
+		end
+		a[j++] = val
+	end
+
+	asort( @a )
+
+	// calculate AVARS statement
+	s = "\r    METHOD aVars( )\r"
+	s += "        local a = { "
+	for ( i=1; i<=len( a ); i++ )
+		s += "\"" + a[i] + "\", "
+	end
+	s = left( s, len( s ) - 2 ) + " }\r"
+	s += "        return( a )\r"
+	s += "    END\r\r"
+
+	// create ACCESS statement
+	s += "    ACCESS aVars2\r"
+	s += "        local a = {\r"
+	for ( i=1; i<=len( a ); i++ )
+		if ( i == len( a ) )
+			s += "            \"" + a[i] + "\"\r"
+		else
+			s += "            \"" + a[i] + "\",\r"
+		end
+	end
+	s += "        }\r"
+	s += "        return( a )\r"
+	s += "    END\r"
+
+	// calculate INIT statement
+	s += "\r    METHOD init( )\r"
+	for ( i=1; i<=len( a ); i++ )
+		s += "        ::" + a[i] + " = \"\"\r"
+	end
+	s += "        return( 1 )\r"
+	s += "    END\r\r"
+
+		// create get( ) statement
+    	s += "    METHOD get( data )\r"
+        s += "        local line, val, key, i=1\r"
+        s += "        while ( 1 )\r"
+        s += "            line = strextract( data, \"&\", i++ )\r"
+        s += "            if ( strempty( line ) )\r"
+        s += "                break\r"
+        s += "            end\r"
+        s += "            key = strextract( line, \"=\", 1 )\r"
+        s += "            val = webDecodeURL( right( line, len( line ) - ( len( key ) + 1 ) ) )\r"
+        s += "            switch ( upper( key ) )\r"
+		for ( i=1; i<=len( a ); i++ )
+			s += "              case \"" + upper( a[i] ) + "\"\r"
+			s += "                ::" + a[i] + " = val\r"
+			s += "                break\r"
+		end
+		s += "            end\r"
+		s += "        end\r"
+		s += "        return( 1 )\r"
+		s += "    END\r\r"		
+
+		// create put( ) statement
+		s += "    METHOD put( g )\r"
+		s += "        return( g.CreateClassVarString( self ) )\r"
+		s += "    END\r\r"
+		
+		s += "END\r\r"
+		
+
+	return( s )
+END
+
+
+session = new( "session", param( 1 ), param( 2 ) )
+
+cmd = upper( session.var( "cmd" ) )
+str = session.var( "str" )
+
+]>
+<html>
+<body bgcolor=FFFFFF text=000000 link=000000 alink=000000 vlink=000000 leftmargin="0" topmargin=0 marginwidth=0 marginheight=0>
+
+<head>
+<style>
+ A { COLOR: #000000; FONT-FAMILY: Arial, helvetica, sans-serif; text-decoration: none; }
+ A:hover { COLOR: #61829F; FONT-FAMILY: Arial, helvetica, sans-serif; }
+ .navtxt { COLOR: #000000; font-size:8pt; FONT-FAMILY: Arial, helvetica, sans-serif; }
+ .navtxt2 { COLOR: #000000; font-size:8pt; FONT-FAMILY: Arial, helvetica, sans-serif; bold; }
+ .txt { COLOR: #000000; font-size:8pt; FONT-FAMILY: Arial, helvetica, sans-serif; }
+ .title { COLOR: #000000; font-size:16pt; FONT-FAMILY: Arial, helvetica, sans-serif; }
+ .spcr { COLOR: #000000; font-size:5pt; FONT-FAMILY: Arial, helvetica, sans-serif; }
+ .closetxt { COLOR: #000000; font-size:7pt; FONT-FAMILY: Arial, helvetica, sans-serif; }
+ .smtitle { COLOR: #FFFFFF; font-size:9pt; FONT-FAMILY: Arial, helvetica, sans-serif; }
+ .smtitle2 { COLOR: #000000; font-size:9pt; FONT-FAMILY: Arial, helvetica, sans-serif; }
+ .back2{background-color:#DFE9F4;}
+</style>
+<script language="JavaScript">
+function ClearControls( ) {
+	document.arrayarea.str.value = "";
+	return;
+}
+</script>
+</head>
+<center><table border=0 width=755 cellpadding=0 cellspacing=0><tr><td width=10>&nbsp;</td><td>
+<table border=1 width=100% cellspacing=0 cellpadding=0><tr bgcolor="#C0C0C0"><td align=center>
+<b>Array Code Generator</b><br>
+
+</td></tr>
+<tr><td>
+<table border=0 width=100% cellpadding=5 cellspacing=2><tr><td>
+<font class="smtitle2">
+Use this tool to create code for an array.  Type a list of comma-delimited variables in the text area and hit 'Calculate'.   FGL that will properly format and initialize an array of variables will be displayed. 
+</td></tr><tr><td>
+<font class="hdrlinks">
+<form action="avars.htm" method="GET" name="arrayarea">
+<input type="hidden" name="cmd" value="CALC">
+	<table cellpadding=0 cellspacing=0 border=0><tr><td align="center" width=755>
+	<input type=submit value="Calculate"><input type=reset value="Reset" onClick="ClearControls( );" >
+</td></tr></table>
+<[
+	if ( ( cmd == "CALC" ) && ( ! strempty( str ) ) )
+		! "<pre>"
+		! CalcAVARS( str )
+		! "</pre>"
+	end
+]>
+
+
+<textarea name="str" rows=10 cols=85><[ ! str ]></textarea><br>
+
+<br><br>
+
+</form>
+
+</td></tr></table>
+</td></tr></table>
+
+</td></tr></table>
+</body>
+</html>

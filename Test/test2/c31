@@ -1,0 +1,22 @@
+class test
+        local   a
+
+        method b ( c )
+           return ::a + c.a
+        end
+end
+
+DebugBreak()
+
+o = new ( "test" )
+o2 = new ( "test" )
+
+o.a = 5
+o2.a = 10
+
+a[1] = o
+a[2] = o2
+
+println ( o.b(o2) )
+println ( a[1].b(a[2]) )
+

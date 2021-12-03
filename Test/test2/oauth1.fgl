@@ -1,0 +1,295 @@
+library c:\fgl\libs\system.flb
+	
+class	oAuth1
+	local	web
+	
+	/// the following MUST be configured on a per-server basis
+	
+	local	realm
+	local	tempCredentialEndpoint
+	local	resourceOwnerEndpoint
+	local	tokenRequestEndpoint
+	local	appKey
+	local	appSecret
+	local	callbackURL
+
+	/// below are the acutal implementation details	
+	local	oAuthToken				= ""
+	local	oAuthTokenSecret		=""
+
+	method new ( oAuthToken = "", oAuthTokenSecret = "" )
+		::oAuthToken 		= oAuthToken
+		::oAuthTokenSecret	= oAuthTokenSecret
+	
+		::web = aArray()
+		return 1
+	end
+	
+	method newEndpoint ( realm )
+		local	w
+		
+		w = new ( "webClient")
+		w.domain = realm
+		w.ssl = 1
+		
+		::web[realm] = w
+	end
+	
+
+	method getTemporaryCredentials ( endpoint, userid )
+		local 	nonce
+		local	parameters
+		local	timeStamp
+		local	signature
+		local	loop
+		local	callback
+		local	authHeader
+		local	result
+		local	reDirUrl
+		local	reDirParam
+		
+		timeStamp = "" + seconds()
+		
+		nonce = "" + rand_s()
+		
+		callback = WebEncodeURL ( ::callbackURL + "?userId=" + userId + "&stage=1" );
+
+		parameters = {
+						{ "oauth_consumer_key", ::appKey },
+						{ "oauth_timestamp", timeStamp },
+						{ "oauth_nonce", nonce },
+						{ "oauth_callback", callback },
+						{ "oauth_version", "1.0" },
+						{ "oauth_signature_method", "HMAC-SHA1" },
+						{ "oauth_token", ::oAuthToken }
+					}
+					
+		aSort ( parameters, 0, 1, 0, 1 )
+		
+		
+		signature = ""
+		for ( loop = 1; loop <= len ( parameters ); loop++ )
+			signature += parameters[loop][1] + "=" + parameters[loop][2]
+			if ( loop != len ( parameters ) )
+				signature += "&"
+			end
+		end
+		
+		
+		signature = "POST" + "&" + WebEncodeUrl ( "https://" + endPoint + "/" + ::tempCredentialEndpoint ) + "&" + WebEncodeUrl ( signature )
+		
+		authHeader= sprintf ( "Authorization: OAuth realm=\"%s\", oauth_consumer_key=\"%s\", oauth_signature_method=\"HMAC-SHA1\", oauth_timestamp=\"%i\", oauth_nonce=\"%s\", oauth_signature=\"%s\", oauth_version=\"1.0\", oauth_token=\"%s\", oauth_callback=\"%s\"",
+								::realm,
+								::appKey,
+								timeStamp,
+								nonce,
+								WebEncodeUrl ( base64Encode ( hmac_sha1 ( ::appSecret + "&" + ::oAuthTokenSecret, signature ) ) ),
+								::oAuthToken,
+								callback							
+							)
+							
+		::web[endpoint].extraHeaders = authHeader
+
+		::web[endpoint].submit ( "", ::tempCredentialEndpoint )
+		result = ( aArray().add ( split2 ( ::web[endpoint].page, "=", "&" ) ) )
+		
+		::oAuthToken 		= result["oauth_token"]
+		::oAuthTokenSecret	= result["oauth_token_secret"]
+		
+		redirUrl = "https://www.dropbox.com/" + ::resourceOwnerEndpoint
+		redirParam = "?oauth_token=" + ::oAuthToken + "&oauth_callback=" + callback
+		
+		return redirUrl + reDirParam;
+	end
+	
+
+	method getAccessToken ( endpoint )
+		local 	nonce
+		local	parameters
+		local	timeStamp
+		local	signature
+		local	loop
+		local	authHeader
+		local	result
+		
+		timeStamp = "" + seconds()
+		
+		nonce = "" + rand_s()
+
+		parameters = {
+						{ "oauth_consumer_key", ::appKey },
+						{ "oauth_timestamp", timeStamp },
+						{ "oauth_nonce", nonce },
+						{ "oauth_version", "1.0" },
+						{ "oauth_signature_method", "HMAC-SHA1" },
+						{ "oauth_token", ::oAuthToken }
+					}
+					
+		aSort ( parameters, 0, 1, 0, 1 )
+		
+		
+		signature = ""
+		for ( loop = 1; loop <= len ( parameters ); loop++ )
+			signature += parameters[loop][1] + "=" + parameters[loop][2]
+			if ( loop != len ( parameters ) )
+				signature += "&"
+			end
+		end
+		
+		
+		signature = "POST" + "&" + WebEncodeUrl ( "https://" + endPoint + "/" + ::tokenRequestEndpoint ) + "&" + WebEncodeUrl ( signature )
+		
+		authHeader= sprintf ( "Authorization: OAuth realm=\"%s\", oauth_consumer_key=\"%s\", oauth_signature_method=\"HMAC-SHA1\", oauth_timestamp=\"%i\", oauth_nonce=\"%s\", oauth_signature=\"%s\", oauth_version=\"1.0\", oauth_token=\"%s\"",
+								::realm,
+								::appKey,
+								timeStamp,
+								nonce,
+								WebEncodeUrl ( base64Encode ( hmac_sha1 ( ::appSecret + "&" + ::oAuthTokenSecret, signature ) ) ),
+								::oAuthToken
+							)
+							
+		::web[endpoint].extraHeaders = authHeader
+
+		::web[endpoint].submit ( "", ::tokenRequestEndpoint )
+		result = ( aArray().add ( split2 ( ::web[endpoint].page, "=", "&" ) ) )
+		
+		::oAuthToken 		= result["oauth_token"]
+		::oAuthTokenSecret	= result["oauth_token_secret"]
+		
+		return { ::oAuthToken, ::oAuthTokenSecret }
+	end
+
+
+	method oAuthGet ( endpoint, url, uParam )
+		local 	nonce
+		local	timeStamp
+		local	signature
+		local	loop
+		local	authHeader
+		local	apiParam
+		local	parameters
+		
+		timeStamp = "" + seconds()
+		
+		nonce = "" + rand_s()
+		
+		apiParam = {
+						{ "oauth_consumer_key", ::appKey },
+						{ "oauth_timestamp", timeStamp },
+						{ "oauth_nonce", nonce },
+						{ "oauth_version", "1.0" },
+						{ "oauth_signature_method", "HMAC-SHA1" },
+						{ "oauth_token", ::oAuthToken }
+					}
+
+		param = ""
+		for ( loop = 1; loop <= len ( uParam ); loop++ )
+			parameters[len(parameters)+1] = uParam[loop]
+			if ( loop == 1 )
+				param = "?" + uParam[loop][1] + "=" + uParam[loop][2]
+			else
+				param = "&" + uParam[loop][1] + "=" + uParam[loop][2]
+			end
+		end	
+		for ( loop = 1; loop <= len ( apiParam ); loop++ )
+			parameters[len(parameters)+1] = apiParam[loop]
+		end	
+					
+		aSort ( parameters, 0, 1, 0, 1 )
+		
+		
+		signature = ""
+		for ( loop = 1; loop <= len ( parameters ); loop++ )
+			signature += parameters[loop][1] + "=" + parameters[loop][2]
+			if ( loop != len ( parameters ) )
+				signature += "&"
+			end
+		end
+		
+		
+		signature = "GET" + "&" + WebEncodeUrl ( "https://" + endPoint + "/" + url ) + "&" + WebEncodeUrl ( signature )
+		
+		authHeader= sprintf ( "Authorization: OAuth realm=\"%s\", oauth_consumer_key=\"%s\", oauth_signature_method=\"HMAC-SHA1\", oauth_timestamp=\"%i\", oauth_nonce=\"%s\", oauth_signature=\"%s\", oauth_version=\"1.0\", oauth_token=\"%s\"",
+								::realm,
+								::appKey,
+								timeStamp,
+								nonce,
+								WebEncodeUrl ( base64Encode ( hmac_sha1 ( ::appSecret + "&" + ::oAuthTokenSecret, signature ) ) ),
+								::oAuthToken
+							)
+							
+		::web[endpoint].extraHeaders = authHeader
+
+		::web[endpoint].url = url + param
+		
+		return ::web[endpoint].page
+	end
+	
+	method oAuthPut ( endpoint, url, uParam, data )
+		local 	nonce
+		local	timeStamp
+		local	signature
+		local	loop
+		local	authHeader
+		local	apiParam
+		local	parameters
+		local	param
+		
+		timeStamp = "" + seconds()
+		
+		nonce = "" + rand_s()
+		
+		apiParam = {
+						{ "oauth_consumer_key", ::appKey },
+						{ "oauth_timestamp", timeStamp },
+						{ "oauth_nonce", nonce },
+						{ "oauth_version", "1.0" },
+						{ "oauth_signature_method", "HMAC-SHA1" },
+						{ "oauth_token", ::oAuthToken }
+					}
+					
+		param = ""
+		for ( loop = 1; loop <= len ( uParam ); loop++ )
+			parameters[len(parameters)+1] = uParam[loop]
+			if ( loop == 1 )
+				param = "?" + uParam[loop][1] + "=" + uParam[loop][2]
+			else
+				param = "&" + uParam[loop][1] + "=" + uParam[loop][2]
+			end
+		end	
+		for ( loop = 1; loop <= len ( apiParam ); loop++ )
+			parameters[len(parameters)+1] = apiParam[loop]
+		end	
+					
+		aSort ( parameters, 0, 1, 0, 1 )
+		
+		
+		signature = ""
+		for ( loop = 1; loop <= len ( parameters ); loop++ )
+			signature += parameters[loop][1] + "=" + parameters[loop][2]
+			if ( loop != len ( parameters ) )
+				signature += "&"
+			end
+		end
+		
+		
+		signature = "PUT" + "&" + WebEncodeUrl ( "https://" + endPoint + "/" + url ) + "&" + WebEncodeUrl ( signature )
+		
+		authHeader= sprintf ( "Authorization: OAuth realm=\"%s\", oauth_consumer_key=\"%s\", oauth_signature_method=\"HMAC-SHA1\", oauth_timestamp=\"%i\", oauth_nonce=\"%s\", oauth_signature=\"%s\", oauth_version=\"1.0\", oauth_token=\"%s\"",
+								::realm,
+								::appKey,
+								timeStamp,
+								nonce,
+								WebEncodeUrl ( base64Encode ( hmac_sha1 ( ::appSecret + "&" + ::oAuthTokenSecret, signature ) ) ),
+								::oAuthToken
+							)
+							
+		::web[endpoint].extraHeaders = authHeader
+
+		::web[endpoint].put ( data, url + param )
+		
+		return ::web[endpoint].page
+	end
+end
+
+	

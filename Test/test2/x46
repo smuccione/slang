@@ -1,0 +1,11 @@
+function test
+  static x = {"b"}
+  local y = {"a"}
+
+  println ( x[1], " ", y[1] )
+  x = {"c"}
+  y = {"D"}
+end
+
+test()
+test()

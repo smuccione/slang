@@ -1,0 +1,91 @@
+function aSearch ( array, value, column, caseSensitive )
+
+	local hi, low, pos
+
+	low = 1
+	hi  = len ( array )
+
+	if ( caseSensitive )
+		while ( hi >= low )
+			pos = int((hi + low) / 2)
+		
+			if ( value == array[pos][column] )
+				return ( pos )
+			end
+
+			if ( value < array[pos][column] )
+				hi = pos - 1
+			else
+				low = pos + 1
+			end
+		end
+
+		while ( pos > 1 )
+			if ( value == array[pos - 1][column] )
+				pos--
+			else
+				break
+			end
+		end
+	else
+		value = upper ( value )
+
+		while ( hi >= low )
+			pos = int((hi + low) / 2)
+		
+			tmp = upper ( array[pos][column] )
+
+			if ( value == tmp )
+				return ( pos )
+			end
+
+			if ( value < tmp )
+				hi = pos - 1
+			else
+				low = pos + 1
+			end
+		end
+
+		while ( pos > 1 )
+			if ( value == upper ( array[pos - 1][column] ) )
+				pos--
+			else
+				break
+			end
+		end
+	end
+	return ( 0 )
+end
+
+
+x = { {"a"},
+	{"b"},
+	{"c"},
+	{"d"},
+	{"e"},
+	{"f"},
+	{"g"},
+	{"h"},
+	{"i"},
+	{"j"},
+	{"k"},
+	{"l"},
+	{"m"},
+	{"n"},
+	{"o"},
+	{"p"},
+	{"q"},
+	{"r"},
+	{"s"},
+	{"t"},
+	{"u"},
+	{"v"},
+	{"w"},
+	{"x"},
+	{"y"} }
+
+debugBreak()
+
+n = aSearch ( x, "E", 1, 0 )
+
+println ( n )

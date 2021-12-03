@@ -1,0 +1,272 @@
+
+CLASS objDatabase
+  INHERIT objFromArray
+
+  PUBLIC:
+    local IsOpen, LockTimeout, errmsg, db
+	local dbFileName, dbAlias, dbStructure, dbIndexes
+	local paging, _dbviewer
+
+    METHOD New( dbfilename = "", dbalias = "", dbStructure = null, dbIndexes = null )
+        ::IsOpen = 0
+        ::errmsg = ""
+        ::LockTimeout = 2
+        ::db = 0
+        ::dbFileName = dbFileName
+        ::dbAlias = dbAlias
+        ::dbStructure = dbStructure
+        ::dbIndexes = dbIndexes
+        ::paging = null
+        ::_dbviewer = null
+        return( 1 )
+    END
+
+    METHOD open( )
+    	static a
+    	local i, cnt, fname
+    
+        if ( ::IsOpen )
+            ::IsOpen++
+            return( 1 )
+        end
+
+        if ( ! fileExists( ::dbFileName ) )
+			if ( type( ::dbStructure ) != "A" )
+				::errmsg = "DBCREATE ERROR: Invalid or missing database structure."
+				return( 0 )
+			end
+			if ( ! dbcreate( ::dbFileName, ::dbStructure ) )
+				::errmsg = "DBCREATE ERROR: unable to create database."
+				return( 0 )
+			end
+        end
+
+        ::IsOpen = 1
+        ::db = dbuse( ::dbFileName, ::dbAlias )
+        
+        if ( type( ::dbIndexes ) == "A" )
+        	cnt = len( ::dbIndexes )
+        	for ( i=1; i<=cnt; i++ )
+        		fname = ::GetIndexfileName( i )
+				if ( ! fileExists( fname ) )
+					(::db)->dbCreateIndex( fname, ::dbIndexes[i,1], ::dbIndexes[i,2] )
+				end
+				(::db)->dbOpenIndex( fname )
+        	end
+        end
+        ::dbGoTop( )
+        
+		// init var array
+		cnt = (::db)->dbFieldCount( )
+		for ( i=1; i<=cnt; i++ )
+			a[i,1] = (::db)->dbFieldName( i )
+			a[i,2] = ::initFieldType( i )
+		end
+		::a = a
+
+        return( 1 )
+    END
+    
+	METHOD GetIndexfileName( index )
+		if ( index < 1 )
+			return( "" )
+		end
+		if ( type( ::dbIndexes ) == "A" )
+			if ( index > len( ::dbIndexes ) )
+				return( "" )
+			end
+		else
+			if ( index != 1 )
+				return( "" )
+			end
+		end
+		if ( index == 1 )
+			return( strextract( ::dbFileName, ".", 1 ) + ".dx" )
+		else
+			return( strextract( ::dbFileName, ".", 1 ) + index + ".dx" )
+		end
+	END
+
+    METHOD initFieldType( index )
+        switch ( (::db)->dbFieldType( index ) )
+          case "N"
+            return( (::db)->dbFieldDec( index ) ? 0.00 : 0 )
+          default
+            return( "" )
+        end
+    END
+  	
+    METHOD close( )
+        if ( ::IsOpen == 1 )
+            (::db)->dbClose( )
+        end
+        ::IsOpen--
+        return( 1 )
+    END
+
+    METHOD seek( item )
+        (::db)->dbSeek( upper( item ) )
+        return( (::db)->dbFound( ) )
+    END
+
+    METHOD reindex( )
+        return( (::db)->dbReindex( ) )
+    END
+
+    METHOD get( )
+		local i, cnt, fldname
+		cnt = (::db)->dbFieldCount( )
+		for ( i=1; i<=cnt; i++ )
+			fldname = (::db)->dbFieldName( i )
+			::(fldname) = (::db)->dbFieldGet( i )
+			if ( type( ::(fldname) ) == "C" )
+				::(fldname) = alltrim( ::(fldname) )
+			end
+		end
+        return( 1 )
+    END
+
+    METHOD put( )
+		local i, cnt, fldname
+		cnt = (::db)->dbFieldCount( )
+		for ( i=1; i<=cnt; i++ )
+			fldname = (::db)->dbFieldName( i )
+			(::db)->dbFieldPut( i, ::(fldname) )
+		end
+        return( 1 )
+    END
+
+    METHOD CreateNewRecord( key )
+        if ( ! ::validate( ) )
+            return( 0 )
+        end
+
+        ::open( )
+        if ( ::seek( key ) )
+            ::errmsg = "Record (" + key + ") already exists!"
+            ::close( )
+            return( 0 )
+        end
+
+        (::db)->dbAppend( )
+        ::put( )
+        ::unlock( )
+
+        ::close( )
+        return( 1 )
+    END
+
+    METHOD GetRecord( key )
+        ::open( )
+
+        ::init( )
+        if ( ! ::seek( key ) )
+            ::errmsg = "Unable to locate record (" + key + ")"
+            ::close( )
+            return( 0 )
+        end
+
+        ::get( )
+        ::close( )
+
+        return( 1 )
+    END
+
+    METHOD SetRecord( key )
+        if ( ! ::validate( ) )
+            return( 0 )
+        end
+
+        ::open( )
+
+        if ( ! ::seek( key ) )
+            ::errmsg = "Unable to locate record (" + key + ")"
+            ::close( )
+            return( 0 )
+        end
+
+        if ( ::rlock( ) )
+            ::put( )
+            ::unlock( )
+        end
+        ::close( )
+
+        return( 1 )
+    END
+
+    METHOD dbOrder( val )
+        (::db)->dbOrder( val )
+    END
+    METHOD dbGoto( val )
+        (::db)->dbGoto( val )
+    END
+    METHOD dbGoTop( )
+        (::db)->dbGoTop( )
+    END
+    METHOD dbGoBottom( )
+        (::db)->dbGoBottom( )
+    END
+    METHOD dbEOF( )
+        return( (::db)->dbEOF( ) )
+    END
+    METHOD dbBOF( )
+        return( (::db)->dbBOF( ) )
+    END
+    METHOD dbseek( id )
+        return( ::seek( id ) )
+    END
+    METHOD dbSkip( index )
+        if ( type( index ) == 'N' )
+            (::db)->dbSkip( index )
+        else
+            (::db)->dbSkip( )
+        end
+        return( 1 )
+    END
+
+	METHOD dbRecNo( )
+		return( (::db)->dbRecNo( ) )
+	END
+
+    METHOD rlock( )
+        local EndTime
+        if ( ! ::IsOpen )
+            ::errmsg = 'Database must be open to lock record'
+            return( 0 )
+        end
+        EndTime = seconds( ) + ::LockTimeout
+        while ( ! (::db)->dbRLock( ) )
+            if ( ( seconds( ) > EndTime ) || ( ( seconds( ) + ::LockTimeout ) < EndTime ) )
+                ::errmsg ='Unable to lock database record'
+                return( 0 )
+            end
+        end
+        return( 1 )
+    END
+
+    METHOD unlock( )
+        if ( ! ::IsOpen )
+            ::errmsg = 'Database must be open to unlock record'
+            return( 0 )
+        end
+        (::db)->dbUnLock( )
+        return( 1 )
+    END
+
+
+	METHOD PagingInit( dxNum )
+	    if ( ::paging == null )
+	    	::_dbviewer = new( "objViewer", ::dbFileName, ::GetIndexfileName( dxNum ) )
+	    	::paging = new( "objPage", new( "session" ), ::_dbviewer )
+	    end
+	END
+
+	METHOD PagingDisplay( )
+		if ( ::paging == null )
+			::PagingInit( 1 )
+		end
+		return( ::paging.GetCurPage( ) )
+	END
+
+END
+

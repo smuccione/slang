@@ -1,0 +1,15 @@
+library c:\slang\test\test2\x52_lib.flb
+
+o = new ( "test" )
+o.a[1] = new ( "test2" )
+o.a[2] = new ( "test2" )
+o.a[1].b = "hello"
+o.a[2].b = "there"
+
+x = pack ( o )
+y = unpack ( x )
+
+println ( y.a[1].b, " ", y.a[2].b )
+
+a = packLibraries ( x )
+println ( a[1] )

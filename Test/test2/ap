@@ -1,0 +1,7 @@
+this is a test
+<[
+for ( x = 0; x < 10; x++ )
+! "test " + x
+end
+]>
+end of test

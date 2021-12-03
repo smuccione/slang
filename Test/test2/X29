@@ -1,0 +1,25 @@
+static page1, page2
+
+class test
+   local a
+
+   method set ( page )
+     self.a = page
+   end
+end
+
+
+local o1, o2, o3
+
+o1 = new ( "test" )
+
+page1 = 1
+page2 = 2
+
+o1.set ( page1 )
+println ( page1, " : ", page2 )
+
+o1.set ( page2 )
+println ( page1, " : ", page2 )
+
+ 

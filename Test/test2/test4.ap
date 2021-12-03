@@ -1,0 +1,23 @@
+<[
+	session = new( "session", param( 1 ), param( 2 ) )
+	cookie = new ( "cookie" )
+
+	if ( cookie.get ( "test" ) )
+		! "<HTML>\r\n"
+		! "<BODY>\r\n"
+		! "The value of the cookie is: " + cookie.get ( "test" ) + "\r\n"
+		! "The value of the 2nd cookie is: " + cookie.get ( "test2" ) + "\r\n"
+		! "</BODY>\r\n"
+		! "</HTML>\r\n"
+//		cookie.delete ( "test" )
+		cookie.set ( "test" )
+	else
+		! "<HTML>\r\n"
+		! "<BODY>\r\n"
+		! "Setting the cookie now!\r\n"
+		! "</BODY>\r\n"
+		! "</HTML>\r\n"
+		cookie.set ( "test", "got it!" )
+		cookie.set ( "test2", "we're always here" )
+	end
+]>

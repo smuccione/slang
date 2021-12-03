@@ -1,0 +1,8 @@
+function a ( b )
+  omCollect()
+  b = "hello"
+end
+
+a ( @c )
+println ( c )
+ 

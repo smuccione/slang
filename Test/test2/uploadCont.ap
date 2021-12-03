@@ -1,0 +1,27 @@
+<HTML>
+<[
+	session = new ( "session" )
+
+	if ( session.numParts() > 1 )
+		println ( session.numParts() )
+
+		cmd = upper ( session.var ( "name", 2 ) )
+
+		if ( cmd == "UPLOADFILE" )
+			println ( "got a download of :", session.postdata(2) )
+]>
+<script language=JavaScript>
+
+document.location = "/upload.ap"
+
+</script>	
+<[
+			return ( 1 )
+		end
+	end
+
+]>
+
+<HEAD>
+
+Should never see?

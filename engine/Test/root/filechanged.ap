@@ -1,0 +1,11 @@
+<html>
+<body>
+<[
+	session = new webSession()
+	
+	println ( "a file has changed in directory ", session.var ( "fname" ) );
+]>
+</body>
+</html>
+
+

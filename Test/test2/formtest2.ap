@@ -1,0 +1,43 @@
+<[
+	// FORMTEST.AP - Test of FGL Form Support in Active Pages
+	// (c) 2002 by Business Risk Technologies, Inc., All Rights Reserved.
+
+	session = new( "session" )
+
+	if ( ! session.secure( "MyRealm" ) )
+		session.response( "Sorry, you do not have access to this page!" )
+		return( 0 )
+	end
+	
+	cmd = upper( session.var( "cmd" ) )
+	
+	if ( cmd == "UPDATE" )
+
+]>
+
+
+<html>
+<body>
+you just entered your form
+</body>
+</html>
+
+
+<[
+		return
+	end
+
+]>
+
+<html>
+<body>
+
+<form name="input" action="formtest2.htm" method="GET">
+<input type=hidden name=cmd value="UPDATE">
+<input type=submit value="Click here to submit form...">
+
+</form>
+</body>
+</html>
+
+

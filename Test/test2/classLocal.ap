@@ -1,0 +1,30 @@
+<[
+	class test
+		local a = "hello", b = "there"
+		local c =
+				{ "how" }
+		local d = "are"
+		static e = "bad"
+		
+	end
+	
+	
+	o = new ( "test" )
+	
+	println ( o.a )
+	println ( o.b )
+	println ( o.c[1] )
+	println ( o.d )
+	println ( o.e )
+
+	o.e = "you"
+
+	o2 = new ( "test" )
+	
+	println ( o2.a )
+	println ( o2.b )
+	println ( o2.c[1] )
+	println ( o2.d )
+	println ( o2.e )
+
+]>

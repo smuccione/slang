@@ -1,0 +1,38 @@
+function TestMe()
+//   field last
+
+   dbuse( "DEMO.DBF", "DEMO", 1 )
+
+   println ( "Indexing..." )
+   DEMO->dbCreateIndex ( "DEMO.FTX",  "LAST", 0 )
+   println ( "Done..." )
+
+   demo->dbClose()
+end
+
+function List()
+   dbuse( "DEMO.DBF", "DEMO", 1 )
+   dbopenindex ( "demo.ftx" )
+
+   a = demo->dbstruct()
+   count = 0;
+
+   dbgotop()
+
+   while ( !dbeof() )
+      for ( loop = 1; loop < 3; loop++ )
+         print ( dbfieldget ( a[loop][1] ) )
+      end
+      println()
+      dbskip()
+      count++
+   end
+   println ( count )
+
+   demo->dbClose()
+end
+
+TestMe()
+println ( "here" )
+list()
+ 

@@ -1,0 +1,14 @@
+<[
+
+
+x = domain ( "http://www.excite.com/test?a=b" )
+
+println ( x )
+
+x = uri ( "http://www.excite.com/test?a=b" )
+
+println ( x )
+
+
+]>
+

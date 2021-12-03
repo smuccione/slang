@@ -1,0 +1,879 @@
+// DATA.FGL Data Utilities for the BRT Insurance MAnagem,ent System
+// (c) 2001 by Business Risk Technologies, Inc., All Rights Reserved
+
+CLASS objClientDBF
+
+  // Access Variables:
+  //   dbFileName
+  //   dbIndexName
+  //   dbIndexName2
+  //   DataTypes
+
+  // Methods:
+  //   New( )
+  //   Close( )
+  //   Create( )
+  //   Get( )
+  //   HardClose( )
+  //   Init( )
+  //   Open( )
+  //   Put( )
+  //   rlock( )
+  //   Reindex( )
+  //   Seek( item )
+  //   SelectBegin( key, IndexId, dtype )
+  //   SelectEnd( )
+  //   SelectNextRecord( )
+  //   SelectRecords( key, IndexId, dtype )
+  //   unlock( )
+
+  PUBLIC:
+    local IsOpen, errmsg, LockTimeout, aSelect, aSelectNextRec
+    local created, data, dataref, dstatus, dtype, key, lastused, objref
+    local password, subkey, usagecnt
+
+    METHOD New( )
+        ::IsOpen = 0
+		::errmsg = ""
+		::LockTimeout = 3
+        ::Init( )
+        return( 1 )
+    END
+
+    METHOD Init( )
+        ::created = ""
+        ::data = 0
+        ::dataref = ""
+        ::dstatus = 0
+        ::dtype = 0
+        ::key = ""
+        ::lastused = ""
+        ::objref = ""
+        ::password = ""
+        ::subkey = ""
+        ::usagecnt = 0
+        return( 1 )
+    END
+
+
+	ACCESS DataTypes
+		local aval = {
+			"Header",
+			"Quote",
+			"Application",
+			"Endorsement",
+			"Payment",
+			"Claim"
+		}
+		return( aval )
+	END
+
+
+    ACCESS dbFileName
+        return( 'c:\sdweb\home\insmgmt\admin\insmgmt\data\client.db' )
+    END
+
+    ACCESS dbIndexName
+        return( 'c:\sdweb\home\insmgmt\admin\insmgmt\data\client.dx' )
+    END
+    ACCESS dbIndexName2
+        return( 'c:\sdweb\home\insmgmt\admin\insmgmt\data\client.dx2' )
+    END
+
+    METHOD create( )
+        local db_struct = {
+            { "KEY", "C", 65, 0 },
+            { "SUBKEY", "C", 65, 0 },
+            { "OBJREF", "C", 65, 0 },
+            { "DATAREF", "C", 65, 0 },
+            { "PASSWORD", "C", 20, 0 },
+            { "DTYPE", "N", 9, 0 },
+            { "DSTATUS", "N", 9, 0 },
+            { "CREATED", "C", 20, 0 },
+            { "LASTUSED", "C", 20, 0 },
+            { "USAGECNT", "N", 6, 0 },
+            { "DATA", "B", 20, 0 },
+            { "VERIFY", "~", 4, 0 }
+        }
+        return( dbcreate( ::dbFileName, db_struct ) )
+    END
+
+    METHOD open( )
+        if ( ! ::IsOpen )
+            dbuse( ::dbFileName, "ClientDBF", 1 )
+            ClientDBF->dbOpenIndex( ::dbIndexName2 )
+            ClientDBF->dbOpenIndex( ::dbIndexName )
+        end
+        ::IsOpen++
+        return( 1 )
+    END
+
+    METHOD close( )
+        if ( ::IsOpen == 1 )
+            ClientDBF->dbClose( )
+        end
+        ::IsOpen--
+        if ( ::IsOpen < 0 )
+        	// should never happen unless caller crashes before exiting
+        	::IsOpen = 0
+        end
+        return( 1 )
+    END
+
+	METHOD HardClose( )
+		::IsOpen = 1
+		::close( )
+		return( 1 )
+	END
+
+	METHOD rlock( )
+		local EndTime
+		if ( ! ::IsOpen )
+			::errmsg = "Database must be open to lock record"
+			return( 0 )
+		end
+		EndTime = seconds( ) + ::LockTimeout
+		while ( ! ClientDBF->dbRLock( ) )
+			if ( ( seconds( ) > EndTime ) || ( ( seconds( ) + ::LockTimeout ) < EndTime ) )
+				::errmsg = "Unable to lock database record"
+				return( 0 )
+			end
+		end
+		return( 1 )
+	END
+
+	METHOD unlock( )
+		if ( ! ::IsOpen )
+			::errmsg = "Database must be open to unlock record"
+			return( 0 )
+		end
+		ClientDBF->dbUnLock( )
+		return( 1 )
+	END
+
+    METHOD seek( item )
+        ClientDBF->dbSeek( item )
+        return( ClientDBF->dbFound( ) )
+    END
+
+
+	METHOD SelectBegin( key, IndexId, dtype )
+		::aSelect = ::SelectRecords( key, IndexId, dtype )
+		if ( ! ::aSelect[ 1 ] )
+			return( 0 )
+		end
+		::aSelectNextRec = 1
+		return( 1 )	
+	END
+
+	METHOD SelectEnd( )
+		::aSelect = 0
+		::aSelectNextRec = 0
+		return( 1 )	
+	END
+
+	METHOD SelectNextRecord( )
+		if ( ! ::aSelectNextRec )
+			return( 0 )
+		end
+		if ( ! ::aSelectNextRec > len( ::aSelect ) )
+			return( 0 )
+		end
+		
+		ClientDBF->dbGoto( ::aSelectNextRec++ )
+		
+		return( 1 )
+	END
+
+
+	METHOD SelectRecords( key, IndexId, dtype )
+		local aval, keylen, _key, IsDataType, i
+
+		IsDataType = ( type( dtype ) == "N" ? dtype : 0 )
+
+		aval[1] = 0
+	
+		if ( ! ::seek( key ) )
+			return( aval )
+		end
+		
+		keylen = len( key )
+		_key = upper( key )
+		i=1
+		while ( ! ClientDBF->dbEOF( ) )
+			if ( IndexId == 2 )
+				if ( _key == upper( left( ClientDBF->key, keylen ) ) )
+					if ( IsDataType )
+						if ( dtype == ClientDBF->dtype )
+							aval[ i++ ] = ClientDBF->dbRecNo( )
+						end
+					else
+						aval[ i++ ] = ClientDBF->dbRecNo( )
+					end
+				else
+					break
+				end
+			else
+				if ( _key == upper( left( ClientDBF->subkey, keylen ) ) )
+					if ( IsDataType )
+						if ( dtype == ClientDBF->dtype )
+							aval[ i++ ] = ClientDBF->dbRecNo( )
+						end
+					else
+						aval[ i++ ] = ClientDBF->dbRecNo( )
+					end
+				else
+					break
+				end
+			end
+			ClientDBF->dbSkip( )
+		end
+		
+		return( aval )
+	END
+
+    METHOD reindex( )
+        return( ClientDBF->dbReindex( ) )
+    END
+
+    METHOD get( )
+        ::created = ClientDBF->created
+        ::data = ClientDBF->data
+        ::dataref = ClientDBF->dataref
+        ::dstatus = ClientDBF->dstatus
+        ::dtype = ClientDBF->dtype
+        ::key = ClientDBF->key
+        ::lastused = ClientDBF->lastused
+        ::objref = ClientDBF->objref
+        ::password = ClientDBF->password
+        ::subkey = ClientDBF->subkey
+        ::usagecnt = ClientDBF->usagecnt
+        return( 1 )
+    END
+
+    METHOD put( )
+        ClientDBF->created = ::created
+        ClientDBF->data = ::data
+        ClientDBF->dataref = ::dataref
+        ClientDBF->dstatus = ::dstatus
+        ClientDBF->dtype = ::dtype
+        ClientDBF->key = ::key
+        ClientDBF->lastused = ::lastused
+        ClientDBF->objref = ::objref
+        ClientDBF->password = ::password
+        ClientDBF->subkey = ::subkey
+        ClientDBF->usagecnt = ::usagecnt
+        return( 1 )
+    END
+
+END
+
+
+CLASS objRefLib
+
+  // Access Variables:
+  //   dbFileName
+  //   dbIndexName
+  //   dbIndexName2
+  //   DataTypes
+
+  // Methods:
+  //   New( )
+  //   Close( )
+  //   Create( )
+  //   Get( )
+  //   HardClose( )
+  //   Init( )
+  //   Open( )
+  //   Put( )
+  //   rlock( )
+  //   Reindex( )
+  //   Seek( item )
+  //   SelectBegin( key, IndexId, dtype )
+  //   SelectEnd( )
+  //   SelectNextRecord( )
+  //   SelectRecords( key, IndexId, dtype )
+  //   unlock( )
+
+  PUBLIC:
+    local IsOpen, errmsg, LockTimeout, aSelect, aSelectNextRec
+    local created, data, dataref, dstatus, dtype, key, lastused, objref
+    local password, subkey, usagecnt
+
+    METHOD New( )
+        ::IsOpen = 0
+		::errmsg = ""
+		::LockTimeout = 3
+        ::Init( )
+        return( 1 )
+    END
+
+    METHOD Init( )
+        ::created = ""
+        ::data = ""
+        ::dataref = ""
+        ::dstatus = 0
+        ::dtype = 0
+        ::key = ""
+        ::lastused = ""
+        ::objref = ""
+        ::password = ""
+        ::subkey = ""
+        ::usagecnt = 0
+        return( 1 )
+    END
+
+	ACCESS DataTypes
+		local aval = {
+			"Text",
+			"Binary",
+			"List",
+			"File",
+			"Web Form",
+			"Ini",
+			"Structure",
+			"Database",
+			"Audio",
+			"Video",
+			"Reference",
+			"Other"
+		}
+		return( aval )
+	END
+
+	ACCESS Status
+		local aval = {
+			"Active",
+			"Inactive",
+			"Hold"
+		}
+		return( aval )
+	END
+
+    ACCESS dbFileName
+        return( 'c:\sdweb\home\insmgmt\data\reflib.db' )
+    END
+
+    ACCESS dbIndexName
+        return( 'c:\sdweb\home\insmgmt\data\reflib.dx' )
+    END
+    ACCESS dbIndexName2
+        return( 'c:\sdweb\home\insmgmt\data\reflib.dx2' )
+    END
+
+    METHOD create( )
+        local db_struct = {
+            { "KEY", "C", 65, 0 },
+            { "SUBKEY", "C", 65, 0 },
+            { "OBJREF", "C", 65, 0 },
+            { "DATAREF", "C", 65, 0 },
+            { "PASSWORD", "C", 20, 0 },
+            { "DTYPE", "N", 9, 0 },
+            { "DSTATUS", "N", 9, 0 },
+            { "CREATED", "C", 20, 0 },
+            { "LASTUSED", "C", 20, 0 },
+            { "USAGECNT", "N", 6, 0 },
+            { "DATA", "B", 20, 0 },
+            { "VERIFY", "~", 4, 0 }
+        }
+        return( dbcreate( ::dbFileName, db_struct ) )
+    END
+
+    METHOD open( )
+        if ( ! ::IsOpen )
+            dbuse( ::dbFileName, "RefLib", 1 )
+            RefLib->dbOpenIndex( ::dbIndexName2 )
+            RefLib->dbOpenIndex( ::dbIndexName )
+        end
+        ::IsOpen++
+        return( 1 )
+    END
+
+    METHOD close( )
+        if ( ::IsOpen == 1 )
+            RefLib->dbClose( )
+        end
+        ::IsOpen--
+        if ( ::IsOpen < 0 )
+        	// should never happen unless caller crashes before exiting
+        	::IsOpen = 0
+        end
+        return( 1 )
+    END
+
+	METHOD HardClose( )
+		::IsOpen = 1
+		::close( )
+		return( 1 )
+	END
+
+	METHOD rlock( )
+		local EndTime
+		if ( ! ::IsOpen )
+			::errmsg = "Database must be open to lock record"
+			return( 0 )
+		end
+		EndTime = seconds( ) + ::LockTimeout
+		while ( ! RefLib->dbRLock( ) )
+			if ( ( seconds( ) > EndTime ) || ( ( seconds( ) + ::LockTimeout ) < EndTime ) )
+				::errmsg = "Unable to lock database record"
+				return( 0 )
+			end
+		end
+		return( 1 )
+	END
+
+	METHOD unlock( )
+		if ( ! ::IsOpen )
+			::errmsg = "Database must be open to unlock record"
+			return( 0 )
+		end
+		RefLib->dbUnLock( )
+		return( 1 )
+	END
+
+    METHOD seek( item )
+        RefLib->dbSeek( item )
+        return( RefLib->dbFound( ) )
+    END
+
+
+	METHOD SelectBegin( key, IndexId, dtype )
+		::aSelect = ::SelectRecords( key, IndexId, dtype )
+		if ( ! ::aSelect[ 1 ] )
+			return( 0 )
+		end
+		::aSelectNextRec = 1
+		return( 1 )	
+	END
+
+	METHOD SelectEnd( )
+		::aSelect = 0
+		::aSelectNextRec = 0
+		return( 1 )	
+	END
+
+	METHOD SelectNextRecord( )
+		if ( ! ::aSelectNextRec )
+			return( 0 )
+		end
+		if ( ! ::aSelectNextRec > len( ::aSelect ) )
+			return( 0 )
+		end
+		
+		RefLib->dbGoto( ::aSelectNextRec++ )
+		
+		return( 1 )
+	END
+
+
+	METHOD SelectRecords( key, IndexId, dtype )
+		local aval, keylen, _key, IsDataType, i
+
+		IsDataType = ( type( dtype ) == "N" ? dtype : 0 )
+
+		aval[1] = 0
+	
+		if ( ! ::seek( key ) )
+			return( aval )
+		end
+		
+		keylen = len( key )
+		_key = upper( key )
+		i=2
+		while ( ! RefLib->dbEOF( ) )
+			if ( IndexId == 2 )
+				if ( _key == upper( left( RefLib->key, keylen ) ) )
+					if ( IsDataType )
+						if ( dtype == RefLib->dtype )
+							aval[ i++ ] = RefLib->dbRecNo( )
+						end
+					else
+						aval[ i++ ] = RefLib->dbRecNo( )
+					end
+				else
+					break
+				end
+			else
+				if ( _key == upper( left( RefLib->subkey, keylen ) ) )
+					if ( IsDataType )
+						if ( dtype == RefLib->dtype )
+							aval[ i++ ] = RefLib->dbRecNo( )
+						end
+					else
+						aval[ i++ ] = RefLib->dbRecNo( )
+					end
+				else
+					break
+				end
+			end
+			RefLib->dbSkip( )
+		end
+		
+		return( aval )
+	END
+
+    METHOD reindex( )
+        return( RefLib->dbReindex( ) )
+    END
+
+    METHOD get( )
+        ::created = RefLib->created
+        ::data = RefLib->data
+        ::dataref = RefLib->dataref
+        ::dstatus = RefLib->dstatus
+        ::dtype = RefLib->dtype
+        ::key = RefLib->key
+        ::lastused = RefLib->lastused
+        ::objref = RefLib->objref
+        ::password = RefLib->password
+        ::subkey = RefLib->subkey
+        ::usagecnt = RefLib->usagecnt
+        return( 1 )
+    END
+
+    METHOD put( )
+        RefLib->created = ::created
+        RefLib->data = ::data
+        RefLib->dataref = ::dataref
+        RefLib->dstatus = ::dstatus
+        RefLib->dtype = ::dtype
+        RefLib->key = alltrim( ::key )
+        RefLib->lastused = ::lastused
+        RefLib->objref = ::objref
+        RefLib->password = ::password
+        RefLib->subkey = ::subkey
+        RefLib->usagecnt = ::usagecnt
+        return( 1 )
+    END
+
+END
+
+
+CLASS objUserid
+
+  // Access Variables:
+  //   dbFileName
+  //   dbIndexName
+
+  // Methods:
+  //   New( )
+  //   Close( )
+  //   Create( )
+  //   Get( )
+  //   IndexOrder( val )
+  //   Init( )
+  //   Open( )
+  //   Put( )
+  //   Reindex( )
+  //   rlock( )
+  //   Seek( item )
+  //   unlock( )
+
+  PUBLIC:
+    local IsOpen, LockTimeout, errmsg, aSelect, aSelectNextRec
+    local city, fname, id, lname, mi, state, street, zip
+
+    METHOD New( )
+        ::IsOpen = 0
+        ::Init( )
+		::errmsg = ""
+		::LockTimeout = 3
+        return( 1 )
+    END
+
+    METHOD Init( )
+        ::city = ""
+        ::fname = ""
+        ::id = ""
+        ::lname = ""
+        ::mi = ""
+        ::state = ""
+        ::street = ""
+        ::zip = ""
+        return( 1 )
+    END
+
+    ACCESS dbFileName
+        return( 'c:\sdweb\home\insmgmt\admin\insmgmt\data\userid.db' )
+    END
+
+    ACCESS dbIndexName
+    	// upper( field->LNAME + field->FNAME + field->MI )
+        return( 'c:\sdweb\home\insmgmt\admin\insmgmt\data\userid.dx' )
+    END
+
+    ACCESS dbIndexName2
+    	// upper( field->userid )
+        return( 'c:\sdweb\home\insmgmt\admin\insmgmt\data\userid.dx2' )
+    END
+
+	ACCESS KeyDataFile
+		return( 'c:\sdweb\home\insmgmt\admin\insmgmt\data\userid.dat' )
+	END
+
+    METHOD create( )
+        local db_struct = {
+            { "ID", "C", 20, 0 },
+            { "FNAME", "C", 20, 0 },
+            { "MI", "C", 1, 0 },
+            { "LNAME", "C", 30, 0 },
+            { "STREET", "C", 60, 0 },
+            { "CITY", "C", 30, 0 },
+            { "STATE", "C", 2, 0 },
+            { "ZIP", "C", 12, 0 }
+        }
+        return( dbcreate( ::dbFileName, db_struct ) )
+    END
+
+    METHOD open( )
+        if ( ! ::IsOpen )
+            ::IsOpen = dbuse( ::dbFileName, "UserId", 1 )
+            UserId->dbOpenIndex( ::dbIndexName2 )
+            UserId->dbOpenIndex( ::dbIndexName )
+        end
+        ::IsOpen++
+        return( 1 )
+    END
+
+    METHOD close( )
+        if ( ::IsOpen == 1 )
+            UserId->dbClose( )
+        end
+        ::IsOpen--
+        if ( ::IsOpen < 0 )
+        	// should never happen unless caller crashes before exiting
+        	::IsOpen = 0
+        end
+        return( 1 )
+    END
+
+	METHOD IndexOrder( val )
+		if ( val == 1 )
+			UserId->dbOrder( 1 )
+		elseif( val == 2 )
+			UserId->dbOrder( 2 )
+		end
+		UserId->dbGoTop( )
+		return( 1 )
+	END
+
+    METHOD seek( item )
+        UserId->dbSeek( upper( item ) )
+        return( UserId->dbFound( ) )
+    END
+
+    METHOD reindex( )
+        return( UserId->dbReindex( ) )
+    END
+
+	METHOD GetId( )
+		return( alltrim( UserId->id ) )
+	END
+
+	METHOD MakePrimaryKey( lname )
+		local hfile, curval
+		
+		if ( ! fileExists( ::KeyDataFile ) )
+			hfile = fileCreate( ::KeyDataFile )
+			if ( hfile < 1 )
+				return( "" )
+			end
+			fwrite( hfile, "1000", 4 )
+			fseek( hfile, 0, 0 )
+		else
+			hfile = fileOpen( ::KeyDataFile, 2 )
+		end
+		curval = 0 + fread( hfile, 10 )
+		fseek( hfile, 0, 0 )
+		fwrite( hfile, "" + ( curval + 1 ) )
+		
+		return( upper( left( lname + "0000000000", 10 ) ) + curval )
+	END
+
+	METHOD MakeSecondaryKey( fname, mi, lname )
+		return( alltrim( upper( untrim( lname, 30 ) + untrim( fname, 20 ) + untrim( mi, 1 ) ) ) )
+	END
+
+
+	METHOD MakeId( fname, lname, mi )
+		return( upper( untrim( lname, 30 ) + untrim( fname, 20 ) + untrim( mi, 1 ) ) )
+	END
+
+    METHOD get( )
+        ::city = UserId->city
+        ::fname = UserId->fname
+        ::id = UserId->id
+        ::lname = UserId->lname
+        ::mi = UserId->mi
+        ::state = UserId->state
+        ::street = UserId->street
+        ::zip = UserId->zip
+        return( 1 )
+    END
+
+    METHOD put( )
+        UserId->city = ::city
+        UserId->fname = ::fname
+        UserId->id = ::id
+        UserId->lname = ::lname
+        UserId->mi = ::mi
+        UserId->state = ::state
+        UserId->street = ::street
+        UserId->zip = ::zip
+        return( 1 )
+    END
+
+	METHOD rlock( )
+		local EndTime
+		if ( ! ::IsOpen )
+			::errmsg = "Database must be open to lock record"
+			return( 0 )
+		end
+		EndTime = seconds( ) + ::LockTimeout
+		while ( ! UserId->dbRLock( ) )
+			if ( ( seconds( ) > EndTime ) || ( ( seconds( ) + ::LockTimeout ) < EndTime ) )
+				::errmsg = "Unable to lock database record"
+				return( 0 )
+			end
+		end
+		return( 1 )
+	END
+
+	METHOD unlock( )
+		if ( ! ::IsOpen )
+			::errmsg = "Database must be open to unlock record"
+			return( 0 )
+		end
+		UserId->dbUnLock( )
+		return( 1 )
+	END
+
+	METHOD SelectBegin( key )
+		::aSelect = ::SelectRecords( key )
+		if ( type( ::aSelect ) != "A" )
+			return( 0 )
+		end
+		::aSelectNextRec = 1
+		return( 1 )	
+	END
+
+	METHOD SelectEnd( )
+		::aSelect = 0
+		::aSelectNextRec = 0
+		return( 1 )	
+	END
+
+	METHOD SelectCount( )
+		if ( type( ::aSelect ) != "A" )
+			return( 0 )
+		end
+		return( len( ::aSelect ) )
+	END
+
+	METHOD SelectNextRecord( )
+		if ( ! ::aSelectNextRec )
+			return( 0 )
+		end
+		if ( ::aSelectNextRec > len( ::aSelect ) )
+			return( 0 )
+		end
+		UserId->dbGoto( ::aSelect[::aSelectNextRec++] )
+		::get( )
+		return( 1 )
+	END
+
+
+	METHOD SelectRecords( key )
+		local aval, keylen, _key, i
+
+		::IndexOrder( 2 )
+		if ( ! ::seek( key ) )
+			return( "" )
+		end
+
+//		aval[1] = UserId->dbRecNo( )
+		keylen = len( key )
+		_key = upper( key )
+		i=1
+		while ( ! UserId->dbEOF( ) )
+			if ( UserId->dbIsDeleted( ) )
+				UserId->dbSkip( )
+				continue
+			end
+			if ( _key == left( ::MakeSecondaryKey( UserId->fname, UserId->mi, UserId->lname ), keylen ) )
+//println( "rec:" + userid->dbRecno( ) )
+				aval[ i++ ] = UserId->dbRecNo( )
+				UserId->dbSkip( )
+			else
+				break
+			end
+		end
+		
+		return( aval )
+	END
+
+END
+
+
+FUNCTION insGlobalPropertyCategories( )
+	local aval = {
+		{ 100, "Residential" },
+		{ 200, "Commercial" },
+		{ 300, "Industrial" },
+		{ 400, "Government" },
+		{ 500, "Land" }
+	}
+	return( aval )
+END
+
+FUNCTION insGlobalPropertyTypes( )
+	local aval {
+		{ 100, "Single Family Home" },
+		{ 110, "Townhouse" },
+		{ 120, "Apartment" },
+		{ 130, "Multi-family Dwelling" },
+		{ 140, "Condominium" },
+		{ 150, "Mobile Home on individual lot" },
+		{ 160, "Mobile Home within M.H. park" },
+		{ 199, "Other Residential Use" },
+		{ 200, "Office Building" },
+		{ 210, "Retail Center" },
+		{ 220, "Warehouse" },
+		{ 230, "Commercial Storage Yard" },
+		{ 240, "Private Golf Course" },
+		{ 250, "Private School" },
+		{ 260, "Mobile Home Park" },
+		{ 270, "Private Camp Ground" },
+		{ 260, "Church" },
+		{ 299, "Other Commerical Use" },
+    	{ 300, "Factory" },
+    	{ 310, "Industrial Storage" },
+    	{ 310, "Hazardous Materials Storage" },
+    	{ 399, "Other Industrial Use" },
+    	{ 400, "Office Building" },
+    	{ 410, "Research Center" },
+    	{ 420, "Testing Facility" },
+    	{ 430, "Manufacturing Facility" },
+    	{ 440, "Military Facility" },
+    	{ 450, "Public School" },
+    	{ 460, "Public Golf Course" },
+		{ 499, "Other Government Use" },
+		{ 500, "Unimproved Residential Lot" },
+		{ 510, "Unimproved Commercial Lot" },
+		{ 520, "Unimproved Industrial Lot" },
+		{ 530, "Unimproved Government Property" },
+		{ 540, "Residential Lot Under Construction" },
+		{ 550, "Commercial Lot Under Construction" },
+		{ 560, "Industrial Lot Under Construction" },
+		{ 570, "Public Park" },
+		{ 580, "Private Park" },
+		{ 590, "Raw Land" },
+		{ 599, "Other Land" }
+	}
+	return( aval )
+END
+
+
+
+

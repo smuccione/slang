@@ -1,0 +1,3 @@
+x = smartrun ( 'c:\windows\system32\cmd.exe',,'/c dir', 'c:\slang\test\test2' )
+println ( x );
+

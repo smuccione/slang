@@ -1,0 +1,12 @@
+<[
+
+session = new ( "session" )
+
+x 		= 0 + session.var ( "x" )
+y 		= 0 + session.var ( "y" )
+pitch 	= 0.0 + session.var ( "pitch" )
+
+session.mimeType = ".wmf"
+session.response ( createBarcode ( "123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890", x, y, pitch ) );
+
+]>

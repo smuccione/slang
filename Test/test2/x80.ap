@@ -1,0 +1,6 @@
+<[
+	goto skip
+	println ( "damn" )
+	label skip
+	println ( "works" )
+]>

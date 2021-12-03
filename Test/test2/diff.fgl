@@ -1,0 +1,149 @@
+function cmpFiles ( fName1, fName2 )
+	local h, d1, d2
+	
+	h = fopen ( fName1, 0x8000 );
+	d1 = fread ( h, flen ( h ) );
+	fclose ( h );
+	
+	h = fopen ( fName2, 0x8000 );
+	d2 = fread ( h, flen ( h ) );
+	fclose ( h );
+	
+	if ( d1 == d2 )
+		return ( 0 );
+	elseif ( d1 < d2 )
+		return ( -1 );
+	else
+		return ( 1 );
+	end
+end
+
+function parseableFile ( fName, cmpExe )
+	switch ( upper ( fparsefx ( fName ) ) )
+		case 'FGL'
+		case 'AP'
+		case 'JS'
+		case 'HTM'
+		case 'HTML'
+		case 'PDF'
+		case 'BMP'
+		case 'GIF'
+		case 'JPG'
+		case 'FRM'
+		case ''
+			return ( 1 )
+			break;
+		case 'FLB'
+		case 'APX'
+			if ( cmpExe )
+				return ( 1 )
+			end
+			break;
+	end
+	return ( 0 )
+end
+
+function cmpDirectory ( dir1, dir2, diff, new1, new2, cmpExe )
+	local d1, d2
+	local d1Ctr, d2Ctr
+	local lenD1, lenD2
+	
+	d1 = dir ( dir1 + '\*' )
+	d2 = dir ( dir2 + '\*'  )
+	
+	if ( d1 == NULL )
+		printf ( "error: %s not found\r\n", dir1 )
+		return ( 0 )
+	end
+	
+	if ( d2 == NULL )
+		printf ( "error: %s not found\r\n", dir2 )
+		return ( 0 )
+	end
+	
+	d1 = asort ( d1, 0, 1, 0 )
+	d2 = asort ( d2, 0, 1, 0 )
+	
+	lenD1 = len ( d1 )
+	lenD2 = len ( d2 )
+
+	d1Ctr = 1;
+	d2Ctr = 1;
+	while ( d1Ctr <= lenD1 )
+		if ( d2Ctr <= lenD2 )
+			// both old and new... we need to compare here
+			if ( d1[d1Ctr][1] == d2[d2Ctr][1] )
+				if ( d1[d1Ctr][5] & 16 )
+					if ( fparsefn (d1[d1Ctr][1] )[1] != '.' )
+						if ( !cmpDirectory ( dir1 + '\' + d1[d1Ctr][1], dir2 + '\' + d2[d2Ctr][1], diff, new1, new2, cmpExe ) )
+							return ( 0 )
+						end
+					end
+				else
+					if ( parseableFile ( d1[d1Ctr][1], cmpExe ) )
+						if ( cmpFiles ( dir1 + '\' + d1[d1Ctr][1], dir2 + '\' + d2[d2Ctr][1] ) )
+							if ( d1[d1Ctr][6] > d2[d2Ctr][6] )
+								diff += sprintf ( " %s\r\n", dir1 + '\' + d1[d1Ctr][1] )
+							else
+								diff += sprintf ( " %s\r\n", dir2 + '\' + d1[d1Ctr][1] )
+  							end
+						end
+					end
+				end
+				d2Ctr++;
+				d1Ctr++;	// need to just throw it away
+			elseif ( d1[d1Ctr][1] < d2[d2Ctr][1] )
+				if ( parseableFile ( d1[d1Ctr][1], cmpExe ) )
+					new1 += sprintf ( "  %s\r\n",  dir1 + '\' + d1[d1Ctr][1]  );
+				end
+				d1Ctr++
+			else
+				if ( parseableFile ( d2[d2Ctr][1], cmpExe ) )
+					new2 += sprintf ( "  %s\r\n",  dir2 + '\' + d2[d2Ctr][1]  );
+				end
+				d2Ctr++
+			end
+		else
+			if ( parseableFile ( d1[d1Ctr][1], cmpExe ) )
+				new1 += sprintf ( "  %s\r\n",  dir1 + '\' + d1[d1Ctr][1]  );
+			end
+			d1Ctr++
+		end
+	end
+
+	while ( d2Ctr <= lenD2 )
+		if ( parseableFile ( d2[d2Ctr][1], cmpExe ) )
+			new2 += sprintf ( "  %s\r\n",  dir2 + '\' + d2[d2Ctr][1]  );
+		end
+		d2Ctr++
+	end
+	
+	return ( 1 )
+end
+
+function main ( name, dir1, dir2, cmpExe )
+
+	local diff = ""
+	local new1 = ""
+	local new2 = ""
+
+	if ( pcount( ) < 3 )
+		println( "DIFF.EXE dir1 dir2 [/exe]\r\nSource Code Comparison Utility, v1.0\r\n(c) 2005 BRT Systems, Inc." )
+		return( 1 )
+	end
+
+	if ( cmpExe )
+		if ( lower ( cmpExe ) != '/exe' )
+			println( "DIFF.EXE dir1 dir2 [/exe]\r\nSource Code Comparison Utility, v1.0\r\n(c) 2005 BRT Systems, Inc." )
+		end
+		cmpExe = 1
+	else
+		cmpExe = 0
+	end
+
+	if ( cmpDirectory ( dir1, dir2, @diff, @new1, @new2, cmpExe ) )
+		printf ( "different files:\r\n%s\r\n", diff );
+		printf ( "files in %s not present in %s:\r\n%s\r\n", dir1, dir2, new1 );
+		printf ( "files in %s not present in %s:\r\n%s\r\n", dir2, dir1, new2 );
+	end
+end

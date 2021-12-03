@@ -1,0 +1,18 @@
+<[
+	library c:\slang\test\test2\jerry\webclient.flb
+	
+	
+	web = new ( "webClient" )
+	web.domain = 127.0.0.1
+	
+	web.url = "statusService.ap"
+	
+	xml = new ( "xmlDocument", web.page )
+	
+	!  xml.serverStartTime.value
+	! "<br>"
+	! "<pre>"
+	! strswap( strswap( web.page, "<", "&lt;" ), "\r\n", "<br>" )
+	! "</pre>"
+
+]>

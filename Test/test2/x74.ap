@@ -1,0 +1,25 @@
+<[
+local i, rex, s, x
+
+
+DebugBreak()
+
+rex = RegexCompile( 'b' )
+s = 'abcABC'
+
+println( 'rex matches at index ' +  RegexAt( rex, s ))
+
+x = RegexMatch( rex, s )
+println( "RegexMatch matched " + len(x) + " occurrences" ) 
+
+for( i = 0; i < len(x); i++ )
+	println( 'x[' + i + ']: "' + x[i] + '"' ) 
+end
+
+x = RegexMatchAll( rex, s )
+println( "RegexMatchAll matched " + len(x) + " occurrences" ) 
+
+for( i = 0; i < len(x); i++ )
+	println( 'x[' + i + ']: "' + x[i] + '"' )
+end
+]>

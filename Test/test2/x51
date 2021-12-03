@@ -1,0 +1,10 @@
+class test
+	local b
+end
+
+o = new ( "test" )
+o.b[1] = new ( "test" )
+o.b[1].b[1] = new ( "test" )
+
+x = pack ( o )
+y = unpack ( x )

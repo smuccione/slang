@@ -1,0 +1,36 @@
+<[
+	local db, e
+	local dbFileName = 'C:\ZudeData\Blob_test.db'
+	local dbIndexName = 'C:\ZudeData\Blob_test.dx'
+	local session = new ("session")
+	local RecNum = session.var("RecNum")
+
+		// open databse
+	try
+		db = dbuse( dbFileName, "test", 1 )
+	catch ( e )
+		dbcreate( dbFileName, { { "recordNum", "C", 16, 0 }, { "DATA", "B" } } )
+		db = dbuse( dbFileName, "test", 1 )
+	end
+
+		// open index
+	try
+		(db)->dbOpenIndex( dbIndexName )
+	catch ( e )
+		(db)->dbCreateIndex( dbIndexName, "field->recordNum", 0 )
+		(db)->dbOpenIndex( dbIndexName )
+	end
+
+		// find record
+	(db)->dbSeek( RecNum )
+	if ( !(db)->dbFound( ) )
+		session.response( "Unable to locate record (" + RecNum + ")" )
+		(db)->dbClose( )
+		return( 0 )
+	end
+
+	session.response( (db)->data )
+
+	// close database
+	(db)->dbClose( )
+]>

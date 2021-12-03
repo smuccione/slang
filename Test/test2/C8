@@ -1,0 +1,50 @@
+class base
+   private:
+      local x
+
+      method new()
+         if ( self.x == NIL )
+            self.x = 0
+         else
+            self.x++
+         end
+         self.x++
+         println ( "base class instance #", self.x )
+         
+         return 1
+      end
+end
+
+class a
+   inherit base
+
+   method aMethod()
+      println ( "class a" )
+   end
+end
+
+class b
+   inherit base
+
+   method bMethod()
+      println ( "class b" )
+   end
+end
+
+class combined
+   inherit a, b
+
+   method combined()
+      println ( "combined" )
+   end
+end
+
+
+local a
+
+a = new ( "combined" )
+
+a.aMethod()
+a.bMethod()
+a.combined()
+ 

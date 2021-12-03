@@ -1,0 +1,90 @@
+LIBRARY C:\APHI\xmlclient.FLB
+
+Function main ()
+	
+	local cnt, i, strTmp, x1, companyid, userid, resp
+
+	cnt = pcount() 
+
+	strTmp = ""
+	for( i = 2; i < cnt; i++ )
+		strTmp += param( i )
+	end
+	
+	strTmp = strswap(strTmp, "/r/n", ", " )
+	strTmp = strswap(strTmp, "~", "-" )
+	strTmp = strswap(strTmp, "=", "~" )
+	strTmp = strswap(strTmp, "&", "@amp;" )
+
+	println( "\r\nPosting data to the server..." )
+	x1 = new ( "XMLClient" )
+	x1.domain = getFromIni("DOMAIN")
+	x1.ssl = 0
+	x1.url = getFromIni("URL")
+	
+	companyid = getFromIni("PRODUCER")
+	userid = getFromIni("AGENT")
+
+	x1.submit ( "dataStr=" + strTmp + "&companyid=" + companyid + "&userid=" + userid )
+	
+	resp =  x1.page
+	
+	resp = strswap( resp, "\r", "" )
+	resp = strswap( resp, "\n", "" )
+	resp = strswap( resp, "\t", "" )
+	resp = alltrim( resp )
+
+	// reference a dll file
+	filename = 'C:\WINDOWS\system32\user32.dll'
+
+	// register the functions
+	tmp = funcRegister( filename, "MessageBoxA", "alertBox", "CCL" )	
+	
+	if( strempty( resp ) )
+		// access the function
+		//rval = alertBox( "Quote submission failed!\n" + left(resp, 200), "APHI Bridge", Null)
+		rval = alertBox( "Quote submission failed!", "APHI Bridge", Null)
+		
+		return(0)
+	end
+	
+	resp = 'http://' + x1.domain + '/APHI/index.htm?packageid=' + resp
+	
+	smartRun( 'C:\Program Files\Internet Explorer\IExplore.exe', resp )
+	
+	// access the function
+	rval = alertBox( "Quote was successfully submitted!", "APHI Bridge", Null)
+End
+
+
+function getFromIni( name )
+
+	fname = 'c:\APHI\bridge.ini'
+	hfile = fopen( fname, 0 )
+	
+	if ( hfile < 1 )
+		println( "error accessing file (" + fname + ")" )
+		return( 0 )
+	end
+	
+	while ( ! feof( hfile ) )
+		line = freadline( hfile )
+		
+		if ( strempty( line ) )
+			continue
+		end
+		
+		line = alltrim( line )
+		
+		if( upper(line) == "[" + upper(name) + "]" )
+			line = freadline( hfile )
+			line = alltrim( line )
+			fclose( hfile )
+			
+			return( line )
+		end
+	end
+	fclose( hfile )
+	
+	return(0)
+end

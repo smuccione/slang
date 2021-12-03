@@ -1,0 +1,25 @@
+global a
+
+function x()
+  a = "hello";
+end
+
+function y()
+  local a
+  
+  a = " there";
+end
+
+a = "donna"
+
+println ( a )
+
+y()
+
+println ( a )
+
+x()
+
+println ( a )
+
+ 

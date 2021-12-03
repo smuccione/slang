@@ -1,0 +1,9 @@
+<[
+    s = "  my sample   "
+    ! "'" + s + "'<br>"
+    ! "'" + s.alltrim( ) + "'<br>"
+    (5).println()
+    (5.1).println()
+    (127.0.0.1).println()
+]>
+ 

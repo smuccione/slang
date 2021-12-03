@@ -1,0 +1,3 @@
+function testLib()
+	local x
+end

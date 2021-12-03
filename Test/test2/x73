@@ -1,0 +1,39 @@
+class test
+	local SecId;
+end
+
+println ( "---------------------" )
+
+a = test()
+a.SecId = "CLSUB"
+
+flag = a.SecId == "CLSUB"  ? 1 : 0 
+println ( flag );
+
+flag = ( a.SecId == "CLSUB" || a.SecId == "CLVEH" ) ? 1 : 0;
+println ( flag );
+
+flag = (( a.SecId == "CLSUB" || a.SecId == "CLVEH" ) ? 1 : 0);
+println ( flag );
+
+a.SecId = "CLVEH"
+
+flag = a.SecId == "CLSUB"  ? 1 : 0 
+println ( flag );
+
+flag = ( a.SecId == "CLSUB" || a.SecId == "CLVEH" ) ? 1 : 0;
+println ( flag );
+
+flag = (( a.SecId == "CLSUB" || a.SecId == "CLVEH" ) ? 1 : 0);
+println ( flag );
+
+a.SecId = "test"
+
+flag = a.SecId== "CLSUB"  ? 1 : 0 
+println ( flag );
+
+flag = ( a.SecId == "CLSUB" || a.SecId == "CLVEH" ) ? 1 : 0;
+println ( flag );
+
+flag = (( a.SecId == "CLSUB" || a.SecId == "CLVEH" ) ? 1 : 0);
+println ( flag );

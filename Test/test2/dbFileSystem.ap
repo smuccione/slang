@@ -1,0 +1,232 @@
+<[
+
+class dbFileSystem
+	private:
+		local	activeDb
+		local	lastDb
+		
+		method new()
+			::activeDb = array(0,16)
+			
+			return ( 1 )
+		end
+		
+		method openDatabase ( num )
+			local 	db;
+			local	fields;
+			local	fName;
+			
+			fName = 'c:\fgl\database\fileSystem\db' + num 
+
+			try
+				db = dbOpen ( fName + ".db" )
+			catch ( err )
+				fields	= { {"USER", 			"C", 32, 	0	},
+							{"FILENAME",   		"C", 128		},			// how big a filename?  260 is max dos but smaller is more efficient - change findRecord if modified!
+							{"DATA",     		"B", 			},
+							{"DATALEN", 		"4", 			},
+							{"CREATIONDATE",   	"4", 			},
+							{"CREATIONTIME",   	"4", 			},
+							{"MODIFIEDDATE",  	"4"				},
+							{"MODIFIEDTIME",  	"4"				},
+							{"READONLY",   		"L"				},
+							{"CRC",    			"~",      		}
+						  }
+
+				dbCreate ( fName, fields )
+				db = dbOpen ( fName + ".db" )
+			end
+			
+			try
+				dbOpenIndex ( fName + "x1.dx" )
+			catch ( err )
+				dbCreateIndex ( fName + "x1.dx", "field->user + '|' + field->fileName", 0 )
+			end
+			
+			return ( db )
+		end
+		
+		method getDB ( user, key )
+			local	hash
+			
+			hash = simpleHash ( user ) % 16;
+			
+			if ( ::activeDb[hash] )
+				return ( ::activeDb[hash] )
+			else
+				if ( !(::activeDb[hash] = ::openDatabase ( hash )) )
+					except ( "can't open database" )
+				end
+				return ( ::activeDb[hash] )
+			end
+		end
+		
+		method findRecord ( user, key )
+			local iExpr
+			
+			iExpr = untrim ( user, 32 ) + '|' + untrim ( key, 128 )
+			
+			if ( ::lastDb )
+				if ( ((db)->user == user) && (last(db)->fileName == key) )
+					return ( db )
+				end
+			else
+				db = ::getDB ( user, key )
+			end
+						
+			if ( !(db)->dbSeek ( iExpr ) )
+				return ( (db)->dbFound() )
+			end
+			
+			return ( db )
+		end
+		
+		method findDB ( user, key )
+			if ( lastDb )
+				if ( ((db)->user == user) && (last(db)->fileName == key) )
+					return ( db )
+				end
+			else
+				db = ::getDB ( user, key )
+			end
+						
+			return ( db )
+		end
+		
+	public:
+		method read ( user, key )
+			local db
+			
+			if ( db = ::findRecord ( user, key ) )
+				return ( (db)->data )
+			else
+				return ( NULL )
+			end
+		end
+		
+		method write ( user, key, data )
+			if ( !(db = ::findDB ( user, key )) )
+				return ( 0 )
+			end
+			
+			if ( ::findRecord ( user, key ) )
+				if ( (db)->readOnly )
+					except ( "access violation" )
+				end
+				(db)->dbRLock()
+				(db)->data 			= data
+				(db)->dataLen		= len ( data );
+				(db)->modifiedDate	= jDate()
+				(db)->modifiedTime	= seconds()
+				(db)->dbUnlock()
+			else
+				(db)->dbAppend()
+				(db)->user			= user
+				(db)->fileName		= key
+				(db)->dataLen		= len ( data );
+				(db)->data 			= data
+				(db)->modifiedDate	= jDate()
+				(db)->modifiedTime	= seconds()
+				(db)->creationDate	= (db)->modifiedDate
+				(db)->creationTime	= (db)->modifiedTime
+				(db)->readOnly		= 0
+				(db)->dbUnlock()
+			end
+		end
+		
+		method isFile ( user, key )
+			if ( db = ::findRecord ( user, key ) )
+				return ( 1 )
+			else
+				return ( 0 )
+			end
+		end
+		
+		method creationDate ( user, key )
+			if ( db = ::findRecord ( user, key ) )
+				return ( (db)->creationDate )
+			else
+				except ( "file not found" )
+			end
+		end
+		
+		method lastModifiedDate ( user, key )
+			if ( db = ::findRecord ( user, key ) )
+				return ( (db)->lastModified )
+			else
+				except ( "file not found" )
+			end
+		end
+		
+		method fileSize ( user, key )
+			if ( db = ::findRecord ( user, key ) )
+				return ( (db)->dataLen )
+			else
+				except ( "file not found" )
+			end
+		end
+		
+		method isReadOnly ( user, key )
+			if ( db = findRecord ( user, key ) )
+				return ( (db)->readOnly )
+			else
+				except ( "file not found" )
+			end
+		end
+		
+		method setReadOnly ( user, key, state )
+			if ( db = ::findRecord ( user, key ) )
+				(db)->readOnly = state
+				dbRecordUnlock()
+			else
+				except ( "file not found" )
+			end
+		end
+		
+		method dir ( user )
+			user = untrim ( user, 32 )
+			
+			if ( ::lastDb )
+				if ( ((db)->user == user) )
+					db == lastDb;
+				else
+				db = ::getDB ( user, "" )
+				end
+			else
+				db = ::getDB ( user, "" )
+			end
+						
+			(db)->dbSeek ( user)
+			
+			list = {}
+			while ( user == (db)->user )
+				list[len(list) + 1][1] = (db)->filename
+				list[len(list)    ][2] = (db)->dataLen
+				list[len(list)    ][3] = jdatef((db)->creationDate)
+				list[len(list)    ][4] = secondsToStr ( (db)->creationTime,0 )
+				list[len(list)    ][5] = (db)->readOnly
+				
+				(db)->dbSkip()
+			end
+			
+			return ( list )
+		end
+end
+
+debugBreak()
+
+x = dbFileSystem()
+
+x.write ( 'aislinn', 'c:\test\d', "system" )
+x.write ( 'steve', 'c:\test\b', "of the american" )
+x.write ( 'steve', 'c:\test\a', "this is a test" )
+x.write ( 'donna', 'c:\test\c', "broadcasting" )
+
+data = x.read ( 'steve', 'c:\test\a' )
+data = x.read ( 'steve', 'c:\test\b' )
+data = x.read ( 'donna', 'c:\test\c' )
+data = x.read ( 'aislinn', 'c:\test\d' )
+
+a = x.dir ( 'steve' )
+
+]>

@@ -1,0 +1,296 @@
+<[ 
+
+class calculation
+	local 	manifest
+	local 	name
+	local	type
+	local	eq
+	
+	method new ( manifest, dom )
+		::name = dom.tagName
+		::manifest = manifest
+		::parseDefinition ( dom )
+		return 1
+	end
+	
+	method parseCalculation ( dom )
+		local elem
+		local obj;
+		local newObj
+		local child;
+		
+		::name = dom.id
+		::type	= dom.type
+		
+		child = dom.firstChild;
+		
+		while ( child )
+			switch ( upper ( child.tagName ) )
+				case "ARGUMENT"
+					switch ( value )
+					::eq = dom.caption.GetAttribute ( "value" )
+					break;
+				default:
+					break;
+			end
+			child = child.nextSibling;
+		end		
+	end
+end
+
+class value
+	local 	manifest
+	local 	name
+	local	type
+	local	value
+	
+	method new ( manifest, dom )
+		::name = dom.tagName
+		::manifest = manifest
+		::parseDefinition ( dom )
+		return 1
+	end
+	
+	method parseValue ( dom )
+		local elem
+		local obj;
+		local newObj
+		local child;
+		
+		::name = dom.id
+		::type	= dom.type
+		
+		child = dom.firstChild;
+		
+		while ( child )
+			switch ( upper ( child.tagName ) )
+				case "CALCULATION"
+					::caption = dom.caption.GetAttribute ( "value" )
+					break;
+				default:
+					break;
+			end
+			child = child.nextSibling;
+		end
+	end
+end
+
+class rule
+	local 	manifest
+	local 	name
+	local	type
+	local	default
+	local	calc
+	
+	method new ( manifest, dom )
+		::name = dom.tagName
+		::manifest = manifest
+		::parseRule ( dom )
+		return 1
+	end
+	
+	method parseRule ( dom )
+		local elem
+		local obj;
+		local newObj
+		local child;
+		
+		::name = dom.id
+		::type	= dom.type
+		
+		child = dom.firstChild;
+		
+		while ( child )
+			switch ( upper ( child.tagName ) )
+				case "VALUE"
+					::calc = value ( ::manifest, dom )
+					break;
+				case "DEFAULT"
+					::default = dom.default.value
+					break;
+				default:
+					break;
+			end
+			child = child.nextSibling;
+		end
+	end
+end
+
+class pub
+	local 	manifest
+	local 	name
+	local	type
+	local	definition
+	local	rule
+	
+	method new ( manifest, dom )
+		::name = dom.tagName
+		::manifest = manifest
+		::parsePub ( dom )
+		return 1
+	end
+	
+	method parsePub ( dom )
+		local elem
+		local obj;
+		local newObj
+		local child;
+		
+		::name = dom.id
+		::type	= dom.type
+		
+		child = dom.firstChild;
+		
+		while ( child )
+			switch ( upper ( child.tagName ) )
+				case "RULES":
+					::rule = rule ( ::manifest, child )
+				case "DEFINITION"
+					::definition = definition ( ::manifest, child )
+					break;
+				default:
+					printf ( "unknown in pub/priv: %s\r\n", child.tagName )
+					break;
+			end
+			child = child.nextSibling;
+		end
+	end
+end
+
+class priv
+	inherit pub
+end
+
+class obj
+	local 	manifest
+	local	name;
+	local 	elem;
+	
+	method new ( manifest, dom )
+		::name = dom.tagName
+		::elem = aArray()
+		::manifest = manifest
+		(::manifest.obj)[::name] = self
+		::parseObj ( dom )
+		return 1
+	end
+	
+	method parseObj ( dom )
+		local name
+		local elem
+		local obj;
+		local newObj
+		local child;
+		
+		name = dom.tagName
+		
+		child = dom.firstChild;
+		
+		while ( child )
+			switch ( upper ( child.tagName ) )
+				case "MINOCCURS"
+				case "MAXOCCURS"
+					break;
+				case "PUBLIC"
+					obj = pub ( ::manifest, child )
+					::elem[obj.name] = obj;
+					break;
+				case "PRIVATE"
+					obj = priv ( ::manifest, child )
+					::elem[obj.name] = obj;
+					break;
+				case "OBJECT":				
+					obj = obj ( ::manifest, child )
+					::elem[obj.name] =  obj
+					break;
+				default:
+					printf ( "unknown in object: %s\r\n", child.tagName )
+					break;
+			end
+			child = child.nextSibling;
+		end
+		
+		return name
+	end
+		
+	method newPublic ( name )
+		elem = new ( "elem" )
+		elem.type = 2;
+		elem.name = name;
+		elem[name] = elem;
+	end
+	
+	method newPrivate ( name )
+		elem = new ( "elem" )
+		elem.type = 3;
+		elem.name = name;
+		elem[name] = elem;
+	end
+end
+
+class Manifest
+	local obj					// array of objects
+	
+	method new ( dom )
+		::obj = aArray()
+		
+		elem = dom.model
+		
+		obj = obj ( self, elem )
+		return 1
+	end
+end
+
+function dump ( obj, indent )
+	local val
+   	local loop
+
+	while ( obj )
+		loop = indent;
+		while ( loop-- )
+			! "&nbsp"
+		end
+		! obj.nodeName
+
+		try
+			if ( obj.name )
+			! "&nbsp-&nbsp" +  obj.name
+			end
+		catch ( e )
+		end
+
+		if ( obj.nodeName == "#text" )
+			val = strswap ( obj.data, "\r", "\\r" )
+			val = strswap ( val, "\n", "\\n" )
+			! " - " + val
+		end
+
+		! "<br>"
+
+		try 
+			dump ( obj.firstChild, indent + 3 )
+		catch ( error )
+		end
+		
+		try 
+			obj = obj.nextSibling
+		catch ( error )
+			return
+		end
+	end
+
+end
+
+x = FileReadAscii ( 'PAUTO_ManuScript.xml' );
+//x = FileReadAscii ( 'x1.xml' );
+
+o = new ( "XMLDOCUMENT", x, 1 )
+
+DebugBreak()
+//x = Manifest ( o )
+s = objToArray ( 0 )
+println ( s )
+
+dump ( o, 0 )
+
+]>

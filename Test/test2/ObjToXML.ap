@@ -1,0 +1,16 @@
+<[
+	LIBRARY c:\sdweb\home\insmgmt\insmgmt.flb
+	LIBRARY c:\sdweb\home\insmgmt\policy.flb
+	
+	policy = new( "MasterPolicy" )
+	policy.GetRecord( "BAKERFRANCIS763801.OATXAU00.P1093922" )
+	
+//	DebugBreak();
+	
+	x = objtoxml( policy )
+	
+	o = xmlToObj ( x )
+	
+	printf ( "%s\r\n", x );
+	
+]>

@@ -1,0 +1,10 @@
+local i
+local k
+
+local s
+
+s = "this is a test"
+
+for ( i = 0, k = 0, k < strlen ( s ); k++ )
+  println ( k )
+end

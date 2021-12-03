@@ -1,0 +1,23 @@
+<[
+
+function a( x )
+	x = "this"
+end
+
+pdfLoc = 'C:\slang\test\test2\testpdf.pdf2'
+
+      
+
+Drake = new ( "com", "DrakeCom.Drake" )
+
+debugbreak()
+
+x=""
+
+a ( x )
+a ( @x )
+
+drake.Convert(pdfLoc, 'c:\slang\test\test2\out.doc', @x )
+temp = Drake.getNumPages( pdfLoc )
+
+]>

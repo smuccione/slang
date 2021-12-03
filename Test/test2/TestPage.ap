@@ -1,0 +1,6 @@
+<[
+    netRegister( 'c:\slang\test\class1.fgl', "Class1.FGL.Test.TestFunc", "TestFunc" )
+    
+    // now use the registered functions
+    ! Test ( "MSID", "FldName")
+]>

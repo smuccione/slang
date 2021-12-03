@@ -1,0 +1,40 @@
+function main()
+   local iHandle
+   local oHandle
+
+   local count
+   local loop
+   local iBuff
+
+   if ( pCount() < 2 )
+      println ( "usage: merge inFile1 inFile2 ... outFile" );
+      return ( 1 )
+   end
+
+   if ( !(oHandle = fcreate ( param(pCount() ) )) )
+      println ( "error: can't create output file \"", param(pCount()), "\"" )
+      return ( 2 )
+   end
+
+   count = 0;
+
+   for ( loop = 1; loop < pCount(); loop++ )
+      if ( !(iHandle = fopen ( param ( loop ) )) )
+         println ( "error: can't create output file \"", param(loop), "\"" )
+      end
+
+      while ( !feof ( iHandle ) )
+         iBuff = fread ( iHandle, 8192 )
+
+         count += len ( iBuff )
+
+         fwrite ( oHandle, iBuff )
+      end
+
+      fclose ( iHandle )
+   end
+   
+   fclose ( oHandle )
+end
+
+ 

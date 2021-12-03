@@ -1,0 +1,8 @@
+println ( amini ( {} ) )
+println ( amini ( {1,2} ) )
+
+println ( amaxi ( {} ) )
+println ( amaxi ( {1,2} ) )
+
+
+ 

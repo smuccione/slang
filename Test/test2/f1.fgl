@@ -1,0 +1,3 @@
+a = "this is a test"
+println ( a, " : ", strcapfirst ( a ) )
+

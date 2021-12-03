@@ -1,0 +1,32 @@
+   ferase ( 'c:\slang\test\test2\dmtf\*.*' )
+
+   compStruct   = { {"DATA",   "B"   } }
+
+   try 
+	dbcreate ( 'c:\slang\test\test2\dmtf\test.db', compStruct    )
+   catch ( error )
+	println();
+	println ( "-----------------------------------------------" )
+	println ( "--------  databases already exist -------------" )
+	println ( "-----------------------------------------------" )
+	return ( 0 )
+   end
+
+   dbUse ( 'c:\slang\test\test2\dmtf\test.db' )
+   
+   str = "";
+   for ( loop = 0; loop < 100; loop++ )   
+	str += "0123456789"
+	
+  	dbAppend()
+  	field->data = str;
+   end
+   
+   dbGoTop()
+   
+   while ( !dbEof() )
+      printf ( "%i  %20.20s\r\n", len ( field->data ), field->data )
+      dbSkip()
+   end
+   
+   dbClose ()

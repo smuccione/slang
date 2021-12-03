@@ -1,0 +1,10 @@
+class test
+	const  c1 = 5
+	const  c2 = "string"
+	const  c3 = { 5, "string" }
+	const  c4 = {||println ( "hello world" ) }
+end
+
+//x= test::c1
+//x = test::c2
+//x = test::c3

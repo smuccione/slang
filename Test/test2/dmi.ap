@@ -1,0 +1,276 @@
+<[
+
+//  sample program to parse Desktop Managment Information Files (.MIF)
+//
+//  This program shows off some of the flexability and power of the scripting
+//    language.
+
+
+function getDiscription ( inf )
+   local descr, pos, inp, x
+
+   descr = ""
+
+   while ( !feof ( inf ) )
+      pos = ftell ( inf )
+      inp = alltrim ( freadline ( inf ) )
+
+      if ( inp[1] == '"' )
+         descr += " " + alltrim ( trimpunct ( inp ) )
+      else
+         fseek ( inf, pos, 0 )
+         return descr
+      end
+   end
+   return descr
+end
+
+function parseComponent ( inf )
+   local inp, tok, dat
+
+   while ( !feof ( inf ) )
+      inp = freadline ( inf )
+
+      tok = alltrim ( upper   ( token ( inp, "=", 1 ) ) )
+      dat = alltrim ( trimpunct ( token   ( inp, "=", 2 ) ) )
+
+      switch ( tok )
+         case "START COMPONENT"
+			component->dbappend()
+            break
+         case "END COMPONENT"
+            break;
+         case "START GROUP"
+            parseGroup ( inf )
+            break
+         case "NAME"
+            component->name = dat
+            break
+         case "FUNCTION LIST"
+            break
+         case "DESCRIPTION"
+            component->desc = dat + getDiscription ( inf )
+            break
+      end
+   end
+end
+
+function parseGroup ( inf )
+   local inp, tok, dat
+
+   group->dbappend()
+
+   group->parent = component->dbrecno()
+
+   while ( !feof ( inf ) )
+      inp = freadline ( inf )
+
+      tok = alltrim ( upper   ( token ( inp, "=", 1 ) ) )
+      dat = alltrim ( trimpunct ( token   ( inp, "=", 2 ) ) )
+
+      switch ( tok )
+         case "START GROUP"
+            break
+         case "END GROUP"
+            return 1
+         case "START ATTRIBUTE"
+            parseAttrib ( inf )
+            break
+         case "NAME"
+            group->name = dat
+            break
+         case "ID"
+            group->id = dat
+            break
+         case "CLASS"
+            group->class = dat
+            break
+         case "DESCRIPTION"
+            group->desc = dat + getDiscription ( inf )
+            break
+      end
+   end
+end
+
+function parseAttrib ( inf )
+   local inp, tok, dat, untok
+
+   attrib->dbappend()
+
+   attrib->parent = group->dbrecno()
+
+   while ( !feof ( inf ) )
+      inp = freadline ( inf )
+
+      tok = alltrim ( upper   ( token ( inp, "=", 1 ) ) )
+      dat = alltrim ( trimpunct ( untok = token   ( inp, "=", 2 ) ) )
+
+      switch ( tok )
+         case "START ATTRIBUTE"
+            break
+         case "END ATTRIBUTE"
+            return 1
+         case "NAME"
+            attrib->name = dat
+            break
+         case "ID"
+            attrib->id = dat
+            break
+         case "ACCESS"
+            switch ( upper ( dat ) )
+               case "READONLY"
+                  attrib->access = 0
+                  break
+               case "READWRITE"
+                  attrib->access = 1
+                  break
+            end
+            break
+         case "TYPE"
+            attrib->type = dat
+            break
+         case "VALUE"
+            if ( alltrim( untok )[1] == '*' )
+               attrib->value = "CALLED THROUGH INTERFACE"
+            else
+               attrib->value = dat
+            end
+            break
+         case "DESCRIPTION"
+            attrib->desc = dat + getDiscription ( inf )
+            break
+      end
+   end
+end
+
+function Parse()
+   local compStruct
+   local groupStruct
+   local attribStruct
+   local inf
+
+ //  print ( "Parsing..." )
+ 
+//debugbreak()
+
+   if ( isfile ( "dmtf\\DMIcomp.db", 0 ) )
+      ferase ( "dmtf\\*.*" )
+   end
+
+   compStruct   = { {"NAME",   "C", 64   },
+                    {"DESC",   "B"       },
+                    {"CRC",    "~"       }  }
+
+   groupStruct  = { {"PARENT", "N", 4, 0 },
+                    {"NAME",   "C", 64   },
+                    {"ID",     "N", 3, 0 },
+                    {"CLASS",  "N", 1, 0 },
+                    {"DESC",   "B"       },
+                    {"CRC",    "~",      }  }
+
+   attribStruct = { {"PARENT", "N", 4, 0 },
+                    {"NAME",   "C", 64   },
+                    {"ID",     "N", 3, 0 },
+                    {"ACCESS", "N", 1, 0 },
+                    {"TYPE",   "C", 64   },
+                    {"VALUE",  "B"       },
+                    {"DESC",   "B"       },
+                    {"CRC",    "~",      }  }
+
+   if ( !dbcreate ( "dmtf\\DMIcomp", compStruct ) || !dbcreate ( "dmtf\\DMIgrp",  groupStruct ) || !dbcreate ( "dmtf\\DMIattr", attribStruct )  )
+
+      println ( "ERROR: unable to create data files" )
+      return 0
+   end
+
+   if ( (inf = fopen ( "test.mif", 0 )) == -1 )
+      println ( "ERROR: unable to open mif file" )
+      return 0
+   end
+
+   dbuse ( "dmtf\\DMIcomp", "component" , 1 )
+   dbuse ( "dmtf\\DMIgrp",  "group"     , 1 )
+   dbuse ( "dmtf\\DMIattr", "attrib"    , 1 )
+   
+   parseComponent ( inf )
+
+   print ( "Indexing..." )
+
+   group ->dbCreateIndex ( "dmtf\\DMIgrp.ftx",  "PARENT", 0 )
+   attrib->dbCreateIndex ( "dmtf\\DMIattr.ftx", "PARENT", 0 )
+
+   component->dbclose()
+   group    ->dbclose()
+   attrib   ->dbclose()
+
+   println ( "done." )
+end
+
+function Walk()
+   println ( "Checking database integrity" );
+
+//   if ( !dbcheck ( "dmtf\\DMIcomp" ) )
+//      println ( "Databases have been corrupted1" )
+//      exit()
+//   end
+
+//   if ( !dbcheck ( "dmtf\\DMIgrp"  ) )
+//      println ( "Databases have been corrupted2" )
+//      exit()
+//   end
+
+//   if ( !dbcheck ( "dmtf\\DMIattr" ) )
+//      println ( "Databases have been corrupted3" )
+//      exit()
+//   end
+
+   dbuse       ( "dmtf\\DMIcomp", "component", 1 )
+
+   dbuse       ( "dmtf\\DMIgrp",  "group",     1 )
+   dbOpenIndex ( "dmtf\\DMIgrp.ftx"              )
+
+   dbuse       ( "dmtf\\DMIattr", "attrib",    1 )
+   dbOpenIndex ( "dmtf\\DMIattr.ftx"             )
+
+   component->dbrelate ( "dbrecno()", "group"  )
+   group->dbrelate     ( "dbrecno()", "attrib" )
+
+//debugBreak()
+   component->dbgotop()
+
+   while ( !(component->dbeof()) )
+      println ( "NAME: ", component->name )
+      if ( component->desc )
+         println ( "DESC: ", component->desc )
+      end
+
+      while ( !(group->dbeof()) && (component->dbrecno() == group->parent) )
+         println ( "GROUP:  ", group->name )
+
+         if ( group->desc )
+            println ( "  DESC: ", group->desc )
+         end
+
+         while ( group->dbrecno() == attrib->parent )
+            println    ( "    ATTRIB: ", alltrim ( attrib->name ), "   VALUE = ", attrib->value )
+
+            if ( attrib->desc )
+               println ( "      DESC:   ", attrib->desc )
+            end
+            attrib->dbskip()
+         end
+         group->dbskip()
+      end
+      component->dbskip()
+   end
+
+   component->dbclose()
+   group->dbclose()
+   attrib->dbclose()
+end
+
+parse()
+println ( "Walking..." )
+walk()
+
+]>

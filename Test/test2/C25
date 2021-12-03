@@ -1,0 +1,41 @@
+class txt
+   local var
+
+   method new ( var )
+      self.var = var
+      return ( 1 )
+   end
+end
+
+class a
+  local var
+end
+
+class b
+  local var2
+
+  method new()
+     self.var2[1] = new ( "a" )
+     return 1
+  end
+end
+
+local o1, o2
+
+o1 = new ( "b" )
+o2 = new ( "b" )
+
+o1.var2[1].var = new ( "txt", "hello" )
+o2.var2[1].var = new ( "txt", "there" )
+
+println ( o1.var2[1].var.var, " ", o2.var2[1].var.var )
+
+if ( o1.var2[1].var == o2.var2[1].var )
+  println ( "equal" )
+else
+  println ( "not equal" )
+end
+
+println ( o1.var2[1].var.var, " ", o2.var2[1].var.var )
+
+ 

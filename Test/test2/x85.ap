@@ -1,0 +1,45 @@
+<[
+
+class a
+    method new( a, b, c )
+    	printf ( "a with %i %i %i\r\n", a, b, c );
+    end
+
+    method foo()
+       println("foo")
+    end
+end
+
+class b
+    method new( x )
+    	printf ( "b with %i\r\n", x );
+    end
+
+end
+
+class c
+	method new()
+		println ( "in c" )
+	end
+end
+
+class d
+    inherit a
+    inherit b
+    inherit c
+
+    method new ( a, b, c ) : a ( a, b, c ), b ( c )
+    	println ( "in d" );
+    end
+end
+
+local o
+local x
+
+
+o = new ( "d", 1, 2, 3 )
+
+x = {| a, b, c| a + b +c + d}
+println ( (x)(1,2,3) )
+
+]>

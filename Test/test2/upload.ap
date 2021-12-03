@@ -1,0 +1,44 @@
+<[
+	session = new ( "session" )
+
+	if ( session.numParts() > 1 )
+	
+	DebugBreak()
+		println ( session.numParts() )
+
+		myVar = session.var ( "MyVar", 1 )
+		println ( "myVar = ", myVar )
+
+		cmd = upper ( session.var ( "name", 2 ) )
+
+		if ( cmd == "UPLOADFILE" )
+
+			for ( loop = 1; loop <= session.numParts(); loop++ )
+					println ( "------- ", loop, "  ", session.var("filename", loop) )
+					println ( session.postdata(loop) )
+			end
+			<%
+			<script language=JavaScript>
+
+			document.location = "/upload.ap"
+
+			</script>	
+			%>
+			return ( 1 )
+		end
+	end
+
+]>
+<html>
+	<head>
+		<body>
+			<center>
+				<form method=post name=upform action="/upload.ap?MyVar=hello%20World" enctype="multipart/form-data">
+					<input type=file name=uploadfile>
+					<p>
+					<input type=button name="Submit" value="Submit" onclick="form.submit()">
+				</form>
+			</center>
+		</body>
+	</head>
+</html>

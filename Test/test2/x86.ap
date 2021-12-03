@@ -1,0 +1,55 @@
+<[
+
+class foo
+	public:
+		local a, cb
+
+		method new( x, y )
+		   ::a = x
+		   ::cb = y
+			println("\ninit() called in class a!!!!!!!!!!!")
+		   return( 1 )
+		end
+
+		method setCB( cb )
+			::cb = cb	
+		end
+
+		method doit()
+			msg = "YOU THERE?"
+			x = (::cb)(msg)
+			return x
+		end
+end
+
+class zTest	
+	public:
+		inherit foo
+		
+		local v1
+		local x
+
+		method new( ): foo( "this is a test", {||::callme(m)} )
+			v1 = v
+			println("\nConstructor for class zTest !!!!!!!!!!!")
+			return (1)
+		end
+
+		method doit( )
+		   y = ::foo.doit()
+			return (y)
+		end
+
+		method callme( m )
+			println("\nHEY! You Called Me "+ ::v1+ ":" + m + "!!!!!!!!!!!")
+			return("\nHEY! You Called Me "+ ::v1+ ":" +  m + "!!!!!!!!!!!")
+		end
+
+end
+
+debugBreak()
+
+o = new ( "zTest", "passed new parameter" )
+o.doit()
+
+]>

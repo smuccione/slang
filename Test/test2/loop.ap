@@ -1,0 +1,10 @@
+<[
+    session = new ( "session" )
+
+    debugBreak()
+
+    ! "start"
+    for ( loop = 0; ; loop++ )
+    end
+    ! "start"
+]>

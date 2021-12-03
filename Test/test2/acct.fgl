@@ -1,0 +1,2084 @@
+// ACCT.FGL - Accounting Library
+// (c) 2002 by Business Risk Technologies, Inc., All Rights Reserved
+
+CLASS objAccounts
+  PUBLIC:
+    local IsOpen, errmsg, LockTimeout
+    local fontFace, fontSize, fontColor
+    local acctdigits, acctnum, accttype, checksum, company, curbal, lastused, m10
+    local m11, m12, m13, m1, m2, m3, m4, m5
+    local m6, m7, m8, m9, product, status, title, usagecnt
+    local accounts, db
+
+    METHOD New( )
+        ::IsOpen = 0
+		::errmsg = ""
+		::LockTimeout = 3
+        ::Init( )
+        return( 1 )
+    END
+
+    METHOD Init( )
+        ::acctdigits = 0
+        ::acctnum = ""
+        ::accttype = 0
+        ::company = ""
+        ::curbal = 0
+        ::lastused = ""
+        ::m10 = 0
+        ::m11 = 0
+        ::m12 = 0
+        ::m13 = 0
+        ::m1 = 0
+        ::m2 = 0
+        ::m3 = 0
+        ::m4 = 0
+        ::m5 = 0
+        ::m6 = 0
+        ::m7 = 0
+        ::m8 = 0
+        ::m9 = 0
+        ::product = ""
+        ::status = 0
+        ::title = ""
+        ::usagecnt = 0
+        return( 1 )
+    END
+
+    ACCESS dbFileName
+        return( 'c:\insdata\accts.db' )
+    END
+
+    ACCESS dbIndexName
+        return( 'c:\insdata\accts.dx' )
+    END
+    ACCESS dbIndexName2
+        return( 'c:\insdata\accts2.dx' )
+    END
+
+    METHOD create( )
+        local db_struct = {
+            { "COMPANY", "C", 8, 0 },
+            { "ACCTNUM", "C", 8, 0 },
+            { "PRODUCT", "C", 8, 0 },
+            { "ACCTTYPE", "N", 1, 0 },
+            { "ACCTDIGITS", "N", 2, 0 },
+            { "STATUS", "N", 1, 0 },
+            { "TITLE", "C", 40, 0 },
+            { "CURBAL", "N", 10, 2 },
+            { "LASTUSED", "C", 16, 0 },
+            { "USAGECNT", "N", 6, 0 },
+            { "M1", "N", 10, 2 },
+            { "M2", "N", 10, 2 },
+            { "M3", "N", 10, 2 },
+            { "M4", "N", 10, 2 },
+            { "M5", "N", 10, 2 },
+            { "M6", "N", 10, 2 },
+            { "M7", "N", 10, 2 },
+            { "M8", "N", 10, 2 },
+            { "M9", "N", 10, 2 },
+            { "M10", "N", 10, 2 },
+            { "M11", "N", 10, 2 },
+            { "M12", "N", 10, 2 },
+            { "M13", "N", 10, 2 },
+            { "CHECKSUM", "~", 4, 0 }
+        }
+        return( dbcreate( ::dbFileName, db_struct ) )
+    END
+
+    METHOD open( )
+        if ( ! ::IsOpen )
+            if ( ! fileExists( ::dbFileName ) )
+            	::create( )
+            	::initDefaultRecords( )
+            end
+            ::Accounts = dbuse( ::dbFileName, "Accounts", 1 )
+            ::db = ::accounts
+
+            if ( ! fileExists( ::dbIndexName ) )
+//            	Accounts->dbCreateIndex( ::dbIndexName, "upper( field->company + field->acctnum + field->product )", 0 )
+            	(::Accounts)->dbCreateIndex( ::dbIndexName, "upper( field->company + field->acctnum )", 0 )
+            end
+            (::Accounts)->dbOpenIndex( ::dbIndexName )
+            if ( ! fileExists( ::dbIndexName2 ) )
+            	(::Accounts)->dbCreateIndex( ::dbIndexName2, "upper( field->company + field->product + field->acctnum )", 0 )
+            end
+            (::Accounts)->dbOpenIndex( ::dbIndexName2 )
+
+            (::Accounts)->dbOrder( 1 )
+	        (::Accounts)->dbGoTop( )
+        end
+        ::IsOpen++
+        return( 1 )
+    END
+
+    METHOD close( )
+        if ( ::IsOpen == 1 )
+			(::Accounts)->dbUnlock( )
+            (::Accounts)->dbClose( )
+        end
+        ::IsOpen--
+        return( 1 )
+    END
+
+    METHOD seek( item )
+        (::Accounts)->dbSeek( item )
+        return( (::Accounts)->dbFound( ) )
+    END
+
+    METHOD reindex( )
+        return( (::Accounts)->dbReindex( ) )
+    END
+
+    METHOD get( )
+        ::acctdigits = (::Accounts)->acctdigits
+        ::acctnum = alltrim( (::Accounts)->acctnum )
+        ::accttype = (::Accounts)->accttype
+        ::company = alltrim( (::Accounts)->company )
+        ::curbal = (::Accounts)->curbal
+        ::lastused = (::Accounts)->lastused
+        ::m10 = (::Accounts)->m10
+        ::m11 = (::Accounts)->m11
+        ::m12 = (::Accounts)->m12
+        ::m13 = (::Accounts)->m13
+        ::m1 = (::Accounts)->m1
+        ::m2 = (::Accounts)->m2
+        ::m3 = (::Accounts)->m3
+        ::m4 = (::Accounts)->m4
+        ::m5 = (::Accounts)->m5
+        ::m6 = (::Accounts)->m6
+        ::m7 = (::Accounts)->m7
+        ::m8 = (::Accounts)->m8
+        ::m9 = (::Accounts)->m9
+        ::product = alltrim( (::Accounts)->product )
+        ::status = (::Accounts)->status
+        ::title = alltrim( (::Accounts)->title )
+        ::usagecnt = (::Accounts)->usagecnt
+        return( 1 )
+    END
+
+    METHOD put( )
+        (::Accounts)->acctdigits = ::acctdigits
+        (::Accounts)->acctnum = ::acctnum
+        (::Accounts)->accttype = ::accttype
+        (::Accounts)->company = ::company
+        (::Accounts)->curbal = ::curbal
+        (::Accounts)->lastused = date( "YYYYMMDD" ) + time( )
+        (::Accounts)->m10 = ::m10
+        (::Accounts)->m11 = ::m11
+        (::Accounts)->m12 = ::m12
+        (::Accounts)->m13 = ::m13
+        (::Accounts)->m1 = ::m1
+        (::Accounts)->m2 = ::m2
+        (::Accounts)->m3 = ::m3
+        (::Accounts)->m4 = ::m4
+        (::Accounts)->m5 = ::m5
+        (::Accounts)->m6 = ::m6
+        (::Accounts)->m7 = ::m7
+        (::Accounts)->m8 = ::m8
+        (::Accounts)->m9 = ::m9
+        (::Accounts)->product = ::product
+        (::Accounts)->status = ::status
+        (::Accounts)->title = ::title
+        (::Accounts)->usagecnt = Accounts->usagecnt + 1
+        return( 1 )
+    END
+
+	METHOD rlock( )
+		local EndTime
+		if ( ! ::IsOpen )
+			::errmsg = "Database must be open to lock record"
+			return( 0 )
+		end
+		EndTime = seconds( ) + ::LockTimeout
+		while ( ! (::Accounts)->dbRLock( ) )
+			if ( ( seconds( ) > EndTime ) || ( ( seconds( ) + ::LockTimeout ) < EndTime ) )
+				::errmsg = "Unable to lock database record"
+				return( 0 )
+			end
+		end
+		return( 1 )
+	END
+
+	METHOD unlock( )
+		if ( ! ::IsOpen )
+			::errmsg = "Database must be open to unlock record"
+			return( 0 )
+		end
+		(::Accounts)->dbUnLock( )
+		return( 1 )
+	END
+
+
+	METHOD LocateRecord( company, acctnum )
+		return( ::seek( untrim( company, 8 ) + acctnum ) )	
+	END
+
+	ACCESS aAccountTypes
+		static a = {
+			{ 1, "Debit" },
+			{ 2, "Credit" }
+		}
+		return( a )
+	END
+
+	ACCESS debit
+		return( 1 )
+	END
+	ACCESS credit
+		return( 2 )
+	END
+
+	METHOD _GetAccountType( atype )
+		local a, i, cnt
+		
+		a = ::aAccountTypes
+		cnt = len( a )
+		for ( i=1; i<=cnt; i++ )
+			if ( a[i][1] == atype )
+				return( a[i][2] )
+			end
+		end
+	
+		return( 0 )
+	END
+
+	METHOD GetAccountType( atype )
+		local a, i, cnt
+		
+		atype = upper( atype )
+		
+		a = ::aAccountTypes
+		cnt = len( a )
+		for ( i=1; i<=cnt; i++ )
+			if ( upper( a[i][2] ) == atype )
+				return( a[i][1] )
+			end
+		end
+	
+		return( 0 )
+	END
+
+	METHOD UpdateAccount( company, acctnum, product, date, amount )
+		local id, a, i
+		
+//		id = upper( untrim( company, 8 ) + untrim( acctnum, 8 ) + untrim( product, 8 ) )
+		id = upper( untrim( company, 8 ) + untrim( acctnum, 8 ) )
+		if ( ! ::seek( id )	)
+			a = ::aAccounts
+			i = ::GetAccountIndex( a, acctnum )
+			if ( ! i )
+				return( 0 )
+			end
+			::CreateRecord( company, acctnum, product, a[i][2] + " - " + product, a[i][3], a[i][4] )
+		end
+		::rlock( )
+		switch( substr( date, 5, 2 ) )
+		  case "01"
+		  	(::Accounts)->m1 = (::Accounts)->m1 + amount
+		  	break
+		  case "02"
+		  	(::Accounts)->m2 = (::Accounts)->m2 + amount
+		  	break
+		  case "03"
+		  	(::Accounts)->m3 = (::Accounts)->m3 + amount
+		  	break
+		  case "04"
+		  	(::Accounts)->m4 = (::Accounts)->m4 + amount
+		  	break
+		  case "05"
+		  	(::Accounts)->m5 = (::Accounts)->m5 + amount
+		  	break
+		  case "06"
+		  	(::Accounts)->m6 = (::Accounts)->m6 + amount
+		  	break
+		  case "07"
+		  	(::Accounts)->m7 = (::Accounts)->m7 + amount
+		  	break
+		  case "08"
+		  	(::Accounts)->m8 = (::Accounts)->m8 + amount
+		  	break
+		  case "09"
+		  	(::Accounts)->m9 = (::Accounts)->m9 + amount
+		  	break
+		  case "10"
+		  	(::Accounts)->m10 = (::Accounts)->m10 + amount
+		  	break
+		  case "11"
+		  	(::Accounts)->m11 = (::Accounts)->m11 + amount
+		  	break
+		  case "12"
+		  	(::Accounts)->m12 = (::Accounts)->m12 + amount
+		  	break
+		end
+
+        (::Accounts)->lastused = date( "YYYYMMDD" ) + time( )
+        (::Accounts)->usagecnt = (::Accounts)->usagecnt + 1
+
+		::unlock( )
+		return( 1 )
+	END
+
+	METHOD CreateRecord( company, acctnum, product, title, accttype, acctdigits )
+		::open( )
+		if ( ::LocateRecord( company, acctnum ) )
+			::errmsg = "Account number already exists." 
+			::close( )
+			return( 0 )
+		end
+		
+		::init( )
+		::company = company
+		::acctnum = acctnum
+		::product = product
+		::title = title
+		::accttype = 0 + accttype
+		::acctdigits = 0 + acctdigits
+		
+		(::Accounts)->dbAppend( )
+		::put( )
+		::unlock( )
+
+		::close( )
+		return( 1 )	
+	END
+
+	METHOD GetRecord( company, acctnum )
+		::open( )
+		if ( ! ::LocateRecord( company, acctnum ) )
+			::errmsg = "Account number does not exist." 
+			::close( )
+			return( 0 )
+		end
+		
+		::get( )
+		
+		::close( )
+		return( 1 )
+	END
+
+	METHOD SetRecord( company, acctnum )
+		::open( )
+		if ( ! ::LocateRecord( company, acctnum ) )
+			::errmsg = "Account number does not exist." 
+			::close( )
+			return( 0 )
+		end
+		
+		if ( ! ::rlock( ) )
+			::errmsg = "Unable to lock record."
+			::close( )
+			return( 0 )
+		end
+		
+		::put( )
+		::unlock( )
+		
+		::close( )
+		return( 1 )
+	END
+
+	METHOD initDefaultRecords( )
+		local a, i, cnt
+		
+		a = ::aAccounts
+		cnt = len( a )
+		for ( i=1; i<=cnt; i++ )
+			::CreateRecord( "KING", a[i][1], "", a[i][2], a[i][3], a[i][4] )
+		end
+		
+		return( 1 )
+	END
+
+	METHOD GetAccount( _title )
+		local a, i, title, cnt
+		
+		a = ::aAccounts
+		title = upper( _title )
+		
+		cnt = len( a )
+		for ( i=1; i<=cnt; i++ )
+			if ( upper( a[i][2] ) == title )
+				return( a[i][1] )
+			end
+		end
+		
+		return( "UNKNOWN" )
+	END
+
+	METHOD GetAccountIndex( a, acctnum )
+		local i, cnt
+		
+		cnt = len( a )
+		for( i=1; i<=cnt; i++ )
+			if ( a[i][1] == acctnum )
+				return( i )
+			end
+		end
+		return( 0 )
+	END
+
+	ACCESS aAccounts
+		// default accounts
+		// acctnum, title, 1=debit 2=credit, 0=Regular x=Accummulator characters
+		static a = {
+			{ "100000", "Cash", 2, 1 },
+			
+			{ "101000", "Receivables", 2, 1 },
+			{ "101100", "Premiums Receivable", 2, 2 },
+			{ "101200", "Commisions Receivable", 2, 2 },
+			{ "101300", "Fees Receivable", 2, 2 },
+			
+			{ "201000", "Payables", 1, 1 },
+			{ "201100", "Commisions Payable", 1, 2 },
+			{ "201200", "Fees Payable", 1, 2 },
+			
+			{ "202000", "Pre-paid Policies", 1, 1 },
+			{ "202100", "Premiums Pre-paid", 1, 2 },
+			{ "202200", "Commisions Pre-paid", 1, 2 },
+			{ "202300", "Fees Pre-paid", 1, 2 },
+			
+			{ "300000", "Retained Earnings", 2, 1 },
+			{ "301000", "Profit/Loss", 2, 1 },
+
+			{ "401000", "Policies Written", 1, 1 },
+			{ "401100", "Written Premium", 1, 2 },
+			{ "401200", "Written Commision", 1, 2 },
+			{ "401300", "Written Fees", 1, 2 },
+//			{ "401310", "Policy Fees", 1, 3 },
+//			{ "401320", "Installment Fees", 1, 3 },
+//			{ "401330", "SR22 Fees", 1, 3 },
+//			{ "401340", "ATPF Fees", 1, 3 },
+//			{ "401390", "Other Fees", 1, 3 },
+
+			{ "501000", "Policy Expense", 2, 1 },
+			{ "501200", "Commissions Paid", 2, 2 },
+			{ "501300", "Fees Paid", 2, 2 }
+			
+		}
+		return( a )
+	END
+
+	METHOD GetTotal( pd )
+		local x
+
+		if ( type( pd ) == "U" )
+			pd = "YTD"
+		end
+		
+		if ( "" + pd == "-1" )
+			pd = "" + ( 0 + date( "mm" ) )
+		end
+		
+		switch ( "" + pd )
+		  case "YTD"
+			x = ::m1 + ::m2 + ::m3 + ::m4 + ::m5 + ::m6 + ::m7 + ::m8 + ::m9 + ::m10 + ::m11 + ::m12
+			break
+		  case "1"
+		  	x = ::m1
+		  	break
+		  case "2"
+		  	x = ::m2
+		  	break
+		  case "3"
+		  	x = ::m3
+		  	break
+		  case "4"
+		  	x = ::m4
+		  	break
+		  case "5"
+		  	x = ::m5
+		  	break
+		  case "6"
+		  	x = ::m6
+		  	break
+		  case "7"
+		  	x = ::m7
+		  	break
+		  case "8"
+		  	x = ::m8
+		  	break
+		  case "9"
+		  	x = ::m9
+		  	break
+		  case "10"
+		  	x = ::m10
+		  	break
+		  case "11"
+		  	x = ::m11
+		  	break
+		  case "12"
+		  	x = ::m12
+		  	break
+		  case "Q1"
+		  	x = ::m1 + ::m2 + ::m3
+		  	break
+		  case "Q2"
+		  	x = ::m4 + ::m4 + ::m6
+		  	break
+		  case "Q3"
+		  	x = ::m7 + ::m8 + ::m9
+		  	break
+		  case "Q4"
+		  	x = ::m10 + ::m11 + ::m12
+		  	break
+		end
+		return( x )
+	END
+	
+	METHOD GetAccountNumber( desc )
+		local a, i, cnt
+		
+		desc = upper( desc )
+		
+		a = ::aAccounts
+		cnt = len( a )
+		for ( i=1; i<=cnt; i++ )
+			if ( upper( a[i][2] ) == desc )
+				return( a[i][1] )
+			end
+		end
+	
+		return( "UNKNOWN" )
+	END
+
+	METHOD GetAccountDesc( num )
+		local a, i, cnt
+		
+		a = ::aAccounts
+		cnt = len( a )
+		for ( i=1; i<=cnt; i++ )
+			if ( upper( a[i,1] ) == num )
+				return( a[i,2] )
+			end
+		end
+	
+		return( "UNKNOWN" )
+	END
+
+
+END
+
+
+CLASS objAccountTrans
+  PUBLIC:
+    local IsOpen, errmsg, LockTimeout
+    local fontFace, fontSize, fontColor
+    local acctnum, amount, company, desc, ipaddr, product, ref
+    local seq, status, timestamp, transid, transtype, user, accounts, insmgmt
+	local AccountTrans, db
+    local translist, transbal
+
+    METHOD New( insmgmt )
+        ::IsOpen = 0
+		::errmsg = ""
+		::LockTimeout = 3
+		::insmgmt = insmgmt
+        ::Init( )
+        return( 1 )
+    END
+
+    METHOD Init( )
+        ::acctnum = ""
+        ::amount = 0
+        ::company = ""
+        ::desc = 0
+        ::ipaddr = ""
+        ::product = ""
+        ::ref = ""
+        ::seq = ""
+        ::status = 0
+        ::timestamp = ""
+        ::transid = ""
+        ::transtype = 0
+        ::user = ""
+        ::accounts = null
+        return( 1 )
+    END
+
+    ACCESS dbFileName
+        return( 'c:\insdata\accttran.db' )
+    END
+
+    ACCESS dbIndexName
+        return( 'c:\insdata\accttran.dx' )
+    END
+    ACCESS dbIndexName2
+        return( 'c:\insdata\accttra2.dx' )
+    END
+    ACCESS dbIndexName3
+        return( 'c:\insdata\accttra3.dx' )
+    END
+    ACCESS dbIndexName4
+        return( 'c:\insdata\accttra4.dx' )
+    END
+
+    METHOD create( )
+        local db_struct = {
+            { "COMPANY", "C", 8, 0 },
+            { "ACCTNUM", "C", 8, 0 },
+            { "PRODUCT", "C", 8, 0 },
+            { "TRANSID", "C", 10, 0 },
+            { "SEQ", "C", 3, 0 },
+            { "TRANSTYPE", "N", 1, 0 },
+            { "STATUS", "N", 1, 0 },
+            { "REF", "C", 80, 0 },
+            { "DESC", "B", 20, 0 },
+            { "AMOUNT", "N", 10, 2 },
+            { "TIMESTAMP", "C", 16, 0 },
+            { "USER", "C", 40, 0 },
+            { "IPADDR", "C", 20, 0 },
+            { "CHECKSUM", "~", 4, 0 }
+        }
+        return( dbcreate( ::dbFileName, db_struct ) )
+    END
+
+    METHOD open( )
+        if ( ! ::IsOpen )
+            if ( ! fileExists( ::dbFileName ) )
+            	::create( )
+            end
+            ::AccountTrans = dbuse( ::dbFileName, "AccountTrans", 1 )
+            ::db = ::AccountTrans
+
+            if ( ! fileExists( ::dbIndexName ) )
+//            	AccountTrans->dbCreateIndex( ::dbIndexName, "upper( field->company + field->acctnum + field->product + field->transid + field->seq )", 0 )
+            	(::AccountTrans)->dbCreateIndex( ::dbIndexName, "upper( field->company + field->acctnum + field->transid + field->seq )", 0 )
+            end
+            (::AccountTrans)->dbOpenIndex( ::dbIndexName )
+
+            if ( ! fileExists( ::dbIndexName2 ) )
+            	(::AccountTrans)->dbCreateIndex( ::dbIndexName2, "upper( field->ref + field->acctnum + field->product + field->transid + field->seq )", 0 )
+            end
+            (::AccountTrans)->dbOpenIndex( ::dbIndexName2 )
+
+            if ( ! fileExists( ::dbIndexName3 ) )
+            	(::AccountTrans)->dbCreateIndex( ::dbIndexName3, "upper( field->timestamp + field->transid + field->seq )", 0 )
+//            	AccountTrans->dbCreateIndex( ::dbIndexName3, "upper( field->timestamp + field->acctnum + field->seq )", 0 )
+            end
+            (::AccountTrans)->dbOpenIndex( ::dbIndexName3 )
+
+            if ( ! fileExists( ::dbIndexName4 ) )
+            	(::AccountTrans)->dbCreateIndex( ::dbIndexName4, "upper( field->transid + field->seq )", 0 )
+            end
+            (::AccountTrans)->dbOpenIndex( ::dbIndexName4 )
+
+            (::AccountTrans)->dbOrder( 1 )
+	        (::AccountTrans)->dbGoTop( )
+        end
+        ::IsOpen++
+        return( 1 )
+    END
+
+    METHOD close( )
+        if ( ::IsOpen == 1 )
+			(::AccountTrans)->dbUnlock( )
+            (::AccountTrans)->dbClose( )
+        end
+        ::IsOpen--
+        return( 1 )
+    END
+
+    METHOD seek( item )
+        (::AccountTrans)->dbSeek( item )
+        return( (::AccountTrans)->dbFound( ) )
+    END
+
+    METHOD dbOrder( val )
+        (::db)->dbOrder( val )
+    END
+    METHOD dbGoto( val )
+        (::db)->dbGoto( val )
+    END
+    METHOD dbGoTop( )
+        (::db)->dbGoTop( )
+    END
+    METHOD dbGoBottom( )
+        (::db)->dbGoBottom( )
+    END
+    METHOD dbEOF( )
+        return( (::db)->dbEOF( ) )
+    END
+    METHOD dbBOF( )
+        return( (::db)->dbBOF( ) )
+    END
+    METHOD dbseek( id )
+        return( ::seek( id ) )
+    END
+    METHOD dbSkip( index )
+    	if ( type( index ) == "N" )
+    		(::db)->dbSkip( index )
+    	else
+    		(::db)->dbSkip( )
+    	end
+        return( 1 )
+    END
+
+    METHOD reindex( )
+        return( (::AccountTrans)->dbReindex( ) )
+    END
+
+
+	METHOD rlock( )
+		local EndTime, LockTimeout=3
+		EndTime = seconds( ) + LockTimeout
+		while ( ! (::AccountTrans)->dbRLock( ) )
+			if ( ( seconds( ) > EndTime ) || ( ( seconds( ) + LockTimeout ) < EndTime ) )
+				return( 0 )
+			end
+		end
+		return( 1 )
+	END
+
+	METHOD unlock( )
+		(::AccountTrans)->dbUnLock( )
+		return( 1 )
+	END
+
+
+    METHOD get( recnum )
+    	local isrec
+    	
+    	isrec = type( recnum ) == "N" ? 1 : 0
+
+		if ( isrec )
+			::open( )
+			::dbGoto( recnum )
+		end
+
+        ::acctnum = alltrim( (::AccountTrans)->acctnum )
+        ::amount = (::AccountTrans)->amount
+        ::company = alltrim( (::AccountTrans)->company )
+        ::desc = alltrim( (::AccountTrans)->desc )
+        ::ipaddr = alltrim( (::AccountTrans)->ipaddr )
+        ::product = alltrim( (::AccountTrans)->product )
+        ::ref = alltrim( (::AccountTrans)->ref )
+        ::seq = alltrim( (::AccountTrans)->seq )
+        ::status = (::AccountTrans)->status
+        ::timestamp = alltrim( (::AccountTrans)->timestamp )
+        ::transid = alltrim( (::AccountTrans)->transid )
+        ::transtype = (::AccountTrans)->transtype
+        ::user = alltrim( (::AccountTrans)->user )
+
+		if ( isrec )
+			::close( )
+		end
+
+        return( 1 )
+    END
+
+    METHOD put( )
+        (::AccountTrans)->acctnum = ::acctnum
+        (::AccountTrans)->amount = ::amount
+        (::AccountTrans)->company = ::company
+        (::AccountTrans)->desc = ::desc
+        (::AccountTrans)->ipaddr = ::ipaddr
+        (::AccountTrans)->product = ::product
+        (::AccountTrans)->ref = ::ref
+        (::AccountTrans)->seq = ::seq
+        (::AccountTrans)->status = ::status
+        (::AccountTrans)->timestamp = date( "YYYYMMDD" ) + time( )
+        (::AccountTrans)->transid = ::transid
+        (::AccountTrans)->transtype = ::transtype
+        (::AccountTrans)->user = ::user
+        return( 1 )
+    END
+
+	METHOD BeginTransaction( )
+		::translist = ""
+		::transbal = 0.00
+
+		::open( )
+		
+		::accounts = new( "objAccounts" )
+		::accounts.open( )
+
+		return( ::insmgmt.idTrans )
+	END
+	
+	METHOD EndTransaction( )
+
+		if ( ::transbal != 0 )
+			::errmsg = "Transaction out of balance. Transaction canceled."
+// MOREWORK: Rollback account balances
+//			::TransactionRollback( )
+			::close( )
+			::accounts.close( )
+			return( 0 )
+		end
+
+		::close( )
+		::accounts.close( )
+
+		return( 1 )	
+	END
+	
+	METHOD TransactionRollback( )
+		local cnt, i, rec
+
+		if ( strempty( ::translist ) )
+			return( 1 )
+		end
+		
+		cnt = strcount( ";", ::translist )
+		for ( i=1; i<=cnt; i++ )
+			rec = 0 + strextract( ::translist, ";", i )
+			(::AccountTrans)->dbGoto( rec )
+			::rlock( )
+			(::AccountTrans)->dbDelete( )
+			::unlock( )
+		end
+		
+		return( 1 )		
+	END
+
+	METHOD CreateTransaction( transid, seq, acctnum, product, ref, desc, transtype, amount, session )
+		::init( )
+
+        ::acctnum = acctnum
+        ::amount = amount
+
+        ::company = iniGetString( ::insmgmt.DataFile, "COMPANIES", product, "" )
+        if ( strempty( ::company ) )
+        	iniSetString( ::insmgmt.DataFile, "COMPANIES", product, "" )
+        	::company = ""
+        end
+
+        ::desc = desc
+        ::ipaddr = strextract( session.data( "REMOTE_ADDR" ), " ", 1 )
+        ::product = product
+        ::ref = ref
+        ::seq = seq
+        ::status = 1
+        ::timestamp = date( "YYYYMMDD" ) + time( )
+        ::transid = transid
+        ::transtype = transtype
+        ::user = session.var( "companyid" ) + "." + session.var( "userid" )
+
+		(::AccountTrans)->dbAppend( )
+		::put( )
+
+		::transbal += ( transtype == 1 ) ? ( -1 * amount ) : amount
+		::translist += (::AccountTrans)->dbRecNo( )
+		
+		(::AccountTrans)->dbUnlock( )
+
+		::accounts.UpdateAccount( ::company, acctnum, product, ::timestamp, ( transtype == 1 ) ? ( -1 * amount ) : amount )
+		
+		return( 1 )
+	END
+
+	METHOD GetTransSeq( transid )
+		local s="", accounts, a, i, g
+		
+		g = new( "GlobalParams" )
+
+		accounts = new( "objAccounts" )
+		a = accounts.aAccounts
+		
+		if ( ! ::seek( transid ) )
+			return( "No additional transaction details available" )
+		end
+
+		s = "<br><table border=0 width=100% cellspacing=0 cellpadding=0 class=smtext>\r\n"
+		while ( ! (::AccountTrans)->dbEOF( ) )
+		
+			::get( )
+			if ( ::transid != transid )
+				break
+			end
+			
+			i = accounts.GetAccountIndex( a, ::acctnum )
+//			s += "<tr><td width=50><a href=\"javascript:ViewTrans( '" + ::transid + "', '" + ::seq + "' )\">" + ::acctnum + "</td><td width=30>" + ::seq + "</td><td width=*>" + a[i][2] + "</td><td align=right width=60>" + ( a[i][3] == 1 ? "&nbsp;</td><td align=right width=60>" +  g.DollarFormat( -1 * ::amount, 2, 1 ) : g.DollarFormat( ::amount, 2, 1 ) + "</td><td width=60>&nbsp;" ) + "</td></tr>\r\n"
+			s += "<tr><td width=50><a href=\"javascript:ViewTrans( '" + ::transid + "', '" + ::seq + "' )\">" + ::acctnum + "</td><td width=30>" + ::seq + "</td><td width=*>" + a[i][2] + "</td><td align=right width=60>" + ( a[i][3] == 1 ? "&nbsp;</td><td align=right width=60>" +  g.DollarFormat( ::amount, 2, 1 ) : g.DollarFormat( ::amount, 2, 1 ) + "</td><td width=60>&nbsp;" ) + "</td></tr>\r\n"
+
+			(::AccountTrans)->dbSkip( )		
+		end
+		
+		s += "</table><br>\r\n"
+		
+		return( s )
+	END
+
+	METHOD ViewTrans( transid, seq )
+		local s, g
+
+		s = new( "serverbuffer" )
+
+		g = new( "GlobalParams" )
+	
+		::open( )
+
+        (::AccountTrans)->dbOrder( 4 )
+        (::AccountTrans)->dbGoTop( )
+        
+		if ( ! ::seek( untrim( transid, 10 ) + seq ) )
+			return( "Unable to locate transaction details" )
+		end
+        
+        ::get( )
+
+		s = "<table border=0 width=100% height=100% cellspacing=0 cellpadding=5 class=txt bgcolor=#FFFFFF>\r\n"
+		s += "<tr><td bgcolor=#E0E0E0 colspan=2 align=center><font class=title><font color=black><b>Accounting Transaction Detail</b></font></font></td></tr>\r\n"
+
+//		s += "<tr><td bgcolor=#F0F0F0 width=100>Company:</td><td width=*>" + ::company + "</td></tr>\r\n"
+		s += "<tr><td bgcolor=#F0F0F0 width=100>Product:</td><td>" + ::product + "</td></tr>\r\n"
+		s += "<tr><td bgcolor=#F0F0F0>Account Number:</td><td>" + ::acctnum + "</td></tr>\r\n"
+		s += "<tr><td bgcolor=#F0F0F0>Transaction Id:</td><td>" + ::transid + "</td></tr>\r\n"
+		s += "<tr><td bgcolor=#F0F0F0>Sequence:</td><td>" + ::seq + "</td></tr>\r\n"
+		s += "<tr><td bgcolor=#F0F0F0>Amount:</td><td>" + g.DollarFormat( ::amount, 2, 1 ) + "</td></tr>\r\n"
+		s += "<tr><td bgcolor=#F0F0F0>Description:</td><td>" + ::desc + "</td></tr>\r\n"
+		s += "<tr><td bgcolor=#F0F0F0>Transaction Type:</td><td>" + ::transtype + "</td></tr>\r\n"
+		s += "<tr><td bgcolor=#F0F0F0>Status:</td><td>" + ::status + "</td></tr>\r\n"
+		s += "<tr><td bgcolor=#F0F0F0>Reference:</td><td>" + ::ref + "</td></tr>\r\n"
+		s += "<tr><td bgcolor=#F0F0F0>Time Stamp:</td><td>" + ::timestamp + "</td></tr>\r\n"
+		s += "<tr><td bgcolor=#F0F0F0>User:</td><td>" + ::user + "</td></tr>\r\n"
+		s += "<tr><td bgcolor=#F0F0F0>IP Address:</td><td>" + strextract( ::ipaddr, " ", 1 ) + "</td></tr>\r\n"
+		s += "</table>\r\n"
+        
+        ::close( )
+        
+        return( s.str )
+	END
+
+	METHOD select( key, index, indexField )
+		static a
+		local i=1, len, flag, sel
+		local curindex=0, IsIndex
+
+		::open( )
+
+		a = { }
+
+		if ( type( index ) == "N" )
+			curindex = (::db)->dbOrder( 0 )
+			::dborder( index )
+		end
+		
+		key = upper( key )
+		len = len( key )
+		
+		if ( ! ::dbseek( key ) )
+			if ( curindex )
+				::dborder( curindex )
+			end
+			return( a )
+		end
+		
+		IsIndex = type( indexField ) == "C" ? 1 : 0
+		if ( IsIndex )
+			sel = new( "objSelect", self )
+			if ( ! sel.InitFieldPos( IndexField ) )
+				IsIndex = 0
+			end
+		end
+		
+		while ( ! ::dbEOF( ) )
+			flag = 1
+			switch ( index )
+			  case 4
+				if ( left( (::db)->transid, len ) != key )
+					flag = 0
+				end
+				break
+			  case 2
+				if ( left( (::db)->ref, len ) != key )
+					flag = 0
+				end
+				break
+			  default
+				break
+			end
+			if ( ! flag )
+				break
+			end
+			a[i,1] = (::db)->dbRecNo( )
+			if ( IsIndex )
+//				a[i,2] = upper( alltrim( "" + (::db)->dbFieldGet( FieldPos ) ) )
+				a[i,2] = sel.GetKey( )
+			end
+			i++
+			(::db)->dbSkip( )
+		end		
+		
+		if ( curindex )
+			::dborder( curindex )
+		end
+
+		::close( )		
+		
+		return( a )
+	END
+
+	ACCESS AccountDesc
+		if ( type( ::accounts ) != "O" )
+			::accounts = new( "objAccounts" )
+		end
+		return( ::accounts.GetAccountDesc( ::acctnum ) )
+	END
+
+
+END
+
+
+CLASS CheckBatchLog
+  PUBLIC:
+  	local id, IsOpen, insdata
+	local BatchNum, companyid, userid, desc, data, ttl, TimeStamp
+	local PolicyNum, cknum, ckamount, source, name, ckdate
+  	
+  	METHOD new( )
+  		::id = "SYSTEM.CHECK.BATCH.LOG"
+  		::IsOpen = 0
+  		::init( )
+  		return( 1 )
+  	END
+  	
+  	METHOD init( )
+  		::BatchNum = ""
+  		::companyid = ""
+  		::userid = ""
+  		::desc = ""
+  		::data = ""
+  		::ttl = 0.00
+  		::TimeStamp = ""
+  		::PolicyNum = ""
+  		::cknum = ""
+  		::ckamount = 0.00
+  		::ckdate = ""
+  		::source = ""
+  		::name = ""
+  		return( 1 )
+  	END
+
+	METHOD open( )
+		if ( ! ::IsOpen )
+			::insdata = new( "objInsData" )
+			::insdata.open( )
+		end
+		::IsOpen++
+		return( 1 )
+	END
+
+	METHOD close( )
+		if ( ::IsOpen == 1 )
+			::insdata.close( )
+		end
+		::IsOpen--
+		return( 1 )
+	END
+
+	METHOD get( )
+		if ( ! ::insdata.GetRecord( ::id ) )
+	        ::insdata.created = date( "YYYYMMDD" ) + time( )
+	        ::insdata.data = ""
+	        ::insdata.dstatus = 0
+	        ::insdata.dtype = ::insdata.GetType( "System" )
+	        ::insdata.key = upper( ::id )
+	        ::insdata.lastused = ""
+	        ::insdata.password = ""
+	        ::insdata.usagecnt = 0
+	
+			(::insdata.InsData)->dbAppend( )
+			::insdata.put( )
+		end
+		return( 1 )
+	END
+
+	
+	METHOD put( data )
+		if ( ! ::insdata.seek( ::id ) )
+			return( 0 )
+		end
+		
+//		::insdata.get( )
+		
+		::insdata.lastused = date( "YYYYMMDD" ) + time( )
+		::insdata.usagecnt = ::insdata.usagecnt + 1
+
+		if ( ! ::insdata.rlock( ) )
+			return( 0 )
+		end
+
+		if ( type( data ) == "C" )
+			::insdata.data = data
+		else
+			::insdata.data = ::insdata.data + ::BatchNum + chr( 1 ) + ::companyid + chr( 1 ) + ::userid + chr( 1 ) + ::desc + chr( 1 ) + ::data + chr( 1 ) + ::ttl + chr( 1 )  + ::TimeStamp + chr( 2 )
+		end
+
+		::insdata.put( )
+		::insdata.unlock( )
+		
+		return( 1 )
+	END
+
+	ACCESS aSource
+		static a = { 
+			{ "I", "Insured" },
+			{ "A", "Agency" },
+			{ "T", "Title Company" },
+			{ "M", "Mortgagee" },
+			{ "Y", "Attorney" },
+			{ "O", "Other" }
+		}
+		return( a )
+	END
+
+	METHOD RemoveBatch( session, BatchNum )
+		local cnt, i, data, s="", IsRemoved=0, rdata="", ttl, insmgmt, trans
+
+		::open( )
+		::get( )
+		
+		cnt = chrcount( chr( 2 ), ::insdata.data )
+		for ( i=1; i<=cnt; i++ )
+		
+			data = strextract( ::insdata.data, chr( 2 ), i )
+			::LoadFromBuffer( data )
+			
+			if ( ::BatchNum == BatchNum )
+				IsRemoved = 1
+				rdata = data
+				ttl = ::ttl
+				continue
+			end
+			
+			s += data + chr( 2 )
+		end
+
+		::close( )
+
+		if ( ! IsRemoved )
+			return( 0 )
+		end
+
+		::insdata.open( )
+		if ( ! ::insdata.seek( ::id ) )
+			::insdata.close( )
+			return( 0 )
+		end
+
+		::insdata.lastused = date( "YYYYMMDD" ) + time( )
+		::insdata.usagecnt = ::insdata.usagecnt + 1
+
+		if ( ! ::insdata.rlock( ) )
+			::insdata.close( )
+			return( 0 )
+		end
+
+		::insdata.data = s
+
+		::insdata.put( )
+		::insdata.unlock( )
+		::insdata.close( )
+
+		// write the transaction record
+		insmgmt = new( "insmgmt" )
+
+		trans = new( "objTrans" )
+		trans.init( )
+       	trans.transid = insmgmt.idTrans
+       	trans.ref = BatchNum
+   	    trans.desc = "Check batch deleted by " + session.var( "companyid" ) + "." + session.var( "userid" )
+        trans.type = trans.GetType( "Check Batch" )
+       	trans.status = 1
+		trans.userid = upper( session.var( "companyid" ) +"." + session.var( "userid" ) )
+		trans.ipaddr = session.data( "REMOTE_ADDR" )
+		trans.amount = ttl
+		trans.data = rdata
+		trans.CreateNew( )
+		
+		return( 1 )	
+	END
+
+
+	METHOD RemoveCheck( session, BatchNum, item )
+		local cnt, i, data, s="", IsRemoved=0, rdata="", ttl, insmgmt, trans
+		local str, j, numcks, buf
+
+		::open( )
+		::get( )
+		
+		cnt = chrcount( chr( 2 ), ::insdata.data )
+		for ( i=1; i<=cnt; i++ )
+		
+			data = strextract( ::insdata.data, chr( 2 ), i )
+			::LoadFromBuffer( data )
+			
+			if ( ::BatchNum == BatchNum )
+				str = ""
+				numcks = chrcount( "~", data )
+				for ( j=1; j<=numcks; j++ )
+					buf = strextract( data, ";", j )
+					if ( j == item )
+						IsRemoved = 1
+						rdata = buf
+						continue
+					end
+					str += buf + ";"
+				end
+				data = str
+			end
+			
+			s += data + chr( 2 )
+		end
+
+		::close( )
+
+		if ( ! IsRemoved )
+			return( 0 )
+		end
+
+		::insdata.open( )
+		if ( ! ::insdata.seek( ::id ) )
+			::insdata.close( )
+			return( 0 )
+		end
+
+		::insdata.lastused = date( "YYYYMMDD" ) + time( )
+		::insdata.usagecnt = ::insdata.usagecnt + 1
+
+		if ( ! ::insdata.rlock( ) )
+			::insdata.close( )
+			return( 0 )
+		end
+
+		::insdata.data = s
+
+		::insdata.put( )
+		::insdata.unlock( )
+		::insdata.close( )
+
+		// write the transaction record
+		insmgmt = new( "insmgmt" )
+
+		trans = new( "objTrans" )
+		trans.init( )
+       	trans.transid = insmgmt.idTrans
+       	trans.ref = BatchNum
+   	    trans.desc = "Check batch deleted by " + session.var( "companyid" ) + "." + session.var( "userid" )
+        trans.type = trans.GetType( "Check Batch" )
+       	trans.status = 1
+		trans.userid = upper( session.var( "companyid" ) +"." + session.var( "userid" ) )
+		trans.ipaddr = session.data( "REMOTE_ADDR" )
+		trans.amount = ttl
+		trans.data = rdata
+		trans.CreateNew( )
+		
+		return( 1 )	
+	END
+
+
+	METHOD SaveBatch( BatchNum, companyid, userid, desc, data, ttl, TimeStamp, session )
+		local trans, insmgmt
+
+  		::BatchNum = BatchNum
+  		::companyid = companyid
+  		::userid = userid
+  		::desc = desc
+  		::data = data
+  		::ttl = ttl
+  		::TimeStamp = TimeStamp
+	
+		::get( )
+		::put( )
+
+		// write the transaction record
+		insmgmt = new( "insmgmt" )
+
+		trans = new( "objTrans" )
+		trans.init( )
+       	trans.transid = insmgmt.idTrans
+       	trans.ref = ::id
+   	    trans.desc = "New check batch created by " + companyid + "." + userid
+        trans.type = trans.GetType( "Check Batch" )
+       	trans.status = 1
+		trans.userid = companyid +"." + userid
+		trans.ipaddr = session.data( "REMOTE_ADDR" )
+		trans.amount = ttl
+		trans.data = data
+		trans.CreateNew( )
+
+		return( 1 )		
+	END
+
+	METHOD LoadFromBuffer( buf )
+
+  		::BatchNum = strextract( buf, chr( 1 ), 1 )
+  		::companyid = strextract( buf, chr( 1 ), 2 )
+  		::userid = strextract( buf, chr( 1 ), 3 )
+  		::desc = strextract( buf, chr( 1 ), 4 )
+  		::data = strextract( buf, chr( 1 ), 5 )
+  		::ttl = 0.00 + strextract( buf, chr( 1 ), 6 )
+  		::TimeStamp = strextract( buf, chr( 1 ), 7 )
+	
+		return( 1 )
+	END
+
+	METHOD putbatch( )
+		return( ::BatchNum + chr( 1 ) + ::companyid + chr( 1 ) + ::userid + chr( 1 ) + ::desc + chr( 1 ) + ::data + chr( 1 ) + ::ttl + chr( 1 )  + ::TimeStamp + chr( 2 ) )
+	END
+	METHOD putcheck( )
+		return( ::PolicyNum + "|" + ::cknum + "|" + ::ckamount + "|" + ::source + "|" + ::name + "|" + ::ckdate + "~" )
+	END
+
+	METHOD UpdateRefNum( BatchNum, item, refnum )
+		local str, s="", cnt, aData, ckcnt, j, i
+	
+		::open( )
+		::get( )
+
+		aData = split( ::insdata.data, chr( 2 ) )
+		cnt = len( aData )
+		
+		str = new( "ServerBuffer" )
+		
+		for ( i=1; i<=cnt; i++ )
+			::LoadFromBuffer( aData[i] )
+			if ( ::BatchNum != BatchNum )
+				str += ::putbatch( )
+				continue
+			end
+			ckcnt = ::numcks
+			s = ""			
+			for ( j=1; j<=ckcnt; j++ )
+				if ( j != item )
+					s += strextract( ::data, "~", j ) + "~"
+					continue
+				end
+
+				::LoadCheck( j )
+				::PolicyNum = refnum
+				
+				s += ::putcheck( )
+			end
+			
+			::data = s
+			
+			str += ::putbatch( )
+			
+		end
+		
+		::put( str.str )
+		::close( )
+		
+		return( 1 )	
+	END
+	
+
+	METHOD DisplayBatches( session, page )
+		local s, cnt, data, i, g, numcks, batchform, ttlAmount=0
+
+		s = new( "serverbuffer" )
+		
+		g = new( "GlobalParams" )
+		
+		::open( )
+
+		::get( )
+
+//		batchform = "ckbatch3.htm?companyid=" + session.var( "companyid" ) + "&userid=" + session.var( "userid" ) + "&theme=" + session.var( "theme" ) + "&xcarrier=" + session.var( "xcarrier" ) + "&defCarrier=" + session.var( "defCarrier" ) + "&batchnum="
+		batchform = "/insmgmt/progress.htm?_url_=/insmgmt/account/ckbatch3.htm&companyid=" + session.var( "companyid" ) + "&userid=" + session.var( "userid" ) + "&theme=" + session.var( "theme" ) + "&xcarrier=" + session.var( "xcarrier" ) + "&defCarrier=" + session.var( "defCarrier" ) + "&batchnum="
+		
+		cnt = chrcount( chr( 2 ), ::insdata.data )
+		
+    	s += "<table border=1 width=620 cellspacing=0 cellpadding=1 class=txt height=250>\r\n"
+    	s += " <tr height=20 bgcolor=" + page.dlgLite + "><td><b>Batch #</b></td><td><b>Time Stamp</b></td><td><b>Description</b></td><td align=right><b># of Checks</td><td align=right><b>Total Amount</td></tr>\r\n"
+     	
+     	if ( cnt )
+     		for ( i=1; i<=cnt; i++ )
+				data = strextract( ::insdata.data, chr( 2 ), i )
+				::LoadFromBuffer( data )
+
+				if ( strempty( ::desc ) )
+					::desc = "Check batch created by " + ::companyid + "." + ::userid
+				end
+				
+				numcks = chrcount( "~", data )
+				
+				ttlAmount += ::ttl
+				
+				s += "<tr height=20 onMouseover=\"this.style.cursor='hand';this.style.backgroundColor='" + page.dlgMouseOver + "';\" onMouseOut=\"this.style.backgroundColor='white';\" onClick=\"OpenWindow( -1, -1, 780, 600, 'batch', '" + batchform + ::BatchNum + "', 'POPUP' );\">"
+//				s += "<tr height=20 onMouseover=\"this.style.cursor='hand';this.style.backgroundColor='" + page.dlgMouseOver + "';\" onMouseOut=\"this.style.backgroundColor='white';\" onClick=\"parent.document.location='" + batchform + ::BatchNum + "';\">"
+     			s += "<td width=60>" + ::BatchNum + "</td><td width=150>" + ::TimeStamp + "</td><td width=*>" + ::desc + "</td><td align=right width=70>" + numcks + "</td><td align=right width=90>" + g.DollarFormat( ::ttl, 2, 1 ) + "</td></tr>\r\n"
+     		end
+	   		s += " <tr height=*><td colspan=5>&nbsp;</td></tr>\r\n"
+     	else
+     		s += " <tr><td valign=top colspan=5>No batches pending.</td></tr>\r\n"
+     	end
+     	
+     	s += "</table>\r\n"
+     	if ( cnt )
+     		s += "<script language=JavaScript>ttlAmount.innerHTML='Total of all checks: " + g.DollarFormat( ttlAmount, 2, 1 )+ "';</script>\r\n"
+     	end
+
+		::close( )
+
+		return( s.str )
+	END
+
+	METHOD LoadBatch( BatchNum )
+		local cnt, i, data
+
+		::open( )
+		::get( )
+		
+		cnt = chrcount( chr( 2 ), ::insdata.data )
+		for ( i=1; i<=cnt; i++ )
+		
+			data = strextract( ::insdata.data, chr( 2 ), i )
+			::LoadFromBuffer( data )
+			
+			if ( ::BatchNum == BatchNum )
+				::close( )
+				return( 1 )
+			end
+		
+		end
+
+		::close( )
+		
+		return( 0 )	
+	END
+
+
+	METHOD LoadCheck( data )
+		if ( type( data ) == "N" )
+			data = strextract( ::data, "~", data )
+		end
+
+		::PolicyNum = strextract( data, "|", 1 )
+		::cknum = strextract( data, "|", 2 )
+		::ckamount = 0.00 + strextract( data, "|", 3 )
+		::source = strextract( data, "|", 4 )
+		::name = webDecodeURL( strextract( data, "|", 5 ) )
+		::ckdate = strextract( data, "|", 6 )
+		return( 1 )
+	END
+
+	ACCESS numcks
+		return( chrcount( "~", ::data ) )
+	END
+	
+
+	METHOD DisplayBatchDetails( session, BatchNum, page )
+		local s, numcks, g, i, data, lookup, policy, html, app, policyid, policyform, clientform, returncheck, a
+		local entity, flag, clientid, client, ins, aData
+
+		s = new( "serverbuffer" )
+
+		policy = new( "MasterPolicy" )
+
+		policyform = "/insmgmt/polview.htm?companyid=" + session.var( "companyid" ) + "&userid=" + session.var( "userid" ) + "&policyid="
+		clientform = "/insmgmt/client.htm?companyid=" + session.var( "companyid" ) + "&userid=" + session.var( "userid" ) + "&clientid="
+		
+		html = new( "FormatHTML", 0, 0 )
+
+		entity = new( "objEntity" )
+		entity.open( )
+
+		lookup = new( "objLookup" )
+		lookup.open( 4 )
+		
+		ins = new( "objInsData" )
+		ins.open( )
+		
+		g = new( "GlobalParams" )
+		::open( )
+		
+		if ( ! ::LoadBatch( BatchNum ) )
+			lookup.close( )
+			entity.close( )
+			ins.close( )
+			return( "Unable to locate batch # " + BatchNum )
+		end
+
+		numcks = chrcount( "~", ::data )
+
+		if ( strempty( ::desc ) )
+			::desc = "Check batch created by " + ::companyid + "." + ::userid
+		end
+
+		
+    	s += "<table border=3 width=700 cellspacing=0 cellpadding=0 class=txt bgcolor=" + page.dlgDark + "><tr><td>\r\n"
+    	s += "<table border=1 width=100% cellspacing=0 cellpadding=2 class=txt>\r\n"
+    	s += " <tr><td><b>Batch #</b></td><td><b>Time Stamp</b></td><td><b>Description</b></td><td align=right><b># of Checks</td><td align=right><b>Total Amount</td></tr>\r\n"
+		s += " <tr bgcolor=" + page.dlgLite + "><td>" + ::BatchNum + "</td><td>" + ::TimeStamp + "</td><td>" + ::desc + "</td><td align=right>" + numcks + "</td><td align=right>" + g.DollarFormat( ::ttl, 2, 1 ) + "</td></tr>\r\n"
+		s += "</table>\r\n"
+		s += "</td></tr></table><br>\r\n"
+
+    	s += "<table border=1 width=700 cellspacing=0 cellpadding=2 class=txt>\r\n"
+		s += " <tr bgcolor=" + page.dlgDark + "><td width=20 align=center><b>OK</b></td><td width=40 align=center><b>Item #</b></td><td width=300><b>Name on Check / Policy or Binder Number</b></td><td align=center width=70><b>Check #</b></td><td align=center width=80><b>Check Date</b></td><td align=right width=80><b>Check Amount</b></td><td align=center width=80><b>Source</b></td></tr>"
+
+		a = ::aSource
+    	
+    	aData = split( ::data, "~" )
+		for ( i=1; i<=numcks; i++ )
+			
+//			data = strextract( ::data, "~", i )
+			data = aData[i]
+			::LoadCheck( data )
+			s += "<tr><td><a name='id_" + i + "'></a></td></tr>\r\n"
+			
+			flag = 0
+			if ( ! strempty( ::PolicyNum ) )
+				if ( lookup.seek( "Y" + ::PolicyNum ) )
+					policyid = alltrim( (lookup.lookup)->link )
+					flag = 1
+				else
+					// check if valid client id (primarily this only occurs after data import...)
+					clientid = upper( strextract( ::PolicyNum, ".", 1 ) )
+					client = entity.GetClientRecord( clientid )
+					if ( type( client ) == "O" )
+						if ( ins.seek( clientid ) )
+							while ( ! ins.dbEOF( ) )
+								if ( left( (ins.db)->key, len( clientid ) ) != clientid )
+									break
+								end
+								if ( (ins.db)->dtype == 3 )
+									policyid = alltrim( (ins.db)->key )
+									// MOREWORK: check for multiple active polices
+									flag = 1
+									break
+								end
+								ins.dbSkip( )
+							end
+						end
+					end
+				end
+			
+			end
+
+			returncheck = "batchnum=" + ::batchnum + "&item=" + i + "&policynum=" + ::PolicyNum + "&cknum=" + ::cknum + "&ckdate=" + ::ckdate + "&ckamount=" + g.DollarFormat( ::ckamount, 2, 1 ) + "&name=" + webEncodeURL( ::name )
+			
+			if ( flag )
+				if ( policy.GetRecord( policyid ) )
+					s += " <tr bgcolor=" + page.dlgLite + "><td><input type=checkbox name=cb" + i + " CHECKED></td><td align=center>" + i + "</td><td width=350>" + ::name + "<br><a href=\"" + policyform + policyid + "\" target=_blank>" + ::PolicyNum + "</a></td><td align=center>" + ::cknum + "</td><td align=center>" + ::ckdate + "</td><td align=right>" + g.DollarFormat( ::ckamount, 2, 1 ) + "</td><td align=center>" + g.Lookup2dArray( a, ::source ) + "</td></tr>"
+					app = policy.app.appdata
+				
+					s += "<tr><td>&nbsp;</td><td>&nbsp;</td><td colspan=5>\r\n"
+					s += " <table border=0 width=100% cellspacing=0 cellpadding=2 class=txt>\r\n"
+					s += "  <tr><td width=350><a href=\"" + clientform +  policy.data.clientid + "\" target=_blank>" + html.ExtractWebVar( app, "fname" ) + " " +  html.ExtractWebVar( app, "lname" ) + "</a><br>" + html.ExtractWebVar( app, "street" ) + "<br>" + html.ExtractWebVar( app, "city" ) + ", " + html.ExtractWebVar( app, "state" ) + " " + html.ExtractWebVar( app, "zip" ) + "</td>\r\n"
+					s += "   <td align=right valign=center>Premium:<br>Balance:</td><td valign=center align=right>" + g.DollarFormat( policy.data.premium, 2, 1 ) + "<br>" + g.DollarFormat( policy.data.curbal, 2, 1 ) + "</td><td width=120 align=right>&nbsp;<input type=button value='Return Check' style='width:90px;' class=txt onClick=\"ReturnCheck( '" + ::name + "', '" + returncheck + "' );\"> &nbsp;</td></tr>\r\n"
+					s += " </table>\r\n"
+					s += " <input type=hidden name='mat" + i + "' value='1'>"
+//					s += " <input type=hidden name='val" + i + "' value='" + g.NormalizeNumber( ::ckamount ) + "'>"
+					s += "</td></tr>\r\n"
+				else
+//					s += " <tr><td>&nbsp;</td><td>&nbsp;</td><td colspan=5>Error accessing policy id: " + policyid + "</td></tr>\r\n"
+					s += "<tr bgcolor=#FFCCCC><td><input type=checkbox name=cb" + i + "></td><td align=center>" + i + "</td><td>" + ::name + "<br>" + ::PolicyNum + "</td><td align=center>" + ::cknum + "</td><td align=center>" + ::ckdate + "</td><td align=right>" + g.DollarFormat( ::ckamount, 2, 1 ) + "</td><td align=center>" + g.Lookup2dArray( a, ::source ) + "</td></tr>"
+					s += "<tr bgcolor=white><td>&nbsp;</td><td>&nbsp;</td><td colspan=5>\r\n"
+					s += " <table border=0 width=100% cellspacing=0 cellpadding=2 class=txt>\r\n"
+	//				s += "  <tr><td width=200><br><b>*** INVALID POLICY NUMBER ***<br><br></td><td align=right><input type=button value=\"Search Policy Numbers\" style=\"width:130px;\" class=txt><input type=button value=\"Search Billing Records\" style=\"width:130px;\" class=txt><input type=button value=\"Return Check\" style=\"width:130px;\" class=txt onClick=\"ReturnCheck( '" + ::name + "', '" + returncheck + "' );\"> &nbsp;</td></tr>\r\n"
+					s += "  <tr><td width=200><br><b>*** INVALID POLICY NUMBER ***<br><br></td><td align=right><input type=button value=\"Search\" style=\"width:90px;\" class=txt onClick=\"BatchSearch( " + i + ");\"><input type=button value=\"Return Check\" style=\"width:90px;\" class=txt onClick=\"ReturnCheck( '" + ::name + "', '" + returncheck + "' );\"> &nbsp;</td></tr>\r\n"
+					s += " </table>\r\n"
+					s += " <input type=hidden name='mat" + i + "' value='0'>"
+	//				s += " <input type=hidden name='val" + i + "' value='" + g.NormalizeNumber( ::ckamount ) + "'>"
+					s += "</td></tr>\r\n"
+				end
+			else
+				s += "<tr bgcolor=#FFCCCC><td><input type=checkbox name=cb" + i + "></td><td align=center>" + i + "</td><td>" + ::name + "<br>" + ::PolicyNum + "</td><td align=center>" + ::cknum + "</td><td align=center>" + ::ckdate + "</td><td align=right>" + g.DollarFormat( ::ckamount, 2, 1 ) + "</td><td align=center>" + g.Lookup2dArray( a, ::source ) + "</td></tr>"
+				s += "<tr bgcolor=white><td>&nbsp;</td><td>&nbsp;</td><td colspan=5>\r\n"
+				s += " <table border=0 width=100% cellspacing=0 cellpadding=2 class=txt>\r\n"
+//				s += "  <tr><td width=200><br><b>*** INVALID POLICY NUMBER ***<br><br></td><td align=right><input type=button value=\"Search Policy Numbers\" style=\"width:130px;\" class=txt><input type=button value=\"Search Billing Records\" style=\"width:130px;\" class=txt><input type=button value=\"Return Check\" style=\"width:130px;\" class=txt onClick=\"ReturnCheck( '" + ::name + "', '" + returncheck + "' );\"> &nbsp;</td></tr>\r\n"
+				s += "  <tr><td width=200><br><b>*** INVALID POLICY NUMBER ***<br><br></td><td align=right><input type=button value=\"Search\" style=\"width:90px;\" class=txt onClick=\"BatchSearch( " + i + ");\"><input type=button value=\"Return Check\" style=\"width:90px;\" class=txt onClick=\"ReturnCheck( '" + ::name + "', '" + returncheck + "' );\"> &nbsp;</td></tr>\r\n"
+				s += " </table>\r\n"
+				s += " <input type=hidden name='mat" + i + "' value='0'>"
+//				s += " <input type=hidden name='val" + i + "' value='" + g.NormalizeNumber( ::ckamount ) + "'>"
+				s += "</td></tr>\r\n"
+			end
+
+		end
+    	
+		s += "</table>\r\n"
+		s += "<script language=JavaScript>NumChecks = " + numcks + ";ttlBatchAmount='" + strswap( g.DollarFormat( ::ttl, 2, 1 ), " ", "" ) + "';</script>\r\n"
+
+		::close( )
+		
+		lookup.close( )
+		entity.close( )
+		ins.close( )
+		
+		policy.destroy( )
+		
+		return( s.str )
+	END
+
+END
+
+
+  	
+CLASS MasterEFT
+  PUBLIC:
+    local IsOpen, errmsg
+    local account, approveby, datefrom, dateto, refid, reftype, routing, status
+    local sweepdate, swept, sweptdate, tosweep, transid, validate
+    local MasterEFT, db
+
+    METHOD New( )
+        ::IsOpen = 0
+        ::errmsg = ""
+        ::Init( )
+        return( 1 )
+    END
+
+    METHOD Init( )
+        ::account = ""
+        ::approveby = ""
+        ::datefrom = ""
+        ::dateto = ""
+        ::refid = ""
+        ::reftype = ""
+        ::routing = ""
+        ::status = 0
+        ::sweepdate = ""
+        ::swept = 0
+        ::sweptdate = ""
+        ::tosweep = 0
+        ::transid = 0
+        return( 1 )
+    END
+
+    ACCESS dbFileName
+        return( 'c:\insdata\eft.db' )
+    END
+
+    ACCESS dbIndexName
+        return( 'c:\insdata\eft.dx' )
+    END
+
+    ACCESS dbIndexName2
+        return( 'c:\insdata\eft2.dx' )
+    END
+
+    METHOD create( )
+        local db_struct = {
+            { "TRANSID", "N", 10, 0 },
+            { "REFTYPE", "C", 1, 0 },
+            { "REFID", "C", 65, 0 },
+            { "DATEFROM", "C", 8, 0 },
+            { "DATETO", "C", 8, 0 },
+            { "SWEEPDATE", "C", 8, 0 },
+            { "SWEPTDATE", "C", 8, 0 },
+            { "STATUS", "N", 3, 0 },
+            { "TOSWEEP", "N", 10, 2 },
+            { "SWEPT", "N", 10, 2 },
+            { "ACCOUNT", "C", 15, 0 },
+            { "ROUTING", "C", 15, 0 },
+            { "APPROVEBY", "C", 65, 0 },
+            { "VALIDATE", "~", 4, 0 }
+        }
+        return( dbcreate( ::dbFileName, db_struct ) )
+    END
+
+	ACCESS aRefTypes
+		static a = {
+			{ "A", "Agency" },
+			{ "C", "Customer" },
+			{ "O", "Other" }
+		}
+		return( a )
+	END
+	
+    METHOD open( )
+        if ( ::IsOpen )
+            ::IsOpen++
+            return( 1 )
+        end
+
+        if ( ! fileExists( ::dbFileName ) )
+            ::create( )
+        end
+
+        ::IsOpen = 1
+
+        ::MasterEFT = dbuse( ::dbFileName, "MasterEFT", 1 )
+        ::db = ::MasterEFT
+        if ( ! fileExists( ::dbIndexName ) )
+            (::MasterEFT)->dbCreateIndex( ::dbIndexName, "field->transid", 0 )
+        end
+        (::MasterEFT)->dbOpenIndex( ::dbIndexName )
+
+        if ( ! fileExists( ::dbIndexName2 ) )
+            (::MasterEFT)->dbCreateIndex( ::dbIndexName2, "upper( field->reftype + field->refid + field->sweepdate )", 0 )
+        end
+        (::MasterEFT)->dbOpenIndex( ::dbIndexName2 )
+
+        (::MasterEFT)->dbOrder( 1 )
+		(::MasterEFT)->dbGoTop( )
+        return( 1 )
+    END
+
+    METHOD close( )
+        if ( ::IsOpen == 1 )
+            (::MasterEFT)->dbClose( )
+        end
+        ::IsOpen--
+        return( 1 )
+    END
+
+    METHOD seek( item )
+        (::MasterEFT)->dbSeek( upper( item ) )
+        return( (::MasterEFT)->dbFound( ) )
+    END
+
+    METHOD reindex( )
+        return( (::MasterEFT)->dbReindex( ) )
+    END
+
+    METHOD get( )
+        ::account = alltrim( (::MasterEFT)->account )
+        ::approveby = alltrim( (::MasterEFT)->approveby )
+        ::datefrom = alltrim( (::MasterEFT)->datefrom )
+        ::dateto = alltrim( (::MasterEFT)->dateto )
+        ::refid = alltrim( (::MasterEFT)->refid )
+        ::reftype = alltrim( (::MasterEFT)->reftype )
+        ::routing = alltrim( (::MasterEFT)->routing )
+        ::status = (::MasterEFT)->status
+        ::sweepdate = alltrim( (::MasterEFT)->sweepdate )
+        ::swept = (::MasterEFT)->swept
+        ::sweptdate = alltrim( (::MasterEFT)->sweptdate )
+        ::tosweep = (::MasterEFT)->tosweep
+        ::transid = (::MasterEFT)->transid
+        return( 1 )
+    END
+
+    METHOD put( )
+        (::MasterEFT)->account = ::account
+        (::MasterEFT)->approveby = ::approveby
+        (::MasterEFT)->datefrom = ::datefrom
+        (::MasterEFT)->dateto = ::dateto
+        (::MasterEFT)->refid = ::refid
+        (::MasterEFT)->reftype = ::reftype
+        (::MasterEFT)->routing = ::routing
+        (::MasterEFT)->status = ::status
+        (::MasterEFT)->sweepdate = ::sweepdate
+        (::MasterEFT)->swept = ::swept
+        (::MasterEFT)->sweptdate = ::sweptdate
+        (::MasterEFT)->tosweep = ::tosweep
+        (::MasterEFT)->transid = ::transid
+        return( 1 )
+    END
+
+    METHOD validate( )
+        return( 1 )
+    END
+
+    METHOD CreateNewRecord( key )
+        if ( ! ::validate( ) )
+            return( 0 )
+        end
+
+        ::open( )
+        if ( ::seek( key ) )
+            ::errmsg = "Record (" + key + ") already exists!"
+            ::close( )
+            return( 0 )
+        end
+
+        (::MasterEFT)->dbAppend( )
+        ::put( )
+
+        ::close( )
+        return( 1 )
+    END
+
+    METHOD GetRecord( key )
+        ::open( )
+
+        ::init( )
+        if ( ! ::seek( key ) )
+            ::errmsg = "Unable to locate record (" + key + ")"
+            ::close( )
+            return( 0 )
+        end
+
+        ::get( )
+        ::close( )
+
+        return( 1 )
+    END
+
+    METHOD SetRecord( key )
+        if ( ! ::validate( ) )
+            return( 0 )
+        end
+
+        ::open( )
+
+        if ( ! ::seek( key ) )
+            ::errmsg = "Unable to locate record (" + key + ")"
+            ::close( )
+            return( 0 )
+        end
+
+        ::put( )
+        ::close( )
+
+        return( 1 )
+    END
+
+END
+
+
+
+CLASS objUnassignedCash
+  PUBLIC:
+    local IsOpen, LockTimeout, errmsg, db
+    local batchdate, batchnum, ckamount, ckdate, cknum, name, policynum, refid
+    local source
+
+    METHOD New( )
+        ::IsOpen = 0
+        ::errmsg = ""
+        ::LockTimeout = 2
+        ::db = 0
+        ::Init( )
+        return( 1 )
+    END
+
+    METHOD Init( )
+        ::batchdate = ""
+        ::batchnum = ""
+        ::ckamount = 0.00
+        ::ckdate = ""
+        ::cknum = ""
+        ::name = ""
+        ::policynum = ""
+        ::refid = ""
+        ::source = ""
+        return( 1 )
+    END
+
+    ACCESS dbFileName
+        return( 'c:\insdata\UnassignedCash.db' )
+    END
+
+    ACCESS dbIndexName
+        return( 'c:\insdata\UnassignedCash.dx' )
+    END
+
+    ACCESS dbIndexName2
+        return( 'c:\insdata\UnassignedCash2.dx' )
+    END
+
+    METHOD create( )
+        local db_struct = {
+            { "refid", "C", 15, 0 },
+            { "batchnum", "C", 12, 0 },
+            { "batchdate", "C", 50, 0 },
+            { "PolicyNum", "C", 50, 0 },
+            { "cknum", "C", 30, 0 },
+            { "ckamount", "N", 12, 2 },
+            { "source", "C", 30, 0 },
+            { "name", "C", 50, 0 },
+            { "ckdate", "C", 20, 0 }
+        }
+        return( dbcreate( ::dbFileName, db_struct ) )
+    END
+
+    METHOD open( )
+        if ( ::IsOpen )
+            ::IsOpen++
+            return( 1 )
+        end
+
+        if ( ! fileExists( ::dbFileName ) )
+            ::create( )
+        end
+
+        ::IsOpen = 1
+
+        ::db = dbuse( ::dbFileName, "objUnassignedCash", 1 )
+        if ( ! fileExists( ::dbIndexName ) )
+            (::db)->dbCreateIndex( ::dbIndexName, "field->refid", 0 )
+        end
+        (::db)->dbOpenIndex( ::dbIndexName )
+
+        if ( ! fileExists( ::dbIndexName2 ) )
+            (::db)->dbCreateIndex( ::dbIndexName2, "field->batchdate", 0 )
+        end
+        (::db)->dbOpenIndex( ::dbIndexName2 )
+
+        (::db)->dbOrder( 1 )
+
+        return( 1 )
+    END
+
+    METHOD close( )
+        if ( ::IsOpen == 1 )
+            (::db)->dbClose( )
+        end
+        ::IsOpen--
+        return( 1 )
+    END
+
+    METHOD seek( item )
+        (::db)->dbSeek( upper( item ) )
+        return( (::db)->dbFound( ) )
+    END
+
+    METHOD reindex( )
+        return( (::db)->dbReindex( ) )
+    END
+
+    METHOD get( )
+        ::batchdate = alltrim( (::db)->batchdate )
+        ::batchnum = alltrim( (::db)->batchnum )
+        ::ckamount = (::db)->ckamount
+        ::ckdate = alltrim( (::db)->ckdate )
+        ::cknum = alltrim( (::db)->cknum )
+        ::name = alltrim( (::db)->name )
+        ::policynum = alltrim( (::db)->policynum )
+        ::refid = alltrim( (::db)->refid )
+        ::source = alltrim( (::db)->source )
+        return( 1 )
+    END
+
+    METHOD put( )
+        (::db)->batchdate = ::batchdate
+        (::db)->batchnum = ::batchnum
+        (::db)->ckamount = ::ckamount
+        (::db)->ckdate = ::ckdate
+        (::db)->cknum = ::cknum
+        (::db)->name = ::name
+        (::db)->policynum = ::policynum
+        (::db)->refid = ::refid
+        (::db)->source = ::source
+        return( 1 )
+    END
+
+    METHOD validate( )
+        return( 1 )
+    END
+
+    METHOD CreateNewRecord( key )
+        if ( ! ::validate( ) )
+            return( 0 )
+        end
+
+        ::open( )
+        if ( ::seek( key ) )
+            ::errmsg = "Record (" + key + ") already exists!"
+            ::close( )
+            return( 0 )
+        end
+
+        (::db)->dbAppend( )
+        ::put( )
+        ::unlock( )
+
+        ::close( )
+        return( 1 )
+    END
+
+    METHOD GetRecord( key )
+        ::open( )
+
+        ::init( )
+        if ( ! ::seek( key ) )
+            ::errmsg = "Unable to locate record (" + key + ")"
+            ::close( )
+            return( 0 )
+        end
+
+        ::get( )
+        ::close( )
+
+        return( 1 )
+    END
+
+    METHOD SetRecord( key )
+        if ( ! ::validate( ) )
+            return( 0 )
+        end
+
+        ::open( )
+
+        if ( ! ::seek( key ) )
+            ::errmsg = "Unable to locate record (" + key + ")"
+            ::close( )
+            return( 0 )
+        end
+
+        if ( ::rlock( ) )
+            ::put( )
+            ::unlock( )
+        end
+        ::close( )
+
+        return( 1 )
+    END
+
+    METHOD dbOrder( val )
+        (::db)->dbOrder( val )
+    END
+    METHOD dbGoto( val )
+        (::db)->dbGoto( val )
+    END
+    METHOD dbGoTop( )
+        (::db)->dbGoTop( )
+    END
+    METHOD dbGoBottom( )
+        (::db)->dbGoBottom( )
+    END
+    METHOD dbEOF( )
+        return( (::db)->dbEOF( ) )
+    END
+    METHOD dbBOF( )
+        return( (::db)->dbBOF( ) )
+    END
+    METHOD dbseek( id )
+        return( ::seek( id ) )
+    END
+    METHOD dbSkip( index )
+    	if ( type( index ) == "N" )
+    		(::db)->dbSkip( index )
+    	else
+    		(::db)->dbSkip( )
+    	end
+        return( 1 )
+    END
+
+    METHOD rlock( )
+        local EndTime
+        if ( ! ::IsOpen )
+            ::errmsg = 'Database must be open to lock record'
+            return( 0 )
+        end
+        EndTime = seconds( ) + ::LockTimeout
+        while ( ! (::db)->dbRLock( ) )
+            if ( ( seconds( ) > EndTime ) || ( ( seconds( ) + ::LockTimeout ) < EndTime ) )
+                ::errmsg ='Unable to lock database record'
+                return( 0 )
+            end
+        end
+        return( 1 )
+    END
+
+    METHOD unlock( )
+        if ( ! ::IsOpen )
+            ::errmsg = 'Database must be open to unlock record'
+            return( 0 )
+        end
+        (::db)->dbUnLock( )
+        return( 1 )
+    END
+
+	METHOD delete( recnum )
+		if ( ! recnum )
+			return( 0 )
+		end
+		(::db)->dbGoTo( recnum )
+		if ( ! ::rlock( ) )
+			return( 0 )
+		end
+		(::db)->dbDelete( )
+		::unlock( )
+		
+		return( 1 )
+	END
+
+END
+
+

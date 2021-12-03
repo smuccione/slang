@@ -1,0 +1,9 @@
+function main ()
+	DebugBreak()
+   netRegister ( 't1', "MyNamespace.SimpleClass", "MsgBox" );
+   netRegister ( "t1", "MyNamespace.SimpleClass", "MsgBox2" );
+   netRegister ( "t2", "MyNamespace2.SimpleClass2", "MsgBox21" );
+   println ( MsgBox ( "hello from net" ) );
+   println ( MsgBox2 ( "hello from net" ) );
+   println ( MsgBox21 ( "hello from net" ) );
+end

@@ -1,0 +1,8 @@
+debugBreak();
+
+x = 'c:\slang\test\test2\aphiAPP.pdf'
+
+y = readBarcode ( x, 'C:\PDFNetLibDemo_VC6\resources' )
+
+println ( y )
+

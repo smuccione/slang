@@ -1,0 +1,57 @@
+<[
+    session = new( "session" )
+]>
+<html>
+<head>
+ <title>Active Page demonstrating server interaction</title>
+</head>
+<body text=black bgcolor=white>
+
+<[
+    a = { "ALL_HTTP", "ALL_RAW", "APPL_MD_PATH", "APPL_PHYSICAL_PATH", 
+          "AUTH_PASSWORD", "AUTH_TYPE", "AUTH_USER", "CERT_COOKIE", 
+          "CERT_FLAGS", "CERT_ISSUER", "CERT_KEYSIZE", "CERT_SECRETKEYSIZE",
+          "CERT_SERIALNUMBER", "CERT_SERVER_ISSUER", "CERT_SERVER_SUBJECT", 
+          "CERT_SUBJECT", "CONTENT_LENGTH", "CONTENT_TYPE", "HTTP_ACCEPT", 
+          "HTTPS", "HTTPS_KEYSIZE", "HTTPS_SECRETKEYSIZE", "HTTPS_SERVER_ISSUER",
+          "HTTPS_SERVER_SUBJECT", "INSTANCE_ID", "INSTANCE_META_PATH", 
+          "PATH_INFO", "PATH_TRANSLATED", "QUERY_STRING", "REMOTE_ADDR", 
+          "REMOTE_HOST", "REMOTE_USER", "REQUEST_METHOD", "SCRIPT_NAME",
+          "SERVER_NAME", "SERVER_PORT", "SERVER_PORT_SECURE", "SERVER_PROTOCOL", 
+          "SERVER_SOFTWARE", "URL"," HTTP_COOKIE", "LOGON_USER", "REQUEST_URI", 
+          "HTTP_AUTHORIZATION"
+    }
+    
+    ! "<p>Session DATA elements</p>"
+    ! "<table border=1 width=100% cellspacing=0 cellpadding=2 class=smtxt>"
+    
+    cnt = len( a )
+    for ( i=1; i<=cnt; i++ )
+        ! "<tr><td>" + a[i] + ":</td><td>" + session.data( a[i] ) + "</td></tr>\r\n"
+    end
+    
+    ! "</table>"
+]>
+          
+<p>Session Object access variables</p>
+<table border=1 width=100% cellspacing=0 cellpadding=2 class=smtxt>
+ <tr><td>Total Bytes Sent:</td><td><[ ! session.TotalBytesSent ]></td></tr>
+ <tr><td>Total Bytes Received:</td><td><[ ! session.TotalBytesRcvd ]></td></tr>
+ <tr><td>AP BytesSent:</td><td><[ ! session.APBytesSent ]></td></tr>
+ <tr><td>Authentication Failures:</td><td><[ ! session.AuthenticateFailures ]></td></tr>
+ <tr><td>Authentication Challenges:</td><td><[ ! session.AuthenticateChallenges ]></td></tr>
+ <tr><td>Total Conections:</td><td><[ ! session.TotalConnections ]></td></tr>
+ <tr><td>Total Requests:</td><td><[ ! session.TotalRequests ]></td></tr>
+ <tr><td>Total Responses:</td><td><[ ! session.TotalResponses ]></td></tr>
+ <tr><td>URL:</td><td><[ ! session.url ]></td></tr>
+ <tr><td>Request Method:</td><td><[ ! session.method ]></td></tr>
+ <tr><td>Server Root:</td><td><[ ! session.ServerRoot ]></td></tr>
+ <tr><td>Server Config file:</td><td><[ ! session.ServerConfigFile ]></td></tr>
+ <tr><td>Engine Config File:</td><td><[ ! session.EngineConfigFile ]></td></tr>
+ <tr><td>Transaction Log File:</td><td><[ ! session.TransactionLogFile ]></td></tr>
+ <tr><td>System Log File:</td><td><[ ! session.systemLogFile ]></td></tr>
+</table>
+
+</body>
+</html>
+

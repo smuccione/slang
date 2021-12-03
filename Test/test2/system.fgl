@@ -1,0 +1,1156 @@
+// SYSTEM.FGL
+// (c) 2003 by Business Risk Technologies, Inc., All Rights Reserved
+
+
+CLASS GlobalParams
+  PUBLIC:
+  	local datadir, errmsg, prefix, reflib, insdata
+  	
+  	METHOD new( )
+  		return( ::init( ) )
+  	END
+  	
+  	METHOD init( )
+  		::datadir = 'c:\sdweb\home\fcd\'
+  		::prefix = "ID"
+		::errmsg = ""
+		::reflib = NIL
+		::insdata = NIL
+		if ( ! fileExists( ::idDataFile ) )
+			::errmsg = "Data file " + ::idDataFile + " does not exist."
+		end
+  		return( 1 )
+  	END
+
+	METHOD GetNextId( )
+		local fname = ::idDataFile
+		local val = 0 + iniGetString( fname, "CONFIG", "IDVAL", "" )
+		if ( ! val )
+			val = 100000
+			iniSetString( fname, "CONFIG", "IDVAL", "" + val )
+		else
+			iniSetString( fname, "CONFIG", "IDVAL", "" + ( val ) )
+		end
+		val++
+		return( "" + val )
+	END
+  	
+  	ACCESS idDataFile
+  		return( ::datadir + 'data\system.dat' )
+  	END
+
+  	ACCESS GetUniqueID
+  		local val
+
+  		val = iniGetString( ::idDataFile, "CONFIG", "ID", "" )
+  		if ( strempty( val ) )
+ 			::errmsg = "ID Value set at zero."
+  		end
+  		iniSetString( ::idDataFile, "CONFIG", "ID", "" + ( 0 + val + 1 ) )
+  		
+  		return( ::prefix + right( dec2hex( 0 + val ), 6 ) )
+  	END
+
+	METHOD GetUniqueOutputFile( )
+		local fname, dte, i=1
+		
+		// admin maintenance - delete old report files
+		fname = fileFindFirst( ::datadir + 'reports\output\*.*', 0 )
+		dte = jdate( ) - 1	 // delete if 1 day old
+		while ( ! strempty( fname ) )
+			if ( i > 10 )
+				// MOREWORK: Make sure files are deleted faster then created
+				break
+			end
+			fname = ::datadir + 'reports\output\' + fname
+			if ( datej( filedate( fname ) ) <= dte )
+				fileDelete( fname )
+			else
+				i++
+			end
+			fname = fileFindNext( )
+		end
+
+		// MOREWORK: Check for available disk space!!!
+		
+		// get unique filename
+//		fname = ::datadir + 'reports\output\' + fileTempName( ::datadir + 'reports\output\d*.htm' )
+		fname = fileTempName( ::datadir + 'reports\output\d*.htm' )
+
+		return( fname )
+	END
+
+	METHOD NormalizeDate( dte )
+		LOCAL m, d, y
+
+		if ( strempty( dte ) )
+			return( dte )
+		end
+
+		dte = alltrim( chrswap( dte, "/", "-" ) )
+		m = right( "0" + strextract( dte, "-", 1 ), 2 )
+		d = right( "0" + strextract( dte, "-", 2 ), 2 )
+		y = right( "20" + strextract( dte, "-", 3 ), 4 )
+		
+		return( m + "-" + d + "-" + y )
+	END
+
+	METHOD NormalizeNumber( _val )
+		local val
+		
+		val = "" + _val
+		val = strswap( val, ",", "" )
+		val = strswap( val, " ", "" )
+		val = strswap( val, "$", "" )
+		
+		return( 0.00 + val )
+	END
+
+	METHOD CreateDateKey( pd )
+		local dte = ::NormalizeDate( pd )
+		return( strextract( dte, "-", 3 ) + strextract( dte, "-", 1 ) + strextract( dte, "-", 2 ) )
+	END
+
+//	ACCESS aMonths
+//		return( constMonths( ) )
+//	END
+//	ACCESS aDaysInMonth
+//		return( constDaysInMonth( ) )
+//	END
+//	ACCESS aDays
+//		return( constDays( ) )
+//	END
+	ACCESS aYesNo
+		local a = { "Yes", "No" }
+		return( a )
+	END
+	ACCESS aYN
+		local a = { "Y", "N" }
+		return( a )
+	END
+//	ACCESS aStates
+//		return( constStates( ) )
+//	END
+
+	METHOD ArrayToString( a )
+		local s = "", i
+		
+		for ( i=1; i<=len( a ); i++ )
+			s += "" + a[i] + ";"
+		end
+		return( s )
+	END
+
+	METHOD Array2dToString( a, x )
+		local s = "", i
+		
+		for ( i=1; i<=len( a ); i++ )
+			s += "" + a[i][x] + ";"
+		end
+		return( s )
+	END
+
+	METHOD Flatten2dArray( aval )
+		local i, s=""
+
+		for ( i=1; i<=len( aval ); i++ )
+			s += ( "" + aval[i][1] + "|" + aval[i][2] + ";" )
+		end
+
+		return( s )
+	END
+
+	METHOD ConvertArrayToString( a, delim )
+		local str="", i
+		
+		if ( type( delim ) != "C" )
+			delim = ";"
+		end
+		
+		for ( i=1; i<=len( a ); i++ )
+			str += "" + a[i] + delim
+		end
+		
+		return( str )
+	END
+
+	METHOD aCreateNumberList( StartVal, EndVal )
+		return( ::aCreateNumberListX( StartVal, EndVal, 1 ) )
+	END
+
+	METHOD aCreateNumberListX( StartVal, EndVal, offset )
+		local a, i, j=1
+		
+		for ( i=StartVal; i<=Endval; i+=offset, j++ )
+			a[j] = i
+		end
+		
+		return( a )	
+	END
+
+
+	METHOD aListFromString( str, _delim )
+		local a, val, i=1, delim
+		
+		delim = type( _delim ) == "C" ? _delim : ";"
+		
+		while ( 1 )
+			val = strextract( str, delim, i )
+			if ( strempty( val ) )
+				break
+			end
+			a[i++] = val
+		end
+		if ( i < 2 )
+			return( NIL )
+		end
+		return( a )
+	END
+
+	METHOD UpdateWebVars( _data, newdata, delim1, delim2 )
+////////////
+// MOREWORK: Recode using strati( ) to increase performance
+////////////
+		// update one url vars from another
+		local i, cnt, str, var, value, data
+
+		if ( type( delim1 ) != "C" )
+			delim1 = "&"
+		end
+		if ( type( delim2 ) != "C" )
+			delim2 = "&"
+		end
+
+		data = _data	
+		cnt = chrcount( delim2, newdata ) + 1
+		for ( i=1; i<=cnt; i++ )
+			str = strextract( newdata, delim2, i )
+			if ( strempty( str ) )
+				continue
+			end
+			var = strextract( str, "=", 1 )
+			value = strextract( str, "=", 2 )
+//println( var + "=" + value )
+			data = ::ReplaceWebVar( data, var, value, delim1 )
+		end
+		return( data )
+	END
+
+	METHOD ReplaceWebVar( data, var, value, delim )
+////////////
+// MOREWORK: Recode using strati( ) to increase performance
+////////////
+
+		local cnt, i, str, key, s="", flag=0
+		
+		if ( type( delim ) != "C" )
+			delim = "&"
+		end
+		var = upper( var )
+		cnt = chrcount( delim, data ) + 1
+		for ( i=1; i<=cnt; i++ )
+			str = strextract( data, delim, i )
+			if ( strempty( str ) )
+				continue
+			end
+			key = upper( strextract( str, "=", 1 ) )
+			if ( key == var )
+				s += var + "=" + value + delim
+				flag = 1
+			else
+				s += str + delim
+			end
+		end
+		if ( ! flag )
+			s += var + "=" + value + delim
+		end
+		
+		return( s )
+	END
+
+	METHOD WebEncodeString( str )
+		local i, cnt, s="", var, value, line
+		
+		cnt = chrcount( "&", str ) + 1
+		for ( i=1; i<=cnt; i++ )
+			line = strextract( str, "&", i )
+			if ( strempty( line ) )
+				continue
+			end
+			var = strextract( line, "=", 1 )
+			if ( strempty( var ) )
+				continue
+			end
+			value = strextract( line, "=", 2 )
+			
+			s += var + "=" + webEncodeURL( value ) + "&"
+		end
+		
+		return( s )
+		
+	END
+
+	METHOD ListClassVars( c )
+		local i, s=""
+
+		for ( i=1; i<=len( c.aVars ); i++ )		
+//println( "c." + c.aVars[i] )
+//println( type( &( "c." + c.aVars[i] ) ) )
+			if ( type( &( "c." + c.aVars[i] ) ) == "U" )
+				s += c.aVars[i] + " = UNDEFINED<br>"
+			else
+				s += c.aVars[i] + " = " + (&( "c." + c.aVars[i] )) + "<br>"
+			end
+		end
+				
+		return( s )
+	END
+	
+	METHOD CreateClassVarString( c )
+		local i, s=""
+		for ( i=1; i<=len( c.aVars ); i++ )		
+//println( "c." + c.aVars[i] )
+//println( type( &( "c." + c.aVars[i] ) ) )
+		if ( type( &( "c." + c.aVars[i] ) ) == "U" )
+				s += c.aVars[i] + "=UNDEFINED&"
+			else
+				s += c.aVars[i] + "=" + webEncodeUrl( "" + ( &( "c." + c.aVars[i] ) ) ) + "&"
+			end
+		end
+		if ( ! strempty( s ) )
+			s = left( s, len( s ) - 1 )
+		end
+		return( s )
+	END
+	
+	METHOD dobFromObj( obj )
+		return( right( "0" + obj.dobM, 2 ) + "/" + right( "0" + obj.dobD, 2 ) + "/" + right( "0" + obj.dobY, 4 ) )
+	END
+
+	METHOD dobToObj( d, obj )
+		obj.dobM = left( d, 2 )
+		obj.dobD = substr( d, 4, 2 )
+		obj.dobY = ( len( d ) == 8 ? "19" + right( d, 2 ) : right( d, 4 ) )
+		return( 1 )
+	END
+	
+	METHOD CalculateAgeFromObj( obj )
+		return( ::CalculateAge( obj.dobM, obj.dobD, obj.dobY ) )
+	END
+
+	METHOD CalculateAgeFromDate( dte )
+		return( ::CalculateAge( left( dte, 2 ), substr( dte, 4, 2 ), len( dte ) < 9 ? "19" + right( dte, 2 ) : right( dte, 4 ) ) )
+	END
+
+	METHOD CalculateAge( m, d, y )
+		local _m, _d, _y, age
+
+		_m = 0 + date( "MM" )
+		_d = 0 + date( "DD" ) + 1
+		_y = ( 0 + date( "YYYY" ) ) - 1
+		
+		age = _y - ( 0 + y )
+		if ( ( ( 0 + m ) <= _m ) && ( ( 0 + d ) <= _d ) )
+			age++
+		end
+		
+		return( age )		
+	END
+
+	METHOD FormatCommas( s )
+		local str="", i, j
+		
+		for ( i=len( s ), j=1; i>0; i--, j++ )
+			if ( j > 3 )
+				j = 1
+				str = "," + str
+			end
+			str = s[i] + str
+		end
+		
+		return( str )
+	END
+
+	METHOD DollarFormat( _val, CentsFlag, DollarFlag, w )
+		local dollars, cents, width, s, val, IsNeg=0
+
+		CentsFlag = type( CentsFlag ) == "N" ? CentsFlag : 1
+		DollarFlag = type( DollarFlag ) == "N" ? DollarFlag : 0
+
+		_val = alltrim( "" + _val )
+
+		if ( left( "" + _val, 1 ) == "-" )
+			IsNeg = 1
+			val = 0.00 + right( "" + _val, len( "" + _val ) - 1 )
+		else
+			val = _val
+		end
+
+		if ( ! CentsFlag )
+			s = ::FormatCommas( "" + int( val ) )
+			if ( strempty( s ) )
+				s = "0"
+			end
+			width = type( w ) != "N" ? len( "" + val ) + 1 : w
+			return( ( DollarFlag ? "$ " : "" ) + ( IsNeg ? "-" : "" ) + right( untrim( " ", width + 1 ) + s, width ) )
+
+		end
+		cents = left( strextract( "" + val, ".", 2 ) + "00", 2 )
+		dollars = ::FormatCommas( strextract( "" + val, ".", 1 ) )
+		if ( strempty( dollars ) )
+			dollars = "0"
+		end
+		s = dollars + "." + cents
+		width = type( w ) != "N" ? len( s ) : w
+
+		return( ( DollarFlag ? "$ " : "" ) + ( IsNeg ? " -" : "" ) + right( untrim( " ", width ) + s, width ) )
+	END
+
+	METHOD DollarRoundUp( val )
+		// Round any cents value to next higher dollar amount
+		local dollars, cents, IsNeg=0
+	
+		if ( val < 0 )
+			IsNeg = 1
+			val *= -1
+		end
+	
+//		cents = right( "00" + strextract( "" + val, ".", 2 ), 2 )
+		cents = left( strextract( "" + val, ".", 2 ) + "00", 2 )
+//		cents = right( "00" + strextract( "" + val, ".", 2 ), 2 )
+		dollars = strextract( "" + val, ".", 1 )
+	
+		if ( ( 0 + cents ) > 49 )   // Use this to round at 50 cents instead of .01
+//		if ( ( 0 + cents ) > 0 )
+			dollars = "" + ( ( 0 + dollars ) + 1 )
+		end
+	
+		return( ( 0 + dollars ) * ( IsNeg ? -1 : 1 ) )
+	END
+
+	METHOD RoundToNearestHundred( val )
+		local i, IsNeg = 0
+
+		if ( val < 0 )
+			IsNeg = 1
+			val *= -1
+		end
+		
+		if ( val < 50 )
+			return( 0 )
+		elseif( val < 150 )
+			return( 100 )
+		end
+		i = 0 + right( "" + val, 2 )
+		if ( i < 50 )
+			return( ( 0 + ( left( "" + val, len( "" + val ) - 2 ) + "00" ) ) * ( IsNeg ? -1 : 1 ) )
+		end
+		return( ( 100 + ( left( "" + val, len( "" + val ) - 2 ) + "00" ) * ( IsNeg ? -1 : 1 ) )
+	END
+
+	METHOD RoundToNearestThousand( val )
+		local i, IsNeg=0
+
+		if ( val < 0 )
+			IsNeg = 1
+			val *= -1
+		end
+		
+		if ( val < 500 )
+			return( 0 )
+		elseif( val < 1500 )
+			return( 1000 * ( IsNeg ? -1 : 1 ) )
+		end
+		i = 0 + right( "" + val, 3 )
+		if ( i < 500 )
+			return( ( 0 + ( left( "" + val, len( "" + val ) - 3 ) + "000" ) ) * ( IsNeg ? -1 : 1 ) )
+		end
+		return( ( 1000 + ( left( "" + val, len( "" + val ) - 3 ) + "000" ) ) * ( IsNeg ? -1 : 1 ) )
+	END
+
+
+	METHOD ExtractDateFromKey( date, delim )
+		if ( type( delim ) != "C" )
+			delim = "/"
+		end
+		return( substr( date, 5, 2 ) + delim + substr( date, 7, 2 ) + delim + left( date, 4 ) )
+	END
+
+	METHOD ExtractTimeFromKey( date )
+		return( substr( date, 9, 2 ) + ":" + substr( date, 11, 2 ) + ":" + substr( date, 13, 2 ) )
+	END
+
+	METHOD Lookup2dArray( a, _val )
+		local i, val
+		
+		if ( type( _val ) == "C" )
+			val = upper( _val )
+
+			for ( i=1; i<=len( a ); i++ )
+				if ( upper( a[i][1] ) == val )
+ 					return( a[i][2] )
+				end
+			end
+		else
+			for ( i=1; i<=len( a ); i++ )
+				if ( a[i][1] == _val )
+ 					return( a[i][2] )
+				end
+			end
+		end
+		return( NIL )
+	END
+
+	METHOD FullNameFromObj( obj )
+		return( obj.fname + " " + ( strempty( obj.mname ) ? "" : obj.mname + " " ) + obj.lname )
+	END
+
+	METHOD DelimitedListInsert( list, item, delimiter )
+		local i, cnt, flag=0, val
+		
+		item = upper( item )
+		
+		cnt = chrcount( delimiter, list ) + 1
+		for ( i=1; i<=cnt; i++ )
+			val = upper( strextract( list, delimiter, i ) )
+			if ( val == item )
+				return( list )
+			end
+		end
+		if ( len( list ) < 2 )
+			return( item + delimiter )
+		else
+			return( list + item + delimiter )
+		end
+	END
+
+	METHOD DelimitedListDelete( list, item, delimiter )
+		local i, cnt, flag=0, val, str=""
+		
+		item = upper( item )
+		
+		cnt = chrcount( delimiter, list ) + 1
+		for ( i=1; i<=cnt; i++ )
+			val = strextract( list, delimiter, i )
+			if ( strempty( val ) )
+				continue
+			end
+			if ( upper( val ) == item )
+				continue
+			end
+			str += ( val + delimiter )
+		end
+		return( str )
+	END
+
+	METHOD AbbreviateString( str, len )
+		if ( len( str ) <= len )
+			return( str )
+		end
+		return( left( str, len ) + "..." )	
+	END
+
+	METHOD ProcessQuoteError( err )
+		local s
+		s = "<script language=JavaScript>parent.newquotetop.ResetQuote( );</script>\r\n"
+		s += "<table border=0 bgcolor=\"#FFFF88\" width=640 cellspacing=0 cellpadding=10><tr><td><font class=p8><b>ERRORS DETECTED:</b>\r\n"
+		if ( strat( "SYSTEM ERROR", err ) > 0 )
+			s += err + "\r\n"
+		else
+			s += err + " Errors are denoted as <font style=\"background:#FF8080;\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font> on the form.\r\n"
+		end
+		s += "</td></tr></table><br>\r\n"
+		return( s )
+	END
+
+	METHOD __ProcessQuoteError( err )
+		local s
+		s = "<script language=JavaScript>parent.newquotetop.ResetQuote( );</script>\r\n"
+		s += "<table border=0 bgcolor=\"#FFFF88\" width=640 cellspacing=0 cellpadding=10><tr><td><font class=p8><b>ERRORS DETECTED:</b>\r\n"
+		s += err + " Errors are denoted as <font style=\"background:#FF8080;\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font> on the form.\r\n"
+		s += "</td></tr></table><br>\r\n"
+		return( s )
+	END
+	
+END
+
+
+
+CLASS FormatHTML
+  PUBLIC:
+	local session, id, header, body, footer
+
+	METHOD new( p1, p2 )
+		if ( type( p1 ) != "N" )
+			p1 = 0
+		end
+		if ( type( p2 ) != "N" )
+			p2 = 0
+		end
+		::session = new( "session", p1, p2 )
+		return( ::init( ) )
+	END
+
+	METHOD init( )
+		::header = ""
+		::body = ""
+		::footer = ""
+		::id = "BRT"
+		return( 1 )
+	END
+
+	METHOD msgbox( title, msg, returl )
+		local str
+		
+		str =  "<html><body background=\"http://www.brtsystems.com/images/bkpaper.jpg\"><table border=0 width=100% height=100%><tr><td valign=center align=center>\r\n"
+//		str += " <table bgcolor=\"#FFF3CE\" border=1 cellpadding=30 ><tr><td align=center valign=center width=400 height=200>\r\n"
+		str += " <table bgcolor=\"#FFFF88\" border=1 cellpadding=30 ><tr><td align=center valign=center width=400 height=200>\r\n"
+		str += "<h2><u>" + title + "</u></h2><br><font style=\"font-size:12pt;\"><p align=left>" + msg + "</p></font><br><br>\r\n"		
+		if ( type( returl ) == "C" )
+			str += "<a href=\"" + returl + "\"><font style=font-size:9pt;color:black;\"\">Click here to return...</font></a><br>\r\n"
+		else
+			str += "<a href=\"javascript:history.back();\"><font style=font-size:9pt;color:black;\"\">Click here to return...</font></a><br>\r\n"
+		end
+		str += " </td></tr></table><br><br>\r\n"
+		str += "</td></tr></table>\r\n"
+		str += "</body></html>\r\n"
+
+		return( str )		
+	END
+
+	METHOD LoadTemplate( id )
+		local dir
+		
+		if ( type( id ) == "C" )
+			::id = id
+		end
+
+		dir = webServerFile( ::session.websrvr, "/insmgmt/intrface/" )
+		::header = fileReadAscii( dir + ::id + ".hdr" )
+		::footer = fileReadAscii( dir + ::id + ".ftr" )
+		
+		return( 1 )
+	END
+
+	METHOD RadioYN( varname, curval, class, OnYes, OnNo )
+		local s
+		
+		s =  "<input type=radio name=\"" + varname + "\" value=\"Y\"" + ( type( class ) == "C" ? " class=\"" + class + "\"" : "" ) + ( upper( curval ) == "Y" ? " checked" : "" ) + ( type( OnYes) == "C" ? " onClick=\"" + OnYes + "\"" : "" ) + ">Yes \r\n"
+		s += "<input type=radio name=\"" + varname + "\" value=\"N\"" + ( type( class ) == "C" ? " class=\"" + class + "\"" : "" ) + ( upper( curval ) == "N" ? " checked" : "" ) + ( type( OnNo ) == "C" ? " onClick=\"" + OnNo + "\"" : "" ) + ">No \r\n"
+		
+		return( s )
+	END
+
+	METHOD RadioButton( varname, val, curval, class, onClick )
+		local s=""
+		
+		if ( type( onClick ) == "C" )
+			s = "<input type=radio name=\"" + varname + "\"" + ( type( class ) == "C" ? " class=\"" + class + "\"" : "" ) + " value=\"" + val + "\"" + ( upper( curval ) == upper( val ) ? " checked" : "" ) + " onClick=\"" + onClick + "\">"
+		else
+			s = "<input type=radio name=\"" + varname + "\"" + ( type( class ) == "C" ? " class=\"" + class + "\"" : "" ) + " value=\"" + val + "\"" + ( upper( curval ) == upper( val ) ? " checked" : "" ) + ">"
+		end
+		
+		return( s )
+	END
+
+	METHOD CheckBox( varname, IsChecked, class )
+		return( "<input type=checkbox name=\"" + varname + "\"" + ( type( class ) == "C" ? " class=\"" + class + "\"" : "" ) + " " + ( IsChecked == "on" ? " checked" : "" ) + ">" )
+	END
+
+	METHOD CheckBoxX( varname, IsChecked, class, onChange )
+		local s=""
+	
+		if ( type( onChange ) == "C" )
+			s = "<input type=checkbox value=\"X\" name=\"" + varname + "\"" + ( type( class ) == "C" ? " class=\"" + class + "\"" : "" ) + " " + ( IsChecked == "X" ? " checked" : "" ) + " onClick=\"" + onChange + "\">"
+		else
+			s = "<input type=checkbox value=\"X\" name=\"" + varname + "\"" + ( type( class ) == "C" ? " class=\"" + class + "\"" : "" ) + " " + ( IsChecked == "X" ? " checked" : "" ) + ">"
+		end
+	
+		return( s )
+	END
+
+	METHOD RadioButtonsFromString( str, varname, curval, class )
+		local v, s="", i=1
+		
+		while ( 1 )
+			v = strextract( str, ";", i++ )
+			if ( strempty( v ) )
+				break
+			end
+			s += "<input type=radio name=\"" + varname + "\"" + ( type( class ) == "C" ? " class=\"" + class + "\"" : "" ) + ( upper( curval ) == upper( v ) ? " checked" : "" ) + " value=\"" + v + "\">" + v + "\r\n"
+		end
+		return( s )
+	END
+
+	METHOD SelectFromString( str, varname, width, curval, class, other )
+		local a, i=1, val
+		
+		while ( 1 )
+			val = strextract( str, ";", i )
+			if ( strempty( val ) )
+				break
+			end
+			if ( val[1] == "-" )
+				val = ""
+			end
+			a[i++] = val
+		end
+		
+		if ( i < 2 )
+			return( "" )
+		end
+		
+		return( ::SelectFromArray( a, varname, width, curval, class, other ) )
+	END
+
+  
+  	METHOD SelectFromArray( a, varname, width, curval, class, other )
+		local i, s
+		
+		s = "<select name=\"" + varname + "\"" + ( type( class ) == "C" ? " class=\"" + class + "\"" : "" ) + " size=" + width + ( type( other ) == "C" ? " " + other : "" ) + ">\r\n"
+		for ( i=1; i<= len( a ); i++ )
+			s += " <option value=\"" + a[i] + "\"" + ( curval == a[i] ? " SELECTED" : "" ) + ">" + a[i] + "\r\n"
+		end
+		s += "</select>\r\n"
+  
+		return( s )
+	END
+
+  	METHOD SelectFrom2dArray( a, varname, width, curval, class, onChange )
+		local i, s
+		
+		s = "<select name=\"" + varname + "\"" + ( type( class ) == "C" ? " class=\"" + class + "\"" : "" ) + " size=" + width + ( type( onChange ) == "C" ? " onChange=\"" + onChange + "\"" : "" ) + ">\r\n"
+		for ( i=1; i<= len( a ); i++ )
+			s += " <option value=\"" + a[i][1] + "\"" + ( curval == a[i][1] ? " SELECTED" : "" ) + ">" + a[i][2] + "\r\n"
+		end
+		s += "</select>\r\n"
+  
+		return( s )
+	END
+
+	METHOD SelectFromState( varname, width, curval, class, onChange )
+		local a = constStates( )
+		return( ::SelectFrom2dArray( a, varname, width, curval, class, onChange ) )
+	END
+
+  	METHOD SelectFrom2dArrayFiltered( a, varname, width, curval, low, high )
+		local i, s
+		
+		s = "<select name=\"" + varname + "\" size=" + width + ">\r\n"
+		for ( i=1; i<= len( a ); i++ )
+			if ( ( a[i][1] >= low ) && ( a[i][1] <= high ) )
+				s += " <option value=\"" + a[i][1] + "\"" + ( curval == a[i][1] ? " SELECTED" : "" ) + ">" + a[i][2] + "\r\n"
+			end
+		end
+		s += "</select>\r\n"
+  
+		return( s )
+	END
+
+	METHOD ListWebFormVars( url, linebreak )
+		local cnt, i, s=""
+		
+		if ( type( linebreak ) != "C" )
+			linebreak = "<br>"
+		end
+		
+		cnt = chrcount( "&", url ) + 1
+		for ( i=1; i<=cnt; i++ )
+			s += webDecodeUrl( strextract( url, "&", i ) ) + linebreak
+		end
+		
+		return( s )	
+	END
+
+	METHOD CreateFieldListForm( aFlds )
+		local s, i
+		
+		s = "<table border=0 width=600 cellspacing=0 cellpadding=0>\r\n"
+		for (i=1; i<=len( aFlds ); i++ )
+			s += "  <tr><td>" + aFlds[i][1] + ":</td><td><input type=text name=\"" + aFlds[i][1] + "\" maxlength=\"" + aFlds[i][3] + "\" style=\"width:" + aFlds[i][5] + ";\" value=\"\"></td></tr>\r\n"		
+		end
+		s += "</table>\r\n"
+		
+		return( s )
+	END
+
+	METHOD CreateFieldListAP( aFlds, prefix )
+		local s, i
+		
+		s = "! \"<table border=0 width=600 cellspacing=0 cellpadding=0>\"\r\n"
+		for (i=1; i<=len( aFlds ); i++ )
+			s += "! \"<tr><td>" + aFlds[i][1] + ":</td><td><input type=text name=\\\"" + aFlds[i][1] + "\\\" maxlength=\\\"" + aFlds[i][3] + "\\\" style=\\\"width:" + aFlds[i][5] + ";\\\" value=\\\"\" + " + prefix + aFlds[i][1] + " + \"\\\"></td></tr>\"\r\n"		
+		end
+		s += "! \"</table>\"\r\n"
+		
+		return( s )
+	END
+
+	METHOD DisplayTitle( title )
+		local s="", i
+		
+		for ( i=1; i<=len( title ); i++ )
+			s += title[i]
+			s += " "			
+		end
+		
+		s = upper( s )
+		s = strswap( s, "  ", " &nbsp; &nbsp; " )
+		
+		return( s )	
+	END
+
+	METHOD _ExtractWebVar( data, var )
+		// walk the variables version
+		local cnt, i, str, key
+		
+		var = upper( var )
+		cnt = chrcount( "&", data ) + 1
+		for ( i=1; i<=cnt; i++ )
+			str = strextract( data, "&", i )
+			key = upper( strextract( str, "=", 1 ) )
+			if ( key == var )
+				return( webDecodeURL( strextract( str, "=", 2 ) ) )
+			end
+		end
+		
+		return( "" )
+	END
+
+	METHOD ExtractWebVar( data, var )
+		// high speed search version
+		local _data, searchstr, i
+		
+		if ( left( data, 1 ) == "?" )
+			_data = "&" + right( data, len( data ) - 1 ) + "&"
+		else
+			_data = "&" + data + "&"
+		end
+		
+		searchstr = "&" + var + "="
+		i = strati( searchstr, _data )
+		if ( i < 0 )
+			return( "" )
+		end
+		
+		_data = right( _data, len( _data ) - i )
+		_data = strextract( _data, "&", 2 )
+
+		return( webDecodeURL( strextract( _data, "=", 2 ) ) )
+	END
+
+
+	METHOD ExtractDateFromKey( date, delim )
+		if ( type( delim ) != "C" )
+			delim = "-"
+		end
+		return( substr( date, 5, 2 ) + delim + substr( date, 7, 2 ) + delim + left( date, 4 ) )
+	END
+
+	METHOD ExtractTimeFromKey( date )
+		return( substr( date, 9, 2 ) + ":" + substr( date, 11, 2 ) + ":" + substr( date, 13, 2 ) )
+	END
+
+	METHOD TableListFromString( data, cols, class, SortFlag )
+		local a, i, buf, s="", row, col
+		
+		if ( strempty( data ) )
+			return( "" )
+		end
+
+		i = 1
+		while ( 1 )
+			buf = strextract( data, ";", i )
+			if ( strempty( buf ) )
+				break
+			end
+			a[i++] = buf
+		end
+
+		if ( SortFlag )
+			csort( @a )
+		end
+		
+		s = "<table border=0 width=100% cellspacing=0 cellpadding=0 class=" + class + ">\r\n"
+		row = 1
+		col = 1
+		for ( i=1; i<=len( a ); i++ )
+			if ( col > cols )
+				s += "</tr><tr>"
+				col = 1
+				row++
+			end
+			s += "<td>" + a[i] + "</td>"
+			col++
+		end
+		s += "</tr></table>\r\n"
+		
+		return( s )
+	END
+
+END
+
+FUNCTION GetErrorClass( err, str, class1, class2 )
+	return( strati( str, err ) > -1 ? class2 : class1 )
+END
+
+
+
+FUNCTION csort( a )
+	local cnt, i, j, temp
+	
+	cnt = len( a )
+	for ( i=2; i<=cnt; i++ )
+		temp = a[i]
+		j = i-1
+		while ( (j>=1 ) && ( upper( temp ) < upper( a[j] ) ) )
+			a[j+1] = a[j]
+			j--
+		end
+		a[j+1] = temp
+	end
+	
+	return( 1 )	
+END
+
+
+FUNCTION constStates( )
+	local a = {
+		{ "", "" },
+		{ "AL", "Alabama" },
+		{ "AK", "Alaska" },
+		{ "AZ", "Arizona" },
+		{ "AR", "Arkansas" },
+		{ "CA", "California" },
+		{ "CO", "Colorado" },
+		{ "CT", "Connecticut" },
+		{ "DE", "Delaware" },
+		{ "DC", "District of Columbia" },
+		{ "FL", "Florida" },
+		{ "GA", "Georgia" },
+		{ "HI", "Hawaii" },
+		{ "ID", "Idaho" },
+		{ "IL", "Illinois" },
+		{ "IN", "Indiana" },
+		{ "IA", "Iowa" },
+		{ "KS", "Kansas" },
+		{ "KY", "Kentucky" },
+		{ "LA", "Louisianna" },
+		{ "ME", "Maine" },
+		{ "MD", "Maryland" },
+		{ "MA", "Massachusetts" },
+		{ "MI", "Michigan" },
+		{ "MN", "Minnesota" },
+		{ "MS", "Mississippi" },
+		{ "MO", "Missouri" },
+		{ "MT", "Montana" },
+		{ "NE", "Nebraska" },
+		{ "NV", "Nevada" },
+		{ "NH", "New Hampshire" },
+		{ "NJ", "New Jersey" },
+		{ "NM", "New Mexico" },
+		{ "NY", "New York" },
+		{ "NC", "North Carolina" },
+		{ "ND", "North Dakota" },
+		{ "OH", "Ohio" },
+		{ "OK", "Oklahoma" },
+		{ "OR", "Oregon" },
+		{ "PA", "Pennsylvania" },
+		{ "PR", "Puerto Rico" },
+		{ "RI", "Rhode Island" },
+		{ "SC", "South Carolina" },
+		{ "SD", "South Dakota" },
+		{ "TN", "Tennessee" },
+		{ "TX", "Texas" },
+		{ "UT", "Utah" },
+		{ "VT", "Vermont" },
+		{ "VI", "Virgin Islands" },
+		{ "VA", "Virginia" },
+		{ "WA", "Washington" },
+		{ "WV", "West Virginia" },
+		{ "WI", "Wisconsin" },
+		{ "WY", "Wyoming" }
+
+//		{ "-", "----------- C A N A D A -----------" },
+//		{ "CAL", "Alberta" },
+//		{ "CBC", "British Columbia" },
+//		{ "CMA", "Manitoba" },
+//		{ "CNB", "New Brunswick" },
+//		{ "CNL", "Newfoundland and Labrador" },
+//		{ "CNW", "Northwest Territories" },
+//		{ "CNS", "Nova Scotia" },
+//		{ "CNU", "Nunavut" },
+//		{ "CON", "Ontario" },
+//		{ "CPE", "Prince Edward Island" },
+//		{ "CQU", "Quebec" },
+//		{ "CSA", "Saskatchewan" },
+//		{ "CYU", "Yukon" },
+//		
+//		{ "-", "------------ M E X I C O ------------" },
+//		
+//		{ "MXAG", "Aguascalientes" },
+//		{ "MXBC", "Baja California" },
+//		{ "MXBS", "Baja California Sur" },
+//		{ "MXCA", "Campeche" },
+//		{ "MXCH", "Chihuahua" },
+//		{ "MXCO", "Coahuila" },
+//		{ "MXCL", "Colima" },
+//		{ "MXDF", "Distrito Federal" },
+//		{ "MXDU", "Durango" },
+//		{ "MXGU", "Guanajuanto" },
+//		{ "MXGR", "Guerrero" },
+//		{ "MXHI", "Hidalgo" },
+//		{ "MXJA", "Jalisco" },
+//		{ "MXMX", "Mexico" },
+//		{ "MXMC", "Michoacan de Ocampo" },
+//		{ "MXMO", "Morelos" },
+//		{ "MXNA", "Nayarit" },
+//		{ "MXNL", "Nuevo Leon" },
+//		{ "MXOA", "Oaxaca" },
+//		{ "MXPU", "Puebla" },
+//		{ "MXQU", "Queretaro" },
+//		{ "MXQR", "Quintana Roo" },
+//		{ "MXSL", "San Luis Potosi" },
+//		{ "MXSI", "Sinaloa" },
+//		{ "MXSO", "Sonora" },
+//		{ "MXTA", "Tabasco" },
+//		{ "MXTM", "Tamaulipas" },
+//		{ "MXTL", "Tlaxcala" },
+//		{ "MXVL", "Veracruz-Llave" },
+//		{ "MXYU", "Yucatan" },
+//		{ "MXZA", "Zacateca" }
+	}
+	return( a )
+END
+
+
+
+CLASS Mortgage
+  PUBLIC:
+  	local yrs, interest, amount
+  	local FNMAmax, FHAmax
+  	
+  	METHOD new( )
+  		::init( )
+  		return( 1 )
+  	END
+  	
+  	METHOD init( )
+  		::yrs = 0
+  		::interest = 0.00
+  		::amount = 0
+  		
+  		::FNMAmax = 384900
+  		::FHAmax = 144336
+  		return( 1 )
+  	END
+  	
+  	METHOD CalcMoPayment( amount, yrs, interest )
+  		local rate, months, a, b, c
+
+		if ( type( amount ) == "N" )
+			::amount = 0.00 + amount
+		end
+		if ( type( yrs ) == "N" )
+			::yrs = 0.00 + yrs
+		end
+		if ( type( interest ) == "N" )
+			::interest = 0.00 + interest
+		end
+		
+		months = ::yrs * 12
+		rate = ( ::interest / 100 ) / 12
+
+		a = ( ::amount *  ( ( 1 + rate ) ** months ) * rate )
+		b = ( ( rate + 1 ) ** months ) - 1
+		c = a / b
+
+		return( c )
+  	END
+  	
+	METHOD DisplayPaymentGrid( g, amount, _class, increment )
+		local s, r, t
+
+		s = "<table border=1 width=100% cellspacing=0 cellpadding=2 class=" + _class + ">\r\n"
+		s += " <tr bgcolor=#F0F0F0><td align=center bgcolor=#E0E0E0>rate/term</td><td align=center>10</td><td align=center>15</td><td align=center>20</td><td align=center>25</td><td align=center>30</td></tr>\r\n"
+
+		for ( r=5; r<=10; r+= increment )
+
+			s += " <tr><td bgcolor=#F0F0F0 align=center>" + g.DollarFormat( r ) + "</td>"
+			for ( t=10; t<=30; t+=5 )
+				s += "<td align=right>" + g.DollarFormat( ::CalcMoPayment( amount, t, r ) ) + "</td>"
+			end
+			s += "</tr>\r\n"		
+		
+		end
+		
+		s += "</table>\r\n"
+		
+		return( s )
+	END
+
+	METHOD DisplayTotalInterestGrid( g, amount, _class, increment )
+		local s, r, t, mo, x
+
+		s = "<table border=1 width=100% cellspacing=0 cellpadding=2 class=" + _class + ">\r\n"
+		s += " <tr bgcolor=#F0F0F0><td align=center bgcolor=#E0E0E0>rate/term</td><td align=center>10</td><td align=center>15</td><td align=center>20</td><td align=center>25</td><td align=center>30</td></tr>\r\n"
+
+		for ( r=5; r<=10; r+= increment )
+
+			s += " <tr><td bgcolor=#F0F0F0 align=center>" + g.DollarFormat( r ) + "</td>"
+			for ( t=10; t<=30; t+=5 )
+				mo = ::CalcMoPayment( amount, t, r )
+				x = mo * 12 * t
+				s += "<td align=right>" + g.DollarFormat( x - amount, 0, 0 ) + "</td>"
+			end
+			s += "</tr>\r\n"		
+		
+		end
+		
+		s += "</table>\r\n"
+		
+		return( s )
+	END
+
+	METHOD DetermineAvailablePrograms( amount, _class )
+		local s
+		
+		s = "<b>Available Mortgage Programs:<br><table bgcolor=#E0E0E0 border=1 width=100% cellspacing=0 cellpadding=20 class=" + _class + ">\r\n"
+		s += " <tr><td>"
+
+		s += "  <ul>\r\n"
+		s += "   <li><b><u>Conventional Programs</u>:</b><br>\r\n"
+		s += " &nbsp; &nbsp; &nbsp; Federal National Mortgage Association (FNMA) [Fannie Mae] " + ( amount > ::FNMAmax ? "INELIGIBLE" : "" ) + "<br>\r\n"
+		s += " &nbsp; &nbsp; &nbsp; Federal Home Loan Mortgage Corporation (FHLMC) [Freddie Mac]<br>\r\n"
+		s += " &nbsp; &nbsp; &nbsp; Government National Mortgage Association (GNMA) [Ginnie Mae]<br>\r\n"
+		s += "<br>\r\n"		
+
+		s += "   <li><b><u>Government Programs</u>:</b><br>\r\n"
+		s += " &nbsp; &nbsp; &nbsp; Federal Housing Association (FHA) " + ( amount > ::FHAmax ? "INELIGIBLE" : "" ) + "<br>\r\n"
+		s += " &nbsp; &nbsp; &nbsp; Veterans Administration (VA) Subject to restrictions<br>\r\n"
+		s += "<br>\r\n"		
+		
+		s += "   <li><b><u>Non-Conforming</u>:</b><br>\r\n"
+		s += " &nbsp; &nbsp; &nbsp; Private Mortgage - No Down Payment, No Income Verification, No Asset Verification, Poor Credit, Etc...<br>\r\n"
+		
+		s += "  </ul>\r\n"
+		s += "DISCLAIMER: Each mortgage program has individual requirements. Additional information may be required to accurately assess program compatibility. Some programs may not apply.\r\n"
+		
+		s += " </td></tr>\r\n"
+		s += "</table>\r\n"
+		
+		return( s )	
+	END
+  	
+ END
+  	
+  		
+  		
+  		
+
+
+
+
+
+
+

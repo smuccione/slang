@@ -1,0 +1,720 @@
+//
+// SYSCLASS.FGL - System Classes
+//
+// (c) 1996 Advanced Desktop Research, Inc., All Rights Reserved.
+//
+// Classes in this library:
+//
+//                    Access  Assign  Method
+//    Window     
+//      new             -       -       X
+//      aliasID         -       -       X       // old
+//      AliasFromId     -       -       X
+//      bkframe         X       X       -
+//      bkimage         X       X       -
+//      bkpaint         X       X       -
+//      bkwindow        X       X       -
+//      close           -       -       X
+//      controls        -       -       X
+//      CurEventId      -       -       X
+//      CurEventObj     -       -       X
+//      debug           X       X       -
+//      display         -       -       X
+//      hicon           X       X       -
+//      hide            -       -       X
+//      IdFromAlias     -       -       X
+//      ObjFromAlias    -       -       X
+//      ObjFromId       -       -       X
+//      pageControls    -       -       X
+//      pageCreate      -       -       X
+//      pageDisplay     -       -       X
+//      processEvents   -       -       X
+//      runBuffer       -       -       X
+//      show            -       -       X
+//      sound           X       X       -
+//      spy             -       -       X
+//      TextFromAlias   -       -       X           // get the text assoc with an object from its alias
+//      valid           X       -       -
+//      
+//    WinControl
+//      new             -       -       X
+//      delete          -       -       X
+//      display         -       -       X
+//      hide            -       -       X
+//
+//    WinPages
+//      new             -       -       X
+//
+//    iniFile
+//      new             -       -       X
+//      GetString       -       -       X
+//      SetString       -       -       X
+//
+//
+     
+     
+CLASS window
+  PRIVATE:
+    local IsDebug, IsSound
+    local v_bkwindow
+
+  PUBLIC:
+
+    local handle, hparent, hbkwin, prevpage
+    local curevent
+    local sndCreateFile
+    local numEvents
+    local numctrls
+    local ctrls
+    local numpages
+    local pages
+    local dblclick
+    local onLeftClick
+    local onRightClick
+    local onSound
+    local onControl
+    local curpage
+    local bkwinclr
+    local IsTab
+    local onOK
+    local onHelp
+    local onCancel
+    local onPageSet
+    local IsSpy
+
+    METHOD new( parent, title, x, y, width, height, style, bkclr, bkwindowclr, isbkwin )
+        self.curevent     = 0
+        self.curpage      = 0
+        self.dblclick     = 0
+        self.bkwinclr     = bkwindowclr
+        self.hparent      = parent
+        self.hbkwin       = 0
+        self.IsDebug      = 0
+        self.IsSound      = 1
+        self.IsTab        = 0
+        self.numevents    = 0
+        self.numctrls     = 0
+        self.numpages     = 0
+        self.v_bkwindow    = isbkwin
+        self.prevpage     = 0
+        self.IsSpy        = 0
+
+        if (isbkwin)
+            // create the background window
+            // NOTE: Windows with separate background windows cannot have a parent!!!
+            self.hbkwin = dlgCreate(0, "DLG", "", -1, -1, scrGetWidth() + 100, scrGetHeight() + 100, 0, self.bkwinclr)
+            self.hparent = self.hbkwin
+        end    
+        // create the main window
+        self.handle = dlgCreate(self.hparent, "DLG", title, x, y, ((width >= 0) ? width : scrGetWidth()), ((height >= 0) ? height : scrGetHeight()), style, bkclr)
+        return(1)
+    END
+
+    METHOD AliasID( val )
+        local x, alias
+
+        alias = upper( val )    
+        for ( x=1; x<=self.numctrls; x++ )
+            if ( upper( self.ctrls[ x ].alias ) == alias )
+                return( self.ctrls[ x ].id )
+            end
+        end
+        return( 0 )        
+    END
+
+    METHOD AliasFromId( id )
+        local x
+
+        for ( x=1; x<=self.numctrls; x++ )
+            if ( self.ctrls[ x ].id == id )
+                return( self.ctrls[ x ].alias )
+            end
+        end
+        return( '' )        
+    END
+
+    ACCESS bkframe
+        return( ! ( dlgExStyle(self.handle) & 1 ) )
+    END
+
+    ASSIGN bkframe(flag)
+        if (flag)
+            dlgExStyle(self.handle, dlgExStyle(self.handle) & ~1)
+        else
+            dlgExStyle(self.handle, dlgExStyle(self.handle) | 1)
+        end
+    END
+
+    ACCESS bkimage
+        return(dlgBkImage(self.handle))
+    END
+
+    ASSIGN bkimage(file)
+        dlgBkImage(self.handle, file)
+    END
+
+    ACCESS bkpaint
+        return(dlgExStyle(self.handle))
+    END
+
+    ASSIGN bkpaint(flag)
+        if (flag)
+            dlgExStyle(self.handle, dlgExStyle(self.handle) & ~2)
+        else
+            dlgExStyle(self.handle, dlgExStyle(self.handle) | 2)
+        end
+    END
+
+    ACCESS bkwindow
+        return(self.v_bkwindow)
+    END
+
+    ASSIGN bkwindow(flag)
+        self.v_bkwindow = flag
+
+        if (flag && (! self.hbkwin))
+            // create the background window
+            self.hbkwin = dlgCreate(0, "DLG", "", -1, -1, scrGetWidth() + 100, scrGetHeight() + 100, 0, self.bkwinclr)
+        end
+
+        if (winIsVisible(self.handle))
+            winShow(self.hbkwin, (self.v_bkwindow) ? 5 : 0)
+        end
+    END
+
+    METHOD close
+        // close the main window
+        dlgEnd(self.handle)
+        self.handle = 0
+
+        // close the background window
+        if (self.hbkwin)
+            dlgEnd(self.hbkwin)
+            self.hbkwin = 0
+        end
+    END
+
+    METHOD controls(type, text, x, y, width, height, style, cmd, sound, hfont, bkclr, alias)
+        // controls registered here are part of page #0, the master page
+        
+        local i, title
+        
+        if ( upper( type ) == 'TAB' )
+            self.IsTab = 1
+            if ( strempty( text ) )
+                // get the page descriptions
+                title = ''
+                for ( i=1; i<=self.numpages; i++ )
+                    title += ( self.pages[ i ].title + ';' )
+                end
+            end
+        end
+        self.numctrls++
+        self.ctrls[ self.numctrls ] = new( 'wincontrol', self, 0, type, strempty( text ) ? title : text, x, y, width, height, style, cmd, sound, hfont, bkclr, alias )
+        return( self.ctrls[ self.numctrls ] )
+    END
+
+    ACCESS debug
+        return(self.IsDebug)
+    END
+
+    ASSIGN debug(flag)
+        if (flag == 1)
+            dlgExStyle(self.handle, dlgExStyle(self.handle) | 16)  // show hotspots
+        else
+            dlgExStyle(self.handle, dlgExStyle(self.handle) & ~16) // no show hotspots
+        end
+        self.IsDebug = flag
+        return
+    END
+
+    METHOD display( )
+        self.show()
+    END
+
+    METHOD CurEventId( )
+        return( dlgEventID( self.handle ) )
+    END
+    
+    METHOD CurEventObj( )
+        return( self.ObjFromId( dlgEventID( self.handle ) ) )
+    END
+
+    ACCESS hicon
+        return( dlgIcon( self.handle ) )
+    END
+
+    ASSIGN hicon( val )
+        dlgIcon( self.handle, val )
+    END
+
+    METHOD hide( )
+        self.show( 0 )
+    END
+
+    METHOD IdFromAlias( alias )
+        local x, _alias
+
+        _alias = upper( alias )    
+        for ( x=1; x<=self.numctrls; x++ )
+            if ( upper( self.ctrls[ x ].alias ) == _alias )
+                return( self.ctrls[ x ].id )
+            end
+        end
+        return( 0 )
+    END
+
+    METHOD ObjFromAlias( alias )
+        local x, _alias
+
+        _alias = upper( alias )    
+        for ( x=1; x<=self.numctrls; x++ )
+            if ( upper( self.ctrls[ x ].alias ) == _alias )
+                return( self.ctrls[ x ] )
+            end
+        end
+        return( 0 )
+    END
+
+    METHOD ObjFromId( id )
+        local x
+
+        for ( x=1; x<=self.numctrls; x++ )
+            if ( self.ctrls[ x ].id == id )
+                return( self.ctrls[ x ] )
+            end
+        end
+        return( 0 )        
+    END
+
+    METHOD pageControls(page, type, text, x, y, width, height, style, cmd, sound, hfont, bkclr, alias )
+        self.numctrls++
+        self.ctrls[self.numctrls] = new('wincontrol', self, page, type, text, x, y, width, height, style, cmd, sound, hfont, bkclr, alias )
+        return(self.ctrls[self.numctrls])
+    END
+
+    METHOD pageCreate(title, bkimage)
+        self.numpages++
+        self.pages[self.numpages] = new( 'winpages', self, title, bkimage )
+        return(self.numpages)
+    END
+
+    METHOD pageDisplay( page )
+        local x, y, isfirst=0, obj
+
+//        dlgCursorSet( self.handle, sysSetCursor( "WAIT" ) )
+        mouseCapture( self.handle )
+
+        // process PageSet handler
+        if ( type( self.onPageSet ) == 'B' )
+            x = self.curpage
+            self.curpage = page
+            ( self.onPageSet ) ( )
+            self.curpage = x
+        end
+
+        // check if already on this page
+        if ( self.curpage == page )
+            self.show( ) 
+//            dlgCursorSet( self.handle, 0 )
+            mouseCaptureRelease( )
+            return( 1 )
+        end
+
+        winSetRedraw( self.handle, 0 )
+
+        isfirst = ( self.curpage ) ? 0 : 1
+
+        if ( isfirst )
+            if (self.hbkwin)
+                if (self.v_bkwindow)
+                    winShow(self.hbkwin, ((pcount() == 2) ? 5 : param(2)))
+                else
+                    winShow(self.hbkwin, 0)
+                end
+            end
+//            self.show( )
+        end
+        
+        y = self.numctrls
+        for ( x=1; x<=y; x++ )
+
+            // hide the previous page's controls
+            obj = self.ctrls[ x ]
+            if ( self.curpage )
+                if ( obj.page == self.curpage )
+                    dlgSetHiddenFlag( self.handle, obj.id, 1 )
+                    continue
+                end
+            end
+
+            // unhide the new page's controls        
+            if ( obj.page == page )
+                dlgSetHiddenFlag( self.handle, obj.id, 0 )
+            end
+        end
+        
+        self.prevpage = self.curpage
+        self.curpage = page
+
+        // set the background image
+        if ( ! strempty( self.pages[ self.curpage ].bkimage ) )
+            self.bkimage = self.pages[ self.curpage ].bkimage
+        end    
+    
+        winSetRedraw( self.handle, 1 )
+
+        if ( isfirst )
+            winUpdate( self.handle, 1 )
+        elseif ( ! self.IsTab )
+            winUpdate( self.handle, self.bkframe ? 2 : 1 )
+        else 
+            tabUpdate( self.handle )
+        end
+        mouseCaptureRelease( )
+//        dlgCursorSet( self.handle, 0 )
+
+        return(1)
+    END
+
+    METHOD ProcessEvents
+        local x, id, obj
+        local DLG_QUIT = -9
+        local DLG_LEFTCLICK = 2
+        local DLG_LEFTDBLCLICK = 3
+        local DLG_RIGHTCLICK = 4
+        local DLG_CONTROL = 8
+        local DLG_TABEVENT = 10
+        local IDOK = 1
+        local IDCANCEL = 2
+        local IDHELP = 197
+        local TAB_BUTTON = 1
+        local TAB_SETPAGE = 2
+        local TAB_DELETE = 3
+        
+        // activate the window
+        winActive( self.handle )
+//        winSendKeys( self.handle, '<TAB>' );
+        
+        // process the events
+        while ( winIsValid( self.handle) )
+            
+            // get the current event
+            x = dlgEvent(self.handle)
+            self.curevent = x
+            if ( x == DLG_QUIT )
+                break
+            end
+
+            if ((self.curevent == DLG_LEFTCLICK) && (! self.dblclick))
+                id = dlgEventId(self.handle)
+                self.spy( 'event=DLG_LEFTCLICK, id=' + id )
+            elseif ((self.curevent == DLG_LEFTDBLCLICK) && (self.dblclick))
+                id = dlgEventId(self.handle)
+                self.spy( 'event=DLG_LEFTDBLCLICK, id=' + id )
+            elseif ( self.curevent == DLG_RIGHTCLICK )
+                id = dlgEventId(self.handle)
+                self.spy( 'event=DLG_RIGHTCLICK, id=' + id )
+            elseif (self.curevent == DLG_TABEVENT)
+                id = dlgEventId(self.handle)
+                self.spy( 'event=DLG_TABEVENT, id=' + id )
+            elseif (self.curevent == DLG_CONTROL)
+                id = dlgEventId(self.handle)
+                self.spy( 'event=DLG_CONTROL, id=' + id )
+            else
+                continue
+            end
+
+            if ( self.curevent == DLG_TABEVENT )
+
+                switch( id )
+
+                  case TAB_BUTTON
+
+                    switch ( dlgEventParam( self.handle ) )
+
+                      case IDOK
+                        self.runBuffer( self.onOK, 'id=TAB_BUTTON onOK( )' )
+                        break
+
+                      case IDCANCEL
+                        self.runBuffer( self.onCancel, 'id=TAB_BUTTON onCancel( )' )
+                        break
+
+                      case IDHELP
+                        self.runBuffer( self.onHelp, 'id=TAB_BUTTON onHelp( )' )
+                        break
+                        
+                    end
+                    break
+
+                  case TAB_SETPAGE
+                    self.spy( 'id=TAB_SETPAGE, param=' + dlgEventParam(self.handle) )
+                    self.pageDisplay( dlgEventParam( self.handle ) )
+                    break
+
+                  case TAB_DELETE
+                    self.spy( 'id=TAB_DELETE, param=' + dlgEventParam(self.handle) + ' (NOT USED)' )
+                    break
+
+                end
+                continue
+            end    
+
+            for ( x=1; x<=self.numctrls; x++ )
+                if ( self.ctrls[ x ].id != id )
+                    continue
+                end
+                obj = self.ctrls[ x ]
+
+                // process right click action
+                if (self.curevent == DLG_RIGHTCLICK)
+                    self.runBuffer( self.onRightClick, 'id=' + id + ' onRightClick( )', obj )
+                    continue
+                end
+
+                // process sound
+                if (self.IsSound)
+                    switch ( type( self.onSound ) )
+                      case 'C'
+                        if ( ! strempty( self.onSound ) )
+                            self.spy( 'Processing onSound( ) [string], id=' + id )
+                            &( self.onSound )              // no parameter passing
+                        else
+                            if ( ! strempty( obj.sound ) )
+                                self.spy( 'Playing default sound, id=' + id )
+                                sndPlayWaveFile( obj.sound )
+                            end                                
+                        end    
+                        break
+
+                      case 'B'
+                        self.spy( 'Processing onSound( ) [codeblock], id=' + id )
+                        ( self.onSound )( obj )
+                        break
+
+                      default
+                        if ( ! strempty( obj.sound ) )
+                            self.spy( 'Playing default sound, id=' + id )
+                            sndPlayWaveFile( obj.sound )
+                        end                                
+                    end
+                end
+
+                // process commands, must be last!!!
+
+                // check for handlers
+                switch ( self.curevent )
+
+                  case DLG_LEFTCLICK
+                    if ( self.runBuffer( self.onLeftClick, 'id=' + id + ' onLeftClick( )', obj ) )
+                        continue
+                    end
+                    break
+                  
+                  case DLG_LEFTDBLCLICK
+                    if ( self.runBuffer( self.onLeftDblClick, 'id=' + id + ' onLeftDblClick( )', obj ) )
+                        continue
+                    end
+                    break
+                  
+                  case DLG_CONTROL
+                    if ( self.runBuffer( self.onControl, 'id=' + id + ' onControl( )', obj ) )
+                        continue
+                    end
+                    break
+                  
+                end
+                
+                // process attached command if no handler installed
+                self.runBuffer( obj.cmd, 'id=' + id + ' obj.cmd( )', obj )
+                
+            end
+        end
+        return(self.curevent)
+    END
+
+    METHOD runBuffer( buf, desc, obj )
+ 
+        local param, file
+
+        // process attached command if no handler installed
+
+        switch ( type( buf ) )
+
+          case 'C'
+            if ( strempty( buf ) )
+                // nothing to process
+                return( 0 );
+            end
+
+            param = strextract( buf, ' ', 1 )
+            if ( at( '.', param) < 1 )
+                // must be a command
+                self.spy( desc + ' [string]' )
+                &( buf )
+            else
+                // first parameter is a file...
+                        
+                // morework: Add CD-ROM drive substitution and other string translation here...
+                file = fileFindFullName( param )
+                if ( fileExists( file ) )
+                    self.spy( desc + ' [smartrun]' )
+                    smartrun( buf )
+                else
+                    return( 0 )
+                end
+            end                        
+            return( 1 )
+                        
+          case 'B'
+            self.spy( desc + ' [codeblock]' )
+            if ( type( obj ) == 'O' )
+                ( buf )( obj )
+            else
+                ( buf )( )
+            end    
+            return( 1 )
+
+        end
+        return( 0 )
+    END
+
+    METHOD show
+        if (self.hbkwin)
+            if (self.v_bkwindow)
+                winShow(self.hbkwin, ((pcount() == 1) ? 5 : param(2)))
+            else
+                winShow(self.hbkwin, 0)
+            end
+        end
+        winShow(self.handle, ((pcount() == 1) ? 5 : param(2)))
+    END
+  
+    ACCESS sound
+        return(self.IsSound)
+    END
+
+    ASSIGN sound(flag)
+        self.IsSound = flag
+        return
+    END
+
+    METHOD spy( str )
+        if ( self.IsSpy )
+            println( str )
+        end
+        return( 1 )
+    END
+
+    METHOD TextFromAlias( alias )
+        local obj
+        obj = self.ObjFromAlias( alias )
+        if ( type( obj ) == 'O' )
+            return( winGetText( obj.handle ) )
+        end
+        return( '' )
+    END
+
+    ACCESS valid
+        return(winIsValid(self.handle))
+    END
+    
+END
+
+
+CLASS wincontrol
+  PUBLIC:
+    local dlg, page, type, text, x, y, width, height, style, cmd, id, handle, sound, hidden, hfont, bkclr, alias
+
+    METHOD new(pdlg, page, type, text, x, y, width, height, style, cmd, snd, hfont, bkclr, alias)
+        self.dlg    = pdlg
+        self.page   = page
+        self.type   = upper(type)
+        self.text   = text
+        self.x      = x
+        self.y      = y
+        self.width  = width
+        self.height = height
+        self.style  = style
+        self.cmd    = cmd
+        self.sound  = snd
+        self.hfont  = hfont
+        self.bkclr  = bkclr
+        self.hidden = (page == 0) ? 0 : 1
+        self.alias  = type( alias ) == 'C' ? alias : ''
+        self.id     = dlgCreate(self.dlg.handle, type, text, ((x > 0) ? xadj(x) : x), ((y > 0) ? yadj(y) : y), ((width > 0) ? xadj(width) : width), ((height > 0) ? yadj(height) : height), style, (self.type == 'TAB') ? 1 : self.bkclr)
+        self.handle = dlgWinFromId(self.dlg.handle, self.id)
+
+        if (hfont)
+            fontset(self.handle, hfont)
+        end
+
+        // hide the control if not part of the master page
+        dlgSetHiddenFlag(self.dlg.handle, self.id, self.hidden)
+
+        return(1)
+    END
+
+
+    METHOD delete()
+        dlgDeleteControl(self.dlg.handle, self.id)
+    END
+
+
+    METHOD display
+        return(dlgSetHiddenFlag(self.dlg.handle, self.id, 0))
+    END
+
+    METHOD hide
+        return(dlgSetHiddenFlag(self.dlg.handle, self.id, 1))
+    END
+END
+
+
+CLASS winpages
+  PUBLIC:
+    local dlg, title, bkimage
+
+    METHOD new( dlg, title, bkimage )
+        self.dlg     = dlg
+        self.title   = title
+        self.bkimage = type( bkimage ) == 'C' ? bkimage : ''
+        return(1)
+    END
+
+END
+
+
+CLASS iniFile
+  // new(inifile)
+  // destroy()
+  // GetString(section, key, defval)
+  // SetString(section, key, value)
+
+  PUBLIC:
+    local filename, hfile
+
+    METHOD new( inifile )
+        local file
+
+        file = fileFindFullName( inifile )
+        if ( strempty( file ) )
+            return( 0 )
+        end
+        self.filename = file
+        return( 1 )
+    END
+
+    METHOD GetString(section, key, defval)
+        return( iniGetString( self.filename, section, key, defval ) )
+    END
+
+
+    METHOD SetString(section, key, val)
+        return( iniSetString( self.filename, section, key, val ) )
+    END
+
+END
+
+  

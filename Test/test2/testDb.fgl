@@ -1,0 +1,48 @@
+function randL ( max )
+	return ( rand() % max  )
+end
+
+function main()
+	local fName
+	
+	_dbRestart()
+	
+	fName = 'c:\slang\test\test2\testDb.db'
+	
+	fErase ( fName )
+	
+	s = { { 'DATA', "B" } }
+	
+	dbCreate ( fName, s )
+	
+	dbOpen ( fName, 0 )
+	
+	for ( loop = 1; loop < 100; loop++ )
+		dbAppend()
+	end
+	
+	d = serverBuffer()
+
+	d = ""
+	for ( loop2 = 1; loop2 < 8193; loop2++ )
+		d += chr ( randL (26) + 65 )
+	end
+	
+	for ( loop = 0; loop < 100000; loop++ )
+		rec = randL ( 100 ) + 1
+		printf ( "%4i   %3i\r\n", loop, rec );		
+		dbGoto ( rec )
+		
+		l = randL ( 8192 ) + 1
+		
+		field->data = left ( d.str, l )
+	end
+	
+	dbClose()
+	
+	_dbRestart()
+	
+	dbOpen ( fName )
+	
+	dbClose()
+end

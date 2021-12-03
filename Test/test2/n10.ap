@@ -1,0 +1,17 @@
+<[
+
+library	c:\slang\test\test2\webClient.flb
+
+x = new ( "webclient" )
+
+x.domain = 127.0.0.1
+x.url	 = "big.html"
+
+debugBreak()
+
+// now get a list of everything that we need to fill in for this page
+a = x.document.GetPostData()
+
+!x.page
+
+]>

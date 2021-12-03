@@ -1,0 +1,60 @@
+debugBreak()
+
+x = RegexReplaceAll ( 'a\(.*?\)b', "abccccacbccccaccbccccacccb", "(\1)" )
+
+x = RegexMatchAll ( '\(a.*?b\)', "cccabccccacbccccaccbccccacccbcccc" )
+
+println ( RegexAt  ( '\(a.*?b\)', "cccaccbcccc" ) )
+
+println ( RegexAtLen  ( '\(a.*?b\)', "cccacccbcccc" ) )
+x = RegexMatch ( '\(a.*?b\)', "cccaccbcccc" )
+
+x = RegexExtract ( '\(a.*?b\)', "cccaccbcccc", "\"\\1\"" )
+x = RegexReplace ( '\(a.*?b\)', "cccaccbcccc", "\"\\1\"" )
+
+x = RegexReplaceAll ( '\(a.*?b\)', "cccabccccacbccccaccbccccacccbcccc", "\"&\"" )
+
+x = RegexMatchi ( '<\([\w][^>]*\)>.*?</\1>', '<b>bold text</b><b>>click me</b>' )	// lazy match test
+
+
+comp = RegexCompile ( 'a\(.*?\)b' )
+x = RegexReplaceAll ( comp, "abccccacbccccaccbccccacccb", "(\1)" )
+x = RegexReplaceAll ( comp, "cccabccccacbccccaccbccccacccbcccc", "(\1)" )
+x = RegexReplaceAll ( comp, "cccabccccacbccccaccbccccacccbcccc", "(&)" )
+
+comp = RegexCompile ( '\(a.*?b\)' )
+
+x = RegexMatchAll ( comp, "cccabccccacbccccaccbccccacccbcccc" )
+x = RegexMatchAll ( comp, "abccccacbccccaccbccccacccbcccc" )
+x = RegexMatchAll ( comp, "cccabccccacbccccaccbccccacccb" )
+
+println ( RegexAt  ( comp, "cccaccbcccc" ) )
+println ( RegexAt  ( comp, "CCCACCBCCCC" ) )
+println ( RegexAtI ( comp, "CCCACCBCCCC" ) )
+
+println ( RegexAtLen  ( comp, "cccacccbcccc" ) )
+println ( RegexAtLen  ( comp, "CCCACcCBCCCC" ) )
+println ( RegexAtLenI ( comp, "CCCACcCBCCCC" ) )
+
+x = RegexMatch ( comp, "cccaccbcccc" )
+x = RegexMatch ( comp, "CCCACCBCCC" )
+x = RegexMatchI ( comp, "CCCACCBCCC" )
+
+x = RegexExtract ( comp, "cccaccbcccc", "\"\\1\"" )
+x = RegexReplace ( comp, "cccaccbcccc", "\"\\1\"" )
+x = RegexReplace ( comp, "cccaccbcccc", "\"&\"" )
+
+x = RegexReplaceAll ( comp, "cccabccccacbccccaccbccccacccbcccc", "\"&\"" )
+
+comp = RegexCompile ( '<\([\w][^>]*\)>.*?</\1>' )
+x = RegexMatchi ( comp, '<b>bold text</b><b>>click me</b>' )	// lazy match test
+x = RegexMatchAlli ( comp, '<b>bold text</b><b>>click me</b>' )	// greedy match test
+comp = RegexCompile ( '<\([\w][^>]*\)>.*</\1>' )
+x = RegexMatchi ( comp, '<b>bold text</b><b>>click me</b>' )	// greedy match test
+x = RegexMatchAlli ( comp, '<b>bold text</b><b>>click me</b>' )	// greedy match test
+
+comp = RegexCompile ( '<\([\w][^>]*\)>.*</\1>' )
+x = RegexMatchi ( comp, '<b>bold text</b><a href=howdy.html>click me</a>' )
+
+
+println ( "done" );

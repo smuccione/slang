@@ -1,0 +1,102 @@
+<[
+	library c:\slang\test\test2\oAuth.flb
+	
+	class DropBox
+		inherit	oAuth1
+		
+		method new ( token = "", secret = "") : oAuth1 ( token, secret )
+			::realm						= "quatru"
+			::tempCredentialEndpoint	= "1/oauth/request_token"
+			::resourceOwnerEndpoint		= "1/oauth/authorize"
+			::tokenRequestEndpoint		= "1/oauth/access_token"
+			::appKey					= "shwer5o8aot2rrw"
+			::appSecret					= "gibcd7i9ap1zy9i" 
+			::callbackURL				= "http://68.34.253.119/oAuth"
+			
+			::newEndpoint ( "api.dropbox.com" )
+			::newEndpoint ( "api-content.dropbox.com" )
+			
+			return 1
+		end
+		
+		method dir ( directory )
+			local 	loop
+			local	o
+			local	d
+			
+			o = new ( "json", ::oAuthGet ( "api.dropbox.com", "1/metadata/dropbox" + directory, { { "list", "true" } } )	)
+			
+			d = {}
+			
+			for ( loop = 1; loop <= len ( o.contents); loop++ )
+				d[len(d) + 1] =	{ 	mid ( o.contents[loop].path, len ( directory ), 65535 ),
+									0 + o.contents[loop].size,
+									o.contents[loop].client_mtime,		// file date
+									o.contents[loop].modified,		// file time
+									o.contents[loop].is_dir == "true" ? 0x00000010 : 0x00000020,
+									o.contents[loop].modified
+								}
+			end
+			return d
+		end
+		
+		method ReadFile ( fName )
+			return ::oAuthGet ( "api-content.dropbox.com", "1/files/dropbox" + fName )
+		end
+		
+		method WriteFile ( fName, data )
+			::oAuthPut ( "api-content.dropbox.com", "1/files_put/dropbox" + fName, { { "overwrite", "true" } }, data )
+		end
+	end
+	
+	session = new ( "session" )
+	
+	switch ( session.var("stage") )
+		case "1":
+			user = session.var ( "userId" )
+			
+			tok = unpack ( fileReadAscii ( "oAuth.cred" ) )		// really need to get this from the user database
+			
+			if ( session.var ( "oauth_token" ) != tok[1] )
+				// crap.. we should have an oauth_token that matches our user
+				// it's not matching so reauthenticate
+				o = new ( "dropBox"  )
+				
+				url = o.GetTemporaryCredentials ( "api.dropbox.com", "muccione@comcast.net" )
+
+				fileWriteAscii ( "oAuth.cred", pack ( { o.oAuthToken, o.oAuthTokenSecret } ) )
+				session.redir ( url )
+				return
+			end
+			
+			// we have a known token/secret pair... no we need to acually get the REAL token
+			
+			o = new ( "dropBox", tok[1], tok[2]  )
+			tok = o.GetAccessToken ( "api.dropbox.com");
+			
+			fileWriteAscii ( "oAuth.cred", pack ( tok ) )
+			break
+			
+		default:
+			o = new ( "dropBox"  )
+
+			url = o.GetTemporaryCredentials ( "api.dropbox.com", "muccione@comcast.net" )
+
+			fileWriteAscii ( "oAuth.cred", pack ( { o.oAuthToken, o.oAuthTokenSecret } ) )
+			session.redir ( url )
+			return;
+	end
+	
+
+	tok = unpack ( fileReadAscii ( "oAuth.cred" ) )		// really need to get this from the user database
+	o = new ( "dropBox", tok[1], tok[2]  )
+	
+	debugBreak()
+	
+	x = o.dir ( "/" )
+	x = o.dir ( "/photos")
+	
+	! o.ReadFile ( '/test.txt' )
+	o.WriteFile ( '/test2.txt', "this is a new test" )
+]>
+

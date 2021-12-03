@@ -1,0 +1,37 @@
+<[
+
+class test 
+	local ivar1
+	local ivar2
+	
+	method new()
+		::ivar1 = "test"
+		::ivar2 = { 1, 2 }
+		
+		return ( 1 )
+	end
+end
+
+debugBreak()
+
+	obj = test()
+
+	arr = classElements(obj)
+	
+	for (p = 1; p <= len(arr); p++)
+		// second dimension of the array is the ELEMENT DESCRIPTION code, 1=Member
+		if (arr[p,2] = 1)
+			// check if this is an embedded array
+			if (type(obj.(arr[p,1])) == "A")
+				subArray = obj.(arr[p,1])
+				for (p2 = 1; p2 < len(subArray); p2++)
+					subElements = classElements(subArray[p2])	
+				end
+			else
+				nodeName = arr[p,1]
+				nodeText = arr[p,2]
+				// work with element…
+			end
+		end
+	end
+]>

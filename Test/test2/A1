@@ -1,0 +1,21 @@
+function test ( x )
+   local a, d
+
+   f = 4
+
+   x[1] = "hello1 "
+   a[1] = "hello2 "
+   x = a
+end
+
+local x
+
+x[1] = "hello0 "
+println ( x[1] )
+
+test ( x )
+println ( x[1] )
+
+test ( @x )
+println ( x[1] )
+ 

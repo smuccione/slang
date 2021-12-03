@@ -1,0 +1,3844 @@
+// Tristate Insurance South Dakota - Auto - Endorsement Object
+// (c) 2003 by Business Risk Technologies, Inc., All Rights Reserved
+
+CLASS Driver_Sort
+  PUBLIC:
+	// required variables
+	local obj, name, title, premium, errmsg, footnote
+	
+	// local variables
+	local DriverCnt
+	
+	METHOD new( obj )
+		::obj = obj
+		::obj.debug ( "Driver_Sort New Start" )
+		::name = "Driver_Sort"
+		::title = "Driver_Sort Gross Premium"
+		::premium = 0
+		::errmsg = ""
+		::footnote = ""
+//		if ( ! ValidateRequiredVariables( self ) )
+//			return( 1 )
+//		end
+		::init( )
+		::calculate( )
+		::obj.debug ( "Driver_Sort New End" )
+		return( 1 )
+	END
+
+	ACCESS RequiredVars
+		// array of required variables
+		static a = {
+			"data.d1DOB",
+			"data.d1Excluded",
+			"data.d1Sex",
+			"data.d1MaritalStatus",
+			"data.d1LivingWithSpouse",
+			"data.d1APCDate",
+			"data.d1IntlDL",
+			"data.d1UnverDL",
+			"data.d1MajorViolationsCnt",
+			"data.d1MinorViolationsCnt",
+			"data.d1AtFaultAccidentsCnt",
+			"data.d1SR22_Required",
+			"data.d2DOB",
+			"data.d2Excluded",
+			"data.d2Sex",
+			"data.d2MaritalStatus",
+			"data.d2LivingWithSpouse",
+			"data.d2APCDate",
+			"data.d2IntlDL",
+			"data.d2UnverDL",
+			"data.d2MajorViolationsCnt",
+			"data.d2MinorViolationsCnt",
+			"data.d2AtFaultAccidentsCnt",
+			"data.d2SR22_Required",
+			"data.d3DOB",
+			"data.d3Excluded",
+			"data.d3Sex",
+			"data.d3MaritalStatus",
+			"data.d3LivingWithSpouse",
+			"data.d3APCDate",
+			"data.d3IntlDL",
+			"data.d3UnverDL",
+			"data.d3MajorViolationsCnt",
+			"data.d3MinorViolationsCnt",
+			"data.d3AtFaultAccidentsCnt",
+			"data.d3SR22_Required",
+			"data.d4DOB",
+			"data.d4Excluded",
+			"data.d4Sex",
+			"data.d4MaritalStatus",
+			"data.d4LivingWithSpouse",
+			"data.d4APCDate",
+			"data.d4IntlDL",
+			"data.d4UnverDL",
+			"data.d4MajorViolationsCnt",
+			"data.d4MinorViolationsCnt",
+			"data.d4AtFaultAccidentsCnt",
+			"data.d4SR22_Required",
+			"data.d5DOB",
+			"data.d5Excluded",
+			"data.d5Sex",
+			"data.d5MaritalStatus",
+			"data.d5LivingWithSpouse",
+			"data.d5APCDate",
+			"data.d5IntlDL",
+			"data.d5UnverDL",
+			"data.d5MajorViolationsCnt",
+			"data.d5MinorViolationsCnt",
+			"data.d5AtFaultAccidentsCnt",
+			"data.d5SR22_Required",
+			"data.d6DOB",
+			"data.d6Excluded",
+			"data.d6Sex",
+			"data.d6MaritalStatus",
+			"data.d6LivingWithSpouse",
+			"data.d6APCDate",
+			"data.d6IntlDL",
+			"data.d6UnverDL",
+			"data.d6MajorViolationsCnt",
+			"data.d6MinorViolationsCnt",
+			"data.d6AtFaultAccidentsCnt",
+			"data.d6SR22_Required"
+		}
+		return( a )
+	END
+
+	ACCESS aVars
+		// array of exported local variables
+		static a = {
+			"DriverCnt"
+		}
+		return( a )
+	END
+
+	METHOD init( )
+		// initialize local variables here
+			::DriverCnt = 0
+		return( 1 )
+	END
+
+	METHOD calculate( )
+		// perform calculations here
+		::obj.debug ( "Driver_Sort Calc Start" )
+		
+		local i, j, ItsBlank, ItsExcluded, n, x
+		local dob, excl, sex, ms, lws, apc, idl, udl, mjr, mnr, atf, sr22, add, dis
+		local v1excl, v2excl, v3excl, v4excl, v5excl, v6excl, fn, mn, ln, nm, mjct, mnct, afct, lad, dl, st, ssn
+		
+		::DriverCnt = 1
+		::obj.data.d1Excluded = ""
+		
+		for ( i=2; i<=6; i++ )
+			ItsBlank[i] = 0
+			ItsExcluded[i] = 0
+			if ( strempty( "" + ::obj.data.( upper( "d" + i + "DOB" ) ) ) )
+				ItsBlank[i] = 1
+				ItsExcluded[i] = 1
+			end
+			if ( upper( ::obj.data.( upper( "d" + i + "Excluded" ) ) ) == "ON" )
+				ItsExcluded[i] = 1
+			end
+			::DriverCnt += ( ItsBlank[i] || ItsExcluded[i] ? 0 : 1 )
+		end
+
+		
+		for ( i=2; i<=6; i++ )
+			if ( ItsBlank[i] )
+				::obj.data.( upper( "d" + i + "DOB" ) ) = ""
+				::obj.data.( upper( "d" + i + "Excluded" ) ) = "on"
+				::obj.data.( upper( "d" + i + "Sex" ) ) = ""
+				::obj.data.( upper( "d" + i + "MaritalStatus" ) ) = ""
+				::obj.data.( upper( "d" + i + "LivingWithSpouse" ) ) = ""
+				::obj.data.( upper( "d" + i + "APCDate" ) ) = ""
+				::obj.data.( upper( "d" + i + "IntlDL" ) ) = ""
+				::obj.data.( upper( "d" + i + "UnverDL" ) ) = ""
+				::obj.data.( upper( "d" + i + "MajorViolationsCnt" ) ) = ""
+				::obj.data.( upper( "d" + i + "MinorViolationsCnt" ) ) = ""
+				::obj.data.( upper( "d" + i + "AtFaultAccidentsCnt" ) ) = ""
+				::obj.data.( upper( "d" + i + "SR22_Required" ) ) = ""
+				::obj.data.( upper( "d" + i + "ADD" ) ) = ""
+				::obj.data.( upper( "d" + i + "Disability" ) ) = ""
+				::obj.data.( upper( "d" + i + "v1Excluded" ) ) = ""
+				::obj.data.( upper( "d" + i + "v2Excluded" ) ) = ""
+				::obj.data.( upper( "d" + i + "v3Excluded" ) ) = ""
+				::obj.data.( upper( "d" + i + "v4Excluded" ) ) = ""
+				::obj.data.( upper( "d" + i + "v5Excluded" ) ) = ""
+				::obj.data.( upper( "d" + i + "v6Excluded" ) ) = ""
+				::obj.data.( upper( "d" + i + "fname" ) ) = ""
+				::obj.data.( upper( "d" + i + "mname" ) ) = ""
+				::obj.data.( upper( "d" + i + "lname" ) ) = ""
+				::obj.data.( upper( "d" + i + "name" ) ) = ""
+				::obj.data.( upper( "d" + i + "MajCnt" ) ) = ""
+				::obj.data.( upper( "d" + i + "MinCnt" ) ) = ""
+				::obj.data.( upper( "d" + i + "AtFCnt" ) ) = ""
+				::obj.data.( upper( "d" + i + "LastAccDate" ) ) = ""
+				::obj.data.( upper( "d" + i + "DriverLic" ) ) = ""
+				::obj.data.( upper( "d" + i + "State" ) ) = ""
+				::obj.data.( upper( "d" + i + "SSN" ) ) = ""
+			end
+		end
+		
+		n = 1
+		x = ::DriverCnt
+		for ( i=2; i<=6; i++ )
+			if ( ItsExcluded[i] )
+				x++
+				dob[x]    = ::obj.data.( upper( "d" + i + "DOB" ) )
+				excl[x]   = ::obj.data.( upper( "d" + i + "Excluded" ) )
+				sex[x]    = ::obj.data.( upper( "d" + i + "Sex" ) )
+				ms[x]     = ::obj.data.( upper( "d" + i + "MaritalStatus" ) )
+				lws[x]    = ::obj.data.( upper( "d" + i + "LivingWithSpouse" ) )
+				apc[x]    = ::obj.data.( upper( "d" + i + "APCDate" ) )
+				idl[x]    = ::obj.data.( upper( "d" + i + "IntlDL" ) )
+				udl[x]    = ::obj.data.( upper( "d" + i + "UnverDL" ) )
+				mjr[x]    = ::obj.data.( upper( "d" + i + "MajorViolationsCnt" ) )
+				mnr[x]    = ::obj.data.( upper( "d" + i + "MinorViolationsCnt" ) )
+				atf[x]    = ::obj.data.( upper( "d" + i + "AtFaultAccidentsCnt" ) )
+				sr22[x]   = ::obj.data.( upper( "d" + i + "SR22_Required" ) )
+				add[x]    = ::obj.data.( upper( "d" + i + "ADD" ) )
+				dis[x]    = ::obj.data.( upper( "d" + i + "Disability" ) )
+				v1excl[x] = ::obj.data.( upper( "d" + i + "v1Excluded" ) )
+				v2excl[x] = ::obj.data.( upper( "d" + i + "v2Excluded" ) )
+				v3excl[x] = ::obj.data.( upper( "d" + i + "v3Excluded" ) )
+				v4excl[x] = ::obj.data.( upper( "d" + i + "v4Excluded" ) )
+				v5excl[x] = ::obj.data.( upper( "d" + i + "v5Excluded" ) )
+				v6excl[x] = ::obj.data.( upper( "d" + i + "v6Excluded" ) )
+				fn[x]     = ::obj.data.( upper( "d" + i + "fname" ) )
+				mn[x]     = ::obj.data.( upper( "d" + i + "mname" ) )
+				ln[x]     = ::obj.data.( upper( "d" + i + "lname" ) )
+				nm[x]     = ::obj.data.( upper( "d" + i + "name" ) )
+				mjct[x]   = ::obj.data.( upper( "d" + i + "MajCnt" ) )
+				mnct[x]   = ::obj.data.( upper( "d" + i + "MinCnt" ) )
+				afct[x]   = ::obj.data.( upper( "d" + i + "AtFCnt" ) )
+				lad[x]    = ::obj.data.( upper( "d" + i + "LastAccDate" ) )
+				dl[x]     = ::obj.data.( upper( "d" + i + "DriverLic" ) )
+				st[x]     = ::obj.data.( upper( "d" + i + "State" ) )
+				ssn[x]    = ::obj.data.( upper( "d" + i + "SSN" ) )
+			else
+				n++
+				dob[n]    = ::obj.data.( upper( "d" + i + "DOB" ) )
+				excl[n]   = ::obj.data.( upper( "d" + i + "Excluded" ) )
+				sex[n]    = ::obj.data.( upper( "d" + i + "Sex" ) )
+				ms[n]     = ::obj.data.( upper( "d" + i + "MaritalStatus" ) )
+				lws[n]    = ::obj.data.( upper( "d" + i + "LivingWithSpouse" ) )
+				apc[n]    = ::obj.data.( upper( "d" + i + "APCDate" ) )
+				idl[n]    = ::obj.data.( upper( "d" + i + "IntlDL" ) )
+				udl[n]    = ::obj.data.( upper( "d" + i + "UnverDL" ) )
+				mjr[n]    = ::obj.data.( upper( "d" + i + "MajorViolationsCnt" ) )
+				mnr[n]    = ::obj.data.( upper( "d" + i + "MinorViolationsCnt" ) )
+				atf[n]    = ::obj.data.( upper( "d" + i + "AtFaultAccidentsCnt" ) )
+				sr22[n]   = ::obj.data.( upper( "d" + i + "SR22_Required" ) )
+				add[n]    = ::obj.data.( upper( "d" + i + "ADD" ) )
+				dis[n]    = ::obj.data.( upper( "d" + i + "Disability" ) )
+				v1excl[n] = ::obj.data.( upper( "d" + i + "v1Excluded" ) )
+				v2excl[n] = ::obj.data.( upper( "d" + i + "v2Excluded" ) )
+				v3excl[n] = ::obj.data.( upper( "d" + i + "v3Excluded" ) )
+				v4excl[n] = ::obj.data.( upper( "d" + i + "v4Excluded" ) )
+				v5excl[n] = ::obj.data.( upper( "d" + i + "v5Excluded" ) )
+				v6excl[n] = ::obj.data.( upper( "d" + i + "v6Excluded" ) )
+				fn[n]     = ::obj.data.( upper( "d" + i + "fname" ) )
+				mn[n]     = ::obj.data.( upper( "d" + i + "mname" ) )
+				ln[n]     = ::obj.data.( upper( "d" + i + "lname" ) )
+				nm[n]     = ::obj.data.( upper( "d" + i + "name" ) )
+				mjct[n]   = ::obj.data.( upper( "d" + i + "MajCnt" ) )
+				mnct[n]   = ::obj.data.( upper( "d" + i + "MinCnt" ) )
+				afct[n]   = ::obj.data.( upper( "d" + i + "AtFCnt" ) )
+				lad[n]    = ::obj.data.( upper( "d" + i + "LastAccDate" ) )
+				dl[n]     = ::obj.data.( upper( "d" + i + "DriverLic" ) )
+				st[n]     = ::obj.data.( upper( "d" + i + "State" ) )
+				ssn[n]    = ::obj.data.( upper( "d" + i + "SSN" ) )
+			end
+		end
+//debugbreak()
+		for ( i=2; i<=6; i++ )
+			::obj.data.( upper( "d" + i + "DOB" ) ) = dob[i]
+			::obj.data.( upper( "d" + i + "Excluded" ) ) = excl[i]
+			::obj.data.( upper( "d" + i + "Sex" ) ) = sex[i]
+			::obj.data.( upper( "d" + i + "MaritalStatus" ) ) = ms[i]
+			::obj.data.( upper( "d" + i + "LivingWithSpouse" ) ) = lws[i]
+			::obj.data.( upper( "d" + i + "APCDate" ) ) = apc[i]
+			::obj.data.( upper( "d" + i + "IntlDL" ) ) = idl[i]
+			::obj.data.( upper( "d" + i + "UnverDL" ) ) = udl[i]
+			::obj.data.( upper( "d" + i + "MajorViolationsCnt" ) ) = mjr[i]
+			::obj.data.( upper( "d" + i + "MinorViolationsCnt" ) ) = mnr[i]
+			::obj.data.( upper( "d" + i + "AtFaultAccidentsCnt" ) ) = atf[i]
+			::obj.data.( upper( "d" + i + "SR22_Required" ) ) = sr22[i]
+			::obj.data.( upper( "d" + i + "ADD" ) ) = add[i]
+			::obj.data.( upper( "d" + i + "Disability" ) ) = dis[i]
+			::obj.data.( upper( "d" + i + "v1Excluded" ) ) = v1excl[i]
+			::obj.data.( upper( "d" + i + "v2Excluded" ) ) = v2excl[i]
+			::obj.data.( upper( "d" + i + "v3Excluded" ) ) = v3excl[i]
+			::obj.data.( upper( "d" + i + "v4Excluded" ) ) = v4excl[i]
+			::obj.data.( upper( "d" + i + "v5Excluded" ) ) = v5excl[i]
+			::obj.data.( upper( "d" + i + "v6Excluded" ) ) = v6excl[i]
+			::obj.data.( upper( "d" + i + "fname" ) ) = fn[i]
+			::obj.data.( upper( "d" + i + "mname" ) ) = mn[i]
+			::obj.data.( upper( "d" + i + "lname" ) ) = ln[i]
+			::obj.data.( upper( "d" + i + "name" ) ) = nm[i]
+			::obj.data.( upper( "d" + i + "MajCnt" ) ) = mjct[i]
+			::obj.data.( upper( "d" + i + "MinCnt" ) ) = mnct[i]
+			::obj.data.( upper( "d" + i + "AtFCnt" ) ) = afct[i]
+			::obj.data.( upper( "d" + i + "LastAccDate" ) ) = lad[i]
+			::obj.data.( upper( "d" + i + "DriverLic" ) ) = dl[i]
+			::obj.data.( upper( "d" + i + "State" ) ) = st[i]
+			::obj.data.( upper( "d" + i + "SSN" ) ) = ssn[i]
+		end
+//debugbreak()
+		for ( i=2; i<=5; i++ )
+			if ( ItsBlank[i] )
+				for ( j=( i + 1 ); j<=6; j++ )
+					if ( ItsBlank[j] )
+					else
+						::obj.data.( upper( "d" + i + "DOB" ) ) = ::obj.data.( upper( "d" + j + "DOB" ) )
+						::obj.data.( upper( "d" + i + "Sex" ) ) = ::obj.data.( upper( "d" + j + "Sex" ) )
+						::obj.data.( upper( "d" + i + "MaritalStatus" ) ) = ::obj.data.( upper( "d" + j + "MaritalStatus" ) )
+						::obj.data.( upper( "d" + i + "LivingWithSpouse" ) ) = ::obj.data.( upper( "d" + j + "LivingWithSpouse" ) )
+						::obj.data.( upper( "d" + i + "APCDate" ) ) = ::obj.data.( upper( "d" + j + "APCDate" ) )
+						::obj.data.( upper( "d" + i + "IntlDL" ) ) = ::obj.data.( upper( "d" + j + "IntlDL" ) )
+						::obj.data.( upper( "d" + i + "UnverDL" ) ) = ::obj.data.( upper( "d" + j + "UnverDL" ) )
+						::obj.data.( upper( "d" + i + "MajorViolationsCnt" ) ) = ::obj.data.( upper( "d" + j + "MajorViolationsCnt" ) )
+						::obj.data.( upper( "d" + i + "MinorViolationsCnt" ) ) = ::obj.data.( upper( "d" + j + "MinorViolationsCnt" ) )
+						::obj.data.( upper( "d" + i + "AtFaultAccidentsCnt" ) ) = ::obj.data.( upper( "d" + j + "AtFaultAccidentsCnt" ) )
+						::obj.data.( upper( "d" + i + "SR22_Required" ) ) = ::obj.data.( upper( "d" + j + "SR22_Required" ) )
+						::obj.data.( upper( "d" + i + "Excluded" ) ) = ::obj.data.( upper( "d" + j + "Excluded" ) )
+						::obj.data.( upper( "d" + i + "ADD" ) ) = ::obj.data.( upper( "d" + j + "ADD" ) )
+						::obj.data.( upper( "d" + i + "Disability" ) ) = ::obj.data.( upper( "d" + j + "Disability" ) )
+						::obj.data.( upper( "d" + i + "v1Excluded" ) ) = ::obj.data.( upper( "d" + j + "v1Excluded" ) )
+						::obj.data.( upper( "d" + i + "v2Excluded" ) ) = ::obj.data.( upper( "d" + j + "v2Excluded" ) )
+						::obj.data.( upper( "d" + i + "v3Excluded" ) ) = ::obj.data.( upper( "d" + j + "v3Excluded" ) )
+						::obj.data.( upper( "d" + i + "v4Excluded" ) ) = ::obj.data.( upper( "d" + j + "v4Excluded" ) )
+						::obj.data.( upper( "d" + i + "v5Excluded" ) ) = ::obj.data.( upper( "d" + j + "v5Excluded" ) )
+						::obj.data.( upper( "d" + i + "v6Excluded" ) ) = ::obj.data.( upper( "d" + j + "v6Excluded" ) )
+						::obj.data.( upper( "d" + i + "fname" ) ) = ::obj.data.( upper( "d" + j + "fname" ) )
+						::obj.data.( upper( "d" + i + "mname" ) ) = ::obj.data.( upper( "d" + j + "mname" ) )
+						::obj.data.( upper( "d" + i + "lname" ) ) = ::obj.data.( upper( "d" + j + "lname" ) )
+						::obj.data.( upper( "d" + i + "name" ) ) = ::obj.data.( upper( "d" + j + "name" ) )
+						::obj.data.( upper( "d" + i + "MajCnt" ) ) = ::obj.data.( upper( "d" + j + "MajCnt" ) )
+						::obj.data.( upper( "d" + i + "MinCnt" ) ) = ::obj.data.( upper( "d" + j + "MinCnt" ) )
+						::obj.data.( upper( "d" + i + "AtFCnt" ) ) = ::obj.data.( upper( "d" + j + "AtFCnt" ) )
+						::obj.data.( upper( "d" + i + "LastAccDate" ) ) = ::obj.data.( upper( "d" + j + "LastAccDate" ) )
+						::obj.data.( upper( "d" + i + "DriverLic" ) ) = ::obj.data.( upper( "d" + j + "DriverLic" ) )
+						::obj.data.( upper( "d" + i + "State" ) ) = ::obj.data.( upper( "d" + j + "State" ) )
+						::obj.data.( upper( "d" + i + "SSN" ) ) = ::obj.data.( upper( "d" + j + "SSN" ) )
+						::obj.data.( upper( "d" + j + "DOB" ) ) = ""
+						::obj.data.( upper( "d" + j + "Sex" ) ) = ""
+						::obj.data.( upper( "d" + j + "MaritalStatus" ) ) = ""
+						::obj.data.( upper( "d" + j + "LivingWithSpouse" ) ) = ""
+						::obj.data.( upper( "d" + j + "APCDate" ) ) = ""
+						::obj.data.( upper( "d" + j + "IntlDL" ) ) = ""
+						::obj.data.( upper( "d" + j + "UnverDL" ) ) = ""
+						::obj.data.( upper( "d" + j + "MajorViolationsCnt" ) ) = ""
+						::obj.data.( upper( "d" + j + "MinorViolationsCnt" ) ) = ""
+						::obj.data.( upper( "d" + j + "AtFaultAccidentsCnt" ) ) = ""
+						::obj.data.( upper( "d" + j + "SR22_Required" ) ) = ""
+						::obj.data.( upper( "d" + j + "ADD" ) ) = ""
+						::obj.data.( upper( "d" + j + "Disability" ) ) = ""
+						::obj.data.( upper( "d" + j + "Excluded" ) ) = ""
+						::obj.data.( upper( "d" + j + "v1Excluded" ) ) = ""
+						::obj.data.( upper( "d" + j + "v2Excluded" ) ) = ""
+						::obj.data.( upper( "d" + j + "v3Excluded" ) ) = ""
+						::obj.data.( upper( "d" + j + "v4Excluded" ) ) = ""
+						::obj.data.( upper( "d" + j + "v5Excluded" ) ) = ""
+						::obj.data.( upper( "d" + j + "v6Excluded" ) ) = ""
+						::obj.data.( upper( "d" + j + "fname" ) ) = ""
+						::obj.data.( upper( "d" + j + "mname" ) ) = ""
+						::obj.data.( upper( "d" + j + "lname" ) ) = ""
+						::obj.data.( upper( "d" + j + "name" ) ) = ""
+						::obj.data.( upper( "d" + j + "MajCnt" ) ) = ""
+						::obj.data.( upper( "d" + j + "MinCnt" ) ) = ""
+						::obj.data.( upper( "d" + j + "AtFCnt" ) ) = ""
+						::obj.data.( upper( "d" + j + "LastAccDate" ) ) = ""
+						::obj.data.( upper( "d" + j + "DriverLic" ) ) = ""
+						::obj.data.( upper( "d" + j + "State" ) ) = ""
+						::obj.data.( upper( "d" + j + "SSN" ) ) = ""
+						ItsBlank[j] = 1
+						break
+					end
+				end
+			end
+		end
+//debugbreak()
+		::obj.debug ( "Driver_Sort Calc End" )
+		
+		return( 1 )
+	END
+
+END
+
+CLASS Vehicle_Sort
+  PUBLIC:
+	// required variables
+	local obj, name, title, premium, errmsg, footnote
+	
+	// local variables
+	local VehicleCnt
+	
+	METHOD new( obj )
+		::obj = obj
+		::obj.debug ( "Vehicle_Sort New Start" )
+		::name = "Vehicle_Sort"
+		::title = "Vehicle_Sort Gross Premium"
+		::premium = 0
+		::errmsg = ""
+		::footnote = ""
+//		if ( ! ValidateRequiredVariables( self ) )
+//			return( 1 )
+//		end
+		::init( )
+		::calculate( )
+		::obj.debug ( "Vehicle_Sort New End" )
+		return( 1 )
+	END
+
+	ACCESS RequiredVars
+		// array of required variables
+		static a = {
+			"data.v1Year",
+			"data.v1Make",
+			"data.v1Model",
+			"data.v1Body",
+			"data.v1gzip",
+			"data.v1FourWD",
+			"data.v1BusinessUse",
+			"data.v1AntiTheft",
+			"data.v1AirBag",
+			"data.v1Gap",
+			"data.v1CovType",
+			"data.v1CompCollDed",
+			"data.v2Year",
+			"data.v2Make",
+			"data.v2Model",
+			"data.v2Body",
+			"data.v2gzip",
+			"data.v2FourWD",
+			"data.v2BusinessUse",
+			"data.v2AntiTheft",
+			"data.v2AirBag",
+			"data.v2Gap",
+			"data.v2CovType",
+			"data.v2CompCollDed",
+			"data.v3Year",
+			"data.v3Make",
+			"data.v3Model",
+			"data.v3Body",
+			"data.v3gzip",
+			"data.v3FourWD",
+			"data.v3BusinessUse",
+			"data.v3AntiTheft",
+			"data.v3AirBag",
+			"data.v3Gap",
+			"data.v3CovType",
+			"data.v3CompCollDed",
+			"data.v4Year",
+			"data.v4Make",
+			"data.v4Model",
+			"data.v4Body",
+			"data.v4gzip",
+			"data.v4FourWD",
+			"data.v4BusinessUse",
+			"data.v4AntiTheft",
+			"data.v4AirBag",
+			"data.v4Gap",
+			"data.v4CovType",
+			"data.v4CompCollDed",
+			"data.v5Year",
+			"data.v5Make",
+			"data.v5Model",
+			"data.v5Body",
+			"data.v5gzip",
+			"data.v5FourWD",
+			"data.v5BusinessUse",
+			"data.v5AntiTheft",
+			"data.v5AirBag",
+			"data.v5Gap",
+			"data.v5CovType",
+			"data.v5CompCollDed",
+			"data.v6Year",
+			"data.v6Make",
+			"data.v6Model",
+			"data.v6Body",
+			"data.v6gzip",
+			"data.v6FourWD",
+			"data.v6BusinessUse",
+			"data.v6AntiTheft",
+			"data.v6AirBag",
+			"data.v6Gap",
+			"data.v6CovType",
+			"data.v6CompCollDed"
+		}
+		return( a )
+	END
+
+	ACCESS aVars
+		// array of exported local variables
+		static a = {
+			"VehicleCnt"
+		}
+		return( a )
+	END
+
+	METHOD init( )
+		// initialize local variables here
+			::VehicleCnt = 0
+		return( 1 )
+	END
+
+	METHOD calculate( )
+		// perform calculations here
+		::obj.debug ( "Vehicle_Sort Calc Start" )
+		
+		local i, j, ItsBlank
+		
+		::VehicleCnt = 1
+		for ( i=2; i<=6; i++ )
+			ItsBlank[i] = 0
+			if ( strempty( "" + ::obj.data.( upper( "v" + i + "Year" ) ) ) )
+				ItsBlank[i] = 1
+			else
+				::VehicleCnt = ::VehicleCnt + 1
+			end
+		end
+		for ( i=2; i<=5; i++ )
+			if ( ItsBlank[i] )
+				for ( j=( i + 1 ); j<=6; j++ )
+					if ( ItsBlank[j] )
+					else
+						::obj.data.( upper( "v" + i + "Year" ) ) = ::obj.data.( upper( "v" + j + "Year" ) )
+						::obj.data.( upper( "v" + i + "Make" ) ) = ::obj.data.( upper( "v" + j + "Make" ) )
+						::obj.data.( upper( "v" + i + "Model" ) ) = ::obj.data.( upper( "v" + j + "Model" ) )
+						::obj.data.( upper( "v" + i + "Body" ) ) = ::obj.data.( upper( "v" + j + "Body" ) )
+						::obj.data.( upper( "v" + i + "gzip" ) ) = ::obj.data.( upper( "v" + j + "gzip" ) )
+						::obj.data.( upper( "v" + i + "FourWD" ) ) = ::obj.data.( upper( "v" + j + "FourWD" ) )
+						::obj.data.( upper( "v" + i + "BusinessUse" ) ) = ::obj.data.( upper( "v" + j + "BusinessUse" ) )
+						::obj.data.( upper( "v" + i + "AntiTheft" ) ) = ::obj.data.( upper( "v" + j + "AntiTheft" ) )
+						::obj.data.( upper( "v" + i + "AirBag" ) ) = ::obj.data.( upper( "v" + j + "AirBag" ) )
+						::obj.data.( upper( "v" + i + "Gap" ) ) = ::obj.data.( upper( "v" + j + "Gap" ) )
+						::obj.data.( upper( "v" + i + "CovType" ) ) = ::obj.data.( upper( "v" + j + "CovType" ) )
+						::obj.data.( upper( "v" + i + "CompCollDed" ) ) = ::obj.data.( upper( "v" + j + "CompCollDed" ) )
+						::obj.data.( upper( "v" + j + "Year" ) ) = ""
+						::obj.data.( upper( "v" + j + "Make" ) ) = ""
+						::obj.data.( upper( "v" + j + "Model" ) ) = ""
+						::obj.data.( upper( "v" + j + "Body" ) ) = ""
+						::obj.data.( upper( "v" + j + "gzip" ) ) = ""
+						::obj.data.( upper( "v" + j + "FourWD" ) ) = "OFF"
+						::obj.data.( upper( "v" + j + "BusinessUse" ) ) = "OFF"
+						::obj.data.( upper( "v" + j + "AntiTheft" ) ) = "OFF"
+						::obj.data.( upper( "v" + j + "AirBag" ) ) = "OFF"
+						::obj.data.( upper( "v" + j + "Gap" ) ) = "OFF"
+						::obj.data.( upper( "v" + j + "CovType" ) ) = ""
+						::obj.data.( upper( "v" + j + "CompCollDed" ) ) = ""
+						ItsBlank[j] = 1
+						break
+					end
+				end
+			end
+		end
+		::obj.debug ( "Vehicle_Sort Calc End" )
+		
+		return( 1 )
+	END
+END
+
+CLASS SetLastAccidentDates
+  PUBLIC:
+	// required variables
+	local obj, rtb, name, title, premium, errmsg, footnote
+	
+	// local variables
+	local d1AccCnt, d2AccCnt, d3AccCnt, d4AccCnt, d5AccCnt, d6AccCnt
+
+	METHOD new( obj )
+		::obj = obj
+		::obj.debug ( "SetLastAccidentDates New Start" )
+		::name = "SetLastAccidentDates"
+		::title = "Set Last Accident Dates"
+		::premium = 0
+		::errmsg = ""
+		::footnote = ""
+		::rtb = new( "Rating_Tables", ::obj )
+//		if ( ! ValidateRequiredVariables( self ) )
+//			return( 1 )
+//		end
+		::init( )
+		::calculate( )
+		::obj.debug ( "SetLastAccidentDates New End" )
+		return( 1 )
+	END
+
+	ACCESS RequiredVars
+		// array of required variables
+		static a = {
+            "data.a10Date",
+            "data.a10Description",
+            "data.a10DriverNum",
+            "data.a10Type",
+            "data.a11Date",
+            "data.a11Description",
+            "data.a11DriverNum",
+            "data.a11Type",
+            "data.a12Date",
+            "data.a12Description",
+            "data.a12DriverNum",
+            "data.a12Type",
+            "data.a1Date",
+            "data.a1Description",
+            "data.a1DriverNum",
+            "data.a1Type",
+            "data.a2Date",
+            "data.a2Description",
+            "data.a2DriverNum",
+            "data.a2Type",
+            "data.a3Date",
+            "data.a3Description",
+            "data.a3DriverNum",
+            "data.a3Type",
+            "data.a4Date",
+            "data.a4Description",
+            "data.a4DriverNum",
+            "data.a4Type",
+            "data.a5Date",
+            "data.a5Description",
+            "data.a5DriverNum",
+            "data.a5Type",
+            "data.a6Date",
+            "data.a6Description",
+            "data.a6DriverNum",
+            "data.a6Type",
+            "data.a7Date",
+            "data.a7Description",
+            "data.a7DriverNum",
+            "data.a7Type",
+            "data.a8Date",
+            "data.a8Description",
+            "data.a8DriverNum",
+            "data.a8Type",
+            "data.a9Date",
+            "data.a9Description",
+            "data.a9DriverNum",
+            "data.a9Type",
+			"d1Excluded",
+			"d2Excluded",
+			"d3Excluded",
+			"d4Excluded",
+			"d5Excluded",
+			"d6Excluded",
+            "data.d1AtFaultAccidentsCnt",
+            "data.d2AtFaultAccidentsCnt",
+            "data.d3AtFaultAccidentsCnt",
+            "data.d4AtFaultAccidentsCnt",
+            "data.d5AtFaultAccidentsCnt",
+            "data.d6AtFaultAccidentsCnt",
+            "data.d1LastAccDate",
+            "data.d2LastAccDate",
+            "data.d3LastAccDate",
+            "data.d4LastAccDate",
+            "data.d5LastAccDate",
+            "data.d6LastAccDate"
+		}
+		return( a )
+	END
+
+	ACCESS aVars
+		// array of exported local variables
+		static a = {
+			"d1AccCnt", "d2AccCnt", "d3AccCnt", "d4AccCnt", "d5AccCnt", "d6AccCnt"
+		}
+		return( a )
+	END
+
+	METHOD init( )
+		// initialize local variables here
+		::d1AccCnt = 0
+		::d2AccCnt = 0
+		::d3AccCnt = 0
+		::d4AccCnt = 0
+		::d5AccCnt = 0
+		::d6AccCnt = 0
+		return( 1 )
+	END
+
+	METHOD calculate( )
+		// perform calculations here
+		::obj.debug ( "SetLastAccidentDates Calc Start" )
+		local d, i, j, AccDate, max, d1, d2, temp
+		
+		if ( ::obj.CalcType == "NEWQUOTE" )
+			j=0
+			for ( i=1; i<=6; i++)
+				if ( ! strempty( ::obj.data.( upper( "d" + i + "LastAccDate" ) ) ) )
+					j++
+					::obj.data.( upper( "a" + j + "DriverNum" ) )= "" + i
+					::obj.data.( upper( "a" + j + "Date" ) ) = ::obj.data.( upper( "d" + i + "LastAccDate" ) )
+					::obj.data.( upper( "a" + j + "Type" ) ) = "At-Fault"
+					::obj.data.( upper( "a" + j + "Description" ) ) = "At-Fault Accident"
+				end
+			end
+		else
+			for ( i=1; i<=6; i++)
+				AccDate[i, 1] = ""
+			end
+
+			for ( i=1; i<=12; i++ )
+				if ( upper( ::obj.data.( upper( "a" + i + "Type" ) ) ) == "NOT AT-FAULT" )
+					if ( strempty( ::obj.data.( upper( "a" + i + "Description" ) ) ) )
+						::obj.data.( upper( "a" + i + "Type" ) ) == "At-Fault"
+						::obj.data.( upper( "a" + i + "Description" ) ) == "At-Fault Accident"
+					end
+				end
+			end
+
+			for ( i=1; i<=12; i++ )
+				j=0
+				if ( upper( ::obj.data.( upper( "a" + i + "Type" ) ) ) == "AT-FAULT" ) 
+					j++
+					d = 0 + ::obj.data.( upper( "a" + i + "DriverNum" ) )
+					self.( upper( "d" + d + "AccCnt" ) ) = j
+					AccDate[d,j] = ::obj.data.( upper( "a" + i + "Date" ) )
+				end
+			end
+
+			for ( d=1; d<=6; d++)
+				if ( strempty( AccDate[d,1] ) )
+					::obj.data.( upper( "d" + d + "LastAccDate" ) ) = ""
+				else
+					max = self.( upper( "d" + d + "AccCnt" ) )
+					for ( i=1; i<=max ; i++ )
+						for ( j=2; j<=max ; j++ )
+							d1 = datej( AccDate[d,i] )
+							d2 = datej( AccDate[d,j] )
+							if ( d1 < d2 )
+								temp = AccDate[d,i]
+								AccDate[d,i] = AccDate[d,j]
+								AccDate[d,j] = temp
+							end
+						end
+					end
+					::obj.data.( upper( "d" + d + "LastAccDate" ) ) = AccDate[d,1]
+				end
+			end
+		end
+
+		::obj.debug ( "SetLastAccidentDates Calc End" )
+		return( 1 )
+	END
+END
+
+CLASS Driver_Points
+  PUBLIC:
+	// required variables
+	local obj, rtb, name, title, premium, errmsg, footnote
+	
+	// local variables
+	local Age, LIAB_ptsClass, LIAB_ptsMajor, LIAB_ptsMinor, LIAB_ptsAtFault, LIAB_ptsInternationalDL, LIAB_ptsUnverifiableDL, LIAB_ptsTotalMatch
+	local PD_ptsClass, PD_ptsMajor, PD_ptsMinor, PD_ptsAtFault, PD_ptsInternationalDL, PD_ptsUnverifiableDL, PD_ptsTotalMatch
+
+
+	METHOD new( obj )
+		::obj = obj
+		::obj.debug ( "Driver Points New Start" )
+		::name = "Driver_Points"
+		::title = "Driver Points"
+		::premium = 0
+		::errmsg = ""
+		::footnote = ""	
+		::rtb = new( "Rating_Tables", ::obj )
+		::obj.debug ( "DriverNo = " + ::obj.DriverNo )
+		::obj.debug ( "Driver Points Validate Start" )
+//		if ( ! ValidateRequiredVariables( self ) )
+//			return( 1 )
+//		end
+		::init( )
+		::calculate( )
+		::obj.debug ( "Driver Points New End" )
+		return( 1 )
+	END
+
+	ACCESS RequiredVars
+		// array of required variables
+		static a = {
+			"data.EffDate",
+			"DriverNo",
+			"data.d" + ::obj.DriverNo + "dob",
+			"data.d" + ::obj.DriverNo + "sex",
+			"data.d" + ::obj.DriverNo + "MaritalStatus",
+			"data.d" + ::obj.DriverNo + "LivingWithSpouse",
+			"data.d" + ::obj.DriverNo + "MajorViolationsCnt",
+			"data.d" + ::obj.DriverNo + "MinorViolationsCnt",
+			"data.d" + ::obj.DriverNo + "IntlDL",
+			"data.d" + ::obj.DriverNo + "UnverDL",
+			"data.d" + ::obj.DriverNo + "AtFaultAccidentsCnt"
+		}
+		return( a )
+	END
+
+	ACCESS aVars
+		// array of exported local variables
+		static a = {
+			"Age",
+			"LIAB_ptsClass",
+			"LIAB_ptsMajor",
+			"LIAB_ptsMinor",
+			"LIAB_ptsAtFault",
+			"LIAB_ptsInternationalDL",
+			"LIAB_ptsUnverifiableDL",
+			"LIAB_ptsTotalMatch",
+			"PD_ptsClass",
+			"PD_ptsMajor",
+			"PD_ptsMinor",
+			"PD_ptsAtFault",
+			"PD_ptsInternationalDL",
+			"PD_ptsUnverifiableDL",
+			"PD_ptsTotalMatch"
+		}
+		return( a )
+	END
+
+	METHOD init( )
+		// initialize local variables here
+			::obj.debug ( "Driver Points Init Start" )
+			::Age = 0
+			::LIAB_ptsClass = ""
+			::LIAB_ptsMajor = ""
+			::LIAB_ptsMinor = ""
+			::LIAB_ptsAtFault = ""
+			::LIAB_ptsInternationalDL = ""
+			::LIAB_ptsUnverifiableDL = ""
+			::LIAB_ptsTotalMatch = 0
+			::PD_ptsClass = ""
+			::PD_ptsMajor = ""
+			::PD_ptsMinor = ""
+			::PD_ptsAtFault = ""
+			::PD_ptsInternationalDL = ""
+			::PD_ptsUnverifiableDL = ""
+			::PD_ptsTotalMatch = 0
+			::obj.debug ( "Driver Points Init End" )
+		return( 1 )
+	END
+
+	METHOD calculate( )
+		// perform calculations here
+		
+		::obj.debug ( "Driver Points Calc Start" )
+		
+		local a, find, i, j, index, liab, pd
+		local PolEffDate, dob, sex, MarStat, LWSpouse, majorcnt, minorcnt, atFault, intlDL, unverDL
+		local aKey, aLen, aKeyLen, tbl, x
+
+		PolEffDate = dateformatj( datej( ::obj.data.EffDate ), "YYYYMMDD" )
+		dob        = "" + ::obj.data.( upper( "d" + ::obj.DriverNo + "dob" ) )
+		sex        = "" + ::obj.data.( upper( "d" + ::obj.DriverNo + "sex" ) )
+		MarStat    = "" + ::obj.data.( upper( "d" + ::obj.DriverNo + "MaritalStatus" ) )
+		LWSpouse   = "" + ::obj.data.( upper( "d" + ::obj.DriverNo + "LivingWithSpouse" ) )
+		majorcnt   = "" + ::obj.data.( upper( "d" + ::obj.DriverNo + "MajorViolationsCnt" ) )
+		minorcnt   = "" + ::obj.data.( upper( "d" + ::obj.DriverNo + "MinorViolationsCnt" ) )
+		intlDL     = "" + ::obj.data.( upper( "d" + ::obj.DriverNo + "IntlDL" ) )
+		unverDL    = "" + ::obj.data.( upper( "d" + ::obj.DriverNo + "UnverDL" ) )
+		atFault    = "" + ::obj.data.( upper( "d" + ::obj.DriverNo + "AtFaultAccidentsCnt" ) )
+
+		::obj.data.( upper( "d" + ::obj.DriverNo + "MajorViolationsCnt"  ) ) = ( strempty( majorcnt ) ? "0" : majorcnt )
+		::obj.data.( upper( "d" + ::obj.DriverNo + "MinorViolationsCnt"  ) ) = ( strempty( minorcnt ) ? "0" : minorcnt )
+		::obj.data.( upper( "d" + ::obj.DriverNo + "AtFaultAccidentsCnt" ) ) = ( strempty( atFault )  ? "0" : atFault  )
+
+		//Calc Driver age as of policy effective date
+
+		::Age = ::obj.g.CalculateAgeBetweenDates( dob, ::obj.data.EffDate )
+
+		// Get the required rate table names based upon Policy Effective Date
+
+		a = ::rtb.aRateChangeDates
+		aLen = len( a )
+		aKey = ::aRateTableKey
+		aKeyLen = len( aKey )
+		
+		for ( i=1; i<=aKeyLen; i++ )
+			x[i] = ""
+			for ( j=1; j<=aLen; j++ )
+				if ( ( aKey[i] == a[j][1] ) && ( PolEffDate >= a[j][2] ) && ( PolEffDate <= a[j][3] ) )
+					x[i] = "" + a[j][4]
+				end
+			end
+		end
+		for ( i=1; i<=aKeyLen; i++ )
+			if ( x[i] == "" )
+				::errmsg = "***** SYSTEM ERROR *****     Class: " + ::name + ", " + aKey[i] + " table not found for policy effective date of " + PolEffDate
+				println( ::errmsg )
+				return( 0 )
+			end
+		end
+		for ( i=1; i<=aKeyLen; i++ )
+			tbl[i] = "a" + aKey[i] + "Table_" + x[i]
+			::obj.Debug( "tbl[" + i + "] = " + tbl[i] )
+		end
+		//Set Class Points Index
+		if ( Upper( MarStat ) == "SINGLE" )
+			if ( sex == "M" )
+				index = 2
+			else
+				index = 3
+			end
+		else
+			if ( upper( LWSpouse ) == "ON" )
+				// Rate as Married
+				if ( sex == "M" )
+					index = 4
+				else
+					index = 5
+				end
+			else
+				// Rate as Single
+				if ( sex == "M" )
+					index = 2
+				else
+					index = 3
+				end
+			end
+		end
+
+	// Get Liability Class Points
+		a = ::rtb.( upper( tbl[1] ) )
+		find = 0 + ::age
+		for ( j=1; j<=len( a ); j++ )
+			if ( find == a[j][1] )
+				::LIAB_ptsClass = 0 + a[j][index]
+			end
+		end
+		
+		if ( "" + ::LIAB_ptsClass == "" )
+			::errmsg = "***** SYSTEM ERROR *****     Class: " + ::name + ", Table: " + tbl[1] + ", Age: " + find + ", Index: " + Index + ". Record not found."
+			println( ::errmsg )
+			return( 0 )
+		end
+
+		// Get Physical Damage Class Points
+		a = ::rtb.( upper( tbl[7] ) )
+		for ( j=1; j<=len( a ); j++ )
+			if ( ::age == a[j][1] )
+				::PD_ptsClass = 0 + a[j][index]
+			end
+		end
+		if ( "" + ::PD_ptsClass == "" )
+			::errmsg = "***** SYSTEM ERROR *****     Class: " + ::name + ", Table: " + tbl[7] + ", Age: " + ::Age + ". Record not found."
+			println( ::errmsg )
+			return( 0 )
+		end
+
+		// Get Liability Major Convictions Points
+		a = ::rtb.( upper( tbl[2] ) )
+		find = 0 + majorcnt
+		for ( j=1; j<=len( a ); j++ )
+			if ( find == a[j][1] )
+				::LIAB_ptsMajor = 0 + a[j][3]
+				break
+			end
+		end
+		if ( "" + ::LIAB_ptsMajor == "" )
+			::errmsg = "***** SYSTEM ERROR *****     Class: " + ::name + ", Table: " + tbl[2] + ", Violations: " + majorcnt + ". Record not found."
+			println( ::errmsg )
+			return( 0 )
+		end
+
+		// Get Physical Damage Major Convictions Points
+		a = ::rtb.( upper( tbl[8] ) )
+		find = 0 + majorcnt
+		for ( j=1; j<=len( a ); j++ )
+			if ( find == a[j][1] )
+				::PD_ptsMajor = 0 + a[j][3]
+			end
+		end
+		if ( "" + ::PD_ptsMajor == "" )
+			::errmsg = "***** SYSTEM ERROR *****     Class: " + ::name + ", Table: " + tbl[8] + ", Violations: " + majorcnt + ". Record not found."
+			println( ::errmsg )
+			return( 0 )
+		end
+
+		// Get Liability Minor Convictions Points
+		a = ::rtb.( upper( tbl[3] ) )
+		find = 0 + minorcnt
+		for ( j=1; j<=len( a ); j++ )
+			if ( find == a[j][1] )
+				::LIAB_ptsMinor = 0 + a[j][3]
+			end
+		end
+		if ( "" + ::LIAB_ptsMinor == "" )
+			::errmsg = "***** SYSTEM ERROR *****     Class: " + ::name + ", Table: " + tbl[3] + ", Violations: " + minorcnt + ". Record not found."
+			println( ::errmsg )
+			return( 0 )
+		end
+
+		// Get Physical Damage Minor Convictions Points
+		a = ::rtb.( upper( tbl[9] ) )
+		find = 0 + minorcnt
+		for ( j=1; j<=len( a ); j++ )
+			if ( find == a[j][1] )
+				::PD_ptsMinor = 0 + a[j][3]
+			end
+		end
+		if ( "" + ::PD_ptsMinor == "" )
+			::errmsg = "***** SYSTEM ERROR *****     Class: " + ::name + ", Table: " + tbl[9] + ", Violations: " + minorcnt + ". Record not found."
+			println( ::errmsg )
+			return( 0 )
+		end
+
+		// Get Liability International Driver's License Points
+		a = ::rtb.( upper( tbl[4] ) )
+		find = upper( intlDL )
+		for ( j=1; j<=len( a ); j++ )
+			if ( find == a[j][1] )
+				::LIAB_ptsInternationalDL = 0 + a[j][2]
+			end
+		end
+		if ( "" + ::LIAB_ptsInternationalDL == "" )
+			::errmsg = "***** SYSTEM ERROR *****     Class: " + ::name + ", Table: " + tbl[4] + ". Record not found."
+			println( ::errmsg )
+			return( 0 )
+		end
+
+		// Get Physical Damage International Driver's License Points
+		a = ::rtb.( upper( tbl[10] ) )
+		find = upper( intlDL )
+		for ( j=1; j<=len( a ); j++ )
+			if ( find == a[j][1] )
+				::PD_ptsInternationalDL = 0 + a[j][2]
+			end
+		end
+		if ( "" + ::PD_ptsInternationalDL == "" )
+			::errmsg = "***** SYSTEM ERROR *****     Class: " + ::name + ", Table: " + tbl[10] + ". Record not found."
+			println( ::errmsg )
+			return( 0 )
+		end
+
+		// Get Liability Unverifiable Driver's License Points
+		a = ::rtb.( upper( tbl[5] ) )
+		find = upper( unverDL ) 
+		for ( j=1; j<=len( a ); j++ )
+			if ( find == a[j][1] )
+				::LIAB_ptsUnverifiableDL = 0 + a[j][2]
+			end
+		end
+		if ( "" + ::LIAB_ptsUnverifiableDL == "" )
+			::errmsg = "***** SYSTEM ERROR *****     Class: " + ::name + ", Table: " + tbl[5] + ". Record not found."
+			println( ::errmsg )
+			return( 0 )
+		end
+
+		// Get Physical Damage Unverifiable Driver's License Points
+		a = ::rtb.( upper( tbl[11] ) )
+		find = upper( unverDL )
+		for ( j=1; j<=len( a ); j++ )
+			if ( find == a[j][1] )
+				::PD_ptsUnverifiableDL = 0 + a[j][2]
+			end
+		end
+		if ( "" + ::PD_ptsUnverifiableDL == "" )
+			::errmsg = "***** SYSTEM ERROR *****     Class: " + ::name + ", Table: " + tbl[11] + ". Record not found."
+			println( ::errmsg )
+			return( 0 )
+		end
+
+		// Get Liability At Fault Accidents Points
+		a = ::rtb.( upper( tbl[6] ) )
+		find = 0 + atFault
+		for ( j=1; j<=len( a ); j++ )
+			if ( find == a[j][1] )
+				::LIAB_ptsAtFault = 0 + a[j][3]
+			end
+		end
+		if ( "" + ::LIAB_ptsAtFault == "" )
+			::errmsg = "***** SYSTEM ERROR *****     Class: " + ::name + ", Table: " + tbl[6] + ", Accidents: " + atFault + ". Record not found."
+			println( ::errmsg )
+			return( 0 )
+		end
+
+		// Get Physical Damage At Fault Accidents Points
+		a = ::rtb.( upper( tbl[12] ) )
+		find = 0 + atFault
+		for ( j=1; j<=len( a ); j++ )
+			if ( find == a[j][1] )
+				::PD_ptsAtFault = 0 + a[j][3]
+			end
+		end
+		if ( "" + ::PD_ptsAtFault == "" )
+			::errmsg = "***** SYSTEM ERROR *****     Class: " + ::name + ", Table: " + tbl[12] + ", Accidents: " + atFault + ". Record not found."
+			println( ::errmsg )
+			return( 0 )
+		end
+
+		liab = 0 + ::LIAB_ptsClass + ::LIAB_ptsMajor + ::LIAB_ptsMinor + ::LIAB_ptsAtFault + ::LIAB_ptsInternationalDL + ::LIAB_ptsUnverifiableDL
+		pd =   0 + ::PD_ptsClass   + ::PD_ptsMajor   + ::PD_ptsMinor   + ::PD_ptsAtFault   + ::PD_ptsInternationalDL   + ::PD_ptsUnverifiableDL
+
+		::LIAB_ptsTotalMatch = liab
+		::PD_ptsTotalMatch =   pd
+
+		return( 1 )
+	END
+
+	ACCESS aRateTableKey
+		static a = {
+			"LIAB_ptsClass",
+			"LIAB_ptsMajor",
+			"LIAB_ptsMinor",
+			"LIAB_ptsInternationalDL",
+			"LIAB_ptsUnverifiableDL",
+			"LIAB_ptsAtFault",
+			"PD_ptsClass",
+			"PD_ptsMajor",
+			"PD_ptsMinor",
+			"PD_ptsInternationalDL",
+			"PD_ptsUnverifiableDL",
+			"PD_ptsAtFault"
+		}
+		return( a )
+	END
+END
+
+CLASS Vehicle_Points
+  PUBLIC:
+	// required variables
+	local obj, rtb, name, title, premium, errmsg, footnote
+	
+	// local variables
+	local LIAB_ptsBusiness, LIAB_ptsTerritory, LIAB_ptsTotalMatch
+	local PD_ptsBusiness, PD_ptsDeductible, PD_ptsSymbol, PD_ptsTerritory, PD_ptsTotalMatch
+	local Symbol, Territory
+
+	METHOD new( obj )
+		::obj = obj
+		::obj.debug ( "Vehicle Points New Start" )
+		::name = "Vehicle_Points"
+		::title = "Vehicle Points"
+		::premium = 0
+		::errmsg = ""
+		::footnote = ""
+		::rtb = new( "Rating_Tables", ::obj )
+		::obj.debug ( "Vehicle Points Validate Start" )
+//		if ( ! ValidateRequiredVariables( self ) )
+//			return( 1 )
+//		end
+		::init( )
+		::calculate( )
+		::obj.debug ( "Vehicle Points New End" )
+		return( 1 )
+	END
+
+	ACCESS RequiredVars
+		// array of required variables
+		static a = {
+			"data.EffDate",
+			"VehicleNo",
+			"data.v" + ::obj.VehicleNo + "Year",
+			"data.v" + ::obj.VehicleNo + "Make",
+			"data.v" + ::obj.VehicleNo + "Model",
+			"data.v" + ::obj.VehicleNo + "Body",
+			"data.v" + ::obj.VehicleNo + "gzip",
+			"data.v" + ::obj.VehicleNo + "BusinessUse",
+			"data.v" + ::obj.VehicleNo + "CovType",
+			"data.v" + ::obj.VehicleNo + "CompCollDed"
+		}
+		return( a )
+	END
+
+	ACCESS aVars
+		// array of exported local variables
+		static a = {
+			"LIAB_ptsBusiness",
+			"LIAB_ptsTerritory",
+			"LIAB_ptsTotalMatch",
+			"PD_ptsBusiness",
+			"PD_ptsDeductible",
+			"PD_ptsSymbol",
+			"PD_ptsTerritory",
+			"PD_ptsTotalMatch",
+			"Symbol",
+			"Territory"
+		}
+		return( a )
+	END
+
+	METHOD init( )
+		// initialize local variables here
+		::obj.debug ( "Init Start" )
+		::LIAB_ptsBusiness = ""
+		::LIAB_ptsTerritory = ""
+		::LIAB_ptsTotalMatch = 0
+		::PD_ptsBusiness = ""
+		::PD_ptsDeductible = ""
+		::PD_ptsSymbol = ""
+		::PD_ptsTerritory = ""
+		::PD_ptsTotalMatch = 0
+		::Symbol = ""
+		::Territory = ""
+		::obj.debug ( "Init End" )
+		return( 1 )
+	END
+
+	METHOD calculate( )
+		// perform calculations here
+		::obj.debug ( "Calc Start" )
+		local a, find, i, id, j, liab, pd, s, sym, t, terr
+		local vno, PolEffDate, vYear, vMake, vModel, vBody, vgzip, vBusinessUse, vCompCollDedIn, vCompCollDedOut
+		local aKey, tbl, x, vAge, vCovTypeIn, vCovTypeOut
+
+		vno            = "" + ::obj.VehicleNo
+		PolEffDate     = dateformatj( datej( ::obj.data.EffDate ), "YYYYMMDD" )
+		vYear          = "" + ::obj.data.( upper( "v" + vno + "Year" ) )
+		vMake          = "" + ::obj.data.( upper( "v" + vno + "Make" ) )
+		vModel         = "" + ::obj.data.( upper( "v" + vno + "Model" ) )
+		vBody          = "" + ::obj.data.( upper( "v" + vno + "Body" ) )
+		vgzip          = "" + ::obj.data.( upper( "v" + vno + "gzip" ) )
+		vAge           = 0 + left( PolEffDate, 4 ) - vYear
+		vBusinessUse   = "" + upper( ::obj.data.( upper( "v" + vno + "BusinessUse" ) ) )
+		vCovTypeIn     = "" + ::obj.data.( upper( "v" + vno + "CovType" ) )
+		vCompCollDedIn = "" + ::obj.data.( upper( "v" + vno + "CompCollDed" ) )
+		switch ( upper( vCovTypeIn ) )
+			case "LIAB ONLY"
+				::obj.data.( upper( "v" + vno + "CompCollDed" ) ) = "N/A"
+				break
+			case "LIAB COMP"
+				::obj.data.( upper( "v" + vno + "CompCollDed" ) ) = ( vCompCollDedIn == "N/A" ? "100 | 250" : vCompCollDedIn )
+				break
+			case "LIAB COMP COLL"
+				::obj.data.( upper( "v" + vno + "CompCollDed" ) ) = ( vCompCollDedIn == "N/A" ? "100 | 250" : vCompCollDedIn )
+				if ( vAge > 15 )
+					::obj.data.( upper( "v" + vno + "CovType" ) ) = "Liab Only"
+					::obj.data.( upper( "v" + vno + "CompCollDed" ) ) = "N/A"
+				end
+				break
+			default
+				::obj.data.( upper( "v" + vno + "CovType" ) ) = "Liab Only"
+				::obj.data.( upper( "v" + vno + "CompCollDed" ) ) = "N/A"
+				break
+		end
+		vCovTypeOut     = "" + ::obj.data.( upper( "v" + vno + "CovType" ) )
+		if ( vCovTypeIn <> vCovTypeOut )
+			s = "Invalid coverage selected for vehicle " + vNo + ". Coverage changed from " + vCovTypeIn + " to " + vCovTypeOut + "."
+			s += ( vAge > 15 ? " Vehicle is over 15 years old." : "" )
+			::obj.Change( s )
+		end
+		vCompCollDedOut = "" + ::obj.data.( upper( "v" + vno + "CompCollDed" ) )
+		if ( vCompCollDedIn <> vCompCollDedOut )
+			::obj.Change( "Invalid deductible selected for vehicle " + vNo + ". Deductible changed from " + vCompCollDedIn + " to " + vCompCollDedOut + "." )
+		end
+		
+		// Get the required rate table names based upon Policy Effective Date
+		
+		a = ::rtb.aRateChangeDates
+		aKey = ::aRateTableKey
+		
+		// Get Vehicle Territory
+		
+		id = "Automobile.SD.TriState.Territories"
+		if ( ! ::obj.g.RefLibRecord( id ) )
+			::errmsg = "***** SYSTEM ERROR *****     Unable to locate " + id + " file."
+			println( ::errmsg )
+			return( 0 )
+		end
+		terr = new( "objTerritory", ::obj.g.reflib.dataref )
+
+		t = "Not Found"
+		// Get the Rate Effective & Expiration Dates from the aRateChangeDates table and lookup the territory
+		for ( j=1; j<=len( a ); j++ )
+			if ( ( id == a[j][1] ) && ( PolEffDate >= a[j][2] ) && ( PolEffDate <= a[j][3] ) )
+				t = terr.GetTerritory( a[j][2], a[j][3], vgzip )
+				break
+			end
+		end
+
+		If ( t == "Not Found" )
+			::errmsg = "Must specify a VEHICLE " + vno + " GARAGING ZIP CODE within the coverage area."
+			return( 0 )
+		end
+		::obj.debug ( "Territory = " + t )
+		::Territory = t
+
+		
+		// Get Vehicle Symbol
+
+		id = "Automobile.TriState.Vehicle.Symbols"
+		if ( ! ::obj.g.RefLibRecord( id ) )
+			::errmsg = "***** SYSTEM ERROR *****     Unable to locate " + id + " file."
+			println( ::errmsg )
+			return( 0 )
+		end
+		sym = new( "objVehicleSymbol", ::obj.g.reflib.dataref )
+
+		s = "Not Found"
+		// Get the Rate Effective & Expiration Dates from the aRateChangeDates table and lookup the vehicle symbol
+		for ( j=1; j<=len( a ); j++ )
+			if ( ( id == a[j][1] ) && ( PolEffDate >= a[j][2] ) && ( PolEffDate <= a[j][3] ) )
+				::obj.debug ( "vmake = " + vmake + " - vmodel = " + vmodel + " - vBody = " + vBody )
+				s = sym.GetSymbol( a[j][2], a[j][3], vmake, vmodel, vBody )
+				break
+			end
+		end
+
+		If ( s == "Not Found" )
+			::errmsg = "***** SYSTEM ERROR *****     Vehicle: " + vmake + " " + vmodel + " " + vbody + " not found in " + id + " file."
+			println( ::errmsg )
+			return( 0 )
+		end
+		::obj.debug ( "Vehicle Symbol = " + s )
+		::Symbol = s
+
+		for ( i=1; i<=6; i++ )
+			x[i] = ""
+			for ( j=1; j<=len( a ); j++ )
+				if ( ( aKey[i] == a[j][1] ) && ( PolEffDate >= a[j][2] ) && ( PolEffDate <= a[j][3] ) )
+					x[i] = "" + a[j][4]
+				end
+			end
+		end
+
+		for ( i=1; i<=6; i++ )
+			if ( x[i] == "" )
+				::errmsg = "***** SYSTEM ERROR *****     Class: " + ::name + ", " + aKey[i] + " table not found for policy effective date of " + PolEffDate
+				println( ::errmsg )
+				return( 0 )
+			end
+		end
+
+		for ( i=1; i<=6; i++ )
+			tbl[i] = "a" + aKey[i] + "Table_" + x[i]
+		end
+
+		// Get Liability Territory Points
+		a = ::rtb.( upper( tbl[1] ) )
+		find = 0 + ::Territory
+		for ( j=1; j<=len( a ); j++ )
+			if ( find == a[j][1] )
+				::LIAB_ptsTerritory = 0 + a[j][2]
+			end
+		end
+		if ( "" + ::LIAB_ptsTerritory == "" )
+			::errmsg = "***** SYSTEM ERROR *****     Class: " + ::name + ", Territory: " + ::Territory + ". Record not found in table: " + tbl[1] + "."
+			println( ::errmsg )
+			return( 0 )
+		end
+
+		// Get Physical Damage Territory Points
+		a = ::rtb.( upper( tbl[3] ) )
+		find = 0 + ::Territory
+		for ( j=1; j<=len( a ); j++ )
+			if ( find == a[j][1] )
+				::PD_ptsTerritory = 0 + a[j][2]
+			end
+		end
+		if ( "" + ::PD_ptsTerritory == "" )
+			::errmsg = "***** SYSTEM ERROR *****     Class: " + ::name + ", Territory: " + ::Territory + ". Record not found in table: " + tbl[3] + "."
+			println( ::errmsg )
+			return( 0 )
+		end
+
+		// Get Liability Business Use Points
+		a = ::rtb.( upper( tbl[2] ) )
+		if ( vBusinessUse == "ON" )
+			find = "*"
+			for ( j=1; j<=len( a ); j++ )
+				if ( find == a[j][1] )
+					::LIAB_ptsBusiness = 0 + a[j][2]
+				end
+			end
+			if ( "" + ::LIAB_ptsBusiness == "" )
+				::errmsg = "***** SYSTEM ERROR *****     Class: " + ::name + ". Record not found in table: " + tbl[2] + "."
+				println( ::errmsg )
+				return( 0 )
+			end
+		else
+			::LIAB_ptsBusiness = 0
+		end
+
+		// Get Physical Damage Business Use Points
+		a = ::rtb.( upper( tbl[4] ) )
+		if ( vBusinessUse == "ON" )
+			find = "*"
+			for ( j=1; j<=len( a ); j++ )
+				if ( find == a[j][1] )
+					::PD_ptsBusiness = 0 + a[j][2]
+				end
+			end
+			if ( "" + ::PD_ptsBusiness == "" )
+				::errmsg = "***** SYSTEM ERROR *****     Class: " + ::name + ". Record not found in table: " + tbl[4] + "."
+				println( ::errmsg )
+				return( 0 )
+			end
+		else
+			::PD_ptsBusiness = 0
+		end
+
+		// Get Physical Damage Symbol Points
+		a = ::rtb.( upper( tbl[5] ) )
+		find = 0 + ::Symbol
+		for ( j=1; j<=len( a ); j++ )
+			if ( find == a[j][1] )
+				::PD_ptsSymbol = 0 + a[j][2]
+			end
+		end
+		if ( "" + ::PD_ptsSymbol == "" )
+			::errmsg = "***** SYSTEM ERROR *****     Class: " + ::name + ", Symbol: " + ::Symbol + ". Record not found in table: " + tbl[5] + "."
+			println( ::errmsg )
+			return( 0 )
+		end
+
+		// Get Physical Damage Deductible Points
+		a = ::rtb.( upper( tbl[6] ) )
+		::PD_ptsDeductible = 0 + ::obj.g.Lookup2dArray( a, vCompCollDedOut )
+		find = vCompCollDedOut
+		for ( j=1; j<=len( a ); j++ )
+			if ( find == a[j][1] )
+				::PD_ptsDeductible = 0 + a[j][2]
+			end
+		end
+		if ( "" + ::PD_ptsDeductible == "" )
+			::errmsg = "***** SYSTEM ERROR *****     Class: " + ::name + ", Deductible: " + vCompCollDedOut + ". Record not found in table: " + tbl[6] + "."
+			println( ::errmsg )
+			return( 0 )
+		end
+
+		liab = 0 + ::LIAB_ptsTerritory + ::LIAB_ptsBusiness
+		pd =   ( upper( vCovType ) == "LIAB ONLY" ? -99 : 0 + ::PD_ptsTerritory   + ::PD_ptsBusiness   + ::PD_ptsSymbol + ::PD_ptsDeductible )
+
+		::LIAB_ptsTotalMatch = liab
+		::PD_ptsTotalMatch =   pd
+		
+		::obj.debug ( "::LIAB_ptsTerritory = " + ::LIAB_ptsTerritory )
+		::obj.debug ( "::LIAB_ptsBusiness = " + ::LIAB_ptsBusiness )
+		::obj.debug ( "::LIAB_ptsTotalMatch = " + ::LIAB_ptsTotalMatch )
+		::obj.debug ( " " )
+		::obj.debug ( "::PD_ptsTerritory = " + ::PD_ptsTerritory )
+		::obj.debug ( "::PD_ptsBusiness = " + ::PD_ptsBusiness )
+		::obj.debug ( "::PD_ptsSymbol = " + ::PD_ptsSymbol )
+		::obj.debug ( "::PD_ptsDeductible = " + ::PD_ptsDeductible )
+		::obj.debug ( "::PD_ptsTotalMatch = " + ::PD_ptsTotalMatch )
+		::obj.debug ( "Calc End" )
+		return( 1 )
+	END
+
+	ACCESS aRateTableKey
+		static a = {
+			"LIAB_ptsTerritory",
+			"LIAB_ptsBusiness",
+			"PD_ptsTerritory",
+			"PD_ptsBusiness",
+			"PD_ptsSymbol",
+			"PD_ptsDeductible"
+		}
+		return( a )
+	END
+END
+
+CLASS MatchDriversToVehicles
+  PUBLIC:
+	// required variables
+	local obj, rtb, name, title, premium, errmsg, footnote
+	
+	// local variables
+	local DriverNo,         VehicleNo, 		  AllGrossPremiums
+	local v1DriverNo,       v2DriverNo,       v3DriverNo,       v4DriverNo,       v5DriverNo,       v6DriverNo
+	local v1UseClear,       v2UseClear,       v3UseClear,       v4UseClear,       v5UseClear,       v6UseClear
+	local v1LIAB_GrossPrem, v2LIAB_GrossPrem, v3LIAB_GrossPrem, v4LIAB_GrossPrem, v5LIAB_GrossPrem, v6LIAB_GrossPrem
+	local v1PD_GrossPrem,   v2PD_GrossPrem,   v3PD_GrossPrem,   v4PD_GrossPrem,   v5PD_GrossPrem,   v6PD_GrossPrem
+
+	METHOD new( obj, AllGrossPremiums )
+		::obj = obj
+		::AllGrossPremiums = AllGrossPremiums
+		::obj.debug ( "MatchDriversToVehicles New Start" )
+		::name = "MatchDriversToVehicles"
+		::title = "Match Drivers To Vehicles"
+		::premium = 0
+		::errmsg = ""
+		::footnote = ""
+		::rtb = new( "Rating_Tables", ::obj )
+//		if ( ! ValidateRequiredVariables( self ) )
+//			return( 1 )
+//		end
+		::init( )
+		::calculate( )
+		::obj.debug ( "MatchDriversToVehicles New End" )
+		return( 1 )
+	END
+
+	ACCESS RequiredVars
+		// array of required variables
+		static a = {
+			"DriverCnt",
+			"VehicleCnt"
+		}
+		return( a )
+	END
+
+	ACCESS aVars
+		// array of exported local variables
+		static a = {
+			"v1DriverNo",
+			"v2DriverNo",
+			"v3DriverNo",
+			"v4DriverNo",
+			"v5DriverNo",
+			"v6DriverNo",
+			"v1UseClear",
+			"v2UseClear",
+			"v3UseClear",
+			"v4UseClear",
+			"v5UseClear",
+			"v6UseClear"
+		}
+		return( a )
+	END
+
+	METHOD init( )
+		// initialize local variables here
+			::v1DriverNo = ""
+			::v2DriverNo = ""
+			::v3DriverNo = ""
+			::v4DriverNo = ""
+			::v5DriverNo = ""
+			::v6DriverNo = ""
+			::v1UseClear = 0
+			::v2UseClear = 0
+			::v3UseClear = 0
+			::v4UseClear = 0
+			::v5UseClear = 0
+			::v6UseClear = 0
+		return( 1 )
+	END
+
+	METHOD calculate( )
+		// perform calculations here
+		local d, v, i, j, x, dCnt, vCnt, dNo, vNo, drvDelete, vehDelete, Prem, Prem1, Prem2, temp, Match
+
+		dCnt = 0 + ::obj.DriverCnt
+		vCnt = 0 + ::obj.VehicleCnt
+		
+		for ( d=1; d<=6; d++ )
+			for ( v=1; v<=6; v++ )
+				Prem[d,v] = "000000" + "|" + d + "|" + v
+			end
+		end
+
+		// Ranking Format for Sorting is "pppppp|d|v" where pppppp = Premium, d = DriverNo, v = VehicleNo
+		
+		for ( d=1; d<=dCnt; d++ )
+			for ( v=1; v<=vCnt; v++ )
+				Prem[d,v] = right( "000000" + ::AllGrossPremiums[d,v], 6 ) + "|" + d + "|" + v
+			end
+		end
+
+		for ( x=1; x<=6; x++ )
+			::obj.debug ( "Before Sort " + x + " dCnt = " + dCnt + ", vCnt = " + vCnt )
+			::obj.debug ( "    1           2           3           4           5           6" )
+			for ( d=1; d<=6; d++ )
+					::obj.debug ( "" + d + "   " + Prem[d,1] + "  " + Prem[d,2] + "  " + Prem[d,3] + "  " + Prem[d,4] + "  " + Prem[d,5] + "  " + Prem[d,6] )
+			end
+			::obj.debug ( " " )
+
+			// Sort Premium for each Driver by Vehicle - Descending
+				for ( v=1; v<=vCnt; v++ )
+					for ( i=1; i<=dCnt; i++ )
+						for ( j=( i + 1 ); j <= dCnt; j++ )
+							Prem1 = left( Prem[i,v], 6 )
+							Prem2 = left( Prem[j,v], 6 )
+							if ( Prem1 < Prem2 )
+								temp = Prem[i,v]
+								Prem[i,v] = Prem[j,v]
+								Prem[j,v] = temp
+							end
+						end
+					end
+				end
+			::obj.debug ( "After Vehicle Sort dCnt = " + dCnt + ", vCnt = " + vCnt )
+			::obj.debug ( "    1           2           3           4           5           6" )
+			for ( d=1; d<=6; d++ )
+					::obj.debug ( "" + d + "   " + Prem[d,1] + "  " + Prem[d,2] + "  " + Prem[d,3] + "  " + Prem[d,4] + "  " + Prem[d,5] + "  " + Prem[d,6] )
+			end
+			::obj.debug ( " " )
+
+			// Sort Premium for each Vehicle by Driver - Descending
+				for ( d=1; d<=dCnt; d++ )
+					for ( i=1; i<=vCnt; i++ )
+						for ( j=( i + 1 ); j <= vCnt; j++ )
+							Prem1 = left( Prem[d,i], 6 )
+							Prem2 = left( Prem[d,j], 6 )
+							if ( Prem1 < Prem2 )
+								temp = Prem[d,i]
+								Prem[d,i] = Prem[d,j]
+								Prem[d,j] = temp
+							end
+						end
+					end
+				end
+			::obj.debug ( "After Driver Sort dCnt = " + dCnt + ", vCnt = " + vCnt )
+			::obj.debug ( "    1           2           3           4           5           6" )
+			for ( d=1; d<=6; d++ )
+					::obj.debug ( "" + d + "   " + Prem[d,1] + "  " + Prem[d,2] + "  " + Prem[d,3] + "  " + Prem[d,4] + "  " + Prem[d,5] + "  " + Prem[d,6] )
+			end
+			::obj.debug ( " " )
+
+			if ( right( Prem[1,1], 3 ) <> "del" )
+				temp = 0 + right( Prem[1,1], 1 )
+				Match[temp] = right( Prem[1,1], 3 )
+				drvDelete   = left( Match[temp], 1 )
+				vehDelete   = right( Match[temp], 1 )
+
+				for ( d=1; d<=6; d++ )
+					for ( v=1; v<=6; v++ )
+						dNo = strextract( Prem[d,v], "|", 2 )
+						vNo = right( Prem[d,v], 1 )
+						if ( ( vNo == vehDelete ) || ( dNo == drvDelete ) )
+							Prem[d,v] = "000000 del"
+						end
+					end
+				end
+			end
+		end
+
+		::obj.debug ( "Consolidated dCnt = " + dCnt + ", vCnt = " + vCnt )
+		for ( i=1; i<=6; i++ )
+			::obj.debug ( "Match[" + i + "] = " + Match[i] )
+		end
+		::obj.debug ( " " )
+
+		// Match Drivers to Vehicles
+
+		if ( vCnt <= dCnt )
+			for ( i=1; i <= vCnt; i++ )
+				self.( upper( "v" + i + "DriverNo" ) ) = left( Match[i], 1 )
+				self.( upper( "v" + i + "UseClear" ) ) = 0
+			end
+		else
+			if ( vCnt > dCnt )
+				for ( i=1; i <= dCnt; i++ )
+					self.( upper( "v" + i + "DriverNo" ) ) = left( Match[i], 1 )
+					self.( upper( "v" + i + "UseClear" ) ) = 0
+				end
+				for ( i=( dCnt + 1 ); i <= vCnt; i++ )
+					self.( upper( "v" + i + "DriverNo" ) ) = left( Match[dCnt], 1 )
+					self.( upper( "v" + i + "UseClear" ) ) = 1
+				end
+			end
+		end
+	::obj.debug ( "MatchDriversToVehicles Calc End" )
+	return( 1 )
+	END
+END
+
+CLASS LIAB_GrossPremium
+  PUBLIC:
+	// required variables
+	local obj, rtb, name, title, premium, errmsg, footnote
+	
+	// local variables
+	local RatingPoints
+
+	METHOD new( obj )
+		::obj = obj
+		::obj.debug ( "LIAB_GrossPremium New Start" )
+		::name = "LIAB_GrossPremium"
+		::title = "Liability Gross Premium"
+		::premium = 0
+		::errmsg = ""
+		::footnote = ""
+		::rtb = new( "Rating_Tables", ::obj )
+//		if ( ! ValidateRequiredVariables( self ) )
+//			return( 1 )
+//		end
+		::init( )
+		::calculate( )
+		::obj.debug ( "LIAB_GrossPremium New End" )
+		return( 1 )
+	END
+
+	ACCESS RequiredVars
+		// array of required variables
+		static a = {
+			"data.EffDate",
+			"data.BIPD",
+			"VehicleNo",
+			"DriverNo",
+			"NamedOperatorCredit",
+			"v" + ::obj.VehicleNo + "DriverNo",
+			"v" + ::obj.VehicleNo + "UseClear",
+			"d" + ::obj.DriverNo  + "LIAB_ptsClass",
+			"v" + ::obj.VehicleNo + "LIAB_ptsTerritory",
+			"d" + ::obj.DriverNo  + "LIAB_ptsAtFault",
+			"d" + ::obj.DriverNo  + "LIAB_ptsMajor",
+			"d" + ::obj.DriverNo  + "LIAB_ptsMinor",
+			"v" + ::obj.VehicleNo + "LIAB_ptsBusiness",
+			"d" + ::obj.DriverNo  + "LIAB_ptsInternationalDL",
+			"d" + ::obj.DriverNo  + "LIAB_ptsUnverifiableDL",
+			"v" + ::obj.VehicleNo + "LIAB_ptsTotalRating",
+			"v" + ::obj.VehicleNo + "LIAB_GrossPrem"
+		}
+		return( a )
+	END
+
+	ACCESS aVars
+		// array of exported local variables
+		static a = {
+			"RatingPoints"
+		}
+		return( a )
+	END
+
+	METHOD init( )
+		// initialize local variables here
+			::RatingPoints = 0
+		return( 1 )
+	END
+
+	METHOD calculate( )
+		// perform calculations here
+		::obj.debug ( "LIAB_GrossPremium Calc Start" )
+
+		local PolEffDate, cov, pClass, pTerr, pAtFault, pMajor, pMinor, pBus, pInt, pUnv, pPoints, pClear
+		local useClear, a, id, lRate, r, j, opCred
+
+		PolEffDate = dateformatj( datej( ::obj.data.EffDate ), "YYYYMMDD" )
+		cov        = strswap( ::obj.data.BIPD, " ", "" )
+		opCred     = 0.00 + ( ::obj.VehicleNo == 1 ? ::obj.NamedOperatorCredit : 0.00 )
+		pClass     = 0  + ::obj.( upper( "d" + ::obj.DriverNo  + "LIAB_ptsClass" ) )
+		pTerr      = 0  + ::obj.( upper( "v" + ::obj.VehicleNo + "LIAB_ptsTerritory" ) )
+		pAtFault   = 0  + ::obj.( upper( "d" + ::obj.DriverNo  + "LIAB_ptsAtFault" ) )
+		pMajor     = 0  + ::obj.( upper( "d" + ::obj.DriverNo  + "LIAB_ptsMajor" ) )
+		pMinor     = 0  + ::obj.( upper( "d" + ::obj.DriverNo  + "LIAB_ptsMinor" ) )
+		pBus       = 0  + ::obj.( upper( "v" + ::obj.VehicleNo + "LIAB_ptsBusiness" ) )
+		pInt       = 0  + ::obj.( upper( "d" + ::obj.DriverNo  + "LIAB_ptsInternationalDL" ) )
+		pUnv       = 0  + ::obj.( upper( "d" + ::obj.DriverNo  + "LIAB_ptsUnverifiableDL" ) )
+		useClear   = 0  + ::obj.( upper( "v" + ::obj.VehicleNo + "UseClear" ) )
+		pClear     = pClass + pTerr + pBus + pInt + pUnv
+		pPoints    = pClass + pTerr + pAtFault + pMajor + pMinor + pBus + pInt + pUnv
+		
+		::RatingPoints = ( useClear ? pClear : pPoints )
+
+		// Get the required rate table names based upon Policy Effective Date
+		
+		a = ::rtb.aRateChangeDates
+		
+		// Get Liability Monthly Premium
+
+		id = "Automobile.SD.TriState.Liability.Rates"
+		if ( ! ::obj.g.RefLibRecord( id ) )
+			::errmsg = "Unable to locate " + id + " file."
+			println( ::errmsg )
+			return( 0 )
+		end
+		lRate = new( "objLiabilityRate", ::obj.g.reflib.dataref )
+
+		r = "Not Found"
+		// Get the Rate Effective & Expiration Dates from the aRateChangeDates table and lookup the rate
+		for ( j=1; j<=len( a ); j++ )
+			if ( ( id == a[j][1] ) && ( PolEffDate >= a[j][2] ) && ( PolEffDate <= a[j][3] ) )
+				::obj.debug ( "a[j][2] = " + a[j][2] + ", a[j][3] = " + a[j][3] + ", cov = " + cov + ", Points = " + ::RatingPoints )
+				r = 0 + lRate.GetLiabilityRate( a[j][2], a[j][3], cov, ::RatingPoints )
+				break
+			end
+		end
+
+		If ( r == "Not Found" )
+			::errmsg = "***** SYSTEM ERROR *****     Policy Effective Date: " + poleffdate + ", Coverage: " + cov + ", Points: " + ::RatingPoints + " not found in " + id + " file."
+			println( ::errmsg )
+			return( 0 )
+		end
+		::obj.debug ( "Liability Rate = " + r )
+		
+		// Apply Named Operator Credit
+		::Premium = ::obj.g.DollarRoundUp( r * ( 1 - opCred ) )
+
+		return( 1 )
+	END
+END
+
+CLASS PD_GrossPremium
+  PUBLIC:
+	// required variables
+	local obj, rtb, name, title, premium, errmsg, footnote
+	
+	// local variables
+	local RatingPoints
+
+	METHOD new( obj )
+		::obj = obj
+		::obj.debug ( "PD_GrossPremium New Start" )
+		::name = "PD_GrossPremium"
+		::title = "Physical Damage Gross Premium"
+		::premium = 0
+		::errmsg = ""
+		::footnote = ""
+		::rtb = new( "Rating_Tables", ::obj )
+//		if ( ! ValidateRequiredVariables( self ) )
+//			return( 1 )
+//		end
+		::init( )
+		::calculate( )
+		::obj.debug ( "PD_GrossPremium New End" )
+		return( 1 )
+	END
+
+	ACCESS RequiredVars
+		// array of required variables
+		static a = {
+			"data.EffDate",
+			"VehicleNo",
+			"DriverNo",
+			"data.v" + ::obj.VehicleNo + "Year",
+			"data.v" + ::obj.VehicleNo + "CovType",
+			"v" + ::obj.VehicleNo + "UseClear",
+			"d" + ::obj.DriverNo  + "PD_ptsClass",
+			"v" + ::obj.VehicleNo + "PD_ptsTerritory",
+			"d" + ::obj.DriverNo  + "PD_ptsAtFault",
+			"d" + ::obj.DriverNo  + "PD_ptsMajor",
+			"d" + ::obj.DriverNo  + "PD_ptsMinor",
+			"v" + ::obj.VehicleNo + "PD_ptsBusiness",
+			"d" + ::obj.DriverNo  + "PD_ptsInternationalDL",
+			"d" + ::obj.DriverNo  + "PD_ptsUnverifiableDL",
+			"v" + ::obj.VehicleNo + "PD_ptsVehicleSurcharge",
+			"v" + ::obj.VehicleNo + "PD_ptsSymbol",
+			"v" + ::obj.VehicleNo + "PD_ptsDeductible",
+			"v" + ::obj.VehicleNo + "PD_ptsTotalRating",
+			"v" + ::obj.VehicleNo + "PD_GrossPrem"
+		}
+		return( a )
+	END
+
+	ACCESS aVars
+		// array of exported local variables
+		static a = {
+			"RatingPoints"
+		}
+		return( a )
+	END
+
+	METHOD init( )
+		// initialize local variables here
+			::RatingPoints = 0
+		return( 1 )
+	END
+
+	METHOD calculate( )
+		// perform calculations here
+		::obj.debug ( "PD_GrossPremium Calc Start" )
+
+		local PolEffDate, year, pClass, pTerr, pAtFault, pMajor, pMinor, pBus, pInt, pUnv, pVS, pSym, pDed, a
+		local useClear, pPoints, pClear, id, prate, r, j, cov
+
+		cov = ::obj.data.( upper( "v" + ::obj.VehicleNo + "CovType" ) )
+		if ( upper( cov ) == "LIAB ONLY" )
+			return( 1 )
+		end
+		
+		PolEffDate = "" + dateformatj( datej( ::obj.data.EffDate ), "YYYYMMDD" )
+		year       = "" + ::obj.data.( upper( "v" + ::obj.VehicleNo + "Year" ) )
+		if ( year < "1994" )
+			year = "OLDR"
+		end
+		pClass     = 0  + ::obj.( upper( "d" + ::obj.DriverNo  + "PD_ptsClass" ) )
+		pTerr      = 0  + ::obj.( upper( "v" + ::obj.VehicleNo + "PD_ptsTerritory" ) )
+		pAtFault   = 0  + ::obj.( upper( "d" + ::obj.DriverNo  + "PD_ptsAtFault" ) )
+		pMajor     = 0  + ::obj.( upper( "d" + ::obj.DriverNo  + "PD_ptsMajor" ) )
+		pMinor     = 0  + ::obj.( upper( "d" + ::obj.DriverNo  + "PD_ptsMinor" ) )
+		pBus       = 0  + ::obj.( upper( "v" + ::obj.VehicleNo + "PD_ptsBusiness" ) )
+		pInt       = 0  + ::obj.( upper( "d" + ::obj.DriverNo  + "PD_ptsInternationalDL" ) )
+		pUnv       = 0  + ::obj.( upper( "d" + ::obj.DriverNo  + "PD_ptsUnverifiableDL" ) )
+		pVS        = 0  + ::obj.( upper( "v" + ::obj.VehicleNo + "PD_ptsVehicleSurcharge" ) )
+		pSym       = 0  + ::obj.( upper( "v" + ::obj.VehicleNo + "PD_ptsSymbol" ) )
+		pDed       = 0  + ::obj.( upper( "v" + ::obj.VehicleNo + "PD_ptsDeductible" ) )
+		useClear   = 0  + ::obj.( upper( "v" + ::obj.VehicleNo + "UseClear" ) )
+		pClear     = pClass + pTerr + pBus + pInt + pUnv +pVS + pSym + pDed
+		pPoints    = pClass + pTerr + pAtFault + pMajor + pMinor + pBus + pInt + pUnv +pVS + pSym + pDed
+		
+		::RatingPoints = ( useClear ? pClear : pPoints )
+
+		// Get the required rate table names based upon Policy Effective Date
+		
+		a = ::rtb.aRateChangeDates
+
+		// Get PhysicalDamage Monthly Premium
+
+		id = "Automobile.SD.TriState.PhysicalDamage.Rates"
+		if ( ! ::obj.g.RefLibRecord( id ) )
+			::errmsg = "Unable to locate " + id + " file."
+			println( ::errmsg )
+			return( 0 )
+		end
+
+		prate = new( "objPhysicalDamageRate", ::obj.g.reflib.dataref )
+
+		r = "Not Found"
+		// Get the Rate Effective & Expiration Dates from the aRateChangeDates table and lookup the rate
+		for ( j=1; j<=len( a ); j++ )
+			if ( ( id == a[j][1] ) && ( PolEffDate >= a[j][2] ) && ( PolEffDate <= a[j][3] ) )
+				::obj.debug ( "a[j][2] = " + a[j][2] + ", a[j][3] = " + a[j][3] + ", Year = " + Year + ", Points = " + ::RatingPoints )
+				r = prate.GetPhysicalDamageRate( a[j][2], a[j][3], year, ::RatingPoints )
+				break
+			end
+		end
+
+		If ( r == "Not Found" )
+			::errmsg = "***** SYSTEM ERROR *****     Policy Effective Date: " + poleffdate + ", Year: " + year + ", Points: " + ::RatingPoints + " not found in " + id + " file."
+			println( ::errmsg )
+			return( 0 )
+		end
+		::obj.debug ( "PhysicalDamage Rate = " + r )
+		::Premium = ( upper( cov ) == "LIAB COMP COLL" ? r : ::obj.g.DollarRoundUp( r * 0.5 ) )
+
+		return( 1 )
+	END
+END
+
+CLASS GAP_GrossPremium
+  PUBLIC:
+	// required variables
+	local obj, rtb, name, title, premium, errmsg, footnote
+	
+	// local variables
+
+	METHOD new( obj )
+		::obj = obj
+		::obj.debug ( "GAP_GrossPremium New Start" )
+		::name = "GAP_GrossPremium"
+		::title = "GAP Gross Premium"
+		::premium = 0
+		::errmsg = ""
+		::footnote = ""
+		::rtb = new( "Rating_Tables", ::obj )
+//		if ( ! ValidateRequiredVariables( self ) )
+//			return( 1 )
+//		end
+		::init( )
+		::calculate( )
+		::obj.debug ( "GAP_GrossPremium New End" )
+		return( 1 )
+	END
+
+	ACCESS RequiredVars
+		// array of required variables
+		static a = {
+			"data.EffDate",
+			"data.v" + ::obj.VehicleNo + "Gap",
+			"VehicleNo"
+		}
+		return( a )
+	END
+
+	ACCESS aVars
+		// array of exported local variables
+		static a = {
+		}
+		return( a )
+	END
+
+	METHOD init( )
+		// initialize local variables here
+		return( 1 )
+	END
+
+	METHOD calculate( )
+		// perform calculations here
+		::obj.debug ( "GAP_GrossPremium Calc Start" )
+
+		local PolEffDate, cov, a, key, j, tbl, x, r
+
+		PolEffDate = dateformatj( datej( ::obj.data.EffDate ), "YYYYMMDD" )
+		cov = upper( ::obj.data.( upper( "v" + ::obj.VehicleNo + "Gap" ) ) )
+		::obj.debug ( "v" + ::obj.VehicleNo + "Gap = " + cov )
+		
+		// Get the required rate table names based upon Policy Effective Date
+		
+		a = ::rtb.aRateChangeDates
+		
+		// Get GAP Monthly Premium
+
+		if ( cov == "ON" )
+			Key = "GAP_Rates"
+
+			x = ""
+			for ( j=1; j<=len( a ); j++ )
+				if ( ( Key == a[j][1] ) && ( PolEffDate >= a[j][2] ) && ( PolEffDate <= a[j][3] ) )
+					x = "" + a[j][4]
+				end
+			end
+			if ( x == "" )
+				::errmsg = "***** SYSTEM ERROR *****     Class: " + ::name + ", " + Key + " table not found for policy effective date of " + ::obj.data.EffDate
+				println( ::errmsg )
+				return( 0 )
+			end
+
+			tbl = "a" + Key + "Table_" + x
+
+			// Get GAP Rate
+
+			a = ::rtb.( upper( tbl ) )
+
+			r = ""
+			for ( j=1; j<=len( a ); j++ )
+				if ( cov == a[j][1] )
+					r = 0 + a[j][2]
+					break
+				end
+			end
+			::obj.debug ( "rate = " + r )
+			if ( "" + r == "" )
+				::errmsg = "***** SYSTEM ERROR *****     Class: " + ::name + ", Table: " + key + ", Coverage: " + cov + ". Record not found"
+				println( ::errmsg )
+				return( 0 )
+			end
+
+			::Premium = r
+		end
+		::obj.debug ( "GAP_GrossPremium Calc End" )
+		return( 1 )
+	END
+END
+
+CLASS UMUIM_GrossPremium
+  PUBLIC:
+	// required variables
+	local obj, rtb, name, title, premium, errmsg, footnote
+	
+	METHOD new( obj )
+		::obj = obj
+		::obj.debug ( "UMUIM_GrossPremium New Start" )
+		::name = "UMUIM_GrossPremium"
+		::title = "Uninsured/Underinsured Motorist Gross Premium"
+		::premium = 0
+		::errmsg = ""
+		::footnote = ""
+		::rtb = new( "Rating_Tables", ::obj )
+//		if ( ! ValidateRequiredVariables( self ) )
+//			return( 1 )
+//		end
+		::init( )
+		::calculate( )
+		::obj.debug ( "UMUIM_GrossPremium New End" )
+		return( 1 )
+	END
+
+	ACCESS RequiredVars
+		// array of required variables
+		static a = {
+			"data.EffDate",
+			"data.BIPD",
+			"data.UMUIM",
+			"VehicleNo",
+			"v" + ::obj.VehicleNo + "Territory"
+		}
+		return( a )
+	END
+
+	ACCESS aVars
+		// array of exported local variables
+		static a = {
+		}
+		return( a )
+	END
+
+	METHOD init( )
+		// initialize local variables here
+		return( 1 )
+	END
+
+	METHOD calculate( )
+		// perform calculations here
+		::obj.debug ( "UMUIM_GrossPremium Calc Start" )
+
+		local PolEffDate, covin, covout, bipd, bipdcov, umuim, terr, a, key, j, tbl, x, s1, s2, r
+
+		PolEffDate = dateformatj( datej( ::obj.data.EffDate ), "YYYYMMDD" )
+		terr       = 0  + ::obj.( upper( "v" + ::obj.VehicleNo + "Territory" ) )
+		covin      = alltrim( upper( "" + ::obj.data.UMUIM ) )
+		bipdcov    = alltrim( upper( "" + strextract( ::obj.data.BIPD, "|", 1 ) + "|" + strextract( ::obj.data.BIPD, "|", 2 ) ) )
+		
+		covout = covin
+
+		if ( covin == "NONE" )
+		else
+			s1    = "" + alltrim( strextract( bipdcov,  "|", 1 ) )
+			s2    = "" + alltrim( strextract( bipdcov,  "|", 2 ) )
+			bipd  = right( ( "0" + s1 ), 3 ) + "|" + right( ( "0" + s2 ), 3 )
+			s1    = "" + alltrim( strextract( covin, "|", 1 ) )
+			s2    = "" + alltrim( strextract( covin, "|", 2 ) )
+			umuim = right( ( "0" + s1 ), 3 ) + "|" + right( ( "0" + s2 ), 3 )
+			if ( umuim > bipd )
+				::obj.data.UMUIM = bipdcov
+				covout = bipdcov
+			end
+		end
+
+		if ( covout == covin )
+		else
+			::obj.change( "UM & UIM Coverage changed from " + covin + " to " + covout + ". Coverage amount cannot be greater than Liability Coverage" )
+		end
+		
+		// Get the required rate table names based upon Policy Effective Date
+		
+		a = ::rtb.aRateChangeDates
+		
+		// Get UMUIM Monthly Premium
+
+		Key = "UMUIM_Rates"
+
+		x = ""
+		for ( j=1; j<=len( a ); j++ )
+			if ( ( Key == a[j][1] ) && ( PolEffDate >= a[j][2] ) && ( PolEffDate <= a[j][3] ) )
+				x = "" + a[j][4]
+			end
+		end
+		if ( x == "" )
+			::errmsg = "***** SYSTEM ERROR *****     Class: " + ::name + ", " + Key + " table not found for policy effective date of " + ::obj.data.EffDate
+			println( ::errmsg )
+			return( 0 )
+		end
+
+		tbl = "a" + Key + "Table_" + x
+
+		// Get UMUIM Rate
+		a = ::rtb.( upper( tbl ) )
+
+		r = ""
+		for ( j=1; j<=len( a ); j++ )
+			if ( covout == a[j][1] )
+				if ( terr == a[j][2] )
+					r = 0 + a[j][3]
+					break
+				end
+			end
+		end
+
+		::obj.debug ( "rate = " + r )
+		if ( "" + r == "" )
+			::errmsg = "***** SYSTEM ERROR *****     Class: " + ::name + ", Table: " + key + ", Coverage: " + covout + ", Territory: " + terr + ". Record not found"
+			println( ::errmsg )
+			return( 0 )
+		end
+
+		::Premium = r
+		
+		::obj.debug ( "UMUIM_GrossPremium Calc End" )
+		return( 1 )
+	END
+END
+
+CLASS Medical_GrossPremium
+  PUBLIC:
+	// required variables
+	local obj, rtb, name, title, premium, errmsg, footnote
+	
+	// local variables
+
+	METHOD new( obj )
+		::obj = obj
+		::obj.debug ( "Medical_GrossPremium New Start" )
+		::name = "Medical_GrossPremium"
+		::title = "Medical Gross Premium"
+		::premium = 0
+		::errmsg = ""
+		::footnote = ""
+		::rtb = new( "Rating_Tables", ::obj )
+//		if ( ! ValidateRequiredVariables( self ) )
+//			return( 1 )
+//		end
+		::init( )
+		::calculate( )
+		::obj.debug ( "Medical_GrossPremium New End" )
+		return( 1 )
+	END
+
+	ACCESS RequiredVars
+		// array of required variables
+		static a = {
+			"data.EffDate",
+			"data.Medical",
+			"VehicleNo",
+			"v" + ::obj.VehicleNo + "Territory"
+		}
+		return( a )
+	END
+
+	ACCESS aVars
+		// array of exported local variables
+		static a = {
+		}
+		return( a )
+	END
+
+	METHOD init( )
+		// initialize local variables here
+		return( 1 )
+	END
+
+	METHOD calculate( )
+		// perform calculations here
+		::obj.debug ( "Medical_GrossPremium Calc Start" )
+
+		local PolEffDate, cov, terr, a, key, j, tbl, x, r
+
+		PolEffDate = dateformatj( datej( ::obj.data.EffDate ), "YYYYMMDD" )
+		terr      = 0  + ::obj.( upper( "v" + ::obj.VehicleNo + "Territory" ) )
+		cov = alltrim( upper( "" + ::obj.data.Medical ) )
+
+
+		// Get the required rate table names based upon Policy Effective Date
+		
+		a = ::rtb.aRateChangeDates
+		
+		// Get Medical Monthly Premium
+
+		Key = "Medical_Rates"
+
+		x = ""
+		for ( j=1; j<=len( a ); j++ )
+			if ( ( Key == a[j][1] ) && ( PolEffDate >= a[j][2] ) && ( PolEffDate <= a[j][3] ) )
+				x = "" + a[j][4]
+			end
+		end
+		if ( x == "" )
+			::errmsg = "***** SYSTEM ERROR *****     Class: " + ::name + ", " + Key + " table not found for policy effective date of " + ::obj.data.EffDate
+			println( ::errmsg )
+			return( 0 )
+		end
+
+		tbl = "a" + Key + "Table_" + x
+
+		// Get Medical Rate
+		a = ::rtb.( upper( tbl ) )
+		r = ""
+		for ( j=1; j<=len( a ); j++ )
+			if ( cov == a[j][1] && terr == a[j][2] )
+				r = 0 + a[j][3]
+			end
+		end
+		if ( "" + r == "" )
+			::errmsg = "***** SYSTEM ERROR *****     Class: " + ::name + ", Table: " + key + ", Territory: " + terr + ". Record not found"
+			println( ::errmsg )
+			return( 0 )
+		end
+
+		::Premium = r
+				
+		::obj.debug ( "Medical_GrossPremium Calc End" )
+		return( 1 )
+	END
+END
+
+
+CLASS ADD_Premium
+  PUBLIC:
+	// required variables
+	local obj, rtb, name, title, premium, errmsg, footnote
+	
+	METHOD new( obj )
+		::obj = obj
+		::obj.debug ( "ADD_Premium New Start" )
+		::name = "ADD_Premium"
+		::title = "Accidental Death Premium"
+		::premium = 0
+		::errmsg = ""
+		::footnote = ""
+		::rtb = new( "Rating_Tables", ::obj )
+//		if ( ! ValidateRequiredVariables( self ) )
+//			return( 1 )
+//		end
+		::init( )
+		::calculate( )
+		::obj.debug ( "ADD_Premium New End" )
+		return( 1 )
+	END
+
+	ACCESS RequiredVars
+		// array of required variables
+		static a = {
+			"data.EffDate",
+			"d" + ::obj.DriverNo + "ADD"
+		}
+		return( a )
+	END
+
+	ACCESS aVars
+		// array of exported local variables
+		static a = {
+		}
+		return( a )
+	END
+
+	METHOD init( )
+		// initialize local variables here
+		return( 1 )
+	END
+
+	METHOD calculate( )
+		// perform calculations here
+		::obj.debug ( "ADD_Premium Calc Start" )
+
+		local PolEffDate, cov, a, key, j, tbl, x, r
+
+		PolEffDate = dateformatj( datej( ::obj.data.EffDate ), "YYYYMMDD" )
+		
+		// Get the required rate table names based upon Policy Effective Date
+		
+		a = ::rtb.aRateChangeDates
+		
+		// Get ADD Monthly Premium
+
+		Key = "ADD_Rates"
+
+		x = ""
+		for ( j=1; j<=len( a ); j++ )
+			if ( ( Key == a[j][1] ) && ( PolEffDate >= a[j][2] ) && ( PolEffDate <= a[j][3] ) )
+				x = "" + a[j][4]
+			end
+		end
+		if ( x == "" )
+			::errmsg = "***** SYSTEM ERROR *****     Class: " + ::name + ", " + Key + " table not found for policy effective date of " + ::obj.data.EffDate
+			println( ::errmsg )
+			return( 0 )
+		end
+
+		tbl = "a" + Key + "Table_" + x
+
+		// Get ADD Rate
+		a = ::rtb.( upper( tbl ) )
+
+		r = ""
+		cov = upper( ::obj.data.( upper( "d" + ::obj.DriverNo + "ADD" ) ) )
+		::obj.debug( "cov = " + cov )
+		
+		r = ""
+		for ( j=1; j<=len( a ); j++ )
+			if ( cov == a[j][1] )
+				r = 0 + a[j][2]
+				break
+			end
+		end
+		::obj.debug ( "rate = " + r )
+		if ( "" + r == "" )
+			::errmsg = "***** SYSTEM ERROR *****     Class: " + ::name + ", Table: " + key + ", Coverage: " + cov + ". Record not found"
+			println( ::errmsg )
+			return( 0 )
+		end
+
+
+		::Premium = r
+		
+		::obj.debug ( "ADD_Premium Calc End" )
+		return( 1 )
+	END
+END
+
+CLASS Disability_Premium
+  PUBLIC:
+	// required variables
+	local obj, rtb, name, title, premium, errmsg, footnote
+	
+	METHOD new( obj )
+		::obj = obj
+		::obj.debug ( "Disability_Premium New Start" )
+		::name = "Disability_Premium"
+		::title = "Disability Premium"
+		::premium = 0
+		::errmsg = ""
+		::footnote = ""
+		::rtb = new( "Rating_Tables", ::obj )
+//		if ( ! ValidateRequiredVariables( self ) )
+//			return( 1 )
+//		end
+		::init( )
+		::calculate( )
+		::obj.debug ( "Disability_Premium New End" )
+		return( 1 )
+	END
+
+	ACCESS RequiredVars
+		// array of required variables
+		static a = {
+			"data.EffDate",
+			"d" + ::obj.DriverNo + "Disability"
+		}
+		return( a )
+	END
+
+	ACCESS aVars
+		// array of exported local variables
+		static a = {
+		}
+		return( a )
+	END
+
+	METHOD init( )
+		// initialize local variables here
+		return( 1 )
+	END
+
+	METHOD calculate( )
+		// perform calculations here
+		::obj.debug ( "Disability_Premium Calc Start" )
+
+		local PolEffDate, cov, a, key, j, tbl, x, r
+
+		PolEffDate = dateformatj( datej( ::obj.data.EffDate ), "YYYYMMDD" )
+		
+		// Get the required rate table names based upon Policy Effective Date
+		
+		a = ::rtb.aRateChangeDates
+		
+		// Get Disability Monthly Premium
+
+		Key = "Disability_Rates"
+
+		x = ""
+		for ( j=1; j<=len( a ); j++ )
+			if ( ( Key == a[j][1] ) && ( PolEffDate >= a[j][2] ) && ( PolEffDate <= a[j][3] ) )
+				x = "" + a[j][4]
+			end
+		end
+		if ( x == "" )
+			::errmsg = "***** SYSTEM ERROR *****     Class: " + ::name + ", " + Key + " table not found for policy effective date of " + ::obj.data.EffDate
+			println( ::errmsg )
+			return( 0 )
+		end
+
+		tbl = "a" + Key + "Table_" + x
+
+		// Get Disability Rate
+		a = ::rtb.( upper( tbl ) )
+
+		r = ""
+		cov = upper( ::obj.data.( upper( "d" + ::obj.DriverNo + "Disability" ) ) )
+		::obj.debug( "cov = " + cov )
+		
+		r = ""
+		for ( j=1; j<=len( a ); j++ )
+			if ( cov == a[j][1] )
+				r = 0 + a[j][2]
+				break
+			end
+		end
+		::obj.debug ( "rate = " + r )
+		if ( "" + r == "" )
+			::errmsg = "***** SYSTEM ERROR *****     Class: " + ::name + ", Table: " + key + ", Coverage: " + cov + ". Record not found"
+			println( ::errmsg )
+			return( 0 )
+		end
+
+
+		::Premium = r
+		
+		::obj.debug ( "Disability_Premium Calc End" )
+		return( 1 )
+	END
+END
+
+CLASS TotalAtFaultAccidents
+  PUBLIC:
+	// required variables
+	local obj, rtb, name, title, premium, errmsg, footnote
+	
+	// local variables
+	local Count
+	
+	METHOD new( obj )
+		::obj = obj
+		::obj.debug ( "TotalAtFaultAccidents New Start" )
+		::name = "TotalAtFaultAccidents"
+		::title = "Total At Fault Accidents"
+		::premium = 0
+		::errmsg = ""
+		::footnote = ""
+		::rtb = new( "Rating_Tables", ::obj )
+//		if ( ! ValidateRequiredVariables( self ) )
+//			return( 1 )
+//		end
+		::init( )
+		::calculate( )
+		::obj.debug ( "TotalAtFaultAccidents New End" )
+		return( 1 )
+	END
+
+	ACCESS RequiredVars
+		// array of required variables
+		static a = {
+			"DriverCnt",
+			"data.EffDate",
+			"data.XferCreditDate",
+			"data.d1AtFaultAccidentsCnt",
+			"data.d2AtFaultAccidentsCnt",
+			"data.d3AtFaultAccidentsCnt",
+			"data.d4AtFaultAccidentsCnt",
+			"data.d5AtFaultAccidentsCnt",
+			"data.d6AtFaultAccidentsCnt",
+			"data.d1LastAccDate",
+			"data.d2LastAccDate",
+			"data.d3LastAccDate",
+			"data.d4LastAccDate",
+			"data.d5LastAccDate",
+			"data.d6LastAccDate"
+		}
+		return( a )
+	END
+
+	ACCESS aVars
+		// array of exported local variables
+		static a = {
+			"Count"
+		}
+		return( a )
+	END
+
+	METHOD init( )
+		// initialize local variables here
+			::Count = 0
+		return( 1 )
+	END
+
+	METHOD calculate( )
+		// perform calculations here
+		::obj.debug ( "TotalAtFaultAccidents Calc Start" )
+
+		local PolEffDate, effDate, xFerDate, LastAccDate, aCnt
+		local i, j, dCnt, age, d1, d2, temp
+
+		PolEffDate = ::obj.data.EffDate
+		dCnt       = 0  + ::obj.DriverCnt
+		effDate    = "" + ::obj.data.EffDate
+		PolEffDate = "" + dateformatj( datej( effDate ), "YYYYMMDD" )
+		xFerDate   = "" + ::obj.data.XferCreditDate
+		xFerDate   = ( ! strempty( xFerDate ) ? "" + dateformatj( datej( ::obj.data.XferCreditDate ), "YYYYMMDD" ) : xFerDate )
+		aCnt       = 0
+		for ( i=1; i<=6; i++ )
+			LastAccDate[i] = ""
+		end
+
+		// Get the required rate table names based upon Policy Effective Date
+		for ( i=1; i<=dCnt; i++ )
+			age  = 0
+			if ( ! strempty( ::obj.data.( upper( "d" + i + "LastAccDate" ) ) ) )
+				::obj.data.( upper( "d" + i + "LastAccDate" ) ) = ::obj.g.NormalizeDate( ::obj.data.( upper( "d" + i + "LastAccDate" ) ) )
+			end
+			LastAccDate[i] = ::obj.data.( upper( "d" + i + "LastAccDate" ) )
+			aCnt = 0 + upper( ::obj.data.( upper( "d" + i + "AtFaultAccidentsCnt" ) ) )
+			if ( ! strempty( LastAccDate[i] ) )
+				if ( aCnt < 1 )
+					aCnt = 1
+					::obj.data.( upper( "d" + i + "AtFaultAccidentsCnt" ) ) = "" + aCnt
+				end
+				age  = 0 + ::obj.g.CalculateAgeBetweenDates( effDate, LastAccDate[i] )
+				LastAccDate[i] = dateformatj( datej( LastAccDate[i] ), "YYYYMMDD" )
+				if ( age < 2 )
+					::Count += aCnt
+				end
+			end
+		end
+
+	// Sort Last Accident Dates - Descending
+		if ( dCnt > 1 )
+			for ( i=1; i<=dCnt; i++ )
+				for ( j=2; j<=dCnt; j++ )
+					d1 = LastAccDate[i]
+					d2 = LastAccDate[j]
+					if ( d1 < d2 )
+						temp = LastAccDate[i]
+						LastAccDate[i] = LastAccDate[j]
+						LastAccDate[j] = temp
+					end
+				end
+			end
+		end
+
+	// Set Transfer Credit Date = Last Accident Date if necessary
+		if ( ! strempty( xFerDate ) )
+			if ( xFerDate < LastAccDate[1] )
+				::obj.data.XferCreditDate =  substr( LastAccDate[1], 5, 2 ) + "-" + right( LastAccDate[1], 2 ) + "-" + left( LastAccDate[1], 4 )
+				::obj.change( "Transfer Credit Date changed to match last Accident Date" )
+			end
+		end
+
+		::obj.debug ( "TotalAtFaultAccidents Calc End" )
+		return( 1 )
+	END
+END
+
+CLASS Credits
+  PUBLIC:
+	// required variables
+	local obj, rtb, name, title, premium, errmsg, footnote
+	
+	// local variables
+	local AirbagCred, AntiTheftCred, APCCred, InAgencyCred, NamedOperatorCred
+	local MultiCarCred, RenewalCred, TransferCred, LIABCred, PDCred
+
+	METHOD new( obj )
+		::obj = obj
+		::obj.debug ( "Credits New Start" )
+		::name = "Credits"
+		::title = "Credits"
+		::premium = 0
+		::errmsg = ""
+		::footnote = ""
+		::rtb = new( "Rating_Tables", ::obj )
+		::obj.debug ( "Credits Validate Start" )
+//		if ( ! ValidateRequiredVariables( self ) )
+//			return( 1 )
+//		end
+		::obj.debug ( "Credits Init Start" )
+		::init( )
+		::calculate( )
+		::obj.debug ( "Credits New End" )
+		return( 1 )
+	END
+
+	ACCESS RequiredVars
+		// array of required variables
+		static a = {
+			"data.EffDate",
+			"data.RaterType",
+			"DriverCnt",
+			"VehicleNo",
+			"VehicleCnt",
+			"TotalAtFaultAccidents",
+			"data.AgencyXfer",
+			"data.NamedOperator",
+			"data.XferCredit",
+			"data.XferCreditDate",
+			"data.v" + ::obj.VehicleNo + "CovType",
+			"data.v" + ::obj.VehicleNo + "AirBag",
+			"data.v" + ::obj.VehicleNo + "AntiTheft",
+			"data.d" + ::obj.( upper( "v" + ::obj.VehicleNo + "DriverNo" ) ) + "APCDate",
+			"v" + ::obj.VehicleNo + "LIAB_MaximumCred",
+			"v" + ::obj.VehicleNo + "PD_MaximumCred",
+			"v" + ::obj.VehicleNo + "DriverNo"
+		}
+		return( a )
+	END
+
+	ACCESS aVars
+		// array of exported local variables
+		static a = {
+			"AirbagCred",
+			"AntiTheftCred",
+			"APCCred",
+			"InAgencyCred",
+			"MultiCarCred",
+			"NamedOperatorCred",
+			"RenewalCred",
+			"TransferCred",
+			"LIABCred",
+			"PDCred"
+		}
+		return( a )
+	END
+
+	METHOD init( )
+		// initialize local variables here
+			::AirbagCred = 0.00
+			::AntiTheftCred = 0.00
+			::APCCred = 0.00
+			::InAgencyCred = 0.00
+			::MultiCarCred = 0.00
+			::NamedOperatorCred = 0.00
+			::RenewalCred = 0.00
+			::TransferCred = 0.00
+			::LIABCred = 0.00
+			::PDCred = 0.00
+		return( 1 )
+	END
+
+	METHOD calculate( )
+		// perform calculations here
+		::obj.debug ( "Credits Calc Start" )
+
+		local PolEffDate, cov, a, aKey, i, j, tbl, x, CheckDate, drvNo
+		local LIABMax, PDMax, AtFaultCnt, effDate
+		local m, d, y, _m, _d, _y, mDiff, dDiff, yDiff, n6MonthPeriods
+		
+		effDate    = ::obj.data.EffDate
+		PolEffDate = dateformatj( datej( effDate ), "YYYYMMDD" )
+		drvNo      = ::obj.( upper( "v" + ::obj.VehicleNo + "DriverNo" ) )
+		LIABMax    = 0.00 + ::obj.( upper( "v" + drvNo + "LIAB_MaximumCred" ) )
+		PDMax      = 0.00 + ::obj.( upper( "v" + drvNo + "PD_MaximumCred" ) )
+		AtFaultCnt = 0 + ::obj.TotalAtFaultAccidents
+		cov        = "*"
+		a          = ::rtb.aRateChangeDates
+		aKey       = ::aRateTableKey
+
+		// Get the required rate table names based upon Policy Effective Date
+
+		for ( i=1; i<=8; i++ )
+			x[i] = ""
+			for ( j=1; j<=len( a ); j++ )
+				if ( ( aKey[i] == a[j][1] ) && ( PolEffDate >= a[j][2] ) && ( PolEffDate <= a[j][3] ) )
+					x[i] = "" + a[j][4]
+				end
+			end
+		end
+		for ( i=1; i<=8; i++ )
+			if ( x[i] == "" )
+				::errmsg = "***** SYSTEM ERROR *****     Class: " + ::name + ", " + aKey[i] + " table not found for policy effective date of " + ::obj.data.EffDate
+				println( ::errmsg )
+				return( 0 )
+			end
+		end
+		for ( i=1; i<=8; i++ )
+			tbl[i] = "a" + aKey[i] + "Table_" + x[i]
+			::obj.Debug( "tbl[" + i + "] = " + tbl[i] )
+		end
+
+		// Get AirBagCredit
+		if ( upper( ::obj.data.( upper( "v" + ::obj.VehicleNo + "AirBag" ) ) ) == "ON" )
+			a = ::rtb.( upper( tbl[1] ) )
+			for ( j=1; j<=len( a ); j++ )
+				if ( cov == a[j][1] )
+					::AirbagCred = 0.00 + a[j][2]
+				end
+			end
+		end
+
+		// Get AntiTheftDeviceCredit
+		if ( upper( ::obj.data.( upper( "v" + ::obj.VehicleNo + "AntiTheft" ) ) ) == "ON" )
+			a = ::rtb.( upper( tbl[2] ) )
+			for ( j=1; j<=len( a ); j++ )
+				if ( cov == a[j][1] )
+					::AntiTheftCred = 0.00 + a[j][2]
+				end
+			end
+		end
+
+		// Get APC Credit
+		CheckDate = ::obj.data.( upper( "d" + drvNo + "APCDate" ) )
+		if ( CheckDate == "" )
+		else
+			CheckDate = dateformatj( datej( CheckDate ), "YYYYMMDD" )
+			// valid for 3 years in South Dakota
+			y  = 0  + left( CheckDate, 4 ) + 3
+			m  = "" + substr( CheckDate, 5, 2 )
+			d  = "" + right( CheckDate, 2 )
+			CheckDate = "" + y + m + d
+			if ( CheckDate >= PolEffDate )
+				a = ::rtb.( upper( tbl[3] ) )
+				for ( j=1; j<=len( a ); j++ )
+					if ( cov == a[j][1] )
+						::APCCred = 0.00 + a[j][2]
+					end
+				end
+			end
+		end
+
+		// Get InAgencyTransferCredit
+		if ( upper( ::obj.data.AgencyXfer ) == "YES" )
+			a = ::rtb.( upper( tbl[4] ) )
+			for ( j=1; j<=len( a ); j++ )
+				if ( cov == a[j][1] )
+					::InAgencyCred = 0.00 + a[j][2]
+				end
+			end
+		end
+
+		// Get MultiCarCredit
+		if ( ::obj.VehicleCnt > 1 )
+			a = ::rtb.( upper( tbl[5] ) )
+			for ( j=1; j<=len( a ); j++ )
+				if ( cov == a[j][1] )
+					::MultiCarCred = 0.00 + a[j][2]
+					if ( upper( a[j][3] ) == "MAX DRIVERS" )
+						if ( ::obj.VehicleNo > ::obj.DriverCnt )
+							::MultiCarCred = 0.00
+						end
+					end
+				end
+			end
+		end
+
+		// Get RenewalCredit
+
+		if ( ::obj.CalcType == "RENEWALAPP" )
+			if ( upper( ::obj.data.XferCredit ) == "YES" )
+				if ( strempty( ::obj.data.XferCreditDate ) )
+				else
+					CheckDate = dateformatj( datej( ::obj.data.XferCreditDate ), "YYYYMMDD" )
+					::obj.Debug( "CheckDate = " + CheckDate )
+
+					y  = 0 + left( PolEffDate, 4 )
+					m  = 0 + substr( PolEffDate, 5, 2 )
+					d  = 0 + right( PolEffDate, 2 )
+
+					_y = 0 + left( CheckDate, 4 )
+					_m = 0 + substr( CheckDate, 5, 2 )
+					_d = 0 + right( CheckDate, 2 )
+
+					yDiff = y - _y
+					dDiff = d - _d
+					::obj.Debug( "yDiff = " + yDiff )
+					::obj.Debug( "dDiff = " + dDiff )
+					
+					if ( yDiff >= 0 )
+						m = m + ( yDiff * 12 )
+						if ( dDiff < 0 )
+							m = m - 1
+						end
+						mDiff = m - _m
+						::obj.Debug( "mDiff = " + mDiff )
+						n6MonthPeriods = 0 + int( mDiff / 6 )
+						::obj.Debug( "n6MonthPeriods = " + n6MonthPeriods )
+						if ( n6MonthPeriods >= 1 )
+							a = ::rtb.( upper( tbl[7] ) )
+							for ( j=1; j<=len( a ); j++ )
+								if ( cov == a[j][1] )
+									::RenewalCred = n6MonthPeriods * ( 0.00 + a[j][2] )
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+
+		// Get Transfer Credit
+		if ( ::obj.CalcType == "NEWQUOTE" || ::obj.CalcType == "NEWAPP" )
+			if ( upper( ::obj.data.XferCredit ) == "YES" )
+				if ( strempty( ::obj.data.XferCreditDate ) )
+				else
+					CheckDate = dateformatj( datej( ::obj.data.XferCreditDate ), "YYYYMMDD" )
+					::obj.Debug( "CheckDate = " + CheckDate )
+
+					y  = 0 + left( PolEffDate, 4 )
+					m  = 0 + substr( PolEffDate, 5, 2 )
+					d  = 0 + right( PolEffDate, 2 )
+
+					_y = 0 + left( CheckDate, 4 )
+					_m = 0 + substr( CheckDate, 5, 2 )
+					_d = 0 + right( CheckDate, 2 )
+
+					yDiff = y - _y
+					dDiff = d - _d
+					::obj.Debug( "yDiff = " + yDiff )
+					::obj.Debug( "dDiff = " + dDiff )
+
+					if ( yDiff >= 0 )
+						m = m + ( yDiff * 12 )
+						if ( dDiff < 0 )
+							m = m - 1
+						end
+						mDiff = m - _m
+						::obj.Debug( "mDiff = " + mDiff )
+						n6MonthPeriods = 0 + int( mDiff / 6 )
+						::obj.Debug( "n6MonthPeriods = " + n6MonthPeriods )
+						if ( n6MonthPeriods >= 1 )
+							a = ::rtb.( upper( tbl[7] ) )
+							for ( j=1; j<=len( a ); j++ )
+								if ( cov == a[j][1] )
+									::TransferCred = n6MonthPeriods * ( 0.00 + a[j][2] )
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+
+		// Get NamedOperatorCredit - NOT CAPPED
+		if ( upper( ::obj.data.NamedOperator ) == "YES" )
+			a = ::rtb.( upper( tbl[8] ) )
+			for ( j=1; j<=len( a ); j++ )
+				if ( cov == a[j][1] )
+					::NamedOperatorCred = 0.00 + a[j][2]
+				end
+			end
+		end
+
+		::LIABCred = 0.00 + ::TransferCred + ::RenewalCred + ::MultiCarCred + ::APCCred + ::InAgencyCred
+		
+		cov = ::obj.data.( upper( "v" + ::obj.VehicleNo + "CovType" ) )
+		if ( upper( cov ) == "LIAB ONLY" )
+			::PDCred = 0.00
+		else
+			::PDCred   = 0.00 + ::TransferCred + ::RenewalCred + ::MultiCarCred + ::APCCred + ::InAgencyCred + ::AntiTheftCred
+		end
+
+		::LIABCred = ( ::LIABCred >= LIABMax ? LIABMax : ::LIABCred )
+		::PDCred   = ( ::PDCred   >= PDMax   ? PDMax   : ::PDCred   )
+
+		::obj.debug ( "Credits Calc End" )
+		return( 1 )
+	END
+
+	ACCESS aRateTableKey
+		static a = {
+			"AirBagCredit",
+			"AntiTheftDeviceCredit",
+			"APCCredit",
+			"InAgencyTransferCredit",
+			"MultiCarCredit",
+			"RenewalCredit",
+			"TransferCredit",
+			"NamedOperatorPolicyCredit"
+		}
+		return( a )
+	END
+END
+
+CLASS SR22_Fee
+  PUBLIC:
+	// required variables
+	local obj, rtb, name, title, premium, errmsg, footnote
+	
+	// local variables
+
+	METHOD new( obj )
+		::obj = obj
+		::obj.debug ( "SR22_Fee New Start" )
+		::name = "SR22_Fee"
+		::title = "SR22 Fee"
+		::premium = 0
+		::errmsg = ""
+		::footnote = ""
+		::rtb = new( "Rating_Tables", ::obj )
+//		if ( ! ValidateRequiredVariables( self ) )
+//			return( 1 )
+//		end
+		::init( )
+		::calculate( )
+		::obj.debug ( "SR22_Fee New End" )
+		return( 1 )
+	END
+
+	ACCESS RequiredVars
+		// array of required variables
+		static a = {
+			"data.EffDate",
+			"data.d1SR22_Required",
+			"data.d2SR22_Required",
+			"data.d3SR22_Required",
+			"data.d4SR22_Required",
+			"data.d5SR22_Required",
+			"data.d6SR22_Required"
+		}
+		return( a )
+	END
+
+	ACCESS aVars
+		// array of exported local variables
+		static a = {
+		}
+		return( a )
+	END
+
+	METHOD init( )
+		// initialize local variables here
+		return( 1 )
+	END
+
+	METHOD calculate( )
+		// perform calculations here
+		::obj.debug ( "SR22_Fee Calc Start" )
+
+		local PolEffDate, cov, a, key, i, j, tbl, x, r
+
+		PolEffDate = dateformatj( datej( ::obj.data.EffDate ), "YYYYMMDD" )
+		
+		// Get the required rate table names based upon Policy Effective Date
+		
+		a = ::rtb.aRateChangeDates
+		
+		Key = "SR22_Fees"
+
+		x = ""
+		for ( j=1; j<=len( a ); j++ )
+			if ( ( Key == a[j][1] ) && ( PolEffDate >= a[j][2] ) && ( PolEffDate <= a[j][3] ) )
+				x = "" + a[j][4]
+			end
+		end
+		if ( x == "" )
+			::errmsg = "***** SYSTEM ERROR *****     Class: " + ::name + ", " + Key + " table not found for policy effective date of " + ::obj.data.EffDate
+			println( ::errmsg )
+			return( 0 )
+		end
+
+		tbl = "a" + Key + "Table_" + x
+		a = ::rtb.( upper( tbl ) )
+
+		for ( i=1; i<=6; i++ )
+			cov = upper( ::obj.data.( upper( "d" + i + "SR22_Required" ) ) )
+			::obj.debug( "cov" + i + " = " + cov )
+			r = ""
+			for ( j=1; j<=len( a ); j++ )
+				if ( cov == a[j][1] )
+					r = 0 + a[j][2]
+					break
+				end
+			end
+			::obj.debug ( "rate = " + r )
+			if ( "" + r == "" )
+				::errmsg = "***** SYSTEM ERROR *****     Class: " + ::name + ", Table: " + key + ", Coverage: " + cov + ". Record not found"
+				println( ::errmsg )
+				return( 0 )
+			end
+
+			::Premium += r
+		end
+		::obj.debug ( "SR22_Fee Calc End" )
+		return( 1 )
+	END
+END
+
+CLASS NewPolicy_Fee
+  PUBLIC:
+	// required variables
+	local obj, rtb, name, title, premium, errmsg, footnote
+	
+	// local variables
+
+	METHOD new( obj )
+		::obj = obj
+		::obj.debug ( "NewPolicy_Fee New Start" )
+		::name = "NewPolicy_Fee"
+		::title = "NewPolicy Fee"
+		::premium = 0
+		::errmsg = ""
+		::footnote = ""
+		::rtb = new( "Rating_Tables", ::obj )
+//		if ( ! ValidateRequiredVariables( self ) )
+//			return( 1 )
+//		end
+		::init( )
+		::calculate( )
+		::obj.debug ( "NewPolicy_Fee New End" )
+		return( 1 )
+	END
+
+	ACCESS RequiredVars
+		// array of required variables
+		static a = {
+			"data.EffDate",
+			"data.ContCoverage"
+		}
+		return( a )
+	END
+
+	ACCESS aVars
+		// array of exported local variables
+		static a = {
+		}
+		return( a )
+	END
+
+	METHOD init( )
+		// initialize local variables here
+		return( 1 )
+	END
+
+	METHOD calculate( )
+		// perform calculations here
+		::obj.debug ( "NewPolicy_Fee Calc Start" )
+
+		local PolEffDate, cov, a, key, j, tbl, x, r
+
+		if ( upper( ::obj.data.ContCoverage ) == "YES" )
+			r = 0
+		else
+			PolEffDate = dateformatj( datej( ::obj.data.EffDate ), "YYYYMMDD" )
+
+			// Get the required rate table names based upon Policy Effective Date
+
+			a = ::rtb.aRateChangeDates
+
+			Key = "NewPolicy_Fees"
+
+			x = ""
+			for ( j=1; j<=len( a ); j++ )
+				if ( ( Key == a[j][1] ) && ( PolEffDate >= a[j][2] ) && ( PolEffDate <= a[j][3] ) )
+					x = "" + a[j][4]
+				end
+			end
+			if ( x == "" )
+				::errmsg = "***** SYSTEM ERROR *****     Class: " + ::name + ", " + Key + " table not found for policy effective date of " + ::obj.data.EffDate
+				println( ::errmsg )
+				return( 0 )
+			end
+
+			tbl = "a" + Key + "Table_" + x
+			a = ::rtb.( upper( tbl ) )
+
+			cov = "*"
+			r = ""
+			for ( j=1; j<=len( a ); j++ )
+				if ( cov == a[j][1] )
+					r = 0 + a[j][2]
+					break
+				end
+			end
+			::obj.debug ( "rate = " + r )
+			if ( "" + r == "" )
+				::errmsg = "***** SYSTEM ERROR *****     Class: " + ::name + ", Table: " + key + ", Coverage: " + cov + ". Record not found"
+				println( ::errmsg )
+				return( 0 )
+			end
+		end
+
+		::Premium = r
+		::obj.debug ( "NewPolicy_Fee Calc End" )
+		return( 1 )
+	END
+END
+
+CLASS Payday_Surcharge
+  PUBLIC:
+	// required variables
+	local obj, rtb, name, title, premium, errmsg, footnote
+	
+	// local variables
+
+	METHOD new( obj )
+		::obj = obj
+		::obj.debug ( "Payday_Surcharge New Start" )
+		::name = "Payday_Fee"
+		::title = "Payday Fee"
+		::premium = 0
+		::errmsg = ""
+		::footnote = ""
+		::rtb = new( "Rating_Tables", ::obj )
+//		if ( ! ValidateRequiredVariables( self ) )
+//			return( 1 )
+//		end
+		::init( )
+		::calculate( )
+		::obj.debug ( "Payday_Surcharge New End" )
+		return( 1 )
+	END
+
+	ACCESS RequiredVars
+		// array of required variables
+		static a = {
+			"data.EffDate",
+			"data.Payday",
+			"pol_MonthlyNetPrem"
+		}
+		return( a )
+	END
+
+	ACCESS aVars
+		// array of exported local variables
+		static a = {
+		}
+		return( a )
+	END
+
+	METHOD init( )
+		// initialize local variables here
+		return( 1 )
+	END
+
+	METHOD calculate( )
+		// perform calculations here
+		::obj.debug ( "Payday_Surcharge Calc Start" )
+
+		local PolEffDate, cov, a, key, j, tbl, x, r
+
+		PolEffDate = dateformatj( datej( ::obj.data.EffDate ), "YYYYMMDD" )
+		
+		// Get the required rate table names based upon Policy Effective Date
+		
+		a = ::rtb.aRateChangeDates
+		
+		Key = "PaydayPlan_Surcharge"
+
+		x = ""
+		for ( j=1; j<=len( a ); j++ )
+			if ( ( Key == a[j][1] ) && ( PolEffDate >= a[j][2] ) && ( PolEffDate <= a[j][3] ) )
+				x = "" + a[j][4]
+			end
+		end
+		if ( x == "" )
+			::errmsg = "***** SYSTEM ERROR *****     Class: " + ::name + ", " + Key + " table not found for policy effective date of " + ::obj.data.EffDate
+			println( ::errmsg )
+			return( 0 )
+		end
+
+		tbl = "a" + Key + "Table_" + x
+		a = ::rtb.( upper( tbl ) )
+
+		cov = upper( ::obj.data.Payday )
+		r = ""
+		for ( j=1; j<=len( a ); j++ )
+			if ( cov == a[j][1] )
+				r = 0.00 + a[j][2]
+				break
+			end
+		end
+		::obj.debug ( "rate = " + r )
+		if ( "" + r == "" )
+			::errmsg = "***** SYSTEM ERROR *****     Class: " + ::name + ", Table: " + key + ", Coverage: " + cov + ". Record not found"
+			println( ::errmsg )
+			return( 0 )
+		end
+
+		::Premium = ::obj.g.DollarRoundUp( ::obj.pol_MonthlyNetPrem * r )
+
+		::obj.debug ( "Payday_Surcharge Calc End" )
+		return( 1 )
+	END
+END
+
+
+// All DB Access Objects are located here
+
+CLASS objTerritory
+  PUBLIC:
+    local IsOpen, errmsg, dbFileName
+    local effdate, expdate, territory, zipcode
+
+    METHOD New( FileName )
+        ::IsOpen = 0
+        ::errmsg = ""
+        ::dbFileName = FileName
+        ::Init( )
+        return( 1 )
+    END
+
+    METHOD Init( )
+        ::effdate = ""
+        ::expdate = ""
+        ::territory = ""
+        ::zipcode = ""
+        return( 1 )
+    END
+
+    ACCESS dbIndexName
+        return( strextract( ::dbFileName, ".", 1 ) + ".dx" )
+    END
+
+    METHOD create( )
+        local db_struct = {
+            { "EFFDATE", "C", 8, 0 },
+            { "EXPDATE", "C", 8, 0 },
+            { "ZIPCODE", "C", 9, 0 },
+            { "TERRITORY", "C", 3, 0 }
+        }
+        return( dbcreate( ::dbFileName, db_struct ) )
+    END
+
+    METHOD open( )
+        if ( ::IsOpen )
+            ::IsOpen++
+            return( 1 )
+        end
+
+        if ( ! fileExists( ::dbFileName ) )
+            ::create( )
+        end
+
+        ::IsOpen = 1
+
+        dbuse( ::dbFileName, "objTerritory", 1 )
+        if ( ! fileExists( ::dbIndexName ) )
+            objTerritory->dbCreateIndex( ::dbIndexName, "EFFDATE+EXPDATE+ZIPCODE", 0 )
+        end
+        objTerritory->dbOpenIndex( ::dbIndexName )
+
+        return( 1 )
+    END
+
+    METHOD close( )
+        if ( ::IsOpen == 1 )
+            objTerritory->dbClose( )
+        end
+        ::IsOpen--
+        return( 1 )
+    END
+
+    METHOD seek( item )
+        objTerritory->dbSeek( upper( item ) )
+        return( objTerritory->dbFound( ) )
+    END
+
+    METHOD reindex( )
+        return( objTerritory->dbReindex( ) )
+    END
+
+    METHOD get( )
+        ::effdate = alltrim( objTerritory->effdate )
+        ::expdate = alltrim( objTerritory->expdate )
+        ::territory = alltrim( objTerritory->territory )
+        ::zipcode = alltrim( objTerritory->zipcode )
+        return( 1 )
+    END
+
+    METHOD put( )
+        objTerritory->effdate = ::effdate
+        objTerritory->expdate = ::expdate
+        objTerritory->territory = ::territory
+        objTerritory->zipcode = ::zipcode
+        return( 1 )
+    END
+
+    METHOD validate( )
+        return( 1 )
+    END
+
+    METHOD CreateNewRecord( key )
+        if ( ! ::validate( ) )
+            return( 0 )
+        end
+
+        ::open( )
+        if ( ::seek( key ) )
+            ::errmsg = "Record (" + key + ") already exists!"
+            ::close( )
+            return( 0 )
+        end
+
+        objTerritory->dbAppend( )
+        ::put( )
+
+        ::close( )
+        return( 1 )
+    END
+
+    METHOD GetRecord( key )
+        ::open( )
+
+        ::init( )
+        if ( ! ::seek( key ) )
+            ::errmsg = "Unable to locate record (" + key + ")"
+            ::close( )
+            return( 0 )
+        end
+
+        ::get( )
+        ::close( )
+
+        return( 1 )
+    END
+
+    METHOD SetRecord( key )
+        if ( ! ::validate( ) )
+            return( 0 )
+        end
+
+        ::open( )
+
+        if ( ! ::seek( key ) )
+            ::errmsg = "Unable to locate record (" + key + ")"
+            ::close( )
+            return( 0 )
+        end
+
+        ::put( )
+        ::close( )
+
+        return( 1 )
+    END
+
+	METHOD GetTerritory( eff, exp, zip )
+		local key, x
+		::open( )
+		key = untrim( eff, 8 ) + untrim( exp, 8 ) + untrim( zip, 9 )
+		if ( ::seek( key ) )
+			x = "" + objTerritory->territory
+		else
+			x = "Not Found"
+		end
+		::close( )
+		return( x )
+	END
+
+END
+
+CLASS objVehicleSymbol
+  PUBLIC:
+    local IsOpen, errmsg, dbFileName
+    local body, effdate, expdate, make, model, symbol
+
+    METHOD New( FileName )
+        ::IsOpen = 0
+        ::errmsg = ""
+        ::dbFileName = FileName
+        ::Init( )
+        return( 1 )
+    END
+
+    METHOD Init( )
+        ::body = ""
+        ::effdate = ""
+        ::expdate = ""
+        ::make = ""
+        ::model = ""
+        ::symbol = ""
+        return( 1 )
+    END
+
+    ACCESS dbIndexName
+        return( strextract( ::dbFileName, ".", 1 ) + ".dx" )
+    END
+
+    METHOD create( )
+        local db_struct = {
+            { "EFFDATE", "C", 8, 0 },
+            { "EXPDATE", "C", 8, 0 },
+            { "MAKE", "C", 35, 0 },
+            { "MODEL", "C", 35, 0 },
+            { "BODY", "C", 35, 0 },
+            { "SYMBOL", "C", 3, 0 }
+        }
+        return( dbcreate( ::dbFileName, db_struct ) )
+    END
+
+    METHOD open( )
+        if ( ::IsOpen )
+            ::IsOpen++
+            return( 1 )
+        end
+
+        if ( ! fileExists( ::dbFileName ) )
+            ::create( )
+        end
+
+        ::IsOpen = 1
+
+        dbuse( ::dbFileName, "objVehicleSymbol", 1 )
+        if ( ! fileExists( ::dbIndexName ) )
+            objVehicleSymbol->dbCreateIndex( ::dbIndexName, "EFFDATE+EXPDATE+MAKE+MODEL+BODY", 0 )
+        end
+        objVehicleSymbol->dbOpenIndex( ::dbIndexName )
+
+        return( 1 )
+    END
+
+    METHOD close( )
+        if ( ::IsOpen == 1 )
+            objVehicleSymbol->dbClose( )
+        end
+        ::IsOpen--
+        return( 1 )
+    END
+
+    METHOD seek( item )
+        objVehicleSymbol->dbSeek( upper( item ) )
+        return( objVehicleSymbol->dbFound( ) )
+    END
+
+    METHOD reindex( )
+        return( objVehicleSymbol->dbReindex( ) )
+    END
+
+    METHOD get( )
+        ::body = alltrim( objVehicleSymbol->body )
+        ::effdate = alltrim( objVehicleSymbol->effdate )
+        ::expdate = alltrim( objVehicleSymbol->expdate )
+        ::make = alltrim( objVehicleSymbol->make )
+        ::model = alltrim( objVehicleSymbol->model )
+        ::symbol = alltrim( objVehicleSymbol->symbol )
+        return( 1 )
+    END
+
+    METHOD put( )
+        objVehicleSymbol->body = ::body
+        objVehicleSymbol->effdate = ::effdate
+        objVehicleSymbol->expdate = ::expdate
+        objVehicleSymbol->make = ::make
+        objVehicleSymbol->model = ::model
+        objVehicleSymbol->symbol = ::symbol
+        return( 1 )
+    END
+
+    METHOD validate( )
+        return( 1 )
+    END
+
+    METHOD CreateNewRecord( key )
+        if ( ! ::validate( ) )
+            return( 0 )
+        end
+
+        ::open( )
+        if ( ::seek( key ) )
+            ::errmsg = "Record (" + key + ") already exists!"
+            ::close( )
+            return( 0 )
+        end
+
+        objVehicleSymbol->dbAppend( )
+        ::put( )
+
+        ::close( )
+        return( 1 )
+    END
+
+    METHOD GetRecord( key )
+        ::open( )
+
+        ::init( )
+        if ( ! ::seek( key ) )
+            ::errmsg = "Unable to locate record (" + key + ")"
+            ::close( )
+            return( 0 )
+        end
+
+        ::get( )
+        ::close( )
+
+        return( 1 )
+    END
+
+    METHOD SetRecord( key )
+        if ( ! ::validate( ) )
+            return( 0 )
+        end
+
+        ::open( )
+
+        if ( ! ::seek( key ) )
+            ::errmsg = "Unable to locate record (" + key + ")"
+            ::close( )
+            return( 0 )
+        end
+
+        ::put( )
+        ::close( )
+
+        return( 1 )
+    END
+
+	METHOD GetSymbol( eff, exp, mke, mdl, btype )
+		local key, x
+		::open( )
+		key = untrim( eff, 8 ) + untrim( exp, 8 ) + untrim( mke, 35 ) + untrim( mdl, 35 ) + untrim( btype, 35 )
+		if ( ::seek( key ) )
+			x = objVehicleSymbol->symbol
+		else
+			x = "Not Found"
+		end
+		::close( )
+		return( x )
+	END
+
+END
+
+CLASS objLiabilityRate
+  PUBLIC:
+    local IsOpen, errmsg, dbFileName
+    local coverage, effdate, expdate, points, rate
+
+    METHOD New( FileName )
+        ::IsOpen = 0
+        ::errmsg = ""
+        ::dbFileName = FileName
+        ::Init( )
+        return( 1 )
+    END
+
+    METHOD Init( )
+        ::coverage = ""
+        ::effdate = ""
+        ::expdate = ""
+        ::points = 0
+        ::rate = 0
+        return( 1 )
+    END
+
+    ACCESS dbIndexName
+        return( strextract( ::dbFileName, ".", 1 ) + ".dx" )
+    END
+
+    METHOD create( )
+        local db_struct = {
+            { "EFFDATE", "C", 8, 0 },
+            { "EXPDATE", "C", 8, 0 },
+            { "COVERAGE", "C", 11, 0 },
+            { "POINTS", "N", 6, 0 },
+            { "RATE", "N", 11, 0 }
+        }
+        return( dbcreate( ::dbFileName, db_struct ) )
+    END
+
+    METHOD open( )
+        if ( ::IsOpen )
+            ::IsOpen++
+            return( 1 )
+        end
+
+        if ( ! fileExists( ::dbFileName ) )
+            ::create( )
+        end
+
+        ::IsOpen = 1
+
+        dbuse( ::dbFileName, "objLiabilityRate", 1 )
+        if ( ! fileExists( ::dbIndexName ) )
+            objLiabilityRate->dbCreateIndex( ::dbIndexName, "EFFDATE+EXPDATE+COVERAGE+POINTS", 0 )
+        end
+        objLiabilityRate->dbOpenIndex( ::dbIndexName )
+
+        return( 1 )
+    END
+
+    METHOD close( )
+        if ( ::IsOpen == 1 )
+            objLiabilityRate->dbClose( )
+        end
+        ::IsOpen--
+        return( 1 )
+    END
+
+    METHOD seek( item )
+        objLiabilityRate->dbSeek( upper( item ) )
+        return( objLiabilityRate->dbFound( ) )
+    END
+
+    METHOD reindex( )
+        return( objLiabilityRate->dbReindex( ) )
+    END
+
+    METHOD get( )
+        ::coverage = alltrim( objLiabilityRate->coverage )
+        ::effdate = alltrim( objLiabilityRate->effdate )
+        ::expdate = alltrim( objLiabilityRate->expdate )
+        ::points = objLiabilityRate->points
+        ::rate = objLiabilityRate->rate
+        return( 1 )
+    END
+
+    METHOD put( )
+        objLiabilityRate->coverage = ::coverage
+        objLiabilityRate->effdate = ::effdate
+        objLiabilityRate->expdate = ::expdate
+        objLiabilityRate->points = ::points
+        objLiabilityRate->rate = ::rate
+        return( 1 )
+    END
+
+    METHOD validate( )
+        return( 1 )
+    END
+
+    METHOD CreateNewRecord( key )
+        if ( ! ::validate( ) )
+            return( 0 )
+        end
+
+        ::open( )
+        if ( ::seek( key ) )
+            ::errmsg = "Record (" + key + ") already exists!"
+            ::close( )
+            return( 0 )
+        end
+
+        objLiabilityRate->dbAppend( )
+        ::put( )
+
+        ::close( )
+        return( 1 )
+    END
+
+    METHOD GetRecord( key )
+        ::open( )
+
+        ::init( )
+        if ( ! ::seek( key ) )
+            ::errmsg = "Unable to locate record (" + key + ")"
+            ::close( )
+            return( 0 )
+        end
+
+        ::get( )
+        ::close( )
+
+        return( 1 )
+    END
+
+    METHOD SetRecord( key )
+        if ( ! ::validate( ) )
+            return( 0 )
+        end
+
+        ::open( )
+
+        if ( ! ::seek( key ) )
+            ::errmsg = "Unable to locate record (" + key + ")"
+            ::close( )
+            return( 0 )
+        end
+
+        ::put( )
+        ::close( )
+
+        return( 1 )
+    END
+
+	METHOD GetLiabilityRate( eff, exp, cov, pts )
+		local key, x
+		::open( )
+		key  = untrim( eff, 8 ) + untrim( exp, 8 ) + untrim( cov, 11 ) + pts
+		if ( ::seek( key ) )
+			x = objLiabilityRate->rate
+		else
+			x = "Not Found"
+		end
+		::close( )
+		return( x )
+	END
+
+END
+
+CLASS objPhysicalDamageRate
+  PUBLIC:
+    local IsOpen, errmsg, dbFileName
+    local effdate, expdate, points, rate, year
+
+    METHOD New( FileName )
+        ::IsOpen = 0
+        ::errmsg = ""
+        ::dbFileName = FileName
+        ::Init( )
+        return( 1 )
+    END
+
+    METHOD Init( )
+        ::effdate = ""
+        ::expdate = ""
+        ::points = 0
+        ::rate = 0
+        ::year = ""
+        return( 1 )
+    END
+
+    ACCESS dbIndexName
+        return( strextract( ::dbFileName, ".", 1 ) + ".dx" )
+    END
+
+    METHOD create( )
+        local db_struct = {
+            { "EFFDATE", "C", 8, 0 },
+            { "EXPDATE", "C", 8, 0 },
+            { "YEAR", "C", 4, 0 },
+            { "POINTS", "N", 6, 0 },
+            { "RATE", "N", 11, 0 }
+        }
+        return( dbcreate( ::dbFileName, db_struct ) )
+    END
+
+    METHOD open( )
+        if ( ::IsOpen )
+            ::IsOpen++
+            return( 1 )
+        end
+
+        if ( ! fileExists( ::dbFileName ) )
+            ::create( )
+        end
+
+        ::IsOpen = 1
+
+        dbuse( ::dbFileName, "objPhysicalDamageRate", 1 )
+        if ( ! fileExists( ::dbIndexName ) )
+            objPhysicalDamageRate->dbCreateIndex( ::dbIndexName, "EFFDATE+EXPDATE+YEAR+POINTS", 0 )
+        end
+        objPhysicalDamageRate->dbOpenIndex( ::dbIndexName )
+
+        return( 1 )
+    END
+
+    METHOD close( )
+        if ( ::IsOpen == 1 )
+            objPhysicalDamageRate->dbClose( )
+        end
+        ::IsOpen--
+        return( 1 )
+    END
+
+    METHOD seek( item )
+        objPhysicalDamageRate->dbSeek( upper( item ) )
+        return( objPhysicalDamageRate->dbFound( ) )
+    END
+
+    METHOD reindex( )
+        return( objPhysicalDamageRate->dbReindex( ) )
+    END
+
+    METHOD get( )
+        ::effdate = alltrim( objPhysicalDamageRate->effdate )
+        ::expdate = alltrim( objPhysicalDamageRate->expdate )
+        ::points = objPhysicalDamageRate->points
+        ::rate = objPhysicalDamageRate->rate
+        ::year = alltrim( objPhysicalDamageRate->year )
+        return( 1 )
+    END
+
+    METHOD put( )
+        objPhysicalDamageRate->effdate = ::effdate
+        objPhysicalDamageRate->expdate = ::expdate
+        objPhysicalDamageRate->points = ::points
+        objPhysicalDamageRate->rate = ::rate
+        objPhysicalDamageRate->year = ::year
+        return( 1 )
+    END
+
+    METHOD validate( )
+        return( 1 )
+    END
+
+    METHOD CreateNewRecord( key )
+        if ( ! ::validate( ) )
+            return( 0 )
+        end
+
+        ::open( )
+        if ( ::seek( key ) )
+            ::errmsg = "Record (" + key + ") already exists!"
+            ::close( )
+            return( 0 )
+        end
+
+        objPhysicalDamageRate->dbAppend( )
+        ::put( )
+
+        ::close( )
+        return( 1 )
+    END
+
+    METHOD GetRecord( key )
+        ::open( )
+
+        ::init( )
+        if ( ! ::seek( key ) )
+            ::errmsg = "Unable to locate record (" + key + ")"
+            ::close( )
+            return( 0 )
+        end
+
+        ::get( )
+        ::close( )
+
+        return( 1 )
+    END
+
+    METHOD SetRecord( key )
+        if ( ! ::validate( ) )
+            return( 0 )
+        end
+
+        ::open( )
+
+        if ( ! ::seek( key ) )
+            ::errmsg = "Unable to locate record (" + key + ")"
+            ::close( )
+            return( 0 )
+        end
+
+        ::put( )
+        ::close( )
+
+        return( 1 )
+    END
+
+	METHOD GetPhysicalDamageRate( eff, exp, vyr, pts )
+		local key, x
+		::open( )
+		key  = "" + untrim( eff, 8 ) + untrim( exp, 8 ) + untrim( vyr, 4 ) + pts
+		if ( ::seek( key ) )
+			x = objPhysicalDamageRate->rate
+		else
+			x = "Not Found"
+		end
+		::close( )
+		return( x )
+	END
+
+END

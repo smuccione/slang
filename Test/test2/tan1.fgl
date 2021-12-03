@@ -1,0 +1,13 @@
+// test of the tan( ) function
+
+function main( )
+
+	println("tan(0) = " + tan(0) )
+	println("tan(0.7854) = " + tan(0.7854) )
+	println("tan(1.57) = " + tan(1.57) )
+	println("tan(3.14159) = " + tan(3.14159) )
+	println("tan(3 * 22/(7*2))= " + tan(3 * 22/(7*2)) )
+	
+
+end
+

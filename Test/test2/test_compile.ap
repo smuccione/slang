@@ -1,0 +1,23 @@
+<[
+	local myvar = "Am I visible in subMain?"
+	
+	fnameComp = 'c:\slang\test\test2\test.pgx'
+	fnameSource = 'c:\slang\test\test2\test.pg'
+
+	try
+		fbuf = cacheRead( fnameComp, fnameSource )
+		loadLibrary( fNameSource, fbuf )
+	catch ( err )
+		fbuf = fileReadAscii( fnameSource )
+		
+		fTran = apTranslate ( fbuf, 0 )
+		fbuf = compile( fTran, fNameSource, "subMain" )
+		
+		hfile = fcreate( fNameComp )
+		fwrite( hfile, fBuf )
+		fclose( hfile )
+	end
+
+	fbuf = subMain( myVar )
+
+]>

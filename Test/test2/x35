@@ -1,0 +1,3 @@
+x=htmldocument( "a" );
+y=xmldocument ( "a" );
+_atomtabledump ( "c:\\slang\\test\\test2\\funcs.out" );

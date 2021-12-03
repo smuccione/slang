@@ -1,0 +1,55 @@
+<[
+
+FUNCTION showLog( session, type )
+		local loop		
+
+		log = session.GetLog( type)
+
+		for ( loop = 0; loop < len ( log ); loop++ )
+			! log[loop] + "  " + "<br>"
+		end
+END
+
+
+session = new( "session" )
+
+]>
+<html>
+<head>
+<title>CornerOFFICE Transaction Server Log</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<style>
+  A { COLOR: #FFFFFF; FONT-FAMILY: Arial, helvetica, sans-serif; text-decoration: none; }
+  A:hover { COLOR: #72C6F2; FONT-FAMILY: Arial, helvetica, sans-serif; text-decoration: underline; }
+  .spcr { COLOR: #000000; font-size:6pt; FONT-FAMILY: Arial, helvetica, sans-serif; }
+  .navtxt { COLOR: #FFFFFF; font-size:8pt; FONT-FAMILY: Arial, helvetica, sans-serif; }
+  .txt { COLOR: #FFFFFF; font-size:9pt; FONT-FAMILY: Arial, helvetica, sans-serif; }
+  .btn { COLOR: #000000; font-size:8pt; FONT-FAMILY: Arial, helvetica, sans-serif; }
+  .smtxt { COLOR: #FFFFFF; font-size:7pt; FONT-FAMILY: Arial, helvetica, sans-serif; }
+  .bigtxt { COLOR: #FFFFFF; font-size:12pt; FONT-FAMILY: Arial, helvetica, sans-serif; }
+  .gr { font-size:1pt; cursor:hand; }
+  .spacer { COLOR: #FFFFFF; font-size:5pt; FONT-FAMILY: Arial, helvetica, sans-serif; }
+</style>
+
+<body bgcolor="#2159A4" text="#000000" leftmargin=0 topmargin=0 marginwidth=0 marginheight=0><font class="spcr">
+
+<table border=0 width=760 cellspacing=0 cellpadding=10 class=txt bgcolor="#2159A4"><tr><td valign=top>
+ <table border=0 cellspacing=0 cellpadding=0 class=txt width=100%>
+  <tr>
+   <td width=300><img src="CornerOfficeLogo.jpg" border=0 width=200 height=57></td>
+   <td width=* align=right class=bigtxt nowrap><b><font color="#72C6F2">System Status Window</b></font></td>
+  </tr>
+ </table><br>
+ <input type=button value="<<< Back   " onClick="history.back( );" class=btn>
+ <center><font class=bigtxt><u>Transaction Log File</u></font></center>
+
+<[  
+	showLog ( session, 0 )
+]>
+
+</td></tr></table>
+<center><br><font class=smtxt><font color="#72C6F2">(c) 1996-2003 by <a href="http://www.brtsystems.com" target=_blank>Business Risk Technologies, Inc.</a>, All Rights Reserved</font></font></center>
+</td></tr></table>
+
+</body>
+

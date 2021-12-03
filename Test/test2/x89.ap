@@ -1,0 +1,10 @@
+<[
+
+x = 4
+y = 0.153846
+ 
+if ( x % y )
+   println( 'yeah' )
+end
+ 
+]>

@@ -1,0 +1,39 @@
+class output
+   public:
+      method out ()
+         local loop
+   
+         for ( loop = 2; loop <= pcount(); loop++ )
+            print ( param ( loop ) )
+         end
+      end
+   
+      method outln ()
+         local loop
+   
+         for ( loop = 2; loop <= pcount(); loop++ )
+            self.out ( param ( loop ) )
+         end
+   
+         println()
+      end
+end
+
+class test
+   inherit output
+
+   public:
+      method a
+         self.output.outln ( "this is a test of directed inheritence" )
+         self.outln ( "this is a test or automatic inheritence" )
+      end
+end
+
+
+local obj
+
+obj = new ( "test" )
+
+obj.a()
+obj.outln ( "this is a test of automatic exported inheritence" )
+ 

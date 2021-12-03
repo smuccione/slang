@@ -1,0 +1,345 @@
+<[
+// BIZMONTHLY.AP - Insurance Management System - Business Monthly Report
+// (c) 2002 by Business Risk Technologies, Inc., All Rights Reserved
+
+LIBRARY c:\sdweb\home\insmgmt\insmgmt.flb
+LIBRARY c:\sdweb\home\insmgmt\calendar.flb
+
+CLASS BizReport
+  PUBLIC:
+  	local Clients, Quotes, Applications, Policies, Cancelations, Claims, Money, Endorsements, Agencies, Agents
+  	local curdate, trans
+
+	METHOD new( )
+		// array vals: 1=CurCount, 2=TotalCount, 3=CurTotal, 4=GrandTotal
+  		::Clients = { 0, 0, 0, 0 }
+  		::Quotes = { 0, 0, 0, 0 }
+  		::Applications = { 0, 0, 0, 0 }
+  		::Policies = { 0, 0, 0, 0 }
+  		::Money = { 0, 0, 0, 0 }
+  		::Endorsements = { 0, 0, 0, 0 }
+  		::Agencies = { 0, 0, 0, 0 }
+  		::Agents = { 0, 0, 0, 0 }
+  		::Cancelations = { 0, 0, 0, 0 }
+  		::Claims = { 0, 0, 0, 0 }
+		return( 1 )
+	END
+
+	METHOD Header( )
+		local s = "<tr align=center bgcolor='#D0D0D0'><td>Date</td><td>Clients</td><td colspan=2>Quotes</td><td colspan=2>Applications</td><td colspan=2>Policies</td><td colspan=2>Cancelations</td><td>Claims</td><td>Money</td><td colspan=2>Endorsements</td><td>Agencies</td><td>Agents</td></tr>\r\n"
+		s += "<tr align=center bgcolor='#E0E0E0'><td>&nbsp;</td><td>#</td><td>#</td><td>$</td><td>#</td><td>$</td><td>#</td><td>$</td><td>#</td><td>$</td><td>#</td><td>$</td><td>#</td><td>$</td><td>#</td><td>#</td></tr>\r\n"
+		return( s )
+	END
+
+	
+
+	METHOD GetData( html, dte )
+		::curdate = dte
+		if ( ::trans.dbSeek( dte ) )
+			while ( ! ::trans.dbEOF( ) )
+				if ( left( (::trans.db)->timestamp, len( dte ) ) != dte )
+					break
+				end
+				
+				switch ( (::trans.db)->type )
+				  case 10	// New Quote
+				  	::Quotes[1]++
+				  	::Quotes[2]++
+				  	::Quotes[3] += (::trans.db)->amount
+				  	::Quotes[4] += (::trans.db)->amount
+				  	break
+				  
+				  case 20	// New Apps
+				  	::Applications[1]++
+				  	::Applications[2]++
+				  	::Applications[3] += (::trans.db)->amount
+				  	::Applications[4] += (::trans.db)->amount
+				  	break
+				  
+				  case 30	// New Clients
+				  	::Clients[1]++
+				  	::Clients[2]++
+				  	break
+				  
+				  case 40	// New Agencies
+				  	::Agencies[1]++
+				  	::Agencies[2]++
+				  	break
+				  
+				  case 50	// New Agents
+				  	::Agents[1]++
+				  	::Agents[2]++
+				  	break
+				  
+				  case 70	// New Policies
+				  	::Policies[1]++
+				  	::Policies[2]++
+				  	::Policies[3] += (::trans.db)->amount
+				  	::Policies[4] += (::trans.db)->amount
+				  	break
+
+				  case 92	// Cancellations
+				  	::Cancelations[1]++
+				  	::Cancelations[2]++
+				  	::Cancelations[3] += (::trans.db)->amount
+				  	::Cancelations[4] += (::trans.db)->amount
+				  	break
+				  
+				  case 74	// Policy Payment
+				  case 76	// Policy Adjustment
+				  	::Money[1]++
+				  	::Money[2]++
+				  	::Money[3] += (::trans.db)->amount
+				  	::Money[4] += (::trans.db)->amount
+				  	break
+				  
+				  case 75	// Policy Payment
+				  case 79	// Policy Adjustment
+				  	::Money[1]++
+				  	::Money[2]++
+				  	::Money[3] -= (::trans.db)->amount
+				  	::Money[4] -= (::trans.db)->amount
+				  	break
+				  
+				  case 93	// Endorsements
+				  	::Endorsements[1]++
+				  	::Endorsements[2]++
+				  	::Endorsements[3] += (::trans.db)->amount
+				  	::Endorsements[4] += (::trans.db)->amount
+				  	break
+						
+				  case 100	// Claims
+				  	::Claims[1]++
+				  	::Claims[2]++
+				  	break
+				end
+				  
+				::trans.dbSkip( )
+			end
+		end
+		return( ::DisplayData( html ) )
+	END
+
+	METHOD IsWeekday( date )
+		local x = myDow( date )
+		if ( ( x > 1 ) && ( x < 7 ) )
+			return( 1 )
+		end
+		return( 0 )
+	END
+
+	METHOD DisplayData( html )
+		local clr = "#DDFFDD"
+		local dte = html.ExtractDateFromKey( ::curdate )
+		local s
+
+		if ( ::IsWeekDay( dte ) )
+			s = "<tr align=right>"
+		else
+			s = "<tr align=right bgcolor='#CCCCFF'>"
+		end
+		s += "<td>" + dte + "</td>"
+		s += "<td>" + ::Clients[1] + "</td>"
+		s += "<td>" + ::Quotes[1] + "</td><td bgcolor=" + clr + ">" + ::Quotes[3] + "</td>"
+		s += "<td>" + ::Applications[1] + "</td><td bgcolor=" + clr + ">" + ::Applications[3] + "</td>"
+		s += "<td>" + ::Policies[1] + "</td><td bgcolor=" + clr + ">" + ::Policies[3] + "</td>"
+		s += "<td>" + ::Cancelations[1] + "</td><td bgcolor=" + clr + ">" + ::Cancelations[3] + "</td>"
+		s += "<td>" + ::Claims[1] + "</td>"
+		s += "<td bgcolor=" + clr + ">" + ::Money[3] + "</td>"
+		s += "<td>" + ::Endorsements[1] + "</td><td bgcolor=" + clr + ">" + ::Endorsements[3] + "</td>"
+		s += "<td>" + ::Agencies[1] + "</td>"
+		s += "<td>" + ::Agents[1] + "</td></tr>\r\n"
+		
+		::Clients[1] = 0
+		::Quotes[1] = 0, ::Quotes[3] = 0
+		::Applications[1] = 0, ::Applications[3] = 0
+		::Policies[1] = 0, ::Policies[3] = 0
+		::Cancelations[1] = 0, ::Cancelations[3] = 0
+		::Claims[3] = 0
+		::Money[3] = 0
+		::Endorsements[1] = 0, ::Endorsements[3] = 0
+		::Agencies[1] = 0
+		::Agents[1] = 0
+
+		return( s )
+	END
+
+	METHOD DisplayTotals( )
+		local g = new( "GlobalParams" )
+		local s = "<tr align=center valign=center height=25 bgcolor=#E0E0E0>"
+		s += "<td><b>TOTALS:</b></td>"
+		s += "<td>" + ::Clients[2] + "</td>"
+		s += "<td>" + ::Quotes[2] + "</td><td bgcolor=" + clr + ">" + strswap( g.DollarFormat( ::Quotes[4] ), " ", "" ) + "</td>"
+		s += "<td>" + ::Applications[2] + "</td><td bgcolor=" + clr + ">" + strswap( g.DollarFormat( ::Applications[4] ), " ", "" ) + "</td>"
+		s += "<td>" + ::Policies[2] + "</td><td bgcolor=" + clr + ">" + strswap( g.DollarFormat( ::Policies[4] ), " ", "" ) + "</td>"
+		s += "<td>" + ::Cancelations[2] + "</td><td bgcolor=" + clr + ">" + strswap( g.DollarFormat( ::Cancelations[4] ), " ", "" ) + "</td>"
+		s += "<td>" + ::Claims[2] + "</td>"
+		s += "<td bgcolor=" + clr + ">" + strswap( g.DollarFormat( ::Money[4] ), " ", "" ) + "</td>"
+		s += "<td>" + ::Endorsements[2] + "</td><td bgcolor=" + clr + ">" + strswap( g.DollarFormat( ::Endorsements[4] ), " ", "" ) + "</td>"
+		s += "<td>" + ::Agencies[2] + "</td>"
+		s += "<td>" + ::Agents[2] + "</td></tr>\r\n"
+		return( s )
+	END
+
+	METHOD QuoteRatio( )
+		if ( ::Applications[2] < 1 )
+			return( 0 )
+		end
+		return( int( ::Applications[2] * 100 / ::Quotes[2] ) )
+	END
+
+END
+	
+
+	html = new( "FormatHTML" )
+
+	companyid = html.session.var( "companyid" )
+	userid = html.session.var( "userid" )
+
+	HideSelection = 0 + html.session.var( "HideSelection" )
+
+	
+	qstr = "companyid=" + companyid + "&userid=" + userid + "&agencyid=" + agencyid
+
+	ReportPeriod = html.session.var( "ReportPeriod" )
+	
+	g = new( "GlobalParams" )
+
+	biz = new( "BizReport" )
+	
+]>
+<html>
+<head>
+<title>Insurance Management - Monthly Business Report</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<meta http-equiv="imagetoolbar" content="no">
+
+<style>
+  A { COLOR: #000000; FONT-FAMILY: Arial, helvetica, sans-serif; text-decoration: none; }
+  A:hover { COLOR: #61829F; FONT-FAMILY: Arial, helvetica, sans-serif; text-decoration: underline; }
+  .hdrlinks { COLOR: #000000; font-size:8pt; FONT-FAMILY: Arial, helvetica, sans-serif; }
+  .name { COLOR: #000000; font-size:13pt; FONT-FAMILY: Arial, helvetica, sans-serif; }
+  .spcr { COLOR: #000000; font-size:5pt; FONT-FAMILY: Arial, helvetica, sans-serif; }
+  .navtxt { COLOR: #FFFFFF; font-size:9pt; FONT-FAMILY: Arial, helvetica, sans-serif; }
+  .navtxt2 { COLOR: #FFFFFF; font-size:11pt; FONT-FAMILY: Arial, helvetica, sans-serif; bold; }
+  .txt { COLOR: #000000; font-size:8pt; FONT-FAMILY: Arial, helvetica, sans-serif; }
+  .txt2 { COLOR: #000000; font-size:8pt; FONT-FAMILY: Arial, helvetica, sans-serif; }
+  .smtxt { COLOR: #000000; font-size:7pt; FONT-FAMILY: Arial, helvetica, sans-serif; }
+  .title { COLOR: #000000; font-size:14pt; FONT-FAMILY: Arial, helvetica, sans-serif; }
+  .subtitle { COLOR: #000000; font-size:12pt; FONT-FAMILY: Arial, helvetica, sans-serif; }
+  .copyright { color:#000000;font-size:7pt;font-family:Arial,Helvetica,sans-serif; }
+  .viewlink { color:#000000;font-size:8pt;font-family:Arial,Helvetica,sans-serif;}
+  .hdrtxt { COLOR: #FFFFFF; font-size:8pt; FONT-FAMILY: Arial, helvetica, sans-serif; font-weight:600; }
+
+  .txtActive { COLOR: #000000; font-size:8pt; FONT-FAMILY: Arial, helvetica, sans-serif; }
+  .txtSuspended { COLOR: #0000FF; font-size:8pt; FONT-FAMILY: Arial, helvetica, sans-serif; }
+  .txtDeleted { COLOR: #FF0000; font-size:8pt; FONT-FAMILY: Arial, helvetica, sans-serif; }
+
+ </style>
+
+<script language=JavaScript>
+
+function OpenWindow( url, x, y, id ) {
+  var base =  ", width=" + x + ", height=" + y + ", status=no, location=no, toolbar=no, scrollbars=yes, menubar=no, directories=no, resizable=yes";
+  var left = ( screen.availWidth - x ) / 2;
+  var top = ( screen.availHeight - y ) / 2;
+  var str = "left=" + left + " top=" + top;
+  var win = window.open( url, id, str + base );
+  win.focus( );
+}
+
+function ShowPolicyStatement( policyid ) {
+	OpenWindow( "/insmgmt/polacct.htm?<[ ! qstr ]>&subcmd=AGENTPORTAL&policyid=" + policyid, 800, 560, "ShowPolicyStatement" );
+}
+
+
+</script>
+
+
+</head>
+<body bgcolor="white" text="#000000" topmargin="0">
+<form name=input action="/insmgmt/progress.htm" method="GET">
+<input type=hidden name="_url_" value="/insmgmt/reports/BizReport.htm">
+<input type=hidden name="_title_" value="Generating Report...">
+
+<input type=hidden name="companyid" value="<[ ! companyid ]>">
+<input type=hidden name="userid" value="<[ ! userid ]>">
+<input type=hidden name="HideSelection" value="<[ ! HideSelection ]>">
+
+<!--
+<div id="BkLayer" style="position:absolute; width:700px; height:457px; z-index:-3; left: 100px; top: 70px;"><img src="/insmgmt/images/bkimg2.gif"></div>
+-->
+
+<center>
+
+<table border=0 cellspacing=0 cellpadding=15><tr><td valign=top align=center class="txt">
+ <table border=0 cellspacing=0 cellpadding=0 class="txt"><tr>
+  <td width=* align=center><font class="title">Business Activity Report</font></td>
+ </table><br>
+ <[ 
+
+debugbreak( )
+ 	if ( !HideSelection )
+
+ 	x=2
+ 		! CreateReportPeriodList( "ReportPeriod", "txt", ReportPeriod )
+ 	end
+ ]>
+
+ <input type=button value="Show Report" class=txt onClick="input.submit( );">
+ <br><br>
+ <table border=0 cellspacing=1 cellpadding=2 class=txt2>
+<[
+	DateFrom = strextract( ReportPeriod, ":", 1 )
+	DateTo = strextract( ReportPeriod, ":", 2 )
+
+	if ( strempty( DateFrom ) || strempty( DateTo ) )
+		! "<tr><td><table border=1 cellspacing=0 cellpadding=5 class=txt><tr><td>Select a report period then click the SHOW REPORT button.</td></tr></table></td></tr>\r\n"
+	else
+
+		insdata = new( "objInsData" )
+		insdata.open( )
+
+		trans = new( "objTrans" )
+		trans.open( )
+
+		trans.dbOrder( 4 )
+		biz.trans = trans
+
+		! "<table border=1 width=780 cellspacing=0 cellpadding=2 class=txt>\r\n"
+		! biz.Header( )
+
+		jStart = datej( html.ExtractDateFromKey( DateFrom ) )
+		jEnd = datej( html.ExtractDateFromKey( DateTo ) )
+
+		cnt = jEnd - jStart
+		
+		for ( i=0; i<=cnt; i++ )
+			! biz.GetData( html, dateformatj( jStart + i, "YYYYMMDD" ) )
+		end
+		
+		! biz.DisplayTotals( )
+		
+		! "</table>\r\n"
+
+		! "<br>Quote to Application ratio: " + biz.QuoteRatio( ) + "%"
+
+		insdata.close( )
+	end
+
+]>
+ </table><br>
+
+
+<font class=copyright>(c) Copyright 2003-2004 by Business Risk Tehcnologies, Inc., All Rights Reserved<br></font></td></tr>
+</table>
+
+</center>
+</body>
+</html>
+
+
+
+
+
+

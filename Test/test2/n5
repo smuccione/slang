@@ -1,0 +1,73 @@
+library c:\slang\test\test2\httplib.flb
+
+function dump ( obj, indent )
+   local val
+
+   while ( obj )
+      print  ( space ( indent ), obj.nodeName )
+
+	x = classElements ( obj )
+
+	try
+		if ( obj.name )
+            	print ( " - ", obj.name )
+		end
+	catch ( e )
+	end
+
+	if ( obj.nodeName == "#text" )
+		val = strswap ( obj.data, "\r", "\\r" )
+		val = strswap ( val, "\n", "\\n" )
+//		print ( " - ", val )
+	end
+
+	println()
+
+	for ( loop = 1; loop <= len ( x ); loop++ )
+		switch ( x[loop][2] )
+			case 0
+			case 6
+				switch ( x[loop][1] )
+					case "FIRSTCHILD"
+						val = obj.(x[loop][1]);
+						if ( type ( val ) == "O" )
+							dump ( val, indent + 3 )
+						end
+						break;
+					default
+						break;
+				end
+				break;
+		end
+	end
+
+
+	try 
+	      obj = obj.nextSibling
+	catch ( error )
+		return
+	end
+   end
+
+end
+
+x = webPageGet ( 127.0.0.1, "GET", "mike/client.html" )
+
+page = x[len(x)]
+
+println ( "page is ", len ( page ), " bytes long\r\n" )
+
+dom = new ( "htmldocument", page, 2 )
+
+dump ( dom, 0 )
+
+arr = dom.GetPostData();
+
+println ( "---------------------" )
+
+x = dom.getElementsByName ( "LastName" )
+
+for ( loop = 1; loop <= x.length; loop++ )
+   println ( loop, x.array[loop] );
+end
+

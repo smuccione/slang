@@ -1,0 +1,14 @@
+LIBRARY c:\sdweb\home\insmgmt\insmgmt.flb
+LIBRARY c:\sdweb\home\insmgmt\formdata.flb
+LIBRARY c:\sdweb\home\insmgmt\products\aatxau00\texasdata.flb
+LIBRARY c:\sdweb\home\insmgmt\products\aatxau00\aatxau.flb
+LIBRARY c:\sdweb\home\insmgmt\products\aatxau00\quotedata.flb
+
+x = fileReadAscii ( 'c:\temp\packagedata.dat' )
+
+for ( loop = 0; loop < 100; loop++ )
+        obj[loop] = unpack ( x )
+end
+
+debugbreak()
+println ( obj )

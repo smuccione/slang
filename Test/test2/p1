@@ -1,0 +1,19 @@
+function a()
+  for ( loop = 0; loop < 1000000; loop++ )
+  end
+end
+
+function b()
+end
+
+function c()
+  a()
+end
+
+function main ()
+
+  a()
+  b()
+  c()
+
+end

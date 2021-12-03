@@ -1,0 +1,51 @@
+<[
+// Class defining calendar constants
+CLASS caln
+  PUBLIC:
+    const january = 1; const february = 2; const march = 3
+    const april = 4, const may = 5, const june = 6
+    const july = 7, const august = 8, const september = 9
+    const october = 10, const november = 11, const december = 12
+    
+    const sunday = 1
+    const monday = 2
+    const tuesday = 3
+    const wednesday = 4
+    const thursday = 5
+    const friday = 6
+    const saturday = 7
+ 
+    METHOD DaysInMonth( month, year = date("YYYY" ) )
+        if ( month == ::february )
+            return( ( 0 + year ) % 4 ? 28 : 29 )
+        end
+        return( ::aMonths[ month ] )
+    END
+ 
+    ACCESS aMonths
+        static a = { 
+            31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 
+        }
+        return( a )
+    END
+ 
+END
+
+debugBreak()
+
+obj = new( "caln" )
+x = obj.DaysInMonth( obj::January )
+ 
+ 
+// Class defining low-level file constants.
+// Use the constant without instantiating the class
+CLASS io
+  PUBLIC:
+    const F_READONLY = 0
+    const F_WRITEONLY = 1
+    const F_READWRITE = 2
+END
+ 
+hfile = fileOpen( fname, io::F_READWRITE )
+
+]>

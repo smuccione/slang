@@ -1,0 +1,59 @@
+<[
+
+class serverStatus
+	local	serverStartTime
+	local	HTTPVersion
+	local	totalConnections
+	
+
+	local	totalRequests
+	local	totalBytesReceived
+	
+	local	totalResponses
+	local	totalBytesSent
+	
+
+	local	APPagesSent
+	local	APBytesSent
+	
+	local	authenticateChallenges
+	local	authenticateFailures
+
+	local	userLog
+	
+	local	systemLog
+	local	transactionLog
+	
+	method new ()
+		session = new ( "session" )
+		
+		::serverStartTime 			= session.serverStartTime
+		::HTTPVersion				= session.HTTPVersion
+		::totalConnections			= session.totalConnections
+		::totalRequests				= session.totalRequests
+		::totalResponses			= session.totalResponses
+		::totalBytesSent			= session.totalBytesSent
+		::APPagesSent				= session.APPagesSent
+		::APBytesSent				= session.APBytesSent
+		::authenticateChallenges	= session.authenticateChallenges
+		::authenticateFailures		= session.authenticateFailures
+		
+		::userLog					= session.userLog
+		
+		::systemLog					= session.GetLog ( 1 )
+		::transactionLog			= session.GetLog ( 0 )
+		
+		return 1
+	end
+end
+
+session = new ( "session" )
+status = new ( "serverStatus" )
+
+xml = objToXml ( status )
+
+session.response ( xml )
+
+return
+
+]>

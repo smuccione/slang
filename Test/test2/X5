@@ -1,0 +1,12 @@
+function a()
+  b = "I love Donna."
+  c = {|a|println ( b, a )}
+
+  return ( c )
+end
+
+a()(" Very much.", "there"  )
+a()(" Very much."           )
+a()(                        )
+
+ 

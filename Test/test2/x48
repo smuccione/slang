@@ -1,0 +1,14 @@
+class test1
+	method new()
+		x = test2()
+		return 1
+	end
+end
+
+class test2
+	method new()
+		return ( 1 )
+	end
+end
+
+a = test1()

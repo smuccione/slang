@@ -1,0 +1,17 @@
+DebugBreak()
+
+o = ftpClient()
+
+o.hostName = "localhost"
+o.userName = "steve"
+o.password = "test"
+
+r = o.command ( "LIST" )
+println ( r )
+println ( "---------------" )
+r = o.command ( "NLIST" )
+println ( r )
+
+r = o.downloadFile ( "c:\setup.ini", "tmp\setup.ini" )
+
+println ( r )

@@ -1,0 +1,19 @@
+class test
+   method a ( a, x, b )
+      println ( x )
+   end
+end
+
+local o
+
+o = new ( "test" )
+
+o.a ( "1", "test", "2" )
+
+o.a ( "1", 1 < 2 ? "this" : "that", "2" )
+o.a ( "1", 1 > 2 ? "this" : "that", "2" )
+
+o.a ( "1", "a" < "b" ? "this" : "that", "2" )
+o.a ( "1", "a" > "b" ? "this" : "that", "2" )
+
+ 

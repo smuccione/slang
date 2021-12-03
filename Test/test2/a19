@@ -1,0 +1,38 @@
+
+a = { {"hello", 5},
+	{"there", 3},
+	{"how",1},
+	{"are",2},
+	{"you",4}
+     }
+
+println ( "-----------------" )
+for ( loop = 1; loop <= len ( a ); loop++ )
+   print ( a[loop][1], " " )
+end
+println()
+for ( loop = 1; loop <= len ( a ); loop++ )
+   print ( a[loop][2], " " )
+end
+println();
+println ( "-----------------" )
+
+for ( loop = 1; loop <= len ( a ); loop++ )
+	for ( loop2 = loop; loop2 <= len ( a ); loop2++ )
+		if ( a[loop2][2] < a[loop][2] )
+			tmp = @a[loop]
+			a[loop] = @a[loop2]
+			a[loop2] = tmp
+		end
+	end
+end
+
+println ( "-----------------" )
+for ( loop = 1; loop <= len ( a ); loop++ )
+   print ( a[loop][1], " " )
+end
+println()
+for ( loop = 1; loop <= len ( a ); loop++ )
+   print ( a[loop][2], " " )
+end
+println()

@@ -1,0 +1,28 @@
+static var
+
+function t1 ()
+   println ( type ( var ) )
+   println ( var )
+   println ( var.inst )
+end
+
+class test
+   local inst
+end
+
+
+local o
+
+o = new ( "test" )
+o.inst = 5
+
+var = o
+
+println ( type ( var ) )
+println ( var )
+println ( var.inst )
+
+println ( "--------------------" )
+
+t1 ()
+ 

@@ -1,0 +1,23 @@
+function checkEven ( x )
+  if ( x % 2 == 1 )
+    except ( 1000 )
+  end
+end
+
+LOCAL loop
+LOCAL e
+
+for ( loop = 0; loop < 10; loop++ )
+  print ( loop, " : " )
+  try
+     checkEven ( loop )
+     println ( "even" )
+  catch ( e )
+     if ( e == 1000 )
+        println ( "odd" )
+     else
+        except ( e )
+     end
+  end
+end
+ 

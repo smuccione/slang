@@ -1,0 +1,9 @@
+<[
+
+	a = fileReadAscii ( 'x11' )
+	
+	h = picHeight ( a );
+	
+	! "" + h
+	
+]>

@@ -1,0 +1,253 @@
+<[
+	LIBRARY C:\SDWEB\HOME\INSMGMT\INSMGMT.FLB
+	
+	companyid = "brt"
+	userid = "srepetti"
+	defCarrier = "safco"
+	page = new( "PageTheme" )
+	page.LoadTheme( "agent" )
+
+]>
+<html>
+<head>
+
+ <META HTTP-EQUIV="imagetoolbar" CONTENT="no">
+
+ <style>
+  A { COLOR: #000000; FONT-FAMILY: Arial, helvetica, sans-serif; text-decoration: none; }
+  A:hover { COLOR: #FF0000; FONT-FAMILY: Arial, helvetica, sans-serif; text-decoration: underline; }
+  .hdr { color:#000000;font-size:14pt;font-family:Arial;font-weight:bold; }
+  .subhdr { color:#00223E;font-size:12pt;font-family:Arial;font-weight:900; }
+  .tab { color:#000000;font-size:8pt;font-family:Arial;font-weight:900; }
+  .tab2 { color:#FFF3CE;font-size:8pt;font-family:Arial;font-weight:700; }
+  .title { color:#000000;font-size:12pt;font-family:Times New Roman;font-weight:900; }
+  .txt { color:#000000;font-size:9pt;font-family:Arial; }
+  .navtxt { color:#FFFFFF;font-size:9pt;font-family:Arial; }
+  .bigtxt { color:#FFFFFF;font-size:11pt;font-family:Arial; }
+  .verybigtxt { color:#000000;font-size:14pt;font-family:Arial; }
+  .smtxt { color:#000000;font-size:8pt;font-family:Arial; }
+  .lst { color:#000000;font-size:9pt;font-family:Arial; }
+  .copyright { color:#A0A0A0;font-size:8pt;font-family:Arial; }
+  .copyright2 { color:#A0A0A0;font-size:7pt;font-family:Arial; }
+
+  .newshdr { color:#000000;font-size:8pt;font-family:Verdana,Arial,Helvetica,sans-serif;font-weight:500; }
+  .newssubhdr { color:#808080;font-size:7pt;font-family:Verdana,Arial,Helvetica,sans-serif;font-weight:500; }
+
+  .talltxt { color:#000000;font-size:9pt;font-family:Arial;line-height:20px; }
+
+
+ </style>
+</head>
+
+<body leftmargin=0 topmargin=0 bgcolor="#FFFFFF" BACKGROUND="background.gif" >
+<form name=input action="/insmgmt/agent/FaxCover.htm" method="POST" enctype="multipart/form-data">
+<input type=hidden name=companyid value="<[ ! companyid ]>">
+<input type=hidden name=userid value="<[ ! userid ]>">
+<input type=hidden name=defCarrier value="<[ ! defCarrier ]>">
+<input type=hidden name=source value="AGENT UPLOAD">
+
+<table border=0 width=100% height=100% cellspacing=0 cellpadding=0 class=txt>
+ <tr>
+
+  <td valign=top width=165 bgcolor="<[ ! page.navBackground ]>" height=100% align=center>
+
+   <!-- LEFT COLUMN -->
+   <table border=0 width=100%  cellspacing=0 cellpadding=10 class=navtxt >
+    <tr>
+     <td width=100%>
+      <br>
+	  This area makes it easy to submit documents related to your quotes, apps, policies, and clients.
+	  <br><br>
+      <center>
+<!--      
+      <img src="/insmgmt/images/SubmitDocs.gif" border=0 width=120 height=187><br>
+-->
+	  <OBJECT CLASSID="clsid:5220CB21-C88D-11cf-B347-00AA00A28331">
+		  <PARAM NAME="LPKPath" VALUE="DropTarget.lpk">
+	  </OBJECT>
+
+	  <OBJECT ID="DropTarget" CLASSID="CLSID:C29A0936-5E0D-4C8E-BCE4-A106B75E037B#1,0,0,001" 
+	  			CODEBASE="http://localhost/DropTarget.cab" 
+	  			style="width:123px;height=126px;"
+	  >
+		<!--
+			DisplayString sets a text string to be displayed instead of an image OR during image download on a slow link
+			<PARAM NAME="DisplayString" VALUE="test this">
+
+			This enables white in the image to be the background in the browser (tricky since we have to make the browser actually render it which it doesn't want to due 
+	        <PARAM NAME="TransparentBackground" VALUE=true >
+
+			This is the url of the image to display for the control
+			<PARAM NAME="ImageURL" VALUE="c:\upload\upload\DropZone.bmp">
+		-->
+	    <PARAM NAME="TransparentBackground" VALUE=true >
+		<PARAM NAME="ImageURL" VALUE="c:\slang\upload\DropZone.bmp">
+	    <PARAM NAME="SmartHTML" VALUE=true >
+	  </OBJECT>
+
+	  </center>
+
+
+
+	 </td>
+    </tr>
+   </table>
+
+   <br>
+
+   <font class=copyright2><font color=<[ ! page.navHilite ]>>
+   Copyright (c) 2001-2004 by<br><a href="http://www.brtsystems.com" target="_blank"><font color="<[ ! page.navHilite ]>">Business Risk Technologies</font></a><br>All Rights Reserved.<br>
+   </font></font>
+   <br><br>
+
+  </td>
+
+  <!-- CENTER COLUMN -->
+  <td valign=top width=*>
+   <table border=0 width=100%  cellspacing=0 cellpadding=0 class=txt>
+    <tr>
+     <td width=15>&nbsp;</td>
+
+     <td width=550 align=left valign=top>
+      <br>
+      <font class=verybigtxt><font color="<[ ! page.Title ]>">Submit Documents:</font></font><br><br>
+      
+
+	  <table border=0 cellspacing=0 cellpadding=5 width=100% class=txt>
+
+	   <tr bgcolor="<[ ! page.hdrBackground ]>">
+	    <td colspan=2><font color=<[ ! page.hdrText ]>><b>Send Documents</b></font>
+	    </td>
+	   </tr>
+
+	   <tr>
+	    <td width=150 valign=top bgcolor=<[ ! page.dlgDark ]> class=smtxt>
+	     <b>To:</b><br>Specify the category and specific recipient.
+	    </td>
+	    <td valign=center bgcolor=<[ ! page.dlgLite ]> class=txt>
+		 <select name="ToName" class=txt style="width=220px;"></select>
+		</td>
+	   </tr>
+	   
+	   <tr height=2><td></td></tr>
+
+	   <tr>
+	    <td width=150 valign=top bgcolor=<[ ! page.dlgDark ]> class=smtxt>
+	     <b>From:</b>
+	    </td>
+	    <td valign=center bgcolor=<[ ! page.dlgLite ]> class=txt>
+		</td>
+	   </tr>
+
+	   <tr height=2><td></td></tr>
+
+	   <tr>
+	    <td width=150 valign=top bgcolor=<[ ! page.dlgDark ]> class=smtxt>
+	     <b>Reference:</b><br>Specify the specific reference associated with these documents.
+	    </td>
+	    <td valign=center bgcolor=<[ ! page.dlgLite ]> class=txt>
+		</td>
+	   </tr>
+
+	   <tr height=2><td></td></tr>
+
+	   <tr>
+	    <td width=150 valign=top bgcolor=<[ ! page.dlgDark ]> class=smtxt>
+	     <b>Via:</b><br>Specify the method to submit the documents.
+	    </td>
+	    <td valign=center bgcolor=<[ ! page.dlgLite ]> class=txt>
+		</td>
+	   </tr>
+
+	  </table>
+	  <br>
+
+	  <table border=0 cellspacing=0 cellpadding=5 width=100% class=txt>
+
+	   <tr bgcolor="<[ ! page.hdrBackground ]>">
+	    <td colspan=1><font color=<[ ! page.hdrText ]>><b>Documents to Submit:</b></font>
+	    <td align=right><input type=button class=smtxt value="Add File" onClick="AddDocument( );"></td>
+	    </td>
+	   </tr>
+
+	   <tr>
+	    <td colspan=2 valign=center bgcolor=<[ ! page.dlgLite ]> class=txt>
+	     <table border=0 width=100% cellspacing=0 cellpadding=5 class=smtxt><tr><td>
+	      <a name=doc1></a>
+	      <a name=doc2></a>
+	      <a name=doc3></a>
+	      <a name=doc4></a>
+	      <a name=doc5></a>
+	      <a name=doc6></a>
+	      <a name=doc7></a>
+	      <a name=doc8></a>
+	      <a name=doc9></a>
+	      <a name=doc10></a>
+	     </td></tr></table>
+		</td>
+	   </tr>
+
+	  </table>
+
+	  <br>
+
+	  <table border=0 cellspacing=0 cellpadding=5 width=100% class=txt>
+
+	   <tr bgcolor="<[ ! page.hdrBackground ]>">
+	    <td colspan=1><font color=<[ ! page.hdrText ]>><b>Comments / Instructions:</b></font>
+	    </td>
+	   </tr>
+
+	   <tr>
+	    <td valign=center bgcolor=<[ ! page.dlgLite ]> class=txt>
+	     <table border=0 width=100% cellspacing=0 cellpadding=5><tr><td>
+	      <textarea name=Comments class=txt rows=5 style="width:530px;"></textarea>
+	     </td></tr></table>
+		</td>
+	   </tr>
+
+	  </table>
+
+	  <br>
+	  <center>
+	  <input type=button class=txt value="Continue..." onClick="ProcessSubmit( );">
+	  </center>
+
+
+
+	  <br>
+	  <center>
+      <font class=copyright>
+      Copyright (c) 2001-2004 <a href="http://www.brtsystems.com" target="_blank"><font color="#A0A0A0">Business Risk Technologies</font></a>, All Rights Reserved.<br>
+      </font>
+      </center>
+      <br><br><br>
+
+	 </td>
+	</tr>
+   </table>
+  </td>
+
+ </tr>
+</table>
+
+</form>
+
+<!--
+<form name=upload action="/insmgmt/agent/UploadFiles.htm" method="POST" enctype="multipart/form-data">
+<input type=hidden name=companyid value="<[ ! companyid ]>">
+<input type=hidden name=userid value="<[ ! userid ]>">
+<input type=hidden name=defCarrier value="<[ ! defCarrier ]>">
+<input type=hidden name=ToType value="">
+<input type=hidden name=ToName value="">
+<input type=hidden name=Ref value="">
+<input type=hidden name=RefVal value="">
+<input type=hidden name= value="">
+<input type=hidden name= value="">
+<input type=hidden name= value="">
+
+</form
+-->
+
+</body>
+</html>

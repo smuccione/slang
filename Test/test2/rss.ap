@@ -1,0 +1,253 @@
+<[
+
+library c:\fgl\libs\system.flb
+
+class rssItem
+
+private:
+	local item;
+
+public:
+	method new ( item )
+		::item = item;
+		return ( 1 );
+	end
+
+	access	title()
+		local title
+		try
+		  title = ::item.title.value;
+		  if ( !title )
+		   title = ::item.title."#cData".Data;
+		  end
+		catch ( e )
+		  title = "";
+		end
+		return ( title )
+	end
+
+	access description()
+		local description
+		try
+		  description = ::item.description.value;
+		  if ( !description )
+		   description = ::item.description."#cData".Data;
+		  end
+		catch ( e )
+		  description = "";
+		end
+		return ( description )
+	end
+
+	access link()
+		local link
+		try
+		  link = ::item.link.value;
+		  if ( !link )
+		   link = ::item.link."#cData".Data;
+		  end
+		catch ( e )
+		  link = "";
+		end
+		return ( link )
+	end
+
+	access pubDate()
+		local pubDate;
+		try
+		  pubDate = ::item.pubDate.value;
+		  if ( !pubDate )
+		   pubDate = ::item.pubDate."#cData".Data;
+		  end
+		catch ( e )
+		  pubDate = "";
+		end
+		return ( pubDate )
+	end
+
+end
+
+class rssStorage
+	local	pageDate;
+	local	feedTitle;
+	local	feedDescription;
+	local	itemArray;
+	local	pageCache;
+	local	ttl;
+
+	method	makeFileName ( url )
+		local	hash, session
+
+		hash = hashMD5 ( url )
+
+		session = new ( "session" )
+
+		return ( fmake ( "", session.data("rssCache"), hash, ".rssStore" ) )
+	end
+
+	method write ( url )
+		local fName, handle, r;
+
+		fName = ::makeFileName ( url )
+		handle = fopen ( fName, 0x8302, 1 )
+		while ( handle == -1 )
+			switch ( r = GetLastError() )
+				case 2:
+					return ( NULL );
+				case 13:
+					break;
+				default:
+					return ( NULL );
+			end
+			handle = fopen ( fName, 0x8302, 1 )
+		end
+		fwrite ( handle, pack ( self ) );
+		fclose ( handle )
+	end
+
+	method read ( url )
+		local fName, handle, fbuf, r
+
+		fName = ::makeFileName ( url )
+		handle = fopen ( fName, 0x8002, 1 )
+		while ( handle == -1 )
+			switch ( r = GetLastError() )
+				case 2:
+					return ( NULL );
+				case 13:
+					break;
+				default:
+					return ( NULL );
+			end
+			handle = fopen ( fName, 0x8002, 1 )
+		end
+		fbuf = fread ( handle, flen ( handle ) );
+		fclose ( handle )
+		unpack ( fbuf, self );
+		return ( 1 );
+	end
+end
+
+class rssSource
+	private:
+		local	storage
+		local	url
+
+		method read()
+			local domain, o, xml, data, version, items, loop, error, e
+
+			if ( !::storage )
+				::storage = new ( "rssStorage" )
+				DOMInit();
+			end
+			
+			debugBreak()
+
+			if ( ::storage.read ( ::url ) )
+				return ( 1 );
+			end
+			
+			try
+				domain = domain ( ::url )
+
+				o = new ( "webClient", domain )
+
+				o.get ( uri ( ::url ), ,::storage.pageDate )
+				switch ( o.responseCode )
+					case 200:
+						xml = new ( "xmlDocument", o.page )
+
+						try
+							version = xml.rss.version
+						catch ( e )
+						end
+
+						try
+							data = webToTime ( xml.rss.channel.pubDate.value );
+							::storage.pageDate = o.date
+						catch ( e )
+						end
+
+						try
+							::storage.ttl = xml.rss.channel.ttl.value
+						catch ( e )
+						end
+
+						items = xml.rss.channel.getElementsByName ( "item" )
+
+						try
+							::storage.itemArray = array ( items.length )
+						catch ( e )
+						end
+
+						try
+							if ( !(::storage.feedTitle = xml.rss.title.value) )
+								::storage.feedTitle = xml.rss.title."#cData".data
+							end
+						catch ( e )
+						end
+
+						try
+							if ( !(::storage.feedDescription = xml.rss.feedDescription.value) )
+								::storage.feedDescription = xml.rss.feedDescription."#cData".data
+							end
+						catch ( e )
+						end
+
+						for ( loop = 1; loop <= items.length; loop++ )
+							::storage.itemArray[loop] = new ( "rssItem", items[loop] )
+						end
+
+						::storage.write ( ::url )
+						break;
+					case 304:
+						// nothing to do... we already have the latest
+						break;
+					default:
+						// unhandled error
+						return ( 0 );
+				end
+			catch ( error )
+				return ( 0 );
+			end
+			return ( 1 );
+		end
+
+	public:
+		method new ( url )
+			::url = url
+			return ( ::read() );
+		end
+
+		access numItems()
+			return ( len ( ::storage.itemArray ) )
+		end
+
+		access item
+			return ( ::storage.itemArray )
+		end
+
+		access title
+			return ( ::storage.feedTitle )
+		end
+
+		access description
+			return ( ::storage.feedDescription )
+		end
+
+		access ttl
+			return ( ::storage.ttl )
+		end
+end
+
+o = new ( "rssSource", 'http://www.evanescence.com/includes/rss.asp' )
+//o = new ( "rssSource", 'http://www.golf.com/golf/tours_news/article/0,28136,1610605,00.html?eref=golf' )
+
+for ( loop = 1; loop <= o.numItems; loop++ )
+	printf ( "%-60.60s    link: %s\r\n", o.item[loop].title, o.item[loop].link )
+	x = o.item[loop].description	
+	y = attoken ( o.item[loop].description, "\r", 1 )
+	printf ( "\t\t%s\r\n", left ( o.item[loop].description, attoken ( o.item[loop].description, "\r", 1 ) ) )
+end
+
+]>

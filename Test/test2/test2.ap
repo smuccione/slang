@@ -1,0 +1,9 @@
+<[
+	session = new ( "session" )
+	
+	debugBreak()
+	x = session.var ( "fName" )
+	! x
+	
+]>
+	

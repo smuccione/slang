@@ -1,0 +1,12 @@
+debugbreak()
+
+funcregister ( 'c:\windows\system32\softekbarcode.dll', "stScanBarCode", "ScanBarCode", "IC" );
+funcregister ( 'c:\windows\system32\softekbarcode.dll', "stGetBarString", "GetBarString", "OI" );
+
+n =  ScanBarCode ( 'c:\program files\softek software\barcode\default.tif')
+
+for ( loop = 0; loop < n; loop++ )
+  res = GetBarString ( loop + 1 )
+  println ( "barcode = ", res )
+end
+

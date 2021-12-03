@@ -1,0 +1,34 @@
+class test
+	method a()
+		println ( "here1" )
+	end
+	assign a ( val )
+		println ( "here2 ", val )
+	end
+	access a
+		println ( "here3" )
+		return ( "here" )
+	end
+	
+	method default ( msg )
+		println ( "here1 ", msg )
+	end
+	assign default ( msg, val )
+		println ( "here2 ", msg, " ", val )
+	end
+	access default ( msg )
+		println ( "here3 ", msg )
+		return ( "here" )
+	end
+end
+
+debugBreak()
+
+o = test()
+o.a()
+o.a = "here"
+println ( o.a )
+
+o.b()
+o.b = "here"
+println ( o.b )

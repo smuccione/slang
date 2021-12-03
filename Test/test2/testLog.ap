@@ -1,0 +1,19 @@
+<[
+	function showLog ( session, type )
+		local loop		
+
+		log = session.GetLog( type)
+
+		for ( loop = 0; loop < len ( log ); loop++ )
+			! log[loop] + "<br>"
+		end
+	end
+
+	session = new ( "session" )
+	
+	! "----------------- transaction log -------------------------<br>"
+	showLog ( session, 0 )
+	! "<br><br>"
+	! "----------------- system log -------------------------"
+	showLog ( session, 1 )
+]>

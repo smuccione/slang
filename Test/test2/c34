@@ -1,0 +1,8 @@
+debugBreak()
+(1).print()
+"test".upper().print()
+
+x = "test"
+
+x.upper().print()
+

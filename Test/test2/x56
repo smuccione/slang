@@ -1,0 +1,10 @@
+switch ( "test" )
+   case "hello":
+      break;
+   case "there"
+      break;
+   case "test"
+      break;
+   default:
+      break;
+end

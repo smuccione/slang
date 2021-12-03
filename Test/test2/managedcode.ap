@@ -1,0 +1,7 @@
+<[
+
+	o = new ( "ManagedExtension", "this is a test"  );
+	
+	! o.cat ( "this is ", "a test" )
+	
+]>

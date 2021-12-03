@@ -1,0 +1,40 @@
+class test1
+	local a
+	local b
+	local c
+end
+
+class test2
+	local a
+	local b
+	local c
+end
+
+function objDup ( dst, src, elements )
+
+	l = len ( elements )
+	
+	for ( loop = 1; loop <= l; loop++ )
+		switch ( elements[loop][2] )
+			case 0:
+			case 6:
+				dst.(elements[loop][1]) = src.(elements[loop][1])
+		end
+	end
+end
+
+
+debugBreak()
+
+a = new ( "test1" )
+b = new ( "test2" )
+
+a.a = 1
+a.b = 2
+a.c = {3, 4}
+
+e = classElements ( a )
+
+objDup ( b, a, e )
+
+println ( b.a, " ", b.b, " ", b.c[1] )

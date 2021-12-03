@@ -1,0 +1,8 @@
+debugBreak()
+
+Data = "brt:pass|smr:pass|master|tester|"
+
+A = split2( data, ":", "|" )              // fails: return 3 element array with 3rd element unparsed ( “|” )
+
+
+println ( len ( a ) )

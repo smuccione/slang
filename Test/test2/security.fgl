@@ -1,0 +1,232 @@
+function secTest ( realm, user, pass )		// we don't user/pass... we use cookie data instead
+	local session
+	local cookie
+	local companyId
+	local userId;
+	local hash
+	local trueHash
+	local time
+	local c
+	local db
+	local error
+	
+	user;
+	pass;
+
+	switch ( upper ( realm ) )
+		case 'NIAREALM':
+			// ok.. the realm we want..
+
+			session = session()
+			
+			if ( !strcmpi ( session.url, '\NIA\LOGIN.HTM'  ) ||
+				 !strcmpi ( session.url, '\NIA\PORTAL.HTM'  ) ||
+				 !strcmpi ( left ( session.url, 11 ), '\NIA\IMAGES'  ) ||
+				 !strcmpi ( session.url, '\NIA\PORTAL.HTML' )
+			   )
+				// ALWAYS allow access to the login page
+				return ( 200 )
+			end
+			
+			cookie = new ( "cookie" )
+
+			c = cookie.get ( "login" )
+
+			if ( !c )
+			   session.Redir ( '\nia\portal.htm?desiredUrl=' + webEncodeUrl ( session.url + "?" + session.Data ( "query_string" ) ) )
+			   return ( 302 )
+			end
+
+			c = webDecodeUrl ( c )
+
+			companyId = webDecodeURL ( token ( c, ";", 1 ) )
+			userId	  = webDecodeURL ( token ( c, ";", 2 ) )
+			time	  = 0 + webDecodeUrl ( token ( c, ";", 3 ) )
+			hash	  = webDecodeURL ( token ( c, ";", 4 ) )
+
+			//*********************************************************************************
+			//*  Start implementation specific code                                           *
+			//*                                                                               *
+			//*********************************************************************************
+			// get password from companyId and ID
+
+			try
+				db = new( "objEntity" )
+				db.open( )
+				user = db.GetEntityObject( "1", companyid + "." + userid )
+				db.close()
+
+				// compute our hash value
+				trueHash = hashSHA1 ( user.password + time )
+
+				if ( strcmpi ( hash, trueHash ) )
+				   session.Redir ( '\' + companyId + '\portal.htm?desiredUrl=' + webEncodeUrl ( session.url + "?" + session.Data ( "query_string" ) ) )
+				   return ( 302 )
+				end
+			catch ( error )
+			   session.Redir ( '\' + companyId + '\portal.htm?desiredUrl=' + webEncodeUrl ( session.url + "?" + session.Data ( "query_string" ) ) )
+			   return ( 302 )
+			end
+
+			//*********************************************************************************
+			//*  End implementation specific code                                             *
+			//*                                                                               *
+			//*********************************************************************************
+
+			// rewrite the cookie to update the time		
+			createSecurityCookie ( realm, companyId, userId, user.password )
+
+			session.varSet ( "companyId", 	companyId )
+			session.varSet ( "userid", 		userId )
+			session.varSet ( "password", 	user.password )
+			return ( 200 )
+		case 'APHIREALM'
+			// ok.. the realm we want..
+
+			session = session()
+			
+			if ( !strcmpi ( session.url, '\APHI\LOGIN.HTM'  ) ||
+				 !strcmpi ( session.url, '\APHI\PORTAL.HTM'  ) ||
+				 !strcmpi ( left ( session.url, 11 ), '\APHI\IMAGES'  ) ||
+				 !strcmpi ( session.url, '\APHI\PORTAL.HTML' )
+			   )
+				// ALWAYS allow access to the login page
+				return ( 200 )
+			end
+			
+			cookie = new ( "cookie" )
+
+			c = cookie.get ( "login" )
+
+			if ( !c )
+			   session.Redir ( '\aphi\portal.htm?desiredUrl=' + webEncodeUrl ( session.url + "?" + session.Data ( "query_string" ) ) )
+			   return ( 302 )
+			end
+
+			c = webDecodeUrl ( c )
+
+			companyId = webDecodeURL ( token ( c, ";", 1 ) )
+			userId	  = webDecodeURL ( token ( c, ";", 2 ) )
+			time	  = 0 + webDecodeUrl ( token ( c, ";", 3 ) )
+			hash	  = webDecodeURL ( token ( c, ";", 4 ) )
+
+			//*********************************************************************************
+			//*  Start implementation specific code                                           *
+			//*                                                                               *
+			//*********************************************************************************
+			// get password from companyId and ID
+
+			try
+				db = new( "objEntity" )
+				db.open( )
+				user = db.GetEntityObject( "1", companyid + "." + userid )
+				db.close()
+
+				// compute our hash value
+				trueHash = hashSHA1 ( user.password + time )
+
+				if ( strcmpi ( hash, trueHash ) )
+				   session.Redir ( '\' + companyId + '\portal.htm?desiredUrl=' + webEncodeUrl ( session.url + "?" + session.Data ( "query_string" ) ) )
+				   return ( 302 )
+				end
+			catch ( error )
+			   session.Redir ( '\' + companyId + '\portal.htm?desiredUrl=' + webEncodeUrl ( session.url + "?" + session.Data ( "query_string" ) ) )
+			   return ( 302 )
+			end
+
+			//*********************************************************************************
+			//*  End implementation specific code                                             *
+			//*                                                                               *
+			//*********************************************************************************
+
+			// rewrite the cookie to update the time		
+			createSecurityCookie ( realm, companyId, userId, user.password )
+
+			session.varSet ( "companyId", 	companyId )
+			session.varSet ( "userid", 		userId )
+			session.varSet ( "password", 	user.password )
+			return ( 200 )
+			break;
+		case 'INSMGMTREALM':
+			session = session()
+			
+			cookie = new ( "cookie" )
+
+			c = cookie.get ( "login" )
+
+			if ( !c )
+				session.Redir ( '\' + companyId + '\portal.htm?desiredUrl=' + webEncodeUrl ( session.url + "?" + session.Data ( "query_string" ) ) )
+				return ( 302 )
+			end
+
+			c = webDecodeUrl ( c )
+
+			companyId = webDecodeURL ( token ( c, ";", 1 ) )
+			userId	  = webDecodeURL ( token ( c, ";", 2 ) )
+			time	  = 0 + webDecodeUrl ( token ( c, ";", 3 ) )
+			hash	  = webDecodeURL ( token ( c, ";", 4 ) )
+			
+			//*********************************************************************************
+			//*  Start implementation specific code                                           *
+			//*                                                                               *
+			//*********************************************************************************
+			// get password from companyId and ID
+
+			try
+				db = new( "objEntity" )
+				db.open( )
+				user = db.GetEntityObject( "1", companyid + "." + userid )
+				db.close()
+
+				// compute our hash value
+				trueHash = hashSHA1 ( user.password + time )
+
+				if ( strcmpi ( hash, trueHash ) )
+				   session.Redir ( '\' + companyId + '\portal.htm?desiredUrl=' + webEncodeUrl ( session.url + "?" + session.Data ( "query_string" ) ) )
+				   return ( 302 )
+				end
+			catch ( error )
+			   session.Redir ( '\' + companyId + '\portal.htm?desiredUrl=' + webEncodeUrl ( session.url + "?" + session.Data ( "query_string" ) ) )
+			   return ( 302 )
+			end
+
+			//*********************************************************************************
+			//*  End implementation specific code                                             *
+			//*                                                                               *
+			//*********************************************************************************
+
+			// rewrite the cookie to update the time		
+			createSecurityCookie ( realm, companyId, userId, user.password )
+
+			session.varSet ( "companyId", 	companyId )
+			session.varSet ( "userid", 		userId )
+			session.varSet ( "password", 	user.password )
+			return ( 200 )
+	end
+		
+	return ( 0 )	// 0 means no decision.. we have NOT agreed OR disagreed to allow access
+end
+
+function createSecurityCookie ( realmName, companyId, userId, password )
+	local cookie
+	local time
+	local c
+	local timeOut
+	
+	realmName;
+	
+	cookie = new ( "cookie" )
+
+	time = _seconds()
+
+	timeOut = 600;	// 10 minutes
+
+	c = webEncodeUrl ( companyId ) + ";" + 
+		webEncodeUrl ( userId ) + ";" + 
+		webEncodeUrl ( "" + time ) + ";" +
+		webEncodeUrl ( hashSHA1 ( password + time ) )
+
+	cookie.set ( "login", webEncodeUrl ( c ), '/', webGmt ( time + timeOut ) )
+	
+	return ( 1 )
+end

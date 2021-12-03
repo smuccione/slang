@@ -1,0 +1,22 @@
+<[
+	function x__global_error_handler ( errorObject )
+	debugBreak()
+//	return ( "hello" )
+		return pack ( errorObject )
+	end
+]>
+
+<html>
+<body>
+	Hello <br>
+	How	<br>
+	are <br>
+<[
+	for ( x = 1; x < 10; x++ )
+		! x + "<br>"
+	end
+	1/0
+]>
+</body>
+</html>
+

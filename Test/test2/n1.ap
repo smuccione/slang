@@ -1,0 +1,10 @@
+<[
+	library c:\slang\test\test2\httpLib.flb
+
+	x = webPageGet ( 127.0.0.1, "GET", "test.ap" )
+
+	println ( x )
+
+	! x[len(x)]
+]>
+

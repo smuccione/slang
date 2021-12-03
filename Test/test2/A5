@@ -1,0 +1,11 @@
+
+switch ( "hello" )
+   println ( "there" )
+   case "bye"
+     println ( "no" )
+     break
+   case "hello"
+     println ( "here" )
+     break
+end
+ 

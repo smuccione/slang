@@ -1,0 +1,7 @@
+library c:\slang\test\test2\httplib.flb
+
+x = webPageGet ( 127.0.0.1, "GET", "test.ap" )
+
+println ( x )
+
+

@@ -1,0 +1,29 @@
+local struc
+field string
+field num
+
+struc = { {"STRING", "C", 10},
+           {"NUM",    "N", 10, 5} }
+
+
+if ( !dbcreate ( "test.dbf", struc ) )
+   println ( "error" )
+   return ( 0 )
+end
+
+dbuse ( "test.dbf" )
+
+dbappend()
+string = "10"
+num    = 5
+
+println ( string, " : ", num )
+
+dbappend()
+string = 10
+num    = "5"
+
+println ( string, " : ", num )
+
+dbclose();
+ 

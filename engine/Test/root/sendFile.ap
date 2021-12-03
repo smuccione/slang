@@ -1,0 +1,44 @@
+<[
+	//   http://localhost/sendFile?diskfile=c:\tmp\test.txt&fname=test.txt
+
+	function jsDecode( data, decSpace=false ) 
+	{
+		if ( !data ) 
+		{
+			return ""
+		}
+		if ( decSpace ) 
+		{
+			return webDecodeURL( data ).strswap( "%20", " " ).strswap( "&#32", " " )
+		}
+		return webDecodeURL( data )
+	}
+	session = new( "webSession" )
+
+	diskfile = jsDecode( session.var( "diskfile" ), true )
+	if ( ! diskfile ) {
+		! "No DISKFILE specified."
+		return
+	}
+	fname = jsDecode( session.var( "fname" ), true )
+	if ( ! fname ) {
+		! "No FNAME specified."
+		return
+	}
+	try {
+		session.mimeType = "." + fParseFx( diskfile );
+	} catch ( e )
+	{
+		printf ( $"error: missing mime type {fParseFx( diskfile )}" );
+		session.mimeType = ".bin";
+	}
+	session.contentDisposition = "attachment; filename=" + fname;
+	session.cache = "public, max-age=" + 60;		// setting a cache policy other than NONE allows for range requests
+
+	try {	
+		session.sendFile( diskfile )
+	} 
+	catch ( e ) {
+		println( $"error {e}" )
+	}
+]>

@@ -1,0 +1,126 @@
+<[
+
+CLASS http
+  PUBLIC:
+  	local _method, uri, query_string, request_string, _addr, ipaddr, pagedata, header, port
+  	local errmsg
+
+  	METHOD new( _method, addr )
+  		::init( )
+  		::addr = addr
+  		::_method = _method
+  		return( 1 )
+  	END
+
+	METHOD init( )
+  		::uri = ""
+  		::query_string = ""
+  		::_addr = ""
+  		::_method = "GET"
+  		::ipaddr = ""
+  		::request_string = ""
+  		::pagedata = ""
+  		::header = ""
+  		::errmsg = ""
+  		::port = 80
+  		return( 1 )
+  	END
+
+  	ASSIGN addr( val )
+  		local tr
+  		::uri = val
+  		::query_string = strextract( val, "?", 2 )
+//  		::ipaddr = 0.0.0.0 + strextract( strswap( upper( val ), "HTTP://", "" ), "/", 1 )
+  		::ipaddr = strextract( strswap( upper( val ), "HTTP://", "" ), "/", 1 )
+  		str = strextract( strswap( upper( val ), "HTTP://", "" ), "?", 1 )
+  		::request_string = right( str, len( str ) - len( ::ipaddr ) )
+  	END
+
+  	ACCESS addr
+  		return( ::_addr )
+  	END
+
+	METHOD GetPage( )
+		local requestString
+		local dataString
+		local nData
+		local loop
+		local aData, len, buf, i, cnt
+
+		::pagedata = ""
+		::header = NIL
+
+		if ( strempty( ::uri ) )
+			::errmsg = "Must specify a URI"
+			return( 0 )
+		end
+//debugbreak( )
+		// acutal request
+//		requestString = ::_method + " HTTP://" + upper ( ::uri ) + "HTTP/1.1\r\n"
+		requestString = ::_method + " " + upper ( ::request_string ) + "HTTP/1.1\r\n"
+
+		if ( ! strempty( ::query_string ) )
+			if ( upper( ::_method ) == "GET" )
+				requestString = ::_method + " " + upper ( ::request_string ) + "?" + ::query_string + " HTTP/1.1\r\n"
+			else
+				dataString = ""
+				cnt = chrcount( ::query_string, "&" ) + 1
+				for ( i=1; i<=cnt; i++ )
+					buf = strextract( ::query_string, "&", i )
+					dataString += webEncodeURL( strextract( buf, "=", 1 ) ) + "=" + webEncodeURL( strextract( buf, "=", 2 ) )
+					if ( i < cnt )
+						dataString += ";"
+					else
+						dataString += "\r\n"
+					end
+				end
+				requestString += "Content-Length: " + len( dataString )
+				requestString += "\r\n"
+				requestString += dataString
+			end
+		end
+		requestString += "\r\n"
+
+		// get the page
+		aData = webSend ( 0.0.0.0 + ::ipaddr, ::port, requestString )
+//		aData = webSend ( 66.237.252.85, ::port, requestString )
+
+
+		if ( type( aData ) != "A" )
+			return( 0 )
+		end
+
+		len = len( aData )
+
+		::pagedata = aData[len]
+		aData[len]= NIL
+		::header = aData
+
+		return( 1 )
+	END
+
+END
+
+debugbreak( )
+
+// this one works
+http = new( "http", "GET", "http://66.237.252.85/insmgmt/index.htm?companyid=BRT&userid=srepetti&cmd=login" )
+
+// so does this one
+//http = new( "http", "http://66.237.252.85/insmgmt/index.htm", "GET" )
+
+// this one runs into the redir problem...
+http = new( "http", "GET","http://66.237.252.85/insmgmt/index.htm?companyid=BRT&userid=srepetti&cmd=login&password=marvin" )
+
+// here is the code that is called in /insmgmt/index.ap
+//	 session.redir( "main.htm?companyid=" + user.companyid + "&userid=" + strextract( user.id, ".", 2 ) )
+
+// this just displas the source
+if ( ! http.GetPage( ) )
+	! "error"
+	return( 0 )
+end
+
+! strswap( strswap( http.pagedata, "<", "&lt;" ), "\r\n", "<br>\r\n" )
+
+]>

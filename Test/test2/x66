@@ -1,0 +1,7 @@
+debugBreak()
+
+aTransaction = array ( 4 )
+aTransaction = aadd ( aTransaction, "ABC" )
+
+println ( "done" )
+

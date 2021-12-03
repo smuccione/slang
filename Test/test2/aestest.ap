@@ -1,0 +1,21 @@
+<[
+
+userid = "arepetti@brtsystems.com"
+password= "steve4me"
+
+ekey = "3141592653520258"
+
+data = left( userid + "|" + password + "|" + "DFVDLWPPOFTNFDVAJDVQEPWRFRFSDVLKJNCDLFVEUIOIUNQWESECFBRCNBZCCMVNVEKLWEUGIGHKJTOCFPPFVDKMVFMKLDV", 80 )
+
+debugBreak()
+
+s  = webEncodeURL( webEncodeURL( encryptAES( ekey, data ) ) )
+dec  = decryptAES( ekey, webDecodeURL( webDecodeURL( s ) ) )
+
+if ( dec == data )
+	! "works"
+else
+	! "don't work"
+end
+
+]>

@@ -1,0 +1,11 @@
+<[
+        session = session()
+
+        println ( session.var("name") )
+]>
+
+<a href="test12?name=steve%20muccione#id_2">Click me...</a>
+
+<input name="id_1" >
+<input name="id_2" >
+<input name="id_3" >

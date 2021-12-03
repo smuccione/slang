@@ -1,0 +1,25 @@
+<[
+class dbConst
+    const dbxx = 5
+end
+
+class foo
+    local wwfoo, yyfoo
+
+    method new( ww, yy=dbConst::dbxx, zz)
+    	println  ( ww, yy )
+    end
+end
+
+class super
+	inherit foo
+	
+	method new ( ww, yy, zz ) : foo ( ww, yy, zz )
+	end
+end
+
+DebugBreak()
+
+cfoo = new ( "super", , ,"C" )
+
+]>

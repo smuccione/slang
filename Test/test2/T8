@@ -1,0 +1,69 @@
+global taskEnd
+
+function doTaskEnd()
+   // loop so we make sure taskSwitch() occurs to test a taskWait causing
+   //   a task switch
+
+   for ( loop = 0; loop < 10; loop++ )
+   end
+
+   return ( taskEnd == 1 )
+end
+
+function task1()
+   spawnthread ( "TASK 2", { ||task2 () } )
+   spawnthread ( "TASK 3", { ||task3 () } )
+   taskWait ( {||doTaskEnd()} )
+end
+
+function task2()
+   while ( 1 )
+end
+
+function task3()
+   while ( 1 )
+end
+
+function main()
+   // initialize the semaphore
+
+   taskEnd = 0;
+
+   spawnthread ( "TASK 1", { ||task1 () } )
+
+   for ( loop = 0; loop < 50; loop++ )
+   end
+
+   tasks = taskList()
+
+   for ( x = 1; x <= amaxi(tasks); x++ )
+      println ( "id: ", tasks[x,1], "  thread: ", tasks[x,2],"  name: ", untrim ( tasks[x,3], 10 ), "  nTicks: ", tasks[x,4], "  exclusive: ", tasks[x,5], "  halted: ", tasks[x,6] )
+   end
+
+   // signal global semaphore to end the first thread, secondary threads should
+   //   die automatically
+
+   taskEnd = 1;
+
+   // here we delay so the taskSwitch() will get called and the other tasks
+   // will get a chance to run (or exit the taskWait() as it were
+
+   for ( loop = 0; loop < 50; loop++ )
+   end
+
+   tasks = taskList()
+
+   println ( "-----------------------------------------------------------" )
+
+   for ( x = 1; x <= amaxi(tasks); x++ )
+      println ( "id: ", tasks[x,1], "  thread: ", tasks[x,2],"  name: ", untrim ( tasks[x,3], 10 ), "  nTicks: ", tasks[x,4], "  exclusive: ", tasks[x,5], "  halted: ", tasks[x,6] )
+   end
+
+   tasks = tasklist()
+   for ( x = 3; x <= amaxi(tasks); x++ )
+      taskKill ( tasks[x,1] )
+   end
+end
+
+
+ 

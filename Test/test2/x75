@@ -1,0 +1,6 @@
+function recurse ( a, b, c, d, e, f, g, h )
+print ( a, " " )
+        recurse ( ++a,b,c,d,e,f,g,h )
+end
+
+recurse ( 1, 2, 3, 4, 5, 6, 7, 8 )

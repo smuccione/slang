@@ -1,0 +1,84 @@
+#table 1
+
+function block ( fname )
+   local x = { |val| iif ( val, println ( "test1 = ", fname ), println ( "test2 = ", fname ) ) }
+   println ( fname )
+   println ( (x)() )
+
+   return ( x )
+end
+
+function a ( b, c )
+   return { b, {||println ( "Code Block test" )}, {"hello", "there",}, 4, 5, 6, 7, 8, 9, 10, {|| c } }
+end
+
+function set ( arr, x, y , val )
+   arr[x][y] = val
+end
+
+local loop
+local loop2
+local arr
+local max
+local ctr
+
+block ( "here" )
+
+max = 10
+ctr = 1
+
+while ( 1 )
+   println ( ctr++ )
+
+   arr = {}
+
+   for ( loop = 1; loop < max; loop++ )
+      arr[loop] = a ( loop, loop )
+   end
+
+
+   println ( "Comparing primary counter" )
+   for ( loop = 1; loop < max; loop++ )
+     if ( arr[loop][1] != loop )
+        println ( "first:  ", arr[loop][1], " != ", loop )
+        inkey ( 0 )
+     end
+   end
+
+   println ( "Compairing secondary array elements" )
+   for ( loop = 1; loop < max; loop++ )
+      for ( loop2 = 4; loop2 <= 10; loop2++ )
+         if ( arr[loop,loop2] != loop2 )
+            println ( "second:  ", arr[loop,loop2], " != ", loop2 )
+            inkey ( 0 )
+         end
+      end
+   end
+
+   println ( "Assignment test" )
+   set ( arr, 5, 5, 10 )
+   if ( arr[5][5] != 10 )
+      println ( "Assignment test failed" )
+      inkey ( 0 )
+   end
+
+   println ( "Sub-Array test" )
+   for ( loop = 1; loop < max; loop++ )
+      if ( (arr[loop][3][1] != "hello") && (arr[loop][3][2] != "there") && (arr[loop][3][3] != NIL) )
+         println ( "Sub array test failed" )
+         inkey ( 0 )
+      end
+   end
+
+   println ( "Detached code block in array test" )
+   for ( loop = 1; loop < max; loop++ )
+      if ( arr[loop][11]() != loop )
+         println ( "Detached local in array code block failed" )
+         inkey ( 0 )
+      end
+   end
+
+   arr[5][2]()
+end
+
+ 

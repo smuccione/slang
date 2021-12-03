@@ -1,0 +1,156 @@
+class c1
+   public:
+      static exp
+
+   private:
+      local ins
+      local ins2
+
+   public:
+      access inst ()
+         return self.ins
+      end
+
+      assign inst ( x )
+         self.ins = x
+      end
+
+      method new ( a, b, c )
+         ::exp = 5
+         println ( ::exp )
+         self.outln ( a, " : ", b, " : ", c )
+         return 1
+      end
+
+      method default ( meth, x, x2 )
+      	 println ( "default method : ", meth, " : ", x )
+      	 println ( "pcount = ", pcount() );
+      	 println ( "param(2) = ", param ( 2 ), "   param(3) = ", param ( 3 ), "   param(4) = ", param ( 4 ) );
+      end
+
+      access default ( var )
+         self.outln ( "accessing var: ", var )
+         return self.ins2
+      end
+
+      assign default ( var, val )
+         self.outln ( "assigning var: ", var, " = ", self.ins2 = val )
+         return
+      end
+
+      method a ( x )
+         local loop
+
+         dumpCallStack();
+
+         self.out ( "method ", x )
+         self.out ( "   ->" )
+
+         for ( loop = 1; loop <= pcount(); loop++ )
+            self.out ( type ( param(loop) ), " : ", param(loop) )
+            if ( loop != pcount() )
+               self.out ( ", " )
+            end
+         end
+         self.outln()
+      end
+
+      assign b ( x )
+         self.exp = x
+      end
+
+      access b
+         return self.exp + 2
+      end
+
+      assign d ( x )
+         self.exp = x
+      end
+
+      access d
+         return self.exp
+      end
+
+      access c
+         return self
+      end
+
+   private:
+      method out ()
+         local loop
+
+         for ( loop = 2; loop <= pcount(); loop++ )
+            print ( param(loop) )
+         end
+      end
+
+      method outln ()
+         local loop
+
+         for ( loop = 2; loop <= pcount(); loop++ )
+            self.out ( param(loop) )
+         end
+         self.out ( "\r\n" )
+      end
+end
+
+LOCAL a, b, c
+
+d = "a=b&c=d&e=f&g=h&i=j&k=l"
+
+debugbreak()
+
+println ( "-----start-----" )
+
+a = new ( "c1", 1, 2, 3 )
+b = new ( "c1", 2 )
+
+println ( "---------------" )
+
+a.test ( "param" )
+
+println ( "---------------" )
+
+a.z = "tesT"
+a.z = "there"
+println ( a.z )
+
+a.test ( "param", "param2" )
+a.a ( "test", 1, 2 )
+
+c = "outln"
+a.(c) ( "outln test" )
+a.("out" + "ln") ( "built outln test" )
+
+a.c.a ( "return self test" )
+
+a.inst = 20
+a.ins  = 30
+println ( "  instance ", a.ins     )
+println ( "  instance ", a.inst    )
+
+a.b = 5
+b.b = 10
+
+a.out ( a )
+
+println ( a.b   )
+println ( a.exp )
+
+println ( "-----------" )
+
+println ( b.b   )
+println ( b.exp )
+
+
+println ( a.b   )
+println ( a.exp )
+
+println ( "-----------" )
+a.d = 5
+a.("no var") = 5
+
+println ( ++a.d )
+println ( a.d++ )
+println ( a.d   )
+ 

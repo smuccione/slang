@@ -1,0 +1,10 @@
+<[
+
+	x = WebPageToThumbnail( 'http://www.google.com', 400, 360, 1200, 500 )
+	
+	session = new ( "session" )
+	session.MimeType = "JPG"
+	
+	session.Response ( x );
+	return ( x )
+]>

@@ -1,0 +1,33 @@
+
+//debugBreak()
+
+a = new aArray()
+
+a["a"] = 1
+a["b"] = 2
+a["c"] = 3
+
+c = pack ( a );
+d = unpack ( c );
+
+debugBreak()
+
+println ( d["a"] )
+println ( d["b"] )
+println ( d["c"] )
+
+println ( "len = ", a.len() );
+
+println ( a["a"] )
+println ( a["b"] )
+println ( a["c"] )
+
+a.delete ( "b" )
+
+println ( "len = ", a.len() );
+
+println ( a["a"] )
+println ( a["b"] )
+println ( a["c"] )
+
+

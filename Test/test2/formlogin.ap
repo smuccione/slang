@@ -1,0 +1,15 @@
+<[
+	session = session()
+	
+	println ( session.user, " : ", session.pw )
+
+]>
+
+<HTML>
+<body>
+<form method=POST action="test:test2@localhost/formlogin.ap"> 
+Username:<input type="text" name="j_username" /> 
+Password:<input type="text" name="j_password" /> 
+<input type="submit" value="OK" /> 
+</form> 
+</html>

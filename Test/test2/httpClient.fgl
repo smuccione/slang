@@ -1,0 +1,28 @@
+function main()
+
+	println ( iptoa ( webAddrFromHost ( "www.yahoo.com" ) ) )
+
+	a = 	{
+			"/insmgmt/index.htm",
+			"/insmgmt/main.htm?companyid=BRT&userid=SREPETTI",
+			"/insmgmt/quotes.htm?companyid=BRT&userid=SREPETTI",
+			"/insmgmt/quote.htm?companyid=BRT&userid=SREPETTI&quoteid=NV0025862DREW891151.NWNVAU01.Q1002268",
+			"/insmgmt/polview.htm?companyid=BRT&userid=SREPETTI&policyid=BROWNLAURA%20LYNN925841.NHCAMHHO.P1000462",
+			"/engine.exe"
+		}
+
+	while ( 1 )
+		for ( loop = 0; loop < len ( a ); loop++ )
+			req = "GET " + a[loop + 1] + " HTTP/1.1\r\n\r\n"
+			
+			res = webSend ( 0xc0a8006f, 80, req );
+
+			if ( res == NULL )
+				println ( "*fail - ", a[loop + 1] )
+			else
+				println ( "rcvd  - ", a[loop + 1] )
+			end
+		end
+	end
+end
+

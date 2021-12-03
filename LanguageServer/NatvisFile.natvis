@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="jsonElement">
+    <Intrinsic Name="index" Expression="(int)value._Which"/>
+    <Intrinsic Name="intValue"        Expression="value._Tail._Head"/>
+    <Intrinsic Name="doubleValue"     Expression="value._Tail._Tail._Head"/>
+    <Intrinsic Name="stringValue"     Expression="value._Tail._Tail._Tail._Head"/>
+    <Intrinsic Name="objectValue"     Expression="value._Tail._Tail._Tail._Tail._Head"/>
+    <Intrinsic Name="arrayValue"      Expression="value._Tail._Tail._Tail._Tail._Tail._Head"/>
+    <Intrinsic Name="boolValue"      Expression="value._Tail._Tail._Tail._Tail._Tail._Tail._Head"/>
+    <DisplayString Condition="index() ==  0" Optional="true">&lt;empty&gt;</DisplayString>
+    <DisplayString Condition="index() ==  1" Optional="true">{intValue()}</DisplayString>
+    <DisplayString Condition="index() ==  2" Optional="true">{doubleValue()}</DisplayString>
+    <DisplayString Condition="index() ==  3" Optional="true">{stringValue(),sb}</DisplayString>
+    <DisplayString Condition="index() ==  4" Optional="true">object</DisplayString>
+    <DisplayString Condition="index() ==  5" Optional="true">array</DisplayString>
+    <DisplayString Condition="index() ==  6" Optional="true">{boolValue()}</DisplayString>
+    <Expand>
+      <TreeItems Condition="index() == 4">
+        <Size>value._Tail._Tail._Tail._Tail._Head._Mypair._Myval2._Myval2._Mysize</Size>
+        <HeadPointer>value._Tail._Tail._Tail._Tail._Head._Mypair._Myval2._Myval2._Myhead-&gt;_Parent</HeadPointer>
+        <LeftPointer>_Left</LeftPointer>
+        <RightPointer>_Right</RightPointer>
+        <ValueNode Condition="!((bool)_Isnil)">_Myval</ValueNode>
+      </TreeItems>
+      <ArrayItems Condition="index() == 5">
+        <Size>value._Tail._Tail._Tail._Tail._Tail._Head._Mypair._Myval2._Mylast - value._Tail._Tail._Tail._Tail._Tail._Head._Mypair._Myval2._Myfirst</Size>
+        <ValuePointer>value._Tail._Tail._Tail._Tail._Tail._Head._Mypair._Myval2._Myfirst</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+  <Type Name="astLSInfo::symbolRange">
+    <DisplayString>{type} : {location.lineNumberStart } {location.columnNumber}-{location.columnNumberEnd}</DisplayString>
+    <Expand>
+      <Item Name="location">location</Item>
+      <Item Name="type">type</Item>
+      <Item Name="acc">acc</Item>
+    </Expand>
+  </Type>
+</AutoVisualizer>
+

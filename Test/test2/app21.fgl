@@ -1,0 +1,851 @@
+CLASS AttachedStructures
+  PUBLIC:
+	local _title, _class, obj, IsView
+	local aDesc, aPorch, aDeck, aOtherStruct, aUse, aValue, aWidth, aLength, aYearBuilt, aProfessional, aHeating    
+	local a2Desc, a2Porch, a2Deck, a2OtherStruct, a2Use, a2Value, a2Width, a2Length, a2YearBuilt, a2Professional, a2Heating    
+	
+    METHOD new( obj, IsView )
+    	::_title = "ATTACHED STRUCTURES"
+    	::_class = "AttachedStructures"
+    	::obj = obj
+    	::IsView = IsView
+    	::init( )
+    	return( 1 )
+    END
+
+	ACCESS aVars
+		static a = { 
+			{ "aDesc", 1 },
+			{ "aDeck", 2 },
+			{ "aOtherStruct", 2 },
+			{ "aPorch", 2 },
+			{ "aHeating", 5 },
+			{ "aLength", 1 },
+			{ "aProfessional", 4 },
+			{ "aUse", 5 },
+			{ "aValue", 1 },
+			{ "aWidth", 1 },
+			{ "aYearBuilt", 5 },
+			{ "a2Desc", 1 },
+			{ "a2Deck", 2 },
+			{ "a2OtherStruct", 2 },
+			{ "a2Porch", 2 },
+			{ "a2Heating", 1 },
+			{ "a2Length", 1 },
+			{ "a2Professional", 2 },
+			{ "a2Use", 5 },
+			{ "a2Value", 1 },
+			{ "a2Width", 1 },
+			{ "a2YearBuilt", 5 }
+		}
+        return( a )
+	END
+
+
+	METHOD init( )
+        ::aDesc = ::obj.aDesc
+        ::aDeck = ::obj.aDeck
+        ::aOtherStruct = ::obj.aOtherStruct
+        ::aPorch = ::obj.aPorch
+        ::aHeating = ::obj.aHeating
+        ::aLength = ::obj.aLength
+       	::aProfessional = ::obj.aProfessional
+        ::aUse = ::obj.aUse
+        ::aValue = ::obj.aValue
+        ::aWidth = ::obj.aWidth
+        ::aYearBuilt = ::obj.aYearBuilt
+        ::a2Desc = ::obj.a2Desc
+        ::a2Deck = ::obj.a2Deck
+        ::a2OtherStruct = ::obj.a2OtherStruct
+        ::a2Porch = ::obj.a2Porch
+        ::a2Heating = ::obj.a2Heating
+        ::a2Length = ::obj.a2Length
+       	::a2Professional = ::obj.a2Professional
+        ::a2Use = ::obj.a2Use
+        ::a2Value = ::obj.a2Value
+        ::a2Width = ::obj.a2Width
+        ::a2YearBuilt = ::obj.a2YearBuilt
+
+		return( 1 )	
+	END
+
+	METHOD IsSupplemental( )
+		return( ! strempty( ::a2desc ) )
+	END
+
+	METHOD display( ioClass, ReadOnly, DisplayItem )
+		local s="", item, g
+
+		g = new( "GlobalParams" )
+		item = new( "appitem" )
+
+		if ( type( DisplayItem ) != "N" )
+			DisplayItem = 0
+		end
+		
+		if ( ( ! DisplayItem ) || ( DisplayItem == 1 ) )
+			if ( ReadOnly && ( ! ::IsView ) )
+				s += "<tr><td class=t9 align=center bgcolor=black><a href=\"javascript:appEdit( '" + ::_class + "' );\">" + ::_title + "</a></td></tr>\r\n"
+			else
+				s += "<tr><td class=t9 align=center bgcolor=black><font color=white>" + ::_title + "</font></td></tr>\r\n"
+			end
+			s += "<tr><td>\r\n"
+			s += "<font class=p8>\r\n"
+			s += " &nbsp; Type of Structures: \r\n"
+			s += item.CheckBox( "Porch &nbsp;", "aPorch", ::aPorch, ioclass, ReadOnly )
+			s += item.CheckBox( "Deck &nbsp;", "aDeck", ::aDeck, ioclass, ReadOnly )
+			s += item.CheckBox( "Other", "aOtherStruct", ::aOtherStruct, ioclass, ReadOnly ) + "<br>"
+			s += " &nbsp; Attached Stuctures Description:<br><center><textarea class=e1 rows=1 cols=30 name=\"aDesc\"" + ( ReadOnly ? " readonly" : "" ) + ">" + ::aDesc + "</textarea></center>\r\n"
+			s += item.ListBox( " &nbsp; Use: ", "aUse", ::aUse, "Residential;Commercial", ioclass, ReadOnly, 0 ) + "\r\n"
+			s += " Value $:<input class=" + ioclass + " style=\"width:62;\" name=\"aValue\" value=\"" + ::aValue + "\"" + ( ReadOnly ? " readonly" : "" ) + "><br>\r\n"
+			s += " &nbsp; Width:<input class=" + ioclass + " style=\"width:39;\" name=\"aWidth\" value=\"" + ::aWidth + "\"" + ( ReadOnly ? " readonly" : "" ) + ">(ft)\r\n"
+			s += " Length:<input class=" + ioclass + " style=\"width:39;\" name=\"aLength\" value=\"" + ::aLength + "\"" + ( ReadOnly ? " readonly" : "" ) + ">(ft)\r\n"
+			s += item.ListBox( " Year Built:", "aYearBuilt", ::aYearBuilt, g.ArrayToString( g.aCreateNumberList( 1920, 0 + date( "YYYY" ) + 1 ) ), ioclass, ReadOnly, 50 ) + "<br>\r\n"
+			s += item.YesNo( " &nbsp; Built by a Professional Contractor?", "aProfessional", ::aProfessional, ioclass, ReadOnly ) + "<br>\r\n"
+			s += item.ListBox( " &nbsp; Auxilliary heating or a fireplace?", "aHeating", ::aHeating, "None;Factory Installed;Commercially Installed;Self-Installed", ioclass, ReadOnly, 130 ) + "<br>\r\n"
+			s += "</td></tr>\r\n"
+		end
+
+		if ( ( ! DisplayItem ) || ( DisplayItem == 2 ) )
+			if ( DisplayItem == 2 )
+				if ( ReadOnly && ( ! ::IsView ) )
+					s += "<tr><td class=t9 align=center bgcolor=black><a href=\"javascript:appEdit( '" + ::_class + "' );\">" + ::_title + "</a></td></tr>\r\n"
+				else
+					s += "<tr><td class=t9 align=center bgcolor=black>" + ::_title + "</td></tr>\r\n"
+				end
+			end
+			s += "<tr><td>\r\n"
+			s += "<font class=p8>\r\n"
+			s += " &nbsp; 2. Type of Structures: \r\n"
+			s += item.CheckBox( "Porch &nbsp;", "a2Porch", ::a2Porch, ioclass, ReadOnly )
+			s += item.CheckBox( "Deck &nbsp;", "a2Deck", ::a2Deck, ioclass, ReadOnly )
+			s += item.CheckBox( "Other", "a2OtherStruct", ::a2OtherStruct, ioclass, ReadOnly ) + "<br>"
+			s += " &nbsp; Attached Stuctures Description:<br><center><textarea class=e1 rows=1 cols=30 name=\"a2Desc\"" + ( ReadOnly ? " readonly" : "" ) + ">" + ::aDesc + "</textarea></center>\r\n"
+			s += item.ListBox( " &nbsp; Use: ", "a2Use", ::a2Use, "Residential;Commercial", ioclass, ReadOnly, 0 ) + "\r\n"
+			s += " Value $:<input class=" + ioclass + " style=\"width:62;\" name=\"a2Value\" value=\"" + ::a2Value + "\"" + ( ReadOnly ? " readonly" : "" ) + "><br>\r\n"
+			s += " &nbsp; Width:<input class=" + ioclass + " style=\"width:39;\" name=\"a2Width\" value=\"" + ::a2Width + "\"" + ( ReadOnly ? " readonly" : "" ) + ">(ft)\r\n"
+			s += " Length:<input class=" + ioclass + " style=\"width:39;\" name=\"a2Length\" value=\"" + ::a2Length + "\"" + ( ReadOnly ? " readonly" : "" ) + ">(ft)\r\n"
+			s += item.ListBox( " Year Built:", "a2YearBuilt", ::a2YearBuilt, g.ArrayToString( g.aCreateNumberList( 1920, 0 + date( "YYYY" ) + 1 ) ), ioclass, ReadOnly, 50 ) + "<br>\r\n"
+			s += item.YesNo( " &nbsp; Built by a Professional Contractor?", "a2Professional", ::a2Professional, ioclass, ReadOnly ) + "<br>\r\n"
+			s += item.ListBox( " &nbsp; Auxilliary heating or a fireplace?", "a2Heating", ::a2Heating, "None;Factory Installed;Commercially Installed;Self-Installed", ioclass, ReadOnly, 130 ) + "\r\n"
+			s += "</td></tr>\r\n"
+		end
+
+		return( s )
+	END
+
+	METHOD InitEditor( )
+		return( appInitEditor( ::aVars ) )
+	END
+	METHOD update( qstr )
+		return( appUpdate( ::aVars, qstr ) )
+	END
+    
+END
+
+
+CLASS UnattachedStructures
+  PUBLIC:
+	local _title, _class, obj, IsView
+	local uDesc, uUse, uValue, uWidth, uLength, uYearBuilt, uProfessional, uHeating
+	local u2Desc, u2Use, u2Value, u2Width, u2Length, u2YearBuilt, u2Professional, u2Heating
+	
+    METHOD new( obj, IsView )
+    	::_title = "UNATTACHED OTHER STRUCTURES"
+    	::_class = "UnattachedStructures"
+    	::obj = obj
+    	::IsView = IsView
+    	::init( )
+    	return( 1 )
+    END
+
+	ACCESS aVars
+		static a = { 
+			{ "uDesc", 1 },
+			{ "uHeating", 1 },
+			{ "uLength", 1 },
+			{ "uProfessional", 2 },
+			{ "uUse", 1 },
+			{ "uValue", 1 },
+			{ "uWidth", 1 },
+			{ "uYearBuilt", 1 },
+			{ "u2Desc", 1 },
+			{ "u2Heating", 1 },
+			{ "u2Length", 1 },
+			{ "u2Professional", 2 },
+			{ "u2Use", 1 },
+			{ "u2Value", 1 },
+			{ "u2Width", 1 },
+			{ "u2YearBuilt", 1 }
+		}
+        return( a )
+	END
+
+
+	METHOD init( )
+        ::uDesc = ::obj.uDesc
+        ::uHeating = ::obj.uHeating
+        ::uLength = ::obj.uLength
+       	::uProfessional = ::obj.uProfessional
+        ::uUse = ::obj.uUse
+        ::uValue = ::obj.uValue
+        ::uWidth = ::obj.uWidth
+        ::uYearBuilt = ::obj.uYearBuilt
+        ::u2Desc = ::obj.u2Desc
+        ::u2Heating = ::obj.u2Heating
+        ::u2Length = ::obj.u2Length
+       	::u2Professional = ::obj.u2Professional
+        ::u2Use = ::obj.u2Use
+        ::u2Value = ::obj.u2Value
+        ::u2Width = ::obj.u2Width
+        ::u2YearBuilt = ::obj.u2YearBuilt
+		return( 1 )	
+	END
+
+	METHOD IsSupplemental( )
+		return( ! strempty( ::u2desc ) )
+	END
+
+	METHOD display( ioClass, ReadOnly, DisplayItem )
+		local s="", item, g
+
+		g = new( "GlobalParams" )
+		item = new( "appitem" )
+
+		if ( type( DisplayItem ) != "N" )
+			DisplayItem = 0
+		end
+		
+		if ( ( ! DisplayItem ) || ( DisplayItem == 1 ) )
+			if ( ReadOnly && ( ! ::IsView ) )
+				s += "<tr><td class=t9 align=center bgcolor=black><a href=\"javascript:appEdit( '" + ::_class + "' );\">" + ::_title + "</a></td></tr>\r\n"
+			else
+				s += "<tr><td class=t9 align=center bgcolor=black><font color=white>" + ::_title + "</font></td></tr>\r\n"
+			end
+			s += "<tr><td>\r\n"
+			s += "<font class=p8>\r\n"
+			s += " &nbsp; Unattached Stuctures Description:<br><center><textarea class=e1 rows=1 cols=30 name=\"uDesc\"" + ( ReadOnly ? " readonly" : "" ) + ">" + ::uDesc + "</textarea></center>\r\n"
+			s += item.ListBox( " &nbsp; Use: ", "uUse", ::uUse, "Residential;Commercial", ioclass, ReadOnly, 0 ) + "\r\n"
+			s += " Value $:<input class=" + ioclass + " style=\"width:62;\" name=\"uValue\" value=\"" + ::uValue + "\"" + ( ReadOnly ? " readonly" : "" ) + "><br>\r\n"
+			s += " &nbsp; Width:<input class=" + ioclass + " style=\"width:39;\" name=\"uWidth\" value=\"" + ::uWidth + "\"" + ( ReadOnly ? " readonly" : "" ) + ">(ft)\r\n"
+			s += " Length:<input class=" + ioclass + " style=\"width:39;\" name=\"uLength\" value=\"" + ::uLength + "\"" + ( ReadOnly ? " readonly" : "" ) + ">(ft)\r\n"
+			s += item.ListBox( " Year Built:", "uYearBuilt", ::uYearBuilt, g.ArrayToString( g.aCreateNumberList( 1920, 0 + date( "YYYY" ) + 1 ) ), ioclass, ReadOnly, 50 ) + "<br>\r\n"
+			s += item.YesNo( " &nbsp; Built by a Professional Contractor?", "uProfessional", ::uProfessional, ioclass, ReadOnly ) + "<br>\r\n"
+			s += item.ListBox( " &nbsp; Auxilliary heating or a fireplace?", "uHeating", ::uHeating, "None;Factory Installed;Commercially Installed;Self-Installed", ioclass, ReadOnly, 130 ) + "<br>\r\n"
+			s += "</td></tr>\r\n"
+		end
+
+		if ( ( ! DisplayItem ) || ( DisplayItem == 2 ) )
+			if ( DisplayItem == 2 )
+				if ( ReadOnly && ( ! ::IsView ) )
+					s += "<tr><td class=t9 align=center bgcolor=black><a href=\"javascript:appEdit( '" + ::_class + "' );\">" + ::_title + "</a></td></tr>\r\n"
+				else
+					s += "<tr><td class=t9 align=center bgcolor=black>" + ::_title + "</td></tr>\r\n"
+				end
+			end
+			s += "<tr><td>\r\n"
+			s += "<font class=p8>\r\n"
+			s += " &nbsp; 2. Unattached Stuctures Description:<br><center><textarea class=e1 rows=1 cols=30 name=\"u2Desc\"" + ( ReadOnly ? " readonly" : "" ) + ">" + ::u2Desc + "</textarea></center>\r\n"
+			s += item.ListBox( " &nbsp; Use: ", "u2Use", ::u2Use, "Residential;Commercial", ioclass, ReadOnly, 0 ) + "\r\n"
+			s += " Value $:<input class=" + ioclass + " style=\"width:62;\" name=\"u2Value\" value=\"" + ::u2Value + "\"" + ( ReadOnly ? " readonly" : "" ) + "><br>\r\n"
+			s += " &nbsp; Width:<input class=" + ioclass + " style=\"width:39;\" name=\"u2Width\" value=\"" + ::u2Width + "\"" + ( ReadOnly ? " readonly" : "" ) + ">(ft)\r\n"
+			s += " Length:<input class=" + ioclass + " style=\"width:39;\" name=\"u2Length\" value=\"" + ::u2Length + "\"" + ( ReadOnly ? " readonly" : "" ) + ">(ft)\r\n"
+			s += item.ListBox( " Year Built:", "u2YearBuilt", ::u2YearBuilt, g.ArrayToString( g.aCreateNumberList( 1920, 0 + date( "YYYY" ) + 1 ) ), ioclass, ReadOnly, 50 ) + "<br>\r\n"
+			s += item.YesNo( " &nbsp; Built by a Professional Contractor?", "u2Professional", ::u2Professional, ioclass, ReadOnly ) + "<br>\r\n"
+			s += item.ListBox( " &nbsp; Auxilliary heating or a fireplace?", "u2Heating", ::u2Heating, "None;Factory Installed;Commercially Installed;Self-Installed", ioclass, ReadOnly, 130 ) + "<br>\r\n"
+			s += "</td></tr>\r\n"
+		end
+
+		return( s )
+	END
+
+	METHOD InitEditor( )
+		return( appInitEditor( ::aVars ) )
+	END
+	METHOD update( qstr )
+		return( appUpdate( ::aVars, qstr ) )
+	END
+    
+END
+
+
+CLASS IneligibleRisk
+  PUBLIC:
+	local _title, _class, obj, IsView
+
+	local CustomBuilt, Construction, aBusinessP
+	local Uninsured, UPool, TotalFlood, aLossP
+	local MHVacant, Canine, Motel
+    
+    METHOD new( obj, IsView )
+    	::_title = "INELIGIBLE RISK"
+    	::_class = "IneligibleRisk"
+    	::obj = obj
+    	::IsView = IsView
+    	::init( )
+    	return( 1 )
+    END
+
+	ACCESS aVars
+		static a = { 
+			{ "CustomBuilt", 3 },
+			{ "Construction", 3 },
+			{ "aBusinessP", 3 },
+			{ "Uninsured", 3 },
+			{ "UPool", 3 },
+			{ "TotalFlood", 3 },
+			{ "aLossP", 3 },
+			{ "MHVacant", 3 },
+			{ "Canine", 3 },
+			{ "Motel", 3 }
+		}
+		return( a )
+	END
+
+	METHOD init( )
+        ::Canine = ::obj.Canine
+        ::Construction = ::obj.Construction
+        ::CustomBuilt = ::obj.CustomBuilt
+        ::MHVacant = ::obj.MHVacant
+        ::Motel = ::obj.Motel
+        ::TotalFlood = ::obj.TotalFlood
+        ::UPool = ::obj.UPool
+        ::Uninsured = ::obj.Uninsured
+        ::aBusinessP = ::obj.aBusinessP
+        ::aLossP = ::obj.aLossP
+		return( 1 )	
+	END
+
+	METHOD display( ioClass, ReadOnly )
+		local s=""
+
+		s += "<tr><td>\r\n"
+		s += "<table border=1 cellspacing=0 cellpadding=1 width=100%>\r\n"
+		s += "<tr bgcolor=black>\r\n"
+		if ( ReadOnly && ( ! ::IsView ) )
+			s += "<td width=10>&nbsp;</td><td align=center class=t9><a href=\"javascript:appEdit( '" + ::_class + "' );\">" + ::_title + "</a></td><td align=center><font class=t9>YES</td><td align=center><font class=t9> NO</td>\r\n"
+		else
+			s += "<td width=10>&nbsp;</td><td align=center class=t9><font color=white>" + ::_title + "</font></td><td align=center><font color=white class=t9>YES</td><td align=center><font color=white class=t9> NO</td>\r\n"
+		end
+		s += "</tr>\r\n"
+
+		s += ::item( 1, "<script>document.write( str4 );</script>", "CustomBuilt", ::CustomBuilt, ioclass, ReadOnly )
+		s += ::item( 2, "<script>document.write( str5 );</script>", "Construction", ::Construction, ioclass, ReadOnly )
+		s += ::item( 3, "<script>document.write( str6 );</script>", "aBusinessP", ::aBusinessP, ioclass, ReadOnly )
+		s += ::item( 4, "<script>document.write( str7 );</script>", "Uninsured", ::Uninsured, ioclass, ReadOnly )
+		s += ::item( 5, "<script>document.write( str8 );</script>", "UPool", ::UPool, ioclass, ReadOnly )
+		s += ::item( 6, "<script>document.write( str9 );</script>", "TotalFlood", ::TotalFlood, ioclass, ReadOnly )
+		s += ::item( 7, "<script>document.write( str10 );</script>", "aLossP", ::aLossP, ioclass, ReadOnly )
+		s += ::item( 8, "<script>document.write( str11 );</script>", "MHVacant", ::MHVacant, ioclass, ReadOnly, 1 )
+		s += ::item( 9, "<script>document.write( str12 );</script>", "Canine", ::Canine, ioclass, ReadOnly, 1 )
+		s += ::item( 10, "<script>document.write( str13 );</script>", "Motel", ::Motel, ioclass, ReadOnly )
+		s += "</tr>\r\n"
+		s += "</table>\r\n"
+		s += "</td></tr>\r\n"
+
+		return( s )
+	END
+
+	METHOD item( num, str, var, val, ioclass, ReadOnly, CriticalFlag )
+		local s=""
+
+		if ( type( CriticalFlag ) != "N" )
+			CriticalFlag = 0
+		end
+		
+		s += "<tr>\r\n"
+		s += "<td><font class=cb1>" + num + ".</td>\r\n"
+		s += "<td><font class=cb2>" + str + "</td>\r\n"
+		
+		if ( ! ReadOnly )
+			if ( CriticalFlag )
+				s += "<td><input type=radio name=\"" + var + "\" value=\"true\"" + ( val == "true" ? " checked" : "" )+ " onClick=\"alert( 'Selection of this option will invalidate the application.' );document.input." + var + "[0].checked = 0;\"></td>\r\n"
+			else
+				s += "<td><input type=radio name=\"" + var + "\" value=\"true\"" + ( val == "true" ? " checked" : "" )+ "></td>\r\n"
+			end
+			s += "<td><input type=radio name=\"" + var + "\" value=\"false\"" + ( val == "false" ? " checked" : "" )+ "></td>\r\n"
+		else
+			s += "<td align=center><input type=text name=" + var + " class=" + ioclass + " style=\"width:8;\" value=\"" + ( val == "true" ? "X" : "" ) + "\" readonly></td>\r\n"
+			s += "<td align=center><input type=text name=" + var + " class=" + ioclass + " style=\"width:8;\" value=\"" + ( val == "false" ? "X" : "" ) + "\" readonly></td>\r\n"
+		end
+		s += "</tr>\r\n"
+		return( s )
+	END
+
+
+	METHOD InitEditor( )
+		return( appInitEditor( ::aVars ) )
+	END
+	METHOD update( qstr )
+		return( appUpdate( ::aVars, qstr ) )
+	END
+    
+END
+
+
+CLASS Underwriting
+  PUBLIC:
+	local _title, _class, obj, IsView
+	local ExcessPeril, FloodRestricted, eqCoverage
+	
+    METHOD new( obj, IsView )
+    	::_title = "UNDERWRITING"
+    	::_class = "Underwriting"
+    	::obj = obj
+    	::IsView = IsView
+    	::init( )
+    	return( 1 )
+    END
+
+	ACCESS aVars
+		static a = { 
+			{ "ExcessPeril", 3 },
+			{ "FloodRestricted", 3 }
+//			{ "eqCoverage", 3 }
+		}
+		return( a )
+	END
+
+	METHOD init( )
+        ::ExcessPeril = ::obj.ExcessPeril
+        ::FloodRestricted = ::obj.FloodRestricted
+        ::eqCoverage = ::obj.eqCoverage
+		return( 1 )	
+	END
+
+	METHOD display( ioClass, ReadOnly )
+		local s=""
+
+		s += "<tr><td>\r\n"
+		s += "<table border=1 cellspacing=0 cellpadding=1 width=100% height=135>\r\n"
+		s += "<tr bgcolor=black>\r\n"
+		if ( ReadOnly && ( ! ::IsView ) )
+			s += "<td width=10>&nbsp;</td><td align=center class=t9><a href=\"javascript:appEdit( '" + ::_class + "' );\">" + ::_title + "</a></td><td align=center><font class=t9>YES</td><td align=center><font class=t9> NO</td>\r\n"
+		else
+			s += "<td width=10>&nbsp;</td><td align=center class=t9><font color=white>" + ::_title + "</font></td><td align=center><font color=white class=t9>YES</td><td align=center><font color=white class=t9> NO</td>\r\n"
+		end
+		s += "</tr>\r\n"
+
+		s += ::item( 1, "<script>document.write( str14 );</script>", "ExcessPeril", ::ExcessPeril, ioclass, ReadOnly )
+		s += ::item( 2, "<script>document.write( str15 );</script>", "FloodRestricted", ::FloodRestricted, ioclass, ReadOnly )
+		if ( ReadOnly )
+			s += ::item( 3, "Is Earthquake Coverage Being Accepted?", "eqCoverage", ::eqCoverage, "ioV", 1 )
+		end
+
+		s += "</tr>\r\n"
+		s += "</table>\r\n"
+		s += "</td></tr>\r\n"
+
+		return( s )
+	END
+
+	METHOD item( num, str, var, val, ioclass, ReadOnly )
+		local s=""
+		s += "<tr>\r\n"
+		s += "<td><font class=cb1>" + num + ".</td>\r\n"
+		s += "<td><font class=cb2>" + str + "</td>\r\n"
+		if ( ! ReadOnly )
+			s += "<td><input type=radio name=\"" + var + "\" value=\"true\"" + ( val == "true" ? " checked" : "" )+ "></td>\r\n"
+			s += "<td><input type=radio name=\"" + var + "\" value=\"false\"" + ( val == "false" ? " checked" : "" )+ "></td>\r\n"
+		else
+			s += "<td align=center><input type=text name=" + var + " class=" + ioclass + " style=\"width:8;\" value=\"" + ( val == "true" ? "X" : "" ) + "\" readonly></td>\r\n"
+			s += "<td align=center><input type=text name=" + var + " class=" + ioclass + " style=\"width:8;\" value=\"" + ( val == "false" ? "X" : "" ) + "\" readonly></td>\r\n"
+		end
+		s += "</tr>\r\n"
+		return( s )
+	END
+
+
+	METHOD InitEditor( )
+		return( appInitEditor( ::aVars ) )
+	END
+	METHOD update( qstr )
+		return( appUpdate( ::aVars, qstr ) )
+	END
+    
+END
+
+
+CLASS DwellingCoverages
+  PUBLIC:
+	local _title, _class, obj, quotewks, quote, g, ttlPremium, IsView
+	
+    METHOD new( obj, quotewks, quote, g, IsView )
+    	::_title = "BASE COVERAGES"
+    	::_class = "DwellingCoverages"
+    	::obj = obj
+    	::quotewks = quotewks
+    	::quote = quote
+    	::g = g
+    	::IsView = IsView
+//	   	::ttlPremium = 0 + ::quote.HOCovAPremium + ::quote.HOCovBPremium + ::quote.HOCovCPremium + ::quote.HOCovDPremium + ::quote.HOCovEPremium + ::quote.HOCovFPremium
+	   	::ttlPremium = 0 + ::quote.HOPremium
+    	return( 1 )
+    END
+
+	METHOD display( )
+		local s=""
+
+		s += "<table border=1 cellpadding=2 cellspacing=0 width=100%>\r\n"
+		s += "<tr><td class=t9 align=center bgcolor=black>" + ::_title + "</td></tr><tr><td>\r\n"
+		s += "<center><font class=p8><br><b>" + ::quote.aCoverageTypes[ 0 + ::quotewks.CoverageType ][2] + "</b><br><br>\r\n"
+		s += "<table border=0 cellspacing=0 cellpadding=1 width=100% class=p8>\r\n"
+		s += "<tr><td width=5>&nbsp;</td><td>&nbsp;</td><td align=right><b>Deductible</b></td><td align=right><b>Coverage</b></td><td align=right><b>Prem.</b></td><td width=5>&nbsp;</td></tr>\r\n"
+		s += ::item( "Dwelling", ::quotewks.HODeductible, ::quotewks.HOCovA, ::quote.HOCovAPremium )
+		s += ::item( "Unattached Structures", ::quotewks.HODeductible, ::quotewks.HOCovB, ::quote.HOCovBPremium )
+		s += ::item( "Personal Property", ::quotewks.HODeductible, ::quotewks.HOCovC, ::quote.HOCovCPremium )
+		s += ::item( "Loss of Use", 0, ::quotewks.HOCovD, ::quote.HOCovDPremium )
+		s += ::item( "Personal Liability", 0, ::quotewks.HOCovE, ::quote.HOCovEPremium )
+		s += ::item( "Personal Medical", 0, ::quotewks.HOCovF, ::quote.HOCovFPremium )
+		s += "</table><br>\r\n"
+		s += "<b>Total Base Premium: " + ::g.DollarFormat( ::ttlPremium, 1, 0 ) + "</b><br><br>\r\n"
+		s += "</center></font>\r\n"
+		s += "</td></tr></table>\r\n"
+
+		return( s )
+	END
+
+	METHOD item( title, deductible, coverage, premium )
+		return( "<tr><td width=5>&nbsp;</td><td>" + title + "</td><td align=right>" + ::g.DollarFormat( deductible, 1, 0 ) + "</td><td align=right>" + ::g.DollarFormat( coverage, 1, 0 ) + "</td><td align=right>" + ::g.DollarFormat( premium, 1, 0 ) + "</td></tr>\r\n" )
+	END
+    
+END
+
+
+CLASS EarthquakeCoverages
+  PUBLIC:
+	local _title, _class, obj, quotewks, quote, g, ttlPremium, ttlFee
+	
+    METHOD new( obj, quotewks, quote, g )
+    	::_title = "EARTHQUAKE COVERAGES"
+    	::_class = "EarthquakeCoverages"
+    	::obj = obj
+    	::quotewks = quotewks
+    	::quote = quote
+    	::g = g
+
+		if ( quotewks.xEarthquake == "Y" )
+		   	::ttlPremium = 0
+		   	::ttlFee = 0
+		else
+		   	::ttlPremium = 0 + ::quote.EQPremium
+		   	::ttlFee = 15
+//		   	::ttlPremium = 0 + ::quote.EQCovAPremium + ::quote.EQCovBPremium + ::quote.EQCovCPremium + ::quote.EQCovDPremium
+		end
+    	return( 1 )
+    END
+
+	METHOD display( )
+		local s=""
+
+		s += "<table border=1 cellpadding=2 cellspacing=0 width=100%>\r\n"
+		s += "<tr><td class=t9 align=center bgcolor=black>" + ::_title + "</td></tr><tr><td><font class=p8><br>\r\n"
+//		s += "<table border=1 cellspacing=0 cellpadding=0 width=100%><tr><td>\r\n"
+		s += "<center><b>Earthquake Coverage Zone " + ::quotewks.zip + ", "
+		s += "Rating Band " + ::quote.eqBand + "<br>"
+		s += "Base Rate with " + ::quotewks.EQDeductible + " Coverage \"A\" Deductible</b><br><br>\r\n"
+
+		s += "<table border=0 cellspacing=0 cellpadding=1 width=100% class=p8>\r\n"
+		s += "<tr><td width=5>&nbsp;</td><td>&nbsp;</td><td align=right><b>Deductible</b></td><td align=right><b>Coverage</b></td><td align=right><b>Prem.</b></td><td width=5>&nbsp;</td></tr>\r\n"
+		s += ::item( "Dwelling", ::quote.EQDeductibleA, ::quotewks.EQCovA, ::quote.EQCovAPremium )
+		s += ::item( "Unattached Structures", ::quote.EQDeductibleB, ::quotewks.EQCovB, ::quote.EQCovBPremium )
+		s += ::item( "Personal Property", ::quote.EQDeductibleC, ::quotewks.EQCovC, ::quote.EQCovCPremium )
+		s += ::item( "Loss of Use", ::quote.EQDeductibleD, ::quotewks.EQCovD, ::quote.EQCovDPremium )
+		s += "</table><br>\r\n"
+		if ( ! ::ttlPremium )
+			s += "<b>Total Earthquake Premium: " + ::g.DollarFormat( ::ttlPremium, 1, 0 ) + "</b><br>(Earthquake Coverage <u>Excluded</u>)<br><br>\r\n"
+		else
+			s += "<b>Total Earthquake Premium: " + ::g.DollarFormat( ::ttlPremium, 1, 0 ) + "</b><br>(Earthquake Coverage <u>Included</u>)<br><br>\r\n"
+		end
+		s += "</center></font>\r\n"
+		s += "</td></tr></table>\r\n"
+
+		return( s )
+	END
+
+	METHOD item( title, deductible, coverage, premium )
+		return( "<tr><td width=5>&nbsp;</td><td>" + title + "</td><td align=right>" + ::g.DollarFormat( deductible, 1, 0 ) + "</td><td align=right>" + ::g.DollarFormat( coverage, 1, 0 ) + "</td><td align=right>" + ::g.DollarFormat( premium, 1, 0 ) + "</td></tr>\r\n" )
+	END
+    
+END
+
+
+FUNCTION AgentInfo( user, company )
+	local s=""
+	
+	s = "<font class=p8>" + company.company + "<br>\r\n"
+	s += company.street + "<br>" + company.city + ", " + company.state + " " + company.zip + "<br>\r\n"
+	s += "<b>Agent:</b> " + user.fname + " " + user.lname + "\r\n"	
+	s += "</font>\r\n"
+
+	return( s )
+END
+
+
+CLASS ScheduledPersonalProperty
+  PUBLIC:
+	local _title, _class, obj, quotewks, quote, g, ttlPremium, ttlCoverage
+	
+    METHOD new( obj, quotewks, quote, g )
+    	::_title = "SCHEDULED PERSONAL PROPERTY"
+    	::_class = "ScheduledPersonalProperty"
+    	::obj = obj
+    	::quotewks = quotewks
+    	::quote = quote
+    	::g = g
+	   	::ttlPremium = 0 + ::quote.sCameraP + ::quote.sArtsP + ::quote.sArts2P + ::quote.sGolfP + ::quote.sGunsP + ::quote.sMusicP + ::quote.sPCP + ::quote.sSilverP + ::quote.sJewelP + ::quote.sFursP + ::quote.sStampsP + ::quote.sCoinsP + ::quote.sAntiquesP + ::quote.sOtherP
+	   	::ttlCoverage = 0 + ::quotewks.sCamera + ::quotewks.sArts + ::quotewks.sArts2 + ::quotewks.sGolf + ::quotewks.sGuns + ::quotewks.sMusic + ::quotewks.sPC + ::quotewks.sSilver + ::quotewks.sJewel + ::quotewks.sFurs + ::quotewks.sStamps + ::quotewks.sCoins + ::quotewks.sAntiques + ::quotewks.sOther
+    	return( 1 )
+    END
+
+	METHOD display( )
+		local s=""
+
+		s += "<table border=0 cellpadding=2 cellspacing=0 width=100%>\r\n"
+		s += "<tr><td class=t9 align=center bgcolor=black>" + ::_title + "</td></tr><tr><td><font class=p8><br>\r\n"
+		s += "<table border=0 cellspacing=0 cellpadding=1 width=100% class=p8>\r\n"
+		s += "<tr><td width=5>&nbsp;</td><td>&nbsp;</td><td align=right><b>Coverage</b></td><td align=right><b>Premium</b></td><td width=5>&nbsp;</td></tr>\r\n"
+
+		s += ::item( "Camera Equipment", ::quotewks.sCamera, ::quote.sCameraP )
+		s += ::item( "Fine Arts without Breakage", ::quotewks.sArts, ::quote.sArtsP )
+		s += ::item( "Fine Arts with Breakage", ::quotewks.sArts2, ::quote.sArts2P )
+		s += ::item( "Golfers Equipment", ::quotewks.sGolf, ::quote.sGolfP )
+		s += ::item( "Guns", ::quotewks.sGuns, ::quote.sGunsP )
+		s += ::item( "Musical Instruments", ::quotewks.sMusic, ::quote.sMusicP )
+		s += ::item( "PC/Audio/Video Equipment", ::quotewks.sPC, ::quote.sPCP )
+		s += ::item( "Silverware", ::quotewks.sSilver, ::quote.sSilverP )
+		s += ::item( "Personal Jewelry", ::quotewks.sJewel, ::quote.sJewelP )
+		s += ::item( "Personal Furs", ::quotewks.sFurs, ::quote.sFursP )
+		s += ::item( "Stamps", ::quotewks.sStamps, ::quote.sStampsP )
+		s += ::item( "Coins", ::quotewks.sCoins, ::quote.sCoinsP )
+		s += ::item( "Antiques", ::quotewks.sAntiques, ::quote.sAntiquesP )
+		s += ::item( "Other", ::quotewks.sOther, ::quote.sOtherP )
+		s += "<tr><td>&nbsp;</td></tr>\r\n"
+		s += ::item( "Total Scheduled Personal Property", ::ttlCoverage, ::ttlPremium )
+		s += "</table>\r\n"
+		s += "</center></font>\r\n"
+		s += "</td></tr></table>\r\n"
+
+		return( s )
+	END
+
+	METHOD item( title, coverage, premium )
+		return( "<tr><td width=5>&nbsp;</td><td>" + title + "</td><td align=right>" + ::g.DollarFormat( coverage, 1, 0 ) + "</td><td align=right>" + ::g.DollarFormat( premium, 1, 0 ) + "</td></tr>\r\n" )
+	END
+    
+END
+
+
+
+
+CLASS appitem
+  PUBLIC:
+
+	METHOD CheckBox( text, var, val, ioclass, ReadOnly )
+		local s=""
+
+		if ( ReadOnly )
+			s += "<input class=" + ioclass + " style=\"width:12;\" name=\"" + var + "\" value=\"" + ( val == "true" ? "X" : "" ) + "\" readonly>" + text + "\r\n"
+		else
+			s += "<input type=checkbox name=\"" + var + "\" " + ( val == "true" ? " checked" : "" ) + ">" + text + "\r\n"
+		end
+
+		return( s )
+	END
+
+	METHOD YesNo( text, var, val, ioclass, ReadOnly )
+		local s=""
+
+		if ( ReadOnly )
+			s += text + " <input class=" + ioclass + " style=\"width:12;\" name=\"" + var + "\" value=\"" + ( ( val == "true" || upper( val ) == "Y" ) ? "Y" : "N" ) + "\" readonly>\r\n"
+		else
+			s += text + " <input type=checkbox name=\"" + var + "\" " + ( ( val == "true" || upper( val ) == "Y" ) ? " checked" : "" ) + ">\r\n"
+		end
+
+		return( s )
+	END
+
+
+	METHOD ListBox( text, var, val, options, ioclass, ReadOnly, width )
+		local s="", i, buf
+
+		if ( type( width ) != "N" )
+			width = 0
+		end
+
+		if ( ReadOnly )
+			if ( width )
+				s += text + " <input class=" + ioclass + " style=\"width:" + width + ";\" name=\"" + var + "\" value=\"" + val + "\" readonly>\r\n"
+			else
+				s += text + " <input class=" + ioclass + " name=\"" + var + "\" value=\"" + val + "\" readonly>\r\n"
+			end
+		else
+			if ( width )
+				s += text + " <select name=\"" + var + "\" class=" + ioclass + " style=\"width:" + width + ";\">\r\n"
+			else
+				s += text + " <select name=\"" + var + "\" class=" + ioclass + ">\r\n"
+			end
+			i = 1
+			while ( 1 )
+				buf = strextract( options, ";", i++ )
+				if ( strempty( buf ) )
+					break
+				end
+				s += "<option" + ( val == buf ? " selected" : "" ) + " value=\"" + buf + "\">" + buf + "\r\n"
+			end
+			s += "</select>\r\n"
+		end
+
+		return( s )
+	END
+
+END
+
+
+CLASS AdditionalCoveragesAndEndorsements
+  PUBLIC:
+  	local quote, g
+  	  	
+	METHOD new( quote )
+		::quote = quote
+		::g = new( "GlobalParams" )
+		return( 1 )
+	END
+	
+	ACCESS data
+		local a=NIL, g, i=1
+		
+		// form, form date, coverage description, code, insurance amount, premium
+		
+		g = ::g
+
+		// Earthquake coverage
+//		if ( 0 + ::quote.data.EQCovA || ::quote.EQCovAPremium )
+//			a[i++] = { "", "", "Earthquake dwelling coverage (" + g.DollarFormat( ::quote.EQDeductibleA, 0, 1 ) + " deductible)", "", ::quote.data.EQCovA, ::quote.EQCovAPremium }
+//		end
+
+		// Optional coverages		
+		if ( 0 + ::quote.SchedPropPremium )
+			a[i++] = { "", "", "Scheduled Personal Property", "", ::quote.TtlScheduledPersonalProperty, ::quote.SchedPropPremium }
+		end
+		if ( 0 + ::quote.aAntennaP )
+			a[i++] = { "", "", "Radio & TV Antenna Coverage", "", ::quote.data.Antenna, ::quote.aAntennaP }
+		end
+	    if ( 0 + ::quote.aFireDeptP )
+			a[i++] = { "", "", "Additional Limit for Fire Dept Services", "", ::quote.data.FireDept, ::quote.aFireDeptP }
+		end
+		if ( 0 + ::quote.aRentedP )
+			a[i++] = { "NHI-MH009", "08/00", "Additional Residence Rented to Others", "", ::quote.data.aRented, ::quote.aRentedP }
+		end
+		if ( 0 + ::quote.aPremisesP )
+			a[i++] = { "NHI-MH003", "08/00", "Additional Residence Premises Liability", "", 0, ::quote.aPremisesP }
+		end
+		if ( 0 + ::quote.aBusinessP )
+			a[i++] = { "", "", "Business Personal Effects", "", 0, ::quote.aBusinessP }
+		end
+		if ( 0 + ::quote.aGolfP )
+			a[i++] = { "NHI-MH019", "08/00", "Golf Cart Coverage", "", 0, ::quote.aGolfP }
+		end
+		if ( 0 + ::quote.aDisasterP )
+			a[i++] = { "", "", "Natural Disaster Protection", "", 0, ::quote.aDisasterP }
+		end
+		if ( 0 + ::quote.aInflationP )
+			a[i++] = { "", "", "Outstanding Principal Balance Coverage", "", 0, ::quote.aInflationP }
+		end
+		if ( 0 + ::quote.aPersonalP )
+			a[i++] = { "", "", "Personal Effects Replacement Cost Coverage", "", 0, ::quote.aPersonalP }
+		end
+		if ( 0 + ::quote.aLossP )
+			a[i++] = { "", "", "Loss Assessment Coverage", "", 0, ::quote.aLossP }
+		end
+		if ( 0 + ::quote.aSecuredP )
+			a[i++] = { "", "", "Secured Interest Protection", "", 0, ::quote.aSecuredP }
+		end
+		if ( 0 + ::quote.aSewerP )
+			a[i++] = { "", "", "Sewer Backup Coverage", "", 0, ::quote.aSewerP }
+		end
+		if ( 0 + ::quote.aWorkerP )
+			a[i++] = { "NHI-MHWC", "08/00", "Worker's Comp/Employer's Liability", "", 0, ::quote.aWorkerP }
+		end
+		if ( 0 + ::quote.aTripP )
+			a[i++] = { "", "", "Trip Coverage (" + ::quote.data.aTrip + " Sections)", "", 0, ::quote.aTripP }
+		end
+		// Credits and Debits
+		if ( 0 + ::quote.HODeductibleCreditDebit )
+			a[i++] = { "", "", g.DollarFormat( 0 + ::quote.data.HODeductible, 1, 0 ) + " Deductible " + ( ::quote.data.HODeductible > 0 ? "Debit" : "Credit" ), "", 0, ::quote.HODeductibleCreditDebit }
+		end
+		if ( 0 + ::quote.FloodDeductibleDebit )
+			a[i++] = { "", "", g.DollarFormat( 0 + ::quote.data.FloodDeductible, 1, 0 ) + " Flood Deductible Debit", "", 0, ::quote.FloodDeductibleDebit }
+		end
+		if ( 0 + ::quote.aFloodP )
+			a[i++] = { "NHI-MH016", "08/00", "Flood Exclusion Credit", "", 0, ::quote.aFloodP }
+		end
+		if ( 0 + ::quote.WindHailExclusionCredit )
+			a[i++] = { "", "", "Windstorm and Hail Exclusion Credit", "", 0, ::quote.WindHailExclusionCredit }
+		end
+		if ( 0 + ::quote.LienFreeCredit )
+			a[i++] = { "", "", "Lien Free Credit Credit", "", 0, ::quote.LienFreeCredit }
+		end
+		if ( 0 + ::quote.CanineLiabilityExclusionCredit )
+			a[i++] = { "NHI-MH023", "", "Canine Liability Exclusion Credit", "", 0, ::quote.CanineLiabilityExclusionCredit }
+		end
+		if ( 0 + ::quote.ProtectionDeviceCredit )
+			a[i++] = { "", "", "Protective Device Credit", "", 0, ::quote.ProtectionDeviceCredit }
+		end
+		if ( 0 + ::quote.SupplementalHeatingSurcharge )
+			a[i++] = { "", "", "Supplemental Heating Surcharge", "", 0, ::quote.SupplementalHeatingSurcharge }
+		end
+
+		return( a )
+	END
+	  	
+	METHOD list( )
+		local s="", a, i, j
+		
+		a = ::data
+		if ( type( a ) != "A" )
+			return( "<tr height=160 valign=top><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>" )
+		end
+	
+		s = "<tr height=160 valign=top class=text>\r\n"
+
+		for ( j=1; j<=6; j++ )
+			switch ( j )
+			  case 3
+			  	s += "<td align=left>"
+			  	break
+			  case 5
+			  case 6
+			  	s += "<td align=right>"
+			  	break
+			  default
+			  	s += "<td align=center>"
+			end
+
+			for ( i=1; i<=len( a ); i++ )
+				switch ( j )
+				  case 3
+					s += "&nbsp;" + a[i][j] + "<br>"
+					break
+				  case 5
+				  	if ( 0 + a[i][j] )
+						s += ::g.DollarFormat( "" + a[i][j], 2, 1 ) + "&nbsp;<br>"
+				  	else
+				  		s += "&nbsp;<br>"
+				  	end
+				  	break
+				  case 6
+					s += ::g.DollarFormat( "" + a[i][j], 2, 1 ) + "&nbsp;<br>"
+					break
+				  default
+					s += a[i][j] + "<br>"
+				end
+			end
+		end
+        s += "</tr>\r\n"
+
+		return( s )
+	END  	
+
+END
+

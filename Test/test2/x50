@@ -1,0 +1,27 @@
+field link,product
+
+db_struct = {
+    { "ETYPE", "C", 1, 0 },
+    { "ENTITY", "C", 65, 0 },
+    { "RTYPE", "C", 1, 0 },
+    { "REF", "C", 65, 0 },
+    { "DATE", "C", 15, 0 },
+    { "REGION", "C", 2, 0 },
+    { "PRODUCT", "C", 4, 0 },
+    { "LINK", "C", 65, 0 }
+}
+
+debugbreak()
+
+dbcreate( "lookup_test.db", db_struct )
+
+dbOpen ( "lookup_test.db" )
+dbAppend();
+
+link = "this is a big test"
+product = "this is a small test"
+
+println ( link )
+println ( product )
+
+println ( "done" )

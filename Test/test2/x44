@@ -1,0 +1,15 @@
+class test
+	method new ( x )
+		println ( x )
+		return ( 1 )
+	end
+end
+
+local a
+
+a = new ( "test", "hello" )
+b = test ( "there" )
+c = serverBuffer()
+d = new ( "serverBuffer" )
+
+println ( "works" )

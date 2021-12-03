@@ -1,0 +1,31 @@
+<[ 
+	// reference a dll file
+	filename = 'c:\slang\test\test2\alex\bgd.dll'
+debugbreak()
+	// register the functions
+	tmp = funcRegister( filename, "gdImageCreate@8", "gdImageCreate", "LLL" )
+	println( "\ntmp: " + tmp )
+	
+	// Create the image
+	gdImage = gdImageCreate( 230, 20 )
+	
+	tmp1 = funcRegister( filename, "gdImageColorAllocate@16", "gdImageColorAllocate", "LLLLL" )
+	println( "\ntmp1: " + tmp1 )
+		
+	// Allocate background
+	bgColor = gdImageColorAllocate( gdImage, 0, 10, 10)
+	
+	// Allocate text color
+	textColor = gdImageColorAllocate( gdImage, 233, 114, 191 )
+	
+	funcRegister( filename, "gdImageChar@24", "gdImageChar", "LLLLLCL" )
+	
+	funcRegister( filename, "gdFontGetLarge@0", "gdFontGetLarge", "L" )
+	
+	font = gdFontGetLarge()
+	
+	tmp3 = gdImageChar( gdImage, font, 5, 5, "My first Program with GD", textColor )
+	
+	! gdImage 	// gdImagePngToSink ???
+
+]>

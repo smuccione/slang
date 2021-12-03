@@ -1,0 +1,18 @@
+<[
+
+	library c:\sdweb\home\insmgmt\webClient.flb
+
+	for ( loop = 0; loop < 10; loop++ )	
+		o = new ( "webClient" )
+
+		o.domain = "www.google.com"
+		o.url = "/"
+
+		a = o.page
+		
+		println ( loop )
+	end
+	
+	!a
+	
+]>

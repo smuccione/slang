@@ -1,0 +1,125 @@
+library c:\fgl\libs\system.flb
+	
+class	oAuth2
+	local	web
+	
+	/// the following MUST be configured on a per-server basis
+
+	local	userGrantRealm
+	local	accessTokenRealm
+	local	userGrantEndpoint
+	local	accessGrantEndpoint
+	local	client_id
+	local	scope
+	local	client_Secret
+	local	callbackURL
+
+	/// below are the actual implementation details	
+	local	accessToken
+
+	method new ( userGrantRealm, accessTokenRealm )
+	
+		::userGrantRealm	= userGrantRealm
+		
+		::accessTokenRealm	= accessTokenRealm
+		::web = new ( "webClient")
+		::web.domain = accessTokenRealm
+		::web.ssl = 1
+		
+		return 1
+	end
+	
+	method makeRedirectUrl ( )
+		local	url
+		
+		url  = "https://" + ::userGrantRealm + "/" + ::userGrantEndpoint
+		url += "?redirect_uri=" + WebEncodeUrl ( ::callBackUrl )
+		url += '&client_id=' + ::client_id
+		url += '&approval_prompt=force'
+		url += '&scope=' + WebEncodeUrl ( ::scope )
+		url	+= '&access_type=offline'
+		url += '&response_type=code'
+		
+		return url
+	end
+	
+	method requestAccessToken  ( code )
+		local	data
+		local	e
+		local	elems
+		local	res
+		
+		data = 	{ 	
+					{ 'code', code },
+					{ 'client_id', ::client_id },
+					{ 'client_secret', ::client_secret },
+					{ 'redirect_uri', ::callBackUrl },
+					{ 'grant_type', 'authorization_code' }
+				}
+		
+		::web.submit ( data, ::accessGrantEndpoint )
+		
+		try
+			return new ( "json", ::web.page );
+		catch ( e )
+			// not a json object... let's see if it's a rest
+			elems = split2 ( ::web.page, "=", "&" )	
+			res = aArray().add ( elems )
+			return res;
+		end
+	end
+	
+	method refreshAccessToken ( tok )
+		local	data
+		local	newTok
+		
+		data = 	{
+					{ "refresh_token", tok.refresh_token },
+					{ 'client_id', ::client_id },
+					{ 'client_secret', ::client_secret },
+					{ 'grant_type', 'refresh_token' }
+				}
+				
+		::web.submit ( data, ::accessGrantEndpoint )
+
+		newTok = new ( "json", ::web.page )
+		
+		tok.access_token 	= newTok.access_token
+		tok.expires_in		= newTok.expires_in
+				
+		return tok
+	end
+	
+	method fb_exchange_tok ( tok )
+		local	data
+		local	newTok
+		local	e
+		local	elems
+		local	res
+		
+		data = 	{
+					{ "fb_exchange_token", tok.access_token},
+					{ 'client_id', ::client_id },
+					{ 'client_secret', ::client_secret },
+					{ 'grant_type', 'fb_exchange_token' }
+				}
+				
+		::web.submit ( data, ::accessGrantEndpoint )
+
+		try
+			newTok = new ( "json", ::web.page )
+
+			tok.access_token 	= newTok.access_token
+			tok.expires_in		= newTok.expires_in
+		catch ( e )
+			// not a json object... let's see if it's a rest
+			elems = split2 ( ::web.page, "=", "&" )	
+			res = aArray().add ( elems )
+			return res;
+		end
+				
+		return tok
+	end
+	
+	
+end

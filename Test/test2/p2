@@ -1,0 +1,29 @@
+function a ( val )
+   for ( loop = 0; loop < 4; loop++ )
+	x = "&" + val + "&"
+   end
+   return x
+end
+
+function b ( val )
+   for ( loop = 0; loop < 4; loop++ )
+	x = "&" + val
+   end
+   return x
+end
+
+function c ( val )
+   for ( loop = 0; loop < 4; loop++ )
+      x = val
+   end
+   return x
+end
+
+
+for ( x = 1; x < 10000; x++ )
+   a()
+   b()
+   c()
+end
+
+

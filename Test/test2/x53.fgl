@@ -1,0 +1,56 @@
+Function UpdateWebVars ( data, newdata, delim1, delim2 )
+	Local oldArr, newArr, destArr
+	Local oldCtr, newCtr
+	Local lenOld, lenNew
+	
+	oldArr = Split2 ( data, delim1, delim2 )
+	newArr = Split2 ( newdata, delim1, delim2 )
+
+	oldArr = ASort ( oldArr, 0, 1, 0 )
+	newArr = ASort ( newArr, 0, 1, 0 )
+	destArr = {}
+
+	lenOld = len ( oldArr )
+	lenNew = len ( newArr )
+
+	oldCtr = 1;
+	newCtr = 1;
+	while ( oldCtr <= lenOld )
+		if ( newCtr <= lenNew )
+			// both old and new... we need to compare here
+			if ( oldArr[oldCtr][1] == newArr[newCtr][1] )
+				// match... use newArr
+				destArr[len(destArr) + 1] = newArr[newCtr++]
+				oldCtr++	// need to just throw it away
+			elseif ( oldArr[oldCtr][1] < newArr[newCtr][1] )
+				// old array is less... use the old array entry
+				destArr[len(destArr) + 1] = oldArr[oldCtr++]	
+			else
+				// new array needs to catch up... use the new array entry
+				destArr[len(destArr) + 1] = newArr[newCtr++]
+			end
+		else
+			// only old ones left... just add them to the destination array
+			destArr[len(destArr) + 1] = oldArr[oldCtr++]	
+		end
+	end
+
+	while ( newCtr <= lenNew )
+		// we have to add in any new entries still left over
+		destArr[len(destArr) + 1] = newArr[newCtr++]
+	end
+	return ( destArr )
+END
+
+local oldData
+local newData
+local arr
+
+oldData = "first=steve&county=morris&zip=07853&age=36"
+newData = "last=muccione&age=37&zip=07840&zulu=test"
+
+DebugBreak()
+
+arr = UpdateWebVars ( oldData, newData, "=", "&" )
+
+println ( arr )

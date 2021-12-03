@@ -1,0 +1,58 @@
+<[
+	function encrypt ( data, key, iv )
+		local x
+		
+		x = new ( "crypto", "aes-128-cbc" );	
+
+		// recover the key
+		key  = Base64Decode ( key )
+
+		// unpad it to 16 byte boundary
+		data = data + right ( string ( 16, "\0" ), 16 - ((len ( data ) + 15) % 16) )
+		
+		// encrypt it
+		x.BeginEncryption ( key, iv )
+		x += data
+		y = x.End()
+		y = Base64Encode ( iv + y )
+		
+		x.Release()
+		
+		return y
+	end
+	
+	function decrypt ( data, key )
+		local x
+		
+		x = new ( "crypto", "aes-128-cbc" );
+		
+		// recover the key
+		key = Base64Decode ( key )
+
+		// this is the data to decode
+		data = Base64Decode ( data )
+
+		// assume data is pkcs#5 padded and has IV prepended
+		iv = left( data, 16 )
+		data = right ( data, len ( data ) - 16 )
+		x.BeginDecryption ( key, iv )
+		x += data
+		y = x.End()
+		
+		x.Release()
+
+		return y
+	end
+	
+	x = new ( "crypto", "aes-128-cbc" );	
+	
+	key  = "EjRWeBI0VngSNFZ4EjRWeA=="
+	iv   = "8765432187654321"
+
+	! encrypt ( "this is the string to encode", key, iv ) + "<br>"
+
+	! ":" + decrypt ( "1vwvHfBOr0db8VD24UeonuKESVJ5yNQkC1HgcxmOb1/vz0SXVKRaHhUzrolELuDZR8wZT/3NV7IJjYPbAU/GY5RgMDXydnTTkGsTZfv/NoY=", key ) + ":"
+]>
+
+
+

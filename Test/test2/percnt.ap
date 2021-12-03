@@ -1,0 +1,23 @@
+<[
+
+session = new( "session" )
+
+vars = session.var( "vars" )
+
+
+]>
+<body>
+<html>
+<form action=percnt.htm method=get>
+Enter something like: "wind deduct 2%":<br>
+<input name=vars value="<[ ! vars ]>">
+
+<pre>
+<[ ! vars ]>
+</pre>
+
+<input type=submit>
+</form>
+</html>
+</body>
+

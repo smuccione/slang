@@ -1,0 +1,66 @@
+class test
+   local a1
+   local a2
+   local a3
+   local a4
+   local a5
+   local a6
+   local a7
+   local a8
+   local a9
+   local a10
+   local a11
+   local a12
+   local a13
+   local a14
+   local a15
+   local a16
+   local a17
+   local a18
+   local a19
+   local a20
+   local a21
+   local a22
+   local a23
+   local a24
+   local a25
+   local a26
+   local a27
+   local a28
+   local a29
+   local a30
+   local a31
+   local a32
+   local a33
+   local a34
+   local a35
+   local a36
+   local a37
+   local a38
+   local a39
+   local a40
+   local a41
+   local a42
+   local a43
+   local a44
+   local a45
+   local a46
+   local a47
+   local a48
+   local a49
+   local a
+   
+   method test()
+//   	DebugBreak()
+   	::a = 1
+	println ( "start" )
+	for ( loop = 0; loop < 1000000; loop++ )
+	   ::a++
+	end
+	println ( "stop" )
+   end
+end
+
+o = test()
+o.a = 1
+o.test()

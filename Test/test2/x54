@@ -1,0 +1,33 @@
+debugBreak()
+
+x  = "function test()\r\n"
+x += "   printf ( \"here\\r\\n\" )\r\n"
+x += "end"
+
+y = compile ( x, "test" )
+
+test()
+
+DebugBreak()
+
+unloadLibrary ( "test" )
+
+try
+   test()
+   println ( "didn't work" )
+catch ( e )
+   println ( "unload succeeded" )
+end
+
+try 
+   loadLibrary ( "test", y )
+catch ( e )
+   println ( "load failed" )
+end
+
+try
+  test()
+  println ( "load succeeded" )
+catch ( e )
+  println ( "load failed" )
+end

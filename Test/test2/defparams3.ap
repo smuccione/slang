@@ -1,0 +1,16 @@
+<[
+
+	FUNCTION displaydate( month = date( "MM" ), day = date( "DD" ), year = date( "YYYY" ) )
+		printf ( "%s  %s  %s\r\n", month, day, year )
+	end
+
+	displaydate (  ,,,"01" )	
+	displaydate ( ,"01", )	
+	displaydate ( ,"01"  )	
+	displaydate ( "01",, )	
+	displaydate (  ,"01", )	
+	displaydate (  ,,"01" )	
+	displaydate (  ,,,"01" )	
+	displaydate ()
+]>
+

@@ -1,0 +1,5 @@
+x = deflate ( "this is a test" )
+y = inflate ( x )
+if ( x != "this is a test" )
+	DebugBreak()
+end

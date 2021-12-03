@@ -1,0 +1,16 @@
+<[
+
+
+	test = "Hi Mom"
+	x = 1
+	y = 3
+	z = x/y
+]>
+
+
+<HTML><BODY>
+<[ ! test ]>
+z = <[ ! z ]>
+
+</BODY>
+</HTML>

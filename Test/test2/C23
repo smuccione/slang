@@ -1,0 +1,105 @@
+class base
+   local id
+   local block
+
+   method new ( a, b )
+      self.id = a
+      self.block = b
+      return self
+   end
+end
+
+
+class test
+   local nElem
+   local elem
+   local page
+   local cb
+   local id
+
+   method new ()
+      self.nElem = 0;
+      return self
+   end
+
+   method newPage ( id, block )
+      println ( self.elem )
+      return self.elem[++self.nElem] = NEW ( "base", id, block )
+   end
+
+   method call ( id )
+      local loop
+
+      for ( loop = 1; loop <= self.nElem; loop++ )
+         if ( self.elem[loop].id == id )
+            (self.elem[loop].block)()
+            break;
+         end
+      end
+   end
+
+   assign curPage ( page )
+      local loop
+
+      for ( loop = 1; loop <= self.nElem; loop++ )
+         if ( self.elem[loop] == page )
+            println ( "setting page" )
+            self.id = page.id
+            self.cb = page.block
+            break;
+         end
+      end
+   end
+
+   access curPage
+      return self.page
+   end
+end
+
+function block1 ()
+   println ( "here1" )
+end
+
+function block2 ()
+   println ( "here2" )
+end
+
+
+local o, page1, page2
+
+o = new ( "test" )
+
+page1 = o.newPage ( 1, {||block1()} )
+page2 = o.newPage ( 2, {||block2()} )
+
+o.newPage ( 3, {||o.curPage = page1} )
+o.newPage ( 4, {||o.curPage = page1} )
+
+println ( o.elem[1].id )
+println ( o.elem[2].id )
+
+o.call ( 1 )
+o.call ( 2 )
+
+println ( o.elem[1].id )
+println ( o.elem[2].id )
+
+o.call ( 3 )
+o.call ( 4 )
+
+println ( o.elem[1].id )
+println ( o.elem[2].id )
+
+o.call ( 3 )
+o.call ( 4 )
+
+println ( o.elem[1].id )
+println ( o.elem[2].id )
+
+o.call ( 1 )
+o.call ( 2 )
+
+println ( o.elem[1].id )
+println ( o.elem[2].id )
+
+ 

@@ -1,0 +1,25 @@
+class test
+   local a
+   local cnt
+
+   method new()
+      self.cnt = 1
+      return 1
+   end
+
+   method add ( x )
+      self.a[self.cnt++] = x
+   end
+end
+
+local o
+
+o[1] = new ( "test" )
+
+o[1].add ( "I " )
+o[1].add ( "love " )
+o[1].add ( "Donna " )
+
+
+println ( o[1].a[1], o[1].a[2], o[1].a[3] )
+ 

@@ -1,0 +1,9 @@
+<[
+
+//x = smartrun ( 'c:\windows\system32\cmd.exe',,'/c dir', 'c:\slang\test\test2' )
+x = smartrun ( 'C:\Program Files\TextPad 4\TextPad.exe',,'c:\slang\test\test2\a1' )
+println ( x );
+
+]>
+
+

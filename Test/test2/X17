@@ -1,0 +1,10 @@
+println ( "start" )
+
+goto b
+
+println ( "here" )
+
+label b
+
+println ( "end" )
+ 

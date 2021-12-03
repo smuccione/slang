@@ -1,0 +1,44 @@
+<[
+
+	library c:\sdweb\home\insmgmt\webclient.flb
+	
+	local 	iType
+	local	page
+	local	headers
+	
+	debugBreak()
+
+	page = webPageGet ( 127.0.0.1, "GET", "test.jpg" )
+	
+	headers = page.headers
+	
+	iType = 0	// unknown
+	
+	for ( loop = 1; loop <= len ( headers ); loop++ )
+	{
+		if ( upper ( mid ( headers[loop], 0, 14 ) ) == "Content-Type: " )
+			if ( ati ( header[loop], "image/jpeg" ) != -1 )
+				iType = imageType::jpg
+			elseif ( ati ( header[loop], "image/bmp" ) != -1 )
+				iType = imageType::bmp
+			elseif ( ati ( header[loop], "image/gif" ) != -1 )
+				iType = imageType::gif
+			elseif ( ati ( header[loop], "image/tiff" ) != -1 )
+				iType = imageType::tif
+			end
+
+
+		end
+	}
+
+	image = image ( page.page, iType );
+	
+	
+	! sprintf ( "height: %i<br>", image.height );
+	! sprintf ( "widht:	 %i<br>", image.width );
+	
+	image.release()
+	
+
+
+]>

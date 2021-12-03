@@ -1,0 +1,19 @@
+function a ( x )
+	x = 5
+end
+
+function b ( x )
+	a ( x )
+end
+
+function c ( x )
+	b ( x )
+end
+
+local i = 1
+
+println ( i )
+c ( i )
+println ( i )
+c ( @i )
+println ( i )

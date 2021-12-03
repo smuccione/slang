@@ -1,0 +1,403 @@
+<[
+
+	LIBRARY c:\sdweb\home\insmgmt\insmgmt.flb
+	LIBRARY c:\sdweb\home\insmgmt\underwri.flb
+	LIBRARY c:\sdweb\home\insmgmt\policy.flb
+	LIBRARY c:\sdweb\home\insmgmt\acct.flb
+
+	function RemoveQuotes ( s )
+		if ( len( s ) > 2 )
+			return( substr( s, 2, len( s ) - 2 ) )
+		else
+			return ( "" )
+		end
+	end
+	
+	function MemfWriteLine ( s, Errline )
+		s += Errline + "\r\n"
+		return( s )
+	end
+
+	function ScrubString ( s )
+		s = strswap( s, ".", "" )
+		s = strswap( s, " ", "" )
+		s = strswap( s, ",", "" )
+		s = strswap( s, "(", "" )
+		s = strswap( s, ")", "" )
+		s = strswap( s, "-", "" )
+		s = strswap( s, "/", "" )
+		
+		return(s)
+	end
+	
+	function FormatPhone(s)
+		local ln
+		
+		s = ScrubString( s )
+		ln = len( s )
+		
+		
+		if ( ln < 7 )
+			return ( s )
+		end
+		
+		if ( ln < 10 )
+			return ( left( s, 3 ) + "-" + substr( s, 4, ln - 3 ) )
+		else
+			return ( left( s, 3 ) + "-" + substr( s, 4, 3 ) + "-" + substr( s, 7, ln - 6 ) )
+		end
+	end
+	
+	function FormatSSN(s)
+		local ln
+		
+		s = ScrubString( s )
+		ln = len( s )
+		
+		
+		if ( ln < 9 )
+			return ( s )
+		end
+		
+		return ( left( s, 3 ) + "-" + substr( s, 4, 2 ) + "-" + substr( s, 6, ln - 5 ) )
+	end
+
+
+	local formid, formrev, debugflag, g, html, userhdr, companyid, userid, appid
+	local cmd, _d_, quoteid, clientid, quote, insmgmt, q, entity
+	local fName, fNameOut, inCnt, OutCnt, ErrCnt, a, lenVars, errLine, s
+	local dt, time, session, inPrem, calcPrem, tmp, appfrm, lenAppVars, j, MasterApp, insdata
+	local IsErr
+	local QuoteVars, AppVars, QuoteVarsCount, AppVarsCount
+	local Vars, PolStatus, x, NoVar, saveAgency, PolID, polnum
+	local TransAmt, DateStr, TypeStr, RefStr
+	
+
+	formREV = "2.0 05-2004"
+
+	g = new( "GlobalParams" )
+	html = new( "FormatHTML" )
+	userhdr = new( "UserHeader", html.session )
+	session = new( "session" )
+	insdata = new( "objInsData" )
+
+//product specific
+
+//	userhdr.product = "DP2"
+//	userhdr.product = "DP3"
+//	userhdr.product = "HO2"
+	userhdr.product = "HO3"
+//	userhdr.product = "HO4"
+//	userhdr.product = "HO6"
+//	userhdr.product = "EL03"
+//	userhdr.product = "EL06"
+	
+	formID = "ASFL" + userhdr.product
+	
+	loadLibrary('c:\sdweb\home\insmgmt\products\' + formId + '\quote.flb')
+	loadLibrary('c:\sdweb\home\insmgmt\products\' + formId + '\' + left( formId, 6 ) + '.flb')
+	loadLibrary('c:\sdweb\home\insmgmt\products\' + formId + '\appfrm.flb')
+	loadLibrary('c:\sdweb\home\insmgmt\products\' + formId + '\underwri.flb')
+
+
+	userhdr.carrier = "AS"
+	userhdr.region = "FL"
+	userhdr.userid = "SREPETTI"
+	userhdr.companyid = "BRT"
+	companyid = "BRT"
+	userid = "SREPETTI"
+	session.varset( "companyid", userhdr.companyid)
+	session.varset( "userid", userhdr.userid )
+	clientid = "" 
+	appid = ""
+
+
+	g.RefLibOpen( )
+
+	_d_ = new( "quotefrm" )
+	lenVars = len( _d_.avars )
+	
+	dt = date()
+	time = time()
+
+	fname = 'c:\InsData\' + userhdr.product + 'p.txt'
+	fnameOut = 'c:\InsData\logp_' + userhdr.product + '_' + right(dt,4) + left(dt,2) + substr(dt,4,2) + left(time,2) + substr(time,4,2) + right(time,2) + '.txt'
+
+	inCnt =0
+	OutCnt = 0
+	ErrCnt = 0
+	
+	hfile = fopen( fname, 0 )
+	if ( hfile < 1 )
+		! "error accessing file (" + fname + ")"
+		return( 0 )
+	end
+	hFileOut = fCreate( fNameOut )
+	MemfWriteLine( s, "start: " + Date() + "  " + time() )
+	insmgmt = new( "insmgmt" )
+	q = new( "MasterQuote" )
+	entity = new( "objEntity" )
+	appfrm = new( "appfrm")
+	lenappVars = len( appfrm.avars )
+	offset = 6
+	MasterApp = new( "MasterApp" )
+
+	line = freadline( hfile )
+	Vars = split( line, "\t" )
+// all the  quote vars are at the front, and start with 'q'
+// first 4 columns are policy level info
+
+	zcnt = len( Vars )
+	for ( i = ( offset + 1 ); i<=zcnt; i++ )
+		if ( upper( left( Vars[i], 1) ) !=  "Q" )
+			break
+		end
+		Vars[i] = substr( Vars[i], 2, len( Vars[i] ) - 1 ) 
+	end
+	QuoteVarsCount = i
+	s = ""
+debugbreak( )
+
+flag = 0
+	while ( 1 )
+		line = freadline( hfile )
+		if ( strempty( line ) )
+			break
+		end
+
+//if ( flag )
+//	break
+//end
+//flag++
+
+		a = split( line, "\t" )
+		PolStatus = "|" + substr( a[2], 2, len( a[2] ) - 2 ) + "|"
+		
+		if ( ! ( strati( PolStatus, "|4|9|13|15|18|20|22|" ) ) )
+			continue
+		end
+		
+		IsErr = 0
+		inCnt++
+		acnt = len ( a )
+		xcnt = acnt
+		for ( i=( offset + 1 );i<=xcnt;i++ )
+//			NoVar = 0
+			if ( i < QuoteVarsCount )
+//				try
+//					x = _d_.(vars[i])
+//				catch ( e )
+//					NoVar = 1
+//				end
+
+//				if ( ! NoVar )
+					_d_.( vars[i] ) = RemoveQuotes( a[i] )
+//				end
+			else
+//				try
+//					x = appfrm.(vars[i])
+//				catch ( e )
+//					NoVar = 1
+//				end
+//				if ( ! NoVar )
+					appfrm.( vars[i] ) = RemoveQuotes( a[i] ) 
+//				end
+			end
+		end
+		if ( strempty( _d_.fname ) || strempty( _d_.lname ) )
+			ErrCnt++
+			ErrLine = "Rec " + inCnt + " invalid Insured Name"
+			MemfWriteLine( s, ErrLine )
+			continue
+		end
+		if ( appfrm.prevlossno == "X" )
+			appfrm.prevlossyes = "X"
+			appfrm.prevlossno  = ""
+		else
+			appfrm.prevlossyes = ""
+			appfrm.prevlossno  = "X"
+		end
+		
+		appfrm.loccity = _d_.IsCityLimits == "Y" ? "X" : ""
+		appfrm.locfiredist = ""
+		APPFRM.locprotsub = ""
+		appfrm.spmarstat = appfrm.appmarstat
+		
+		if ( appfrm.billapp != "1" )
+			appfrm.billapp = "X"
+			appfrm.billmort = ""
+		else
+			appfrm.billapp = ""
+			appfrm.billmort = "X"
+		end			
+		if ( ! (strempty( appfrm.homephoneday ) && strempty( appfrm.homephoneeve ) ) )
+			if ( strempty( appfrm.homephoneday ) )
+				appfrm.homephone = formatphone(appfrm.homephoneeve)
+				appfrm.homephoneeve = "X"
+			else
+				appfrm.homephone = formatphone(appfrm.homephoneday)
+				appfrm.homephoneday = "X"
+			end
+		end
+		appfrm.busphone = formatphone(appfrm.busphone)
+		appfrm.appssn = formatssn(appfrm.appssn)
+		appfrm.spssn = formatssn(appfrm.spssn)
+
+		_d_.FWUAEligible = "N"
+		_d_.ofungi = "10000/20000"
+		_d_.state = "FL" 
+		
+		
+		PolID = substr( a[1], 2, len( a[1] ) - 5 )
+		Polnum = substr( a[1], 2, len( a[1] ) - 2 )
+
+		quote = new( "quote", g, _d_ )
+		if ( ! quote.validate() )
+			IsErr = 1
+			ErrLine = "Rec " + inCnt + "  LName: " + _d_.lname + "  FName: " + _d_.fname + " " + quote.errmsg
+			MemfWriteLine( s, ErrLine )
+//			continue
+		end
+	
+		quote.calculate()
+		calcPrem = quote.TtlPolicyExpense
+		inPrem = 0 + substr( a[4], 2, len( a[4] ) - 2 ) 
+		if ( calcPrem <> inPrem )
+			IsErr = 1
+			ErrLine = "Rec " + inCnt + "  LName: " + _d_.lname + "  FName: " + _d_.fname + "   imported prem: " + inPrem + "      calc prem: " + calcPrem + "      diff: " + (calcPrem - inprem)
+			MemfWriteLine( s, ErrLine )
+
+			userhdr.clientid = ""
+			quoteid = ""
+		end
+
+		agentid = appfrm.agcybrknum
+		
+		userhdr.userid = "ADMIN"
+		userhdr.companyid = "FL" + right( "00000" + agentid, 5 )
+		saveAgency = userhdr.companyid + "." + "ADMIN"
+
+		session.varset( "userid", userhdr.userid )
+		session.varset( "companyid", userhdr.companyid )
+
+		userhdr.clientid = ""
+		quoteid = ""
+		q.save( html.session, quoteid, appid, userhdr, quote, entity, insmgmt, formid, formrev )
+		quoteid = upper( q.clientid + "." + q.id )
+		userhdr.clientid = q.clientid
+		userhdr.LoadClientData( g, appfrm )
+		appfrm.appid = appid
+		appfrm.quoteid = quoteid
+		appid = MasterApp.CreateFromQuote( html.session, g, html, appfrm, userhdr, formID, formREV )
+		MasterApp.GetAppRecord( insdata, appid )
+		appfrm.get( MasterApp.appdata )
+		appfrm.RemarksFreeForm = appfrm.Remarks
+//		appfrm.Remarks = appfrm.RemarksFreeForm
+//		appfrm.priorpolicynum = PolID
+
+
+		agency = entity.GetAgencyRecord( MasterApp.companyid )
+		if ( type( agency ) != "O" )
+				ErrLine = "Rec " + inCnt + "  LName: " + _d_.lname + "  FName: " + _d_.fname + "   Error accessing agency: " + userhdr.companyid
+				IsErr = 1
+				MemfWriteLine( s, ErrLine )
+		else
+
+			appfrm.aname = agency.company
+			appfrm.astreet = agency.street
+			appfrm.acity = agency.city
+			appfrm.astate = agency.state
+			appfrm.azip = agency.zip
+			appfrm.aphone = agency.officephone
+			appfrm.afax = agency.officefax
+			appfrm.clientid = MasterApp.clientid
+			appfrm.code1 = MasterApp.agentid
+			appfrm.subcode1 = MasterApp.CompanyId
+
+			appfrm.mzip = g.NormalizeZip( appfrm.mzip )
+			appfrm.ttlPolicyExpense = appfrm.ttlPolicyExpense
+
+			masterapp.appdata = appfrm.put( g )
+			masterapp.subcode = 10
+			masterapp.subcodedate  = date( "YYYYMMDD" )
+			masterapp.SetAppRecord( insdata, appid )
+			uw = new( "UnderwritingPending" )
+
+			uw.rec.agency = saveAgency
+			uw.rec.amount = calcprem
+			uw.rec.appid = appid
+			uw.rec.quoteid = quoteid
+			uw.rec.client = "" + _d_.lname + ", " + _d_.fname
+			uw.rec.clientid = q.clientid
+			uw.rec.location = "" + _d_.city + ", " + _d_.state + " " + _d_.zip5
+			uw.rec.product = _d_.product
+
+			uw.rec.notify = ""
+			uw.rec.date = date( "MM-DD-YYYY" )
+			uw.rec.time = time( )
+
+			uw.rec.paytype = "None"
+			uw.rec.paydate = ""
+			uw.rec.payamount = ""
+			uw.rec.payref = ""
+			uw.rec.cctype = ""
+			uw.rec.ccname = ""
+			uw.rec.ccnum = ""
+			uw.rec.ccexpdate = ""
+			uw.CreateUnderwritingRecord( session )
+			uw.ApproveApplication( session, "UW AUTO APPROVE FROM IMPORT" )
+
+			masterpolicy = new( "masterpolicy" )
+			
+			PolicyImport = new( "PolicyImport",masterpolicy )
+
+			PolicyImport.companyid = userhdr.companyid
+			PolicyImport.userid = userhdr.userid
+			PolicyImport.appid = appid
+			PolicyImport.PolicyNum = Polnum
+
+
+			PolicyImport.effdate = _d_.effdate
+			PolicyImport.expdate = g.CalculateExpirationDate ( _d_.effdate, "A" )
+			// "mm-dd-yyyy"
+
+			PolicyImport.premium = inprem
+			PolicyImport.TotalCredits = 0 - RemoveQuotes( a[6] )
+			PolicyImport.TotalDebits = 0 + RemoveQuotes( a[5] )
+
+			PolicyImport.status = 1
+			//{ 1, "Active" },
+			//{ 2, "Canceled" },
+			//{ 4, "Renewable" },
+			//{ 8, "Nonrenewable" }
+			
+			masterPolicy.ImportPolicy( session, PolicyImport )			
+			
+
+		end
+		if ( IsErr)
+			ErrCnt++
+		end
+
+		OutCnt++
+		println( polid )
+		
+		if ( OutCnt > 50 )
+			break
+		end
+		
+	end
+
+
+	fWriteLine( hFileOut, s )
+
+	fclose( hfile )
+	s = "File In: " + fname + "      Rec In Count: " + inCnt + "      Rec Out Count: " + OutCnt  + "      Error Count: " + ErrCnt
+	ret = MemfWriteLine( s, s )
+	MemfWriteLine( s, "end: " + Date() + "  " + time() )
+	fclose( hFileOut )
+
+
+	g.RefLibClose( )
+	!s
+]>

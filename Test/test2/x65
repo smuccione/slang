@@ -1,0 +1,26 @@
+local a
+
+a = { 	{ "steve", "muccione" },
+ 	{ "steve", "repetti" },
+ 	{ "angela", "repetti" },
+ 	{ "donna", "muccione" },
+ 	{ "aislinn", "muccione" },
+ 	{ "kiersten", "muccione" },
+ 	{ "sam", "muccione" },
+ 	{ "justin", "muccione" },
+ 	{ "morganne", "muccione" },
+ 	{ "richard", "muccione" },
+ 	{ "gerri", "muccione" },
+ 	{ "jay", "muccione" },
+ 	{ "marc", "muccione" }
+    }
+
+debugBreak()
+
+asort ( a, 0, 2, 1, 1 )
+asort ( a, 0, 2, 1 )
+
+println ( "done" )
+
+
+ 	

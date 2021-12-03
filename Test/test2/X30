@@ -1,0 +1,66 @@
+class test
+        local a
+        local b
+        local c
+
+	method fillIn ( s )
+		unpack ( s, self )
+	end
+
+end
+
+local a
+local b
+local c
+local o
+
+o = new ( "test" )
+o.a = new ( "test" )
+o.a.a = {"this", "is", {"a"}, "test" }
+o.a.b = "2"
+o.a.c = 3
+o.b = "4"
+o.c = 5
+
+a = pack ( o )
+b = packElements ( a )
+
+debugBreak()
+
+o = new ( "test" )
+
+o.a = {"1", "2"}
+o.b = "test"
+o.c = "there"
+
+b = pack ( o )
+
+o2 = new ( "test" )
+
+o2.fillin ( b )
+ 
+println ( o.a[1], "  ", o.a[2] )
+
+o = new ( "test" )
+
+o.a = {"1", "2"}
+o.b = "test"
+o.c = "there"
+
+b = pack ( o )
+c = unpack ( b )
+
+println ( o.a[1], "  ", o.a[2] )
+
+a = "test"
+
+b = pack ( a )
+c = unpack ( b )
+
+println ( type ( c ), " : ", c )
+
+a = { "1", "2", { "3" } }
+b = pack ( a )
+c = unpack ( b )
+
+println ( c[1], " ", c[2], " ", c[3][1] )

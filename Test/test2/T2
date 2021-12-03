@@ -1,0 +1,52 @@
+public function task1()
+ while ( 1 )
+//     println ( "here" + " there" )
+  end
+end
+
+public function task2()
+  while ( 1 )
+//     println ( "every"+"where" )
+  end
+end
+
+public function task3()
+  while ( 1 )
+//     println ( "if only" + " they knew" )
+  end
+end
+
+function main()
+   spawn ( "TASK 1", "task1()" )
+   spawn ( "TASK 2", "task2()" )
+   spawn ( "TASK 3", "task3()" )
+
+   a = 0
+   x = 0
+   y = 0
+
+   tasks = taskList()
+
+   for ( x = 1; x <= amaxi(tasks); x++ )
+      println ( "id: ", tasks[x,1], "  thread: ", tasks[x,2],"  name: ", untrim ( tasks[x,3], 10 ), "  nTicks: ", tasks[x,4], "  exclusive: ", tasks[x,5], "  halted: ", tasks[x,6] )
+   end
+
+   if ( type ( tasks[3,1] ) != 'U' )
+     taskkill ( tasks[3,1] )
+   end
+
+   tasks = taskList()
+
+   println ( "-----------------------------------------------------------" )
+
+   for ( x = 1; x <= amaxi(tasks); x++ )
+      println ( "id: ", tasks[x,1], "  thread: ", tasks[x,2],"  name: ", untrim ( tasks[x,3], 10 ), "  nTicks: ", tasks[x,4], "  exclusive: ", tasks[x,5], "  halted: ", tasks[x,6] )
+   end
+
+   tasks = tasklist()
+   for ( x = 3; x <= amaxi(tasks); x++ )
+      taskKill ( tasks[x,1] )
+   end
+end
+
+ 

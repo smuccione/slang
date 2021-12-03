@@ -1,0 +1,36 @@
+class op
+   local val
+
+   operator = ( a )
+      return self.val = a
+   end
+
+   operator ++ ( void )
+      return self.val++
+   end
+
+   operator ++ ()
+      return ++self.val
+   end
+
+   operator -- ( void )
+      return self.val--
+   end
+
+   operator -- ()
+      return --self.val
+   end
+end
+
+
+local obj
+
+obj = new ( "op" )
+
+obj  = 1
+                   //   print   val
+println ( obj++ )  //   1        2
+println ( ++obj )  //   3        3
+println ( obj-- )  //   3        2
+println ( --obj )  //   1        1
+ 

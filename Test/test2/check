@@ -1,0 +1,2 @@
+dbCheck ( 'c:\insdata\entity.db' )
+dbCheck ( 'c:\insdata\trans.db' )

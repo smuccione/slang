@@ -1,0 +1,11 @@
+library lib3.flb
+
+local i, cout
+
+i    = new ( "integer" )
+cout = new ( "ostream" )
+
+for ( i = 0; i < 1000; i++ )
+   cout << i << "  "
+end
+ 

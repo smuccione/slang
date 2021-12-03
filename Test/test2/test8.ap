@@ -1,0 +1,14 @@
+<html>
+<body>
+<[ 
+
+for ( loop = 0; loop < 10; loop++ )
+  ! "" + loop + "<br>"
+  println ( "" + loop + "<br>" )
+end
+
+! date ( "Today is DDDD the DDD of MMM" ) 
+
+]>
+</html>
+</body>

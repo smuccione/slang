@@ -1,0 +1,67 @@
+class ccout
+   operator << ( b )
+      print ( b )
+      return self
+   end
+end
+
+class test
+   local a
+
+   method out ( b )
+      println ( b )
+      return ( "out return" )
+   end
+
+//   operator - ( b )
+   operator associative - ( b )
+      return (self.a - b)
+   end
+
+   operator - ()
+      return ( -self.a )
+   end
+
+   operator -- ()
+      return ( self.a - 1 )
+   end
+
+   operator -- ( void )
+      self.a--
+      return self
+   end
+
+   operator -> ()
+      return "test"
+   end
+end
+
+
+local obj
+local obj2
+
+obj = new ( "test" )
+obj2 = new ( "ccout" );
+
+obj.a = 20
+
+println ( obj.a )
+
+println ( obj - 10 )
+println ( 10 - obj )
+
+println ( -obj )
+
+println ( (obj--).out ( "test" ) )
+println ( --obj )
+
+x = "this is a test"
+
+dbuse ( "dmtf\\dmiattr.dbf", "test" )
+
+println ( test->name )
+println ( (obj)->name )   // tries to set a workarea that doesn't exist
+
+obj2 << "this is a test" << " of ccout " << 5 << " compatibility"
+
+ 

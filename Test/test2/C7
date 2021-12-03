@@ -1,0 +1,107 @@
+class output
+   private:
+      local x
+
+      method new ()
+         self.x = 10
+         return 1
+      end
+
+      method test()
+         self.x = 10
+      end
+
+   protected:
+      method out ()
+         local loop
+
+         for ( loop = 2; loop <= pcount(); loop++ )
+            print ( param(loop) )
+         end
+      end
+
+      method outln ()
+         local loop
+
+         for ( loop = 2; loop <= pcount(); loop++ )
+            self.out ( param(loop) )
+         end
+         self.out ( "\r\n" )
+      end
+
+   public:
+      method publicTest()
+         self.outln ( "this is a test of public inheritence" )
+      end
+end
+
+class c1
+   inherit public output
+
+   public:
+      local exp
+
+   private:
+      local ins
+
+   public:
+      assign default ( var, val )
+         self.outln ( "assigning virtual variable ", var, " -> ", val )
+         return
+      end
+
+      access c
+         return self
+      end
+
+      method d ( val )
+         self.ins = val
+      end
+
+      method e ( val )
+         self.outln ( "private variable 'ins' value is ", self.ins )
+      end
+
+      method f ()
+         self.output.outln ( "private variable 'ins' value is ", self.ins, "   - directed test" )
+      end
+end
+
+class c2
+   inherit protected c1
+
+   method new ()
+      self.outln ( "test" )
+      return ( 1 )
+   end
+end
+
+LOCAL a, b
+
+debugBreak()
+
+println ( "-----start-----" )
+
+a = new ( "c1" )
+b = new ( "c2" )
+
+a.c.z = "test"
+a.z = "tesT"
+
+a.ins = 10
+a.d( 20 )
+a.e()
+a.f()
+
+a.publicTest()
+try
+   b.publicTest()
+   println ( "didn't error - this is bad" )
+catch ( e )
+   if ( e.errorNum != 75 )
+      println ( "didn't get correct error" )
+   else
+      println ( "protected method test works" )
+   end
+end
+ 

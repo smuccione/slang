@@ -1,0 +1,96 @@
+<html>
+<body>
+<[	
+	local fileLines
+	local section;
+	
+	session = new ( "session" )
+	
+	configFile = session.var ( "CONFIG_FILE" )
+	
+	fileLines = strswap( fileReadASCII( configFile ), "\r\n", "\n" )
+	
+	nLines = len ( fileLines )
+
+	section = "UNKNOWN"
+	defaultDir = session.var ( "DIR" )
+	
+	for ( loop = 1; loop <= nLines; loop++ )
+		line = fileLines[loop];
+		line = allTrim ( line )
+		
+		if ( line[1] == '#' )
+			continue
+		end
+		
+		if ( line[1] == '[' )
+			section = upper ( line )
+			continue
+		end
+		
+		switch ( section )
+			case '[CONFIG]':
+				param1 = token ( line, "=", 1 )
+				param1 = alltrim ( param1 )
+				
+				param1 = token ( line, "=", 2 )
+				param2 = alltrim ( param2 )
+				
+				switch ( upper ( param1 ) )
+					case 'DIRECTORY':
+						if ( !defaultDir )
+							defaultDir = param2;
+						end
+						break;
+					default:
+						! "Unknown entry " + section + " in [CONFIG] section<br>"
+						break;
+				end
+				break;
+			case '[DATABASE]':
+				try
+					wa = dbOpen ( line )
+				catch ( err )
+					! "Unable to open '" + line + "' for backup.<br>"
+					continue
+				end
+				! "Backing up database: " + line + "<br>"
+				wa->dbClose ()
+				break;
+			case '[FILES]':
+				param1 = token ( line, "=", 1 )
+				param1 = alltrim ( param1 )
+				
+				param2 = token ( line, "=", 1 )
+				param2 = alltrim ( param2 )
+								
+				if ( !defaultDir )
+					dir = 'c:\ZudeData\bu' + date( "YYYYMMDD" ) + strswap( time( ), ":", "" )
+				else
+					dir = defaultDir
+				end
+				
+				if ( param2 )
+					dir = dir + '\' + param2
+				end
+				
+				newFile = dir + '\' + fParseFn ( param1 ) + ". " + fParseFx ( param1 )
+
+				CopyFile ( param1, param2, 0 )
+				
+				! "Backing up " + fParseFn ( param1 ) + "." + fParseFx ( param1 ) + " to " + dir + ".<br>"
+				break;
+			default:
+				! "Unknown Section " + section + " in configuration file<br>"
+				break;
+		end
+	end
+	
+	if ( !defaultDir )
+		defaultdir = 'd:\zudeData\bu' + date( "YYYYMMDD" ) + strswap( time( ), ":", "" )
+	end
+	
+	dbCopy ( defaultDir )
+]>
+</body>
+</html>

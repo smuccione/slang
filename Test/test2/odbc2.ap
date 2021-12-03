@@ -1,0 +1,26 @@
+<[
+	d = OdbcConnection ( "Driver={MySQL ODBC 3.51 Driver};Server=localhost;Database=test;Option=4;")
+//	d = OdbcConnection ( "Driver={MySQL Connector/ODBC v5};Server=localhost;Database=test;Option=4;")
+	
+	o2 = odbcRecordSet ( d, "tblTest", odbcRecordSet::OdbcRecordsetOpenMode::openTable )
+
+	cmd = odbcCommand ( d, "SELECT * FROM tblTest" )
+	o2.Execute ( cmd );
+	
+	a = o2.GetFieldValue ( 0 )
+	b = o2.GetFieldValue ( "Description" )
+	c = o2.GetFieldValue ( 2 )
+	
+	printf ( "\"%i\" \"%s\" \"%i\"\r\n", a, b, c );
+	
+ 	cmd2 = odbcCommand ( d, "call inc" )
+ 	
+DebugBreak()
+ 	cmd2.AddParameter ( "in1",  OdbcCommand::OdbcDataType::typeInteger, OdbcCommand::OdbcParameterDirection::paramInput, 	0, 5 );
+// 	cmd2.AddParameter ( "out1", OdbcCommand::OdbcDataType::typeInteger, OdbcCommand::OdbcParameterDirection::paramInput, 	0, 11 );
+ 	
+ 	o2 = odbcRecordSet ( d, "tblTest", odbcRecordSet::OdbcRecordsetOpenMode::openTable )
+	o2.Execute ( cmd2 );
+ 	
+ 	a = cmd2.GetParameterValue ( "out1" );
+]>

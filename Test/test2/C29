@@ -1,0 +1,52 @@
+class test
+   local x
+
+   method y
+   end
+end
+
+function y()
+end
+
+
+local o, loop1, loop2
+
+o = new ( "test" )
+
+
+for ( loop1 = 0; loop1 < 10; loop1++ )
+   for ( loop2 = 0; loop2  < 1000; loop2++ )
+      o.x
+   end
+   print ( loop1, "  " )
+end
+
+println()
+
+for ( loop1 = 0; loop1 < 10; loop1++ )
+   for ( loop2 = 0; loop2  < 1000; loop2++ )
+      o
+   end
+   print ( loop1, "  " )
+end
+
+println ()
+println ( "--------------------------------" )
+
+for ( loop1 = 0; loop1 < 10; loop1++ )
+   for ( loop2 = 0; loop2  < 1000; loop2++ )
+      o.y()
+   end
+   print ( loop1, "  " )
+end
+
+println()
+
+for ( loop1 = 0; loop1 < 10; loop1++ )
+   for ( loop2 = 0; loop2  < 1000; loop2++ )
+      y()
+   end
+   print ( loop1, "  " )
+end
+
+ 

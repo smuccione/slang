@@ -1,0 +1,386 @@
+class test
+   local thisIsATestOfa11
+   local thisIsATestOfa12
+   local thisIsATestOfa13
+   local thisIsATestOfa14
+   local thisIsATestOfa15
+   local thisIsATestOfa16
+   local thisIsATestOfa17
+   local thisIsATestOfa18
+   local thisIsATestOfa19
+   local thisIsATestOfa20
+   local thisIsATestOfa21
+   local thisIsATestOfa22
+   local thisIsATestOfa23
+   local thisIsATestOfa24
+   local thisIsATestOfa25
+   local thisIsATestOfa26
+   local thisIsATestOfa27
+   local thisIsATestOfa28
+   local thisIsATestOfa29
+   local thisIsATestOfa30
+   local thisIsATestOfa31
+   local thisIsATestOfa32
+   local thisIsATestOfa33
+   local thisIsATestOfa34
+   local thisIsATestOfa35
+   local thisIsATestOfa36
+   local thisIsATestOfa37
+   local thisIsATestOfa38
+   local thisIsATestOfa39
+   local thisIsATestOfa40
+   local thisIsATestOfa41
+   local thisIsATestOfa42
+   local thisIsATestOfa43
+   local thisIsATestOfa44
+   local thisIsATestOfa45
+   local thisIsATestOfa46
+   local thisIsATestOfa47
+   local thisIsATestOfa48
+   local thisIsATestOfa49
+   local thisIsATestOfa50
+   local thisIsATestOfa51
+   local thisIsATestOfa52
+end
+
+
+local o, x
+
+o = new ( "test" )
+
+for ( x = 100; x < 1000; x++ )
+   o.thisIsATestOfa11
+   o.thisIsATestOfa12
+   o.thisIsATestOfa13
+   o.thisIsATestOfa14
+   o.thisIsATestOfa15
+   o.thisIsATestOfa16
+   o.thisIsATestOfa17
+   o.thisIsATestOfa18
+   o.thisIsATestOfa19
+   o.thisIsATestOfa20
+   o.thisIsATestOfa21
+   o.thisIsATestOfa22
+   o.thisIsATestOfa23
+   o.thisIsATestOfa24
+   o.thisIsATestOfa25
+   o.thisIsATestOfa26
+   o.thisIsATestOfa27
+   o.thisIsATestOfa28
+   o.thisIsATestOfa29
+   o.thisIsATestOfa30
+   o.thisIsATestOfa11
+   o.thisIsATestOfa12
+   o.thisIsATestOfa13
+   o.thisIsATestOfa14
+   o.thisIsATestOfa15
+   o.thisIsATestOfa16
+   o.thisIsATestOfa17
+   o.thisIsATestOfa18
+   o.thisIsATestOfa19
+   o.thisIsATestOfa20
+   o.thisIsATestOfa21
+   o.thisIsATestOfa22
+   o.thisIsATestOfa23
+   o.thisIsATestOfa24
+   o.thisIsATestOfa25
+   o.thisIsATestOfa26
+   o.thisIsATestOfa27
+   o.thisIsATestOfa28
+   o.thisIsATestOfa29
+   o.thisIsATestOfa30
+
+   o.thisIsATestOfa11
+   o.thisIsATestOfa12
+   o.thisIsATestOfa13
+   o.thisIsATestOfa14
+   o.thisIsATestOfa15
+   o.thisIsATestOfa16
+   o.thisIsATestOfa17
+   o.thisIsATestOfa18
+   o.thisIsATestOfa19
+   o.thisIsATestOfa20
+   o.thisIsATestOfa21
+   o.thisIsATestOfa22
+   o.thisIsATestOfa23
+   o.thisIsATestOfa24
+   o.thisIsATestOfa25
+   o.thisIsATestOfa26
+   o.thisIsATestOfa27
+   o.thisIsATestOfa28
+   o.thisIsATestOfa29
+   o.thisIsATestOfa30
+   o.thisIsATestOfa11
+   o.thisIsATestOfa12
+   o.thisIsATestOfa13
+   o.thisIsATestOfa14
+   o.thisIsATestOfa15
+   o.thisIsATestOfa16
+   o.thisIsATestOfa17
+   o.thisIsATestOfa18
+   o.thisIsATestOfa19
+   o.thisIsATestOfa20
+   o.thisIsATestOfa21
+   o.thisIsATestOfa22
+   o.thisIsATestOfa23
+   o.thisIsATestOfa24
+   o.thisIsATestOfa25
+   o.thisIsATestOfa26
+   o.thisIsATestOfa27
+   o.thisIsATestOfa28
+   o.thisIsATestOfa29
+   o.thisIsATestOfa30
+
+   o.thisIsATestOfa11
+   o.thisIsATestOfa12
+   o.thisIsATestOfa13
+   o.thisIsATestOfa14
+   o.thisIsATestOfa15
+   o.thisIsATestOfa16
+   o.thisIsATestOfa17
+   o.thisIsATestOfa18
+   o.thisIsATestOfa19
+   o.thisIsATestOfa20
+   o.thisIsATestOfa21
+   o.thisIsATestOfa22
+   o.thisIsATestOfa23
+   o.thisIsATestOfa24
+   o.thisIsATestOfa25
+   o.thisIsATestOfa26
+   o.thisIsATestOfa27
+   o.thisIsATestOfa28
+   o.thisIsATestOfa29
+   o.thisIsATestOfa30
+   o.thisIsATestOfa11
+   o.thisIsATestOfa12
+   o.thisIsATestOfa13
+   o.thisIsATestOfa14
+   o.thisIsATestOfa15
+   o.thisIsATestOfa16
+   o.thisIsATestOfa17
+   o.thisIsATestOfa18
+   o.thisIsATestOfa19
+   o.thisIsATestOfa20
+   o.thisIsATestOfa21
+   o.thisIsATestOfa22
+   o.thisIsATestOfa23
+   o.thisIsATestOfa24
+   o.thisIsATestOfa25
+   o.thisIsATestOfa26
+   o.thisIsATestOfa27
+   o.thisIsATestOfa28
+   o.thisIsATestOfa29
+   o.thisIsATestOfa30
+
+   o.thisIsATestOfa11
+   o.thisIsATestOfa12
+   o.thisIsATestOfa13
+   o.thisIsATestOfa14
+   o.thisIsATestOfa15
+   o.thisIsATestOfa16
+   o.thisIsATestOfa17
+   o.thisIsATestOfa18
+   o.thisIsATestOfa19
+   o.thisIsATestOfa20
+   o.thisIsATestOfa21
+   o.thisIsATestOfa22
+   o.thisIsATestOfa23
+   o.thisIsATestOfa24
+   o.thisIsATestOfa25
+   o.thisIsATestOfa26
+   o.thisIsATestOfa27
+   o.thisIsATestOfa28
+   o.thisIsATestOfa29
+   o.thisIsATestOfa30
+   o.thisIsATestOfa11
+   o.thisIsATestOfa12
+   o.thisIsATestOfa13
+   o.thisIsATestOfa14
+   o.thisIsATestOfa15
+   o.thisIsATestOfa16
+   o.thisIsATestOfa17
+   o.thisIsATestOfa18
+   o.thisIsATestOfa19
+   o.thisIsATestOfa20
+   o.thisIsATestOfa21
+   o.thisIsATestOfa22
+   o.thisIsATestOfa23
+   o.thisIsATestOfa24
+   o.thisIsATestOfa25
+   o.thisIsATestOfa26
+   o.thisIsATestOfa27
+   o.thisIsATestOfa28
+   o.thisIsATestOfa29
+   o.thisIsATestOfa30
+
+   print ( x, "  " )
+end
+
+for ( x = 100; x < 1000; x++ )
+   thisIsATestOfa11
+   thisIsATestOfa12
+   thisIsATestOfa13
+   thisIsATestOfa14
+   thisIsATestOfa15
+   thisIsATestOfa16
+   thisIsATestOfa17
+   thisIsATestOfa18
+   thisIsATestOfa19
+   thisIsATestOfa20
+   thisIsATestOfa21
+   thisIsATestOfa22
+   thisIsATestOfa23
+   thisIsATestOfa24
+   thisIsATestOfa25
+   thisIsATestOfa26
+   thisIsATestOfa27
+   thisIsATestOfa28
+   thisIsATestOfa29
+   thisIsATestOfa30
+   thisIsATestOfa11
+   thisIsATestOfa12
+   thisIsATestOfa13
+   thisIsATestOfa14
+   thisIsATestOfa15
+   thisIsATestOfa16
+   thisIsATestOfa17
+   thisIsATestOfa18
+   thisIsATestOfa19
+   thisIsATestOfa20
+   thisIsATestOfa21
+   thisIsATestOfa22
+   thisIsATestOfa23
+   thisIsATestOfa24
+   thisIsATestOfa25
+   thisIsATestOfa26
+   thisIsATestOfa27
+   thisIsATestOfa28
+   thisIsATestOfa29
+   thisIsATestOfa30
+
+   thisIsATestOfa11
+   thisIsATestOfa12
+   thisIsATestOfa13
+   thisIsATestOfa14
+   thisIsATestOfa15
+   thisIsATestOfa16
+   thisIsATestOfa17
+   thisIsATestOfa18
+   thisIsATestOfa19
+   thisIsATestOfa20
+   thisIsATestOfa21
+   thisIsATestOfa22
+   thisIsATestOfa23
+   thisIsATestOfa24
+   thisIsATestOfa25
+   thisIsATestOfa26
+   thisIsATestOfa27
+   thisIsATestOfa28
+   thisIsATestOfa29
+   thisIsATestOfa30
+   thisIsATestOfa11
+   thisIsATestOfa12
+   thisIsATestOfa13
+   thisIsATestOfa14
+   thisIsATestOfa15
+   thisIsATestOfa16
+   thisIsATestOfa17
+   thisIsATestOfa18
+   thisIsATestOfa19
+   thisIsATestOfa20
+   thisIsATestOfa21
+   thisIsATestOfa22
+   thisIsATestOfa23
+   thisIsATestOfa24
+   thisIsATestOfa25
+   thisIsATestOfa26
+   thisIsATestOfa27
+   thisIsATestOfa28
+   thisIsATestOfa29
+   thisIsATestOfa30
+
+   thisIsATestOfa11
+   thisIsATestOfa12
+   thisIsATestOfa13
+   thisIsATestOfa14
+   thisIsATestOfa15
+   thisIsATestOfa16
+   thisIsATestOfa17
+   thisIsATestOfa18
+   thisIsATestOfa19
+   thisIsATestOfa20
+   thisIsATestOfa21
+   thisIsATestOfa22
+   thisIsATestOfa23
+   thisIsATestOfa24
+   thisIsATestOfa25
+   thisIsATestOfa26
+   thisIsATestOfa27
+   thisIsATestOfa28
+   thisIsATestOfa29
+   thisIsATestOfa30
+   thisIsATestOfa11
+   thisIsATestOfa12
+   thisIsATestOfa13
+   thisIsATestOfa14
+   thisIsATestOfa15
+   thisIsATestOfa16
+   thisIsATestOfa17
+   thisIsATestOfa18
+   thisIsATestOfa19
+   thisIsATestOfa20
+   thisIsATestOfa21
+   thisIsATestOfa22
+   thisIsATestOfa23
+   thisIsATestOfa24
+   thisIsATestOfa25
+   thisIsATestOfa26
+   thisIsATestOfa27
+   thisIsATestOfa28
+   thisIsATestOfa29
+   thisIsATestOfa30
+
+   thisIsATestOfa11
+   thisIsATestOfa12
+   thisIsATestOfa13
+   thisIsATestOfa14
+   thisIsATestOfa15
+   thisIsATestOfa16
+   thisIsATestOfa17
+   thisIsATestOfa18
+   thisIsATestOfa19
+   thisIsATestOfa20
+   thisIsATestOfa21
+   thisIsATestOfa22
+   thisIsATestOfa23
+   thisIsATestOfa24
+   thisIsATestOfa25
+   thisIsATestOfa26
+   thisIsATestOfa27
+   thisIsATestOfa28
+   thisIsATestOfa29
+   thisIsATestOfa30
+   thisIsATestOfa11
+   thisIsATestOfa12
+   thisIsATestOfa13
+   thisIsATestOfa14
+   thisIsATestOfa15
+   thisIsATestOfa16
+   thisIsATestOfa17
+   thisIsATestOfa18
+   thisIsATestOfa19
+   thisIsATestOfa20
+   thisIsATestOfa21
+   thisIsATestOfa22
+   thisIsATestOfa23
+   thisIsATestOfa24
+   thisIsATestOfa25
+   thisIsATestOfa26
+   thisIsATestOfa27
+   thisIsATestOfa28
+   thisIsATestOfa29
+   thisIsATestOfa30
+
+   print ( x, "  " )
+end
+ 

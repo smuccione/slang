@@ -1,0 +1,20 @@
+<[
+	x = filereadascii ( "selecttest.html" )
+	
+
+	x = new ( "HTMLDOCUMENT", x, 1 )
+	
+	a = x.select ( "h1 h3" )
+	b = x.select ( "h1 *" )
+	c = x.select ( "h1 h2 > h3" )
+	d = x.select ( "h2 + h2" )
+	e = x.select ( "*[attr]" );
+	f = x.select ( '*[attr="here"]' );
+	g = x.select ( '*[attr~="here"]' );
+	h = x.select ( '*[attr~="there"]' );
+	i = x.select ( 'h2:first-child h3' )
+	
+debugbreak()
+	
+	println ( "test" )
+]>

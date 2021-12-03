@@ -1,0 +1,32 @@
+function main ( fname )
+   local dbfStruct
+
+   if ( !dbuse ( fname ) )
+      println ( "error: can't open ", fname )
+      return(0)
+   end
+
+   dbfStruct  = dbstruct()
+   blobFields = {}
+
+   for ( loop = 1; loop <= len ( dbfStruct ); loop++ )
+      if ( dbfStruct[loop][2] == 'B' )
+         blobFields[len(blobFields) + 1] = loop
+      end
+   end
+
+   dbGoTop ()
+
+   while ( !dbEof() )
+      print ( dbRecno(), ": " )
+      for ( loop = 1; loop <= len ( blobFields); loop++ )
+         print ( dbFieldSize ( blobFields[loop] ) )
+         if ( loop != len ( blobFields) )
+            print ( ", " )
+         end
+      end
+      println()
+      dbSkip()
+   end
+end
+ 

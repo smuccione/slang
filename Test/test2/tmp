@@ -1,0 +1,13 @@
+function test()
+  if ( a )
+	printf ( "test" )
+  else
+	printf ( "there" )
+end
+
+function test2()
+	printf ( "what" )
+end
+
+test()
+test2()

@@ -1,0 +1,64 @@
+class test2
+   private:
+      local b
+
+   public:
+      method new()
+         self.a = "test"
+         return (1)
+      end
+
+      access a()
+         return self.b
+      end
+
+      assign a(v)
+         self.b = v
+      end
+end
+
+function set ( x )
+   x = "there"
+end
+
+
+local obj
+
+a = @b
+b = @a
+
+a = 5
+
+
+obj = new ( "test2" )
+
+// We should be able to transparently pass references to access and assign
+// methods the same as we would do with variables
+
+x = @obj.a
+println ( obj.a )
+set ( @x )
+println ( x )
+println ( obj.a )
+
+println ("----------" )
+
+x = @(obj.a)
+println ( obj.a )
+println ( x )
+
+obj.a = "hello"
+println ( x )
+
+x = "there"
+println ( obj.a )
+println ( x )
+
+
+dbuse ( 'dmtf\dmiattr.dbf' )
+
+println ( 1->name )
+x = @1->name
+println ( x )
+println ( @1->name )
+ 

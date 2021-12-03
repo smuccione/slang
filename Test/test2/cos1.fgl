@@ -1,0 +1,55 @@
+// test of the COS( ) function
+
+function main( )
+
+	println("cos(0) = " + cos(0) )
+	println("cos(0.7854) = " + cos(0.7854) )
+	println("cos(1.57) = " + cos(1.57) )
+	println("cos(3.14159) = " + cos(3.14159) )
+
+end
+
+
+
+
+function _Rmain( )
+	local i
+	local a = { 0, 0.7854, 1.57, 3.14159 }
+	
+	for( i=0; i<len(a); i++ )
+	
+		println("cos(a[i])= " + cos(a[i]) )
+	end
+
+end
+
+
+function _main( )
+	local x, i, j, var, iterations
+	local a = {
+		{ 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9 },
+		{ 1, 2, 3, 4, 5, 6, 7, 8, 9 },
+		{ 1.57, 20, 30, 40, 50, 60, 70, 80, 90 },
+		{ .7854, 3, 3 }
+	}
+
+	iterations = 100
+println("begin")	
+	for ( x=1; x<=iterations; x++ )
+		for ( i=1; i<=len( a ); i++ )
+			println( a[i][1] )
+			for ( j=i; j<=len( a[i][1] ); j++ )
+				var = ( a[i][1], j, 1 )
+//				println( "var=" + var + " j=" + j )
+				println( "acos=" + acos( var, a[i][1] ) + "," )
+			end
+			println( "" )
+		end
+	end
+
+println("endfunction")	
+	return( 1 )
+end
+
+
+

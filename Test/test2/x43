@@ -1,0 +1,52 @@
+class vehicle
+   local vin
+end
+
+class driver
+   local dlNum
+end
+
+class Incidents
+   local cause
+
+   method new ( x )
+	::cause = x 
+ 	return ( 1 )
+   end
+end
+
+class test
+      local vehicle
+      local incidents
+	local driver
+	local a, b, c,d
+
+	method new()
+		::vehicle = new ( "vehicle" )
+		::vehicle.vin = "12345677"
+
+		::driver = new ( "driver" )
+		::driver.dlNum = "m9046 72200 09672"
+
+		::incidents[1] = new ( "incidents", "flat tire" )
+		::incidents[2] = new ( "incidents", "crash" )
+
+		::a = 1
+		::b = 2.2
+		::c = { "this", "is", {"a"}, "test"}
+		::d = null
+		return ( 1 )
+	end
+
+	method fillIn ( s )
+		unpack ( s, self )
+	end
+
+end
+
+o = new ( "test" )
+
+debugBreak()
+
+a = objToXml ( o, 1 )
+println ( a )

@@ -1,0 +1,23 @@
+<[
+	s = session()
+
+	println ( "AUTH_TYPE = ", s.DataGet ( "AUTH_TYPE" ) );
+	println ( "CONTENT_LENGTH = ", s.DataGet ( "CONTENT_LENGTH" ) );
+	println ( "CONTENT_TYPE = ", s.DataGet ( "CONTENT_TYPE" ) );
+	println ( "GATEWAY_INTERFACE = ", s.DataGet ( "GATEWAY_INTERFACE" ) );
+	println ( "HTTP_ = ", s.DataGet ( "HTTP_*" ) );
+	println ( "PATH_INFO = ", s.DataGet ( "PATH_INFO" ) );
+	println ( "PATH_TRANSLATED = ", s.DataGet ( "PATH_TRANSLATED" ) );
+	println ( "QUERY_STRING = ", s.DataGet ( "QUERY_STRING" ) );
+	println ( "REMOTE_ADDR = ", s.DataGet ( "REMOTE_ADDR" ) );
+	println ( "REMOTE_HOST = ", s.DataGet ( "REMOTE_HOST" ) );
+	println ( "REMOTE_IDENT = ", s.DataGet ( "REMOTE_IDENT" ) );
+	println ( "REMOTE_USER = ", s.DataGet ( "REMOTE_USER" ) );
+	println ( "REQUEST_METHOD = ", s.DataGet ( "REQUEST_METHOD" ) );
+	println ( "SCRIPT_NAME = ", s.DataGet ( "SCRIPT_NAME" ) );
+	println ( "SERVER_NAME = ", s.DataGet ( "SERVER_NAME" ) );
+	println ( "SERVER_PORT = ", s.DataGet ( "SERVER_PORT" ) );
+	println ( "SERVER_PROTOCOL = ", s.DataGet ( "SERVER_PROTOCOL" ) );
+	println ( "SERVER_SOFTWARE = ", s.DataGet ( "SERVER_SOFTWARE" ) );
+]>
+

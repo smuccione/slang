@@ -1,0 +1,4 @@
+for ( loop = 0; loop < 10000; loop++ )
+   upper ( "test" )
+//        "test".upper()
+end

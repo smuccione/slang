@@ -1,0 +1,41 @@
+class base
+   public:
+      local y
+
+      method baseIncrement()
+         if ( self.y == NIL )
+            self.y = 0
+         end
+         self.y++
+
+         return 1
+      end
+end
+
+class a
+   inherit base
+end
+
+class b
+   inherit base
+end
+
+class combined
+   inherit a, b
+
+   method combined()
+      self.a.baseIncrement()
+      self.b.baseIncrement()
+
+      println ( "number of instances= ", self.a.base.y == 2 ? 1 : 2 )
+   end
+end
+
+
+local a
+
+a = new ( "combined" )
+
+a.combined()
+
+ 

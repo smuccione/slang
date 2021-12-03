@@ -1,0 +1,42 @@
+<[
+
+	local db
+	local EndTime
+	local LockTimeout = 0
+
+	local dbFileName = 'C:\ZudeData\Blob_test.db'
+	local dbIndexName = 'C:\ZudeData\Blob_test.dx'
+	local session = new ("session")
+	local errmsg = ''
+
+	try
+		db = dbuse( dbFileName, "test", 1 )
+	catch ( e )
+		dbcreate( dbFileName, { { "recordNum", "C", 16, 0 }, { "DATA", "B" } } )
+		db = dbuse( dbFileName, "test", 1 )
+	end
+
+	(db)->dbAppend( )
+	curRec = right( '0000000000000000'+ (db)->dbRecNo( ), 16 )
+
+	// record locking
+	EndTime = seconds( ) + LockTimeout
+	while ( ! (db)->dbRLock( ) )
+		if ( ( seconds( ) > EndTime ) || ( ( seconds( ) + LockTimeout ) < EndTime ) )
+			return( session.response( 'Unable to lock database record' ) )
+		end
+	end
+
+
+	(db)->data = session.var("data")
+
+	(db)->recordNum = curRec
+
+	// unlock record
+	(db)->dbUnLock( )
+
+	// close database
+	(db)->dbClose( )
+
+	session.response( curRec )
+]>

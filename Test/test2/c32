@@ -1,0 +1,23 @@
+function main()
+	o = new ( "serverbuffer" )
+	
+	o += "this is a test"
+
+	println ( o )
+
+debugBreak();
+
+	o = upper ( o.str )
+
+	println ( o )
+
+        o = "this is a test"
+
+        println ( o = "this is a test" )
+
+        o = null
+
+        println ( o )
+
+end
+

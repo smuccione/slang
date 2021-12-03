@@ -1,0 +1,290 @@
+<[
+
+CLASS objNotes
+  PUBLIC:
+    local IsOpen, errmsg
+    local date, msg, scope, time
+
+    METHOD New( )
+        ::IsOpen = 0
+        ::errmsg = ""
+        ::Init( )
+        return( 1 )
+    END
+
+    METHOD Init( )
+        ::date = ""
+        ::msg = ""
+        ::scope = 0
+        ::time = ""
+        return( 1 )
+    END
+
+    ACCESS dbFileName
+        return( 'C:\SDWEB\HOME\tristate\data\notes.db' )
+    END
+
+    METHOD create( )
+        local db_struct = {
+            { "DATE", "C", 8, 0 },
+            { "TIME", "C", 8, 0 },
+            { "MSG", "B", 20, 0 },
+            { "SCOPE", "N", 9, 0 }
+        }
+        return( dbcreate( ::dbFileName, db_struct ) )
+    END
+
+    METHOD open( )
+        if ( ::IsOpen )
+            ::IsOpen++
+            return( 1 )
+        end
+
+        if ( ! fileExists( ::dbFileName ) )
+            ::create( )
+        end
+
+        ::IsOpen = 1
+
+        dbuse( ::dbFileName, "Notes", 1 )
+        return( 1 )
+    END
+
+    METHOD close( )
+        if ( ::IsOpen == 1 )
+            Notes->dbClose( )
+        end
+        ::IsOpen--
+        return( 1 )
+    END
+
+    METHOD seek( item )
+        Notes->dbSeek( upper( item ) )
+        return( Notes->dbFound( ) )
+    END
+
+    METHOD reindex( )
+        return( Notes->dbReindex( ) )
+    END
+
+    METHOD get( )
+        ::date = alltrim( Notes->date )
+        ::msg = alltrim( Notes->msg )
+        ::scope = Notes->scope
+        ::time = alltrim( Notes->time )
+        return( 1 )
+    END
+
+    METHOD put( )
+        Notes->date = ::date
+        Notes->msg = ::msg
+        Notes->scope = ::scope
+        Notes->time = ::time
+        return( 1 )
+    END
+
+    METHOD validate( )
+        return( 1 )
+    END
+
+    METHOD CreateNewRecord( key )
+        if ( ! ::validate( ) )
+            return( 0 )
+        end
+
+        ::open( )
+        if ( ::seek( key ) )
+            ::errmsg = "Record (" + key + ") already exists!"
+            ::close( )
+            return( 0 )
+        end
+
+        Notes->dbAppend( )
+        ::put( )
+
+        ::close( )
+        return( 1 )
+    END
+
+    METHOD GetRecord( key )
+        ::open( )
+
+        ::init( )
+        if ( ! ::seek( key ) )
+            ::errmsg = "Unable to locate record (" + key + ")"
+            ::close( )
+            return( 0 )
+        end
+
+        ::get( )
+        ::close( )
+
+        return( 1 )
+    END
+
+    METHOD SetRecord( key )
+        if ( ! ::validate( ) )
+            return( 0 )
+        end
+
+        ::open( )
+
+        if ( ! ::seek( key ) )
+            ::errmsg = "Unable to locate record (" + key + ")"
+            ::close( )
+            return( 0 )
+        end
+
+        ::put( )
+        ::close( )
+
+        return( 1 )
+    END
+
+	METHOD ListNotes( )
+		local s="", i
+		::open( )
+
+		Notes->dbGoBottom( )
+
+		while ( ! Notes->dbBOF( ) )
+			::get( )
+
+			s += "<b>" + ::date + " " + timetostr( ::time, 0 ) + "m</b><br>" + ::msg + "<br><br>"
+
+			Notes->dbSkip( -1 )
+		end
+		if ( right( "        " + s, 8 ) == "<hr><br>" )
+			s = left( s, len( s ) - 8 )
+		end
+
+		::close( )
+
+		return( s )
+	END
+
+
+END
+
+debugBreak( )
+
+_apGenerate( )
+
+session = new( "session" )
+
+//note = new( "objNotes" )
+
+]>
+
+<html>
+<head>
+ <style>
+  A { COLOR: #000000; FONT-FAMILY: Arial, helvetica, sans-serif; text-decoration: none; }
+  A:hover { COLOR: #000000; FONT-FAMILY: Arial, helvetica, sans-serif; text-decoration: underline; }
+  .hdr { color:#000000;font-size:14pt;font-family:Arial;font-weight:bold; }
+  .subhdr { color:#00223E;font-size:12pt;font-family:Arial;font-weight:900; }
+  .tab { color:#000000;font-size:8pt;font-family:Arial;font-weight:900; }
+  .tab2 { color:#FFF3CE;font-size:8pt;font-family:Arial;font-weight:700; }
+  .title { color:#000000;font-size:12pt;font-family:Arial;font-weight:900; }
+  .txt { color:#000000;font-size:9pt;font-family:Arial; }
+  .lst { color:#000000;font-size:9pt;font-family:Arial; }
+  .copyright { color:#404040;font-size:8pt;font-family:Arial; }
+  .bodyheading { PADDING-RIGHT: 0px; PADDING-LEFT: 0px; PADDING-BOTTOM: 0px; MARGIN: 0px; FONT: 700 22px/22px Arial, Helvetica, sans-serif; TEXT-TRANSFORM: none; COLOR: #3366cc; PADDING-TOP: 0px; WHITE-SPACE: normal; TEXT-ALIGN: left }
+ </style>
+</head>
+
+<body leftmargin=0 topmargin=0>
+
+<table border=0 width=100% height=100% cellspacing=0 cellpadding=10>
+<tr height=*><td align=right valign=top>
+
+ <table border=0 width=100% cellspacing=0 cellpadding=10 class=txt>
+  <tr>
+
+   <td width=* valign=top>
+    <table border=0 bgcolor=#FFFFFF width=100% height=112 cellspacing=0 cellpadding=2 class=txt>
+     <tr height=20><td align=left><font class=bodyheading>Welcome Message</td></tr>
+     <tr height=*>
+      <td valign=top>
+       <table border=0 width=100% cellspacing=0 cellpadding=5 class=txt><tr><td>
+        Welcome to the TRI-STATE LTD. insurance agency portal. Use this portal to create new quotes, submit applications, bind policies, process endorsements, handle payments, and monitor your business. Drop us a note and let us know if there is anything else you would like to see available on this portal.
+       </td></tr></table>
+      </td>
+     </tr>
+    </table>
+
+   </td>
+
+   <td valign=top width=30%>
+    <table border=0 bgcolor=#FFFFFF width=100% height=112 cellspacing=0 cellpadding=2 class=txt>
+     <tr height=20><td align=left colspan=2><font class=bodyheading>Pending Policies</td></tr>
+     <tr><td>&nbsp;Total Policies Pending:</td><td align=right>0&nbsp;</td></tr>
+     <tr><td>&nbsp;Total Pending Value:</td><td align=right>$ 0.00&nbsp;</td></tr>
+     <tr><td>&nbsp;Average Aging:</td><td align=right width=35%>0&nbsp;</td></tr>
+    </table>
+   </td>
+
+   <td width=163 valign=top>
+    <img src=images/genlogo.gif width=163 height=112 border=0>
+   </td>
+
+  </tr>
+ </table>
+
+
+ <table border=0 width=100% cellspacing=0 cellpadding=10 class=txt>
+  <tr>
+
+   <td width=* valign=top>
+    <table border=0 bgcolor=#FFFFFF width=100% cellspacing=0 cellpadding=2 class=txt>
+     <tr height=20><td align=left><font class=bodyheading>What's New</td></tr>
+     <tr height=*>
+      <td valign=top>
+       <table border=0 width=100% cellspacing=0 cellpadding=5 class=txt><tr><td>
+        <[ ! note.ListNotes( ) ]>
+       <br><br></td></tr></table>
+      </td>
+     </tr>
+    </table>
+
+   </td>
+
+   <td width=163 valign=top>
+    <table border=0 bgcolor=#FFFFFF width=100% cellspacing=0 cellpadding=2 class=txt>
+     <tr height=20><td align=center><font class=bodyheading>Contact Info</td></tr>
+     <tr height=*>
+      <td valign=top align=center>
+       <table border=1 width=100% cellspacing=0 cellpadding=5 class=txt><tr><td align=center>
+        <b>TRI-STATE LTD.</b><br>
+        506 5th Street<br>
+		Spearfish, SD 57783
+		<br><hr>
+		800-925-8185 office<br>
+		800-727-4455 fax
+		<br><hr>
+		<b>Email Addresses:</b><br>
+		<table border=0 cellspacing=0 cellpadding=0 class=txt><tr><td>
+		&nbsp; - <a href="mailto:">Underwriting</a><br>
+		&nbsp; - <a href="mailto:">Claims</a><br>
+		&nbsp; - <a href="mailto:">Agency Support</a><br>
+		&nbsp; - <a href="mailto:">Accounting</a><br>
+		</td></tr></table>
+       </td></tr></table><br>
+		<img src="images/corner.gif" border=0 width=167 height=42>
+      </td>
+     </tr>
+    </table>
+   </td>
+
+  </tr>
+ </table>
+
+
+
+</td></tr>
+<tr height=15 class=copyright><td align=center>Copyright (c) 2003 by TRI-STATE LTD., All Rights Reserved<br>Portions (c) 2002-2003 Business Risk Technologies, Inc.<br></td></tr>
+</table>
+
+
+</body>
+</html>

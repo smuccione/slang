@@ -1,0 +1,6 @@
+x = uudecode ( "Ngmawg1ejky85KEGt14DexIAAAB" )
+debugBreak()
+x = uudecode ( "AHIAbwBwAFQAYQByAGcAZQB0ACAATABpAGMAZQBuAHMAZQA=" )
+println ( x )
+
+

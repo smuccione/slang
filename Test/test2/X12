@@ -1,0 +1,31 @@
+Global x,z
+
+public function test1()
+
+local loop
+
+for ( loop = 0; loop < 100; loop++ )
+   println ( "2: ", x, " ", z )
+end
+
+end
+
+public function test2()
+
+local loop
+
+for ( loop = 0; loop < 100; loop++ )
+   println ( "1: ", x, " ", z )
+end
+
+end
+
+x = 10
+z = 20
+
+spawn ( "test", "test1()" )
+spawn ( "test", "test2()" )
+for ( loop = 0; loop < 100; loop++ )
+   println ( "0: ", x, " ", z )
+   omCollect()
+end 

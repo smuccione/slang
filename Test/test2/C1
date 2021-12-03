@@ -1,0 +1,19 @@
+#table 1
+
+function a ( b, c, d )
+  local loop,x,y,z
+
+  println ( "num params: ", pcount() )
+
+  for ( loop = 1; loop <= pcount(); loop++ )
+     println ( param(loop) )
+  end
+
+end
+
+a ( 1 )
+
+a ( 1, 2, 3 )
+
+a ( 1, 2, 3, 4, 5, 6 )
+ 

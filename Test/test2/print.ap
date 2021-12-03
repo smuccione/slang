@@ -1,0 +1,14 @@
+<[
+    serverPrintPage ( "http://127.0.0.1/printTest.ap" );
+    
+    x = {}
+    x[len(x)+1] = "http://127.0.0.1/printTest_bad.ap"
+    
+    serverPrintPage ( x )
+]>
+<HTML>
+<head>
+Sending test page to printer
+</head>
+</html>
+

@@ -1,0 +1,7 @@
+<[
+
+smartRun( 'C:\Program Files\Internet Explorer\IExplore.exe', "http://www.ebay.com" )
+
+]>
+
+done

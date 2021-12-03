@@ -1,0 +1,12 @@
+<[
+LIBRARY c:\sdweb\home\insmgmt\insmgmt.flb
+LIBRARY c:\sdweb\home\insmgmt\formdata.flb
+
+x = fileReadAscii ( 'c:\slang\test\test2\pack.txt' )
+
+obj = unpack ( x )
+
+println ( obj )
+
+]>
+

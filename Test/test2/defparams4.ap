@@ -1,0 +1,18 @@
+<[
+
+	class cTest
+		method new ( a, b, c  = "def c")
+			println ( a," : ", b, " : ",  c )
+			println ( param ( 1 ) )
+			println ( param ( 2 ) )
+			println ( param ( 3 ) )
+			println ( param ( 4 ) )
+			return 1
+		end
+	end
+	
+	x = "ctest"
+	
+	o = new ( x,,"p3");
+]>
+

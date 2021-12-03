@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="srcLocation">
+    <DisplayString>{sourceIndex} {columnNumber}:{lineNumberStart} {columnNumberEnd}:{lineNumberEnd}</DisplayString>
+    <Expand>
+      <Item Name ="sourceIndex">sourceIndex</Item>
+      <Item Name ="columnNumber">columnNumber</Item>
+      <Item Name ="lineNumberStart">lineNumberStart</Item>
+      <Item Name ="columnNumberEnd">columnNumberEnd</Item>
+      <Item Name ="lineNumberEnd">lineNumberEnd</Item>
+    </Expand>
+  </Type>
+  <Type Name="BUFFER">
+    <DisplayString>{buffPos - buffStart} {buff,[buffPos - buffStart]sb}</DisplayString>
+    <Expand>
+      <Item Name ="buffSize">buffSize</Item>
+      <Item Name ="buffPos">buffPos</Item>
+      <Item Name ="buffStart">buffStart</Item>
+      <Item Name ="buff">buff</Item>
+    </Expand>
+  </Type>
+</AutoVisualizer>
+

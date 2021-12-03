@@ -1,0 +1,238 @@
+<[
+	LIBRARY c:\sdweb\home\insmgmt\insmgmt.flb
+//	LIBRARY c:\sdweb\home\nia\niaSupport.flb
+	LIBRARY c:\sdweb\home\insmgmt\calendar.flb
+
+	session = new( "session" )
+
+	companyid = session.var( "companyid" )
+	userid = session.var( "userid" )
+
+	theme = "Agent"
+
+	id = companyid + "." + userid
+	qstr = "companyid=" + companyid + "&userid=" + userid + "&subcmd=AGENTPORTAL&theme=" + theme
+
+	page = new( "PageTheme" )
+	page.LoadTheme( theme )
+
+	entity = new( "objEntity" )
+	user = entity.GetEntityObject( "1", id )
+	if ( type( user ) != "O" )
+		entity.close( )
+//		session.response( "<b>LOGIN ERROR.</b><br><br>Unable to locate USER ID (" + upper( companyid + "/" + userid )+ ").<br><br><a href=\"/asic/portal.htm\" target=\"_parent\">Click here</a> to retry..." )
+		session.redir( "/asic/" )
+		return( 1 )
+	end
+	agency = entity.GetAgencyRecord( companyid )
+	if ( ! agency )
+		entity.close( )
+		session.response( "<b>ACCESS ERROR.</b><br><br>Unable to locate ID (" + upper( companyid )+ ").<br><br><a href=\"/asic/portal.htm\" target=\"_top\">Click here</a> to retry..." )
+		return( 1 )
+	end
+	
+	CarrierId = "ASIC"
+	carrier = objCarrier( CarrierId )
+
+]>
+<html>
+<head>
+
+ <META HTTP-EQUIV="imagetoolbar" CONTENT="no">
+
+ <style>
+  A { COLOR: #000000; FONT-FAMILY: Arial, helvetica, sans-serif; text-decoration: none; }
+  A:hover { COLOR: <[ ! page.menuText ]>; FONT-FAMILY: Arial, helvetica, sans-serif; text-decoration: underline; }
+  .hdr { color:#000000;font-size:14pt;font-family:Arial;font-weight:bold; }
+  .subhdr { color:#00223E;font-size:12pt;font-family:Arial;font-weight:900; }
+  .tab { color:#000000;font-size:8pt;font-family:Arial;font-weight:900; }
+  .tab2 { color:#FFF3CE;font-size:8pt;font-family:Arial;font-weight:700; }
+  .title { color:#000000;font-size:12pt;font-family:Arial;font-weight:900; }
+  .txt { color:#000000;font-size:9pt;font-family:Arial; }
+  .navtxt { color:#FFFFFF;font-size:9pt;font-family:Arial; }
+  .bigtxt { color:<[ ! page.menuForeground ]>;font-size:11pt;font-family:Arial; }
+  .verybigtxt { color:#000000;font-size:14pt;font-family:Arial; }
+  .smtxt { color:#000000;font-size:8pt;font-family:Arial; }
+  .lst { color:#000000;font-size:9pt;font-family:Arial; }
+  .copyright { color:#99ccff;font-size:8pt;font-family:Arial; }
+  .copyright2 { color:#A0A0A0;font-size:7pt;font-family:Arial; }
+
+  .newshdr { color:#000000;font-size:8pt;font-family:Verdana,Arial,Helvetica,sans-serif;font-weight:500; }
+  .newssubhdr { color:#808080;font-size:7pt;font-family:Verdana,Arial,Helvetica,sans-serif;font-weight:500; }
+
+  .talltxt {
+	color:#000000;
+	font-size:9pt;
+	font-family:Arial;
+	line-height:20px;
+	letter-spacing: .01em;
+	word-spacing: .01em;
+   }
+
+
+ </style>
+
+<script language=JavaScript>
+
+function OpenWindow( url, x, y, id ) {
+  var base =  ", width=" + x + ", height=" + y + ", status=no, location=no, toolbar=no, scrollbars=yes, menubar=no, directories=no, resizable=yes";
+  var left = ( screen.availWidth - x ) / 2;
+  var top = ( screen.availHeight - y ) / 2;
+  var str = "left=" + left + " top=" + top;
+  var win = window.open( url, id, str + base );
+  win.focus( );
+}
+
+function UserEditor( ) {
+  OpenWindow( "/insmgmt/agency/AgentEdit.htm?<[ ! qstr ]>&agentid=<[ ! id ]>&mode=READONLY", 600, 500, "EditUser" );
+}
+
+function AccessAdmin( ) {
+	var p = prompt( "Enter ADMINISTRATION password:", "" );
+	if ( ( p != "" ) && ( p != null ) ) {
+		parent.document.location = "/asic/portal/agency/index.htm?<[ ! qstr ]>&access=" + p;
+	}
+}
+
+</script>
+
+</head>
+
+<body leftmargin=0 topmargin=0 bgcolor="#FFFFFF" >
+
+<table border=0 width=100%  height=100% cellspacing=0 cellpadding=0 class=txt>
+ <tr>
+
+  <td valign=top width=165 bgcolor="<[ ! page.navBackground ]>" height=100% align=center>
+
+   <!-- LEFT COLUMN -->
+   <table border=0 width=100%  cellspacing=0 cellpadding=10 class=navtxt>
+    <tr>
+     <td width=100%>
+      <font class=copyright><font color=<[ ! page.navHilite ]>>Signed on as:</font><br><br></font><b>
+<[
+	! user.fname + " " + user.lname + "<br>"
+	! user.city + ", " + user.state + " " + user.zip + "<br>"
+//	! user.workphone + " work<br>"
+	! user.homephone + "</b>"
+	! "<center><font class=copyright><br><a href='javascript:UserEditor( );'><font color='" + page.navHilite + "'>Update</a> | <a href='javascript:AccessAdmin( );'><font color='" + page.navHilite + "'>Admin</font></a> | <a href='" + carrier.login + "' target=_top><font color='" + page.navHilite + "'>Signoff</font></a></font></center>"
+]>
+     </td>
+    </tr>
+   </table>
+
+   <hr color=<[ ! page.dlgLite ]> size=1>   
+
+   <table border=0 width=100%  cellspacing=0 cellpadding=10 class=navtxt>
+    <tr>
+     <td width=100% align=left>
+ 	  Resources:<br>
+ 	  <ul>
+ 	  <li><a href="/insmgmt/news_list.htm?<[ ! qstr ]>"><font color=white>Company News</font></a>
+ 	  <li><a href="<[ ! carrier.website ]>" target=_blank><font color=white>Corporate Website</font></a>
+ 	  <li><a href="/insmgmt/news.htm"><font color=white>Industry News</font></a>
+ 	  <li><a href="/insmgmt/resources_list.htm?<[ ! qstr ]>"><font color=white>Useful Resources</font></a>
+ 	  <li><a href="/insmgmt/contact_list.htm?<[ ! qstr ]>&basecompany=<[ ! carrierid ]>"><font color=white>Contact Info</font></a>
+	 </ul>
+     </td>
+    </tr>
+   </table>
+   
+<!--    <img src="/asic/images/HandShake.jpg" width=145 height=111 border=0> -->
+   
+   
+   <font class=copyright2><font color=<[ ! page.navHilite ]>>
+   Copyright (c) 2004 by American Superior Insurance Company<br>
+   Portions copyright (c) 2001-2004<br><a href="http://www.brtsystems.com" target="_blank"><font color="<[ ! page.navHilite ]>">Business Risk Technologies</font></a><br>All Rights Reserved.<br>
+   </font></font>
+   <br><br>
+
+  </td>
+  
+  <!-- CENTER COLUMN -->
+  <td valign=top width=*>
+   <table border=0 width=100%  cellspacing=0 cellpadding=0 class=txt>
+    <tr>
+     <td width=17>&nbsp;</td>
+    
+     <td width=* align=left>
+      <br>
+
+<[
+	ExpireDays = user.ApointmentExpiration( )
+ExpireDays = 5
+	if ( ExpireDays < 0 )
+		! "<script language=JavaScript>\r\n"
+		! "  alert( 'Your AGENT APPOINTMENT has expired. Please contact\\nyour AGENT REPRESENTATIVE for additional information.' );\r\n"
+		! "  parent.document.location = '" + carrier.login + "';\r\n"
+		! "</script>\r\n"
+		return( 1 )
+	elseif ( ExpireDays < 31 )
+
+		! "<table border=0 width=400 bgcolor='#F0F0A0' cellspacing=0 cellpadding=10 class=txt><tr><td>\r\n"
+		! "  <b>NOTICE:</b> Your AGENT APPOINTMENT will expire in " + ExpireDays + " day(s). Please contact your AGENT REPRESENTATIVE for additional information or to request renewal of your appointment.\r\n"
+		! "</td></tr></table>\r\n"
+	end
+]>
+
+
+	  <p class=talltxt><a href="<[ ! carrier.website ]>" target=_blank><img src="/asic/images/office.jpg" border=0 width=240 height=150 align=right hspace=10 vspace=10 alt="Access American Superior's corporate website..."></a>
+	  <font class=title><b>American Superior Insurance Company</b></font><br> is a Florida domiciled property and casualty insurance company specializing in residential property coverage. Our focus is on providing superior customer service by helping Florida homeowners protect their most valuable assets. Started in 1997 to help alleviate Florida's insurance market after Hurricane Andrew, our veteran staff of insurance professionals is committed to providing our policyholders and independent agents with quality products and superior service.
+	  <br><br>
+	  <font class=talltxt>
+
+	  <hr>
+	  <br><font class=verybigtxt><b>Useful Tips</b></font><br><br>
+	  <p><b><u>Mailing Deadline</u></b>: A fully executed application needs to be mailed with full payment within 10 days from the date coverages are bound. If application and/or monies are not received, the application will be cancelled.
+	  <p><b><u>Binder Box Must Be Completed</u></b>. If the binder box is not completed, the application will be suspended and an e-mail notification will be sent to the agency e-mail address on file. A completed binder box is not received within 30 days, the application will be cancelled.
+	  <p><b><u>Mailing Address</u></b>: If the risk is the owner’s primary residence, and the mailing address is different than the property address, please explain why under the remarks section of the application.
+	  <p><b><u>Prior Coverage Information</u></b> needs to be fully completed including name, policy # and expiration date. If there is no prior coverage indicated as required by the underwriting guidelines, the application will be cancelled. NOTE: Prior coverage is required, except in the case of new purchases/leases within 45 days of closing. 
+	  <p><b><u>Supplemental Application</u></b> needs to be fully completed (all questions need to be answered and initialed). If there are incomplete items, the application will be suspended and an e-mail notification will be sent to the agency e-mail address on file. If the required information is not received within 30 days, the application will be cancelled.
+	  <p><b><u>Proper Documentation</u></b> needs to be submitted with application for credits to apply (alarm certificate, storm shutters, 4-point inspection, etc.). If proper documentation is not received the application will not receive credits and/or may be surcharged. Please refer to the underwriting guidelines for more details.
+	  <br><br><hr>	  
+
+ 	  </font>
+	  <center>
+      <font class=copyright2>
+      Copyright (c) 2001-2004 <a href="http://www.brtsystems.com" target="_blank"><font color="#A0A0A0">Business Risk Technologies</font></a>, All Rights Reserved.<br>
+      </font>
+      </center>
+      <br><br><br>
+      
+      </font>
+     
+	 </td>
+	</tr>
+   </table>
+  </td>
+
+  <!-- RIGHT COLUMN -->
+  <td valign=top width=190>
+   <table border=0 width=100%  cellspacing=0 cellpadding=15 class=txt>
+    <tr>
+     <td width=100% align=center>
+      <font class=smtxt>
+<[
+
+	! "<a href=\"/insmgmt/ScheduleDetail.htm?" + qstr + "&date=" + date( ) + "\"><font color=black><b>" + date( "MMMM, YYYY" ) + "</b></font></a><br>"
+	! DisplayCalendarX( date( ), 1, 180, 24, "", page )
+//	! "<center><a href=\"javascript:alert('Add activity for " + cMonthYear( date( ) ) + "...');\">Add Activity</a> | <a href=\"javascript:alert('View activities for " + cMonthYear( date( ) ) + "...');\">View Activities</a></center>"
+	for ( i=1; i<3; i++ )
+		! "<br>"
+		d = cMonthAdd( date( ), i )
+		f = FirstOfMonth( d )
+		! "<a href=\"/insmgmt/ScheduleDetail.htm?" + qstr + "&date=" + d + "\"><font color=black><b>" + cMonthYear( d ) + "</b></font></a><br>"
+		! DisplayCalendarX( d, 0, 180, 24, "", page )
+	end
+
+]>
+	  </font>
+     </td>
+    </tr>
+   </table>
+  </td>
+
+ </tr>
+</table>
+</body>
+</html>

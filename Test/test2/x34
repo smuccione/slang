@@ -1,0 +1,3 @@
+println ( stratnexti ( "=", "a=b c=d e=f", 1 ) )
+println ( stratnexti ( "=", "a=b c=d e=f", 2 ) )
+println ( stratnexti ( "=", "a=b c=d e=f", 3 ) )

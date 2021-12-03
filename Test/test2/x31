@@ -1,0 +1,32 @@
+global test
+static test2
+
+function func1 ()
+  static test = 1
+  static test2 = 2
+  local test3 = 3
+
+  println ( test, " ",  test2, test3 );
+
+  test  = 4
+  test2 = 5
+end
+
+function func2 ()
+  local test
+  local test2
+
+  test  = 2
+  tets2 = 2
+end
+
+test = 0
+test2 = 0
+
+println ( test, " : ", test )
+func1()
+println ( test, " : ", test )
+func1()
+println ( test, " : ", test )
+func2()
+println ( test, " : ", test )

@@ -1,0 +1,28 @@
+local a, b, c, d
+
+
+for ( a = 0; a < 5; a++ )
+   for ( b = 0; b < 5; b++ )
+      for ( c = 0; c < 5; c++ )
+         for ( d = 0; d < 5; d++ )
+            arr[a,b,c,d] = a * b * c * d
+         end
+      end
+   end
+end
+
+for ( a = 0; a < 5; a++ )
+   for ( b = 0; b < 5; b++ )
+      for ( c = 0; c < 5; c++ )
+         for ( d = 0; d < 5; d++ )
+            if ( arr[a,b,c,d] != a * b * c * d )
+               println ( "error: incorrect array element" )
+               exit ( 5 )
+            end
+         end
+      end
+   end
+end
+
+println ( "test passed" )
+ 

@@ -1,0 +1,10 @@
+
+DebugBreak()
+
+str = "defPortal=Agent&companyid=BRT&userid=SREPETTI&password=MARVIN&cmd=LOGIN&defLocation=Main%2bOffice&defLocation=&logindir=Agent&defLocationID=BRT.BRANCH.0&sessiontimeout=07-15-2005-08:54:39"
+a = webEncodeUrl ( str )
+e = encryptAES ( "1234567890123456", a )
+b = decryptAES ( "1234567890123456", e )
+str2 = webDecodeUrl ( b )
+
+println( a, " = ", b )

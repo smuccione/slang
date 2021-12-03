@@ -1,0 +1,37 @@
+<[
+
+library	c:\slang\test\test2\webClient.flb
+
+//x = new ( "webclient","safesite.safeco.com", "safecoplaza/yourbusiness/administration/loginform/login.asp?OriginalURL=/commercial/client/", 1)
+
+x = new ( "webclient" )
+
+x.domain = "safesite.safeco.com"
+x.ssl = 1
+x.url	 = "safecoplaza/yourbusiness/administration/loginform/login.asp?OriginalURL=/commercial/client/"
+
+debugBreak()
+
+
+// now get a list of everything that we need to fill in for this page
+a = x.document.GetPostData()
+
+// loop through everything that we need to fill in... hopefully if they change anything it'll just be page
+//   formatting and they'll leave the actual input names alone... this let's us just work with the names
+
+for ( loop = 1; loop <= len ( a ); loop++ )
+	switch ( upper ( a[loop][1] ) )		// test against the input names
+		case "TXTUSERID"
+			a[loop][2] = "151191"
+			break
+		case "TXTPASSWORD"
+			a[loop][2] = "rate"
+			break
+	end
+end
+
+x.submit()		// can optionally submit a data array if you don't want to use the dom
+
+!x.page
+
+]>

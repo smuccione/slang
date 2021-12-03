@@ -1,0 +1,3 @@
+x = array ( 5 )
+y = aadd ( x, 5 )
+println ( x )

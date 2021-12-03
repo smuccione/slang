@@ -1,0 +1,45 @@
+<[
+  session = new ( "session" )
+   debugBreak()
+]>
+<html>
+<body>
+in part 1
+</body>
+<html>
+<[
+   debugBreak()
+   session.multipart()
+]>
+<html>
+<body>
+this is part 2
+</body>
+<html>
+<[
+   debugBreak()
+   session.multipart()
+]>
+<html>
+<body>
+here we are in part 3
+</body>
+<html>
+<[
+   debugBreak()
+   session.multipart()
+]>
+<html>
+<body>
+made it to part 4
+</body>
+<html>
+<[
+   debugBreak()
+   session.multipart()
+]>
+<html>
+<body>
+this is the last part... end of the line
+</body>
+<html>

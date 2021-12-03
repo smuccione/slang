@@ -1,0 +1,11 @@
+<[
+
+	local wa
+	
+	wa = dbOpen ( 'c:\fantaz\trans.db' )
+	
+	(wa)->dbBackup ( 'c:\bu\' );
+	
+	printf ( "done" );
+	
+]>

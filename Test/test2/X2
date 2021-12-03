@@ -1,0 +1,21 @@
+#table 1
+
+function x()
+  for ( loop = 0; loop < 2000; loop++ )
+    a = b = c = NULL
+    a[0] = "hello "
+    b[0] = "there "
+    c[0] = a
+    c[1] = b
+    println ( loop, '  ' ) //, c[0,0], c[1,0] )
+
+    z[0] = "hello" + " there"
+    z[1] = z
+
+    println (z[0], ':', z[1,0], ':', z[1,1,0], ':', z[1,1,1,0], ':', z[1,1,1,1,0] )
+  end
+end
+
+x()
+
+ 

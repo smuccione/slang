@@ -1,0 +1,23 @@
+#table 1
+
+function b()
+   println ( "initializing to 10 " )
+   return 10
+end
+
+function a ()
+  static x = b()
+  local y = 4
+
+  x++
+  y++
+
+  println ( x, " ", y )
+end
+
+local x
+
+for ( x := 1; x < 10; x++ )
+  a ( " " )
+end
+ 

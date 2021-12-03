@@ -1,0 +1,46 @@
+<[
+	session = session()
+	
+	ct = session.data('content_type')
+	if ( ct && lower(left(ct, 10)) == 'multipart/' )
+		! "your command is: " + session.postData(0) + "<br/>"
+		! "your first name is: " + session.postData(1) + "<br/>"			// check for case insensitivity
+		! "your last name is: " + session.postData(2) + "<br/>"
+	else
+		! "your command is: " + session.var( "cmd" ) + "<br/>"
+		! "your first name is: " + session.var( "fName" ) + "<br/>"			// check for case insensitivity
+		! "your last name is: " + session.var( "lname" ) + "<br/>"
+	end
+]>
+
+<html>
+<body>
+<form name="input1" action="formtest.ap" method="POST">
+<input type=hidden name=cmd value="UPDATE">
+
+First Name: <input type=text name=fname><br>
+Last Name: <input type=text name=lname><br>
+<input type=submit value="Click here to submit form (POST)...">
+</form>
+
+<form name="input2" action="formtest.ap" method="POST" enctype="multipart/form-data">
+<input type=hidden name=cmd value="UPDATE">
+
+First Name: <input type=text name=fname><br>
+Last Name: <input type=text name=lname><br>
+<input type=submit value="Click here to submit form (POST Multipart)...">
+</form>
+
+<form name="input3" action="formtest.ap" method="GET">
+<input type=hidden name=cmd value="UPDATE">
+
+First Name: <input type=text name=fname><br>
+Last Name: <input type=text name=lname><br>
+<input type=submit value="Click here to submit form (GET)...">
+</form>
+
+
+</body>
+</html>
+
+

@@ -1,0 +1,4808 @@
+CLASS A160_company_information
+  PUBLIC:
+    local _title, _class, obj, errmsg
+
+    local Date, CarrierName, CodeNAIC, CarrierPolProgrName, CarrierProgrCode, PolNew
+    local PolRenew, DateEff, DateExp, PayDirectBill, PayAgencyBill, PayPlan, Quote
+    local PolIssue, Bound, BounDate, CarrierDepositAmt, PolTypeSTD, PolTypeSpec
+    local PolTypeOther1, PolTypeOther2, PolicyType, AppType, AppStatusType, BillType
+
+    METHOD new( obj )
+        ::_title = "COMPANY INFORMATION"
+        ::_class = "A160_company_information"
+        ::obj = obj
+        ::errmsg = ""
+        ::init( )
+        return( 1 )
+    END
+
+    METHOD init( )
+        ::Date = ""
+        ::CarrierName = ""
+        ::CodeNAIC = ""
+        ::CarrierPolProgrName = ""
+        ::CarrierProgrCode = ""
+        ::PolNew = ""
+        ::PolRenew = ""
+        ::DateEff = ""
+        ::DateExp = ""
+        ::PayDirectBill = ""
+        ::PayAgencyBill = ""
+        ::PayPlan = ""
+        ::Quote = ""
+        ::PolIssue = ""
+        ::Bound = ""
+        ::BounDate = ""
+        ::CarrierDepositAmt = ""
+        ::PolTypeSTD = ""
+        ::PolTypeSpec = ""
+        ::PolTypeOther1 = ""
+        ::PolTypeOther2 = ""
+        ::PolicyType = ""
+        ::AppType = ""
+        ::AppStatusType = ""
+        ::BillType = ""
+        return( 1 )
+    END
+
+    ACCESS aVars
+        static a = {
+            { "Date", 1, "Date", "date", 65 },
+            { "CarrierName", 1, "Company", "text", 300 },
+            { "" },
+            { "CodeNAIC", 1, "NAIC Code", "textbutton", 100, "", "...", "SelectNAIC( 'CodeNAIC' )" },
+            { "" },
+            { "CarrierPolProgrName", 1, "Company Policy or Program Name", "text", 300 },
+            { "CarrierProgrCode", 1, "Program Code", "textreadonly", 250 },
+
+			{ "AppType", 1, "Type of Application", "lbstr", 1, "-;New;Renew;", "onChange=\"lbUpdateX( this, 'input', ';PolNew;PolRenew' );\"" },
+            { "PolNew", 1, "", "hidden", 1 },
+            { "PolRenew", 1, "", "hidden", 1 },
+            { "" },
+            { "DateEff", 1, "Effective Date", "date", 65 },
+            { "DateExp", 1, "Expiration Date", "date", 65 },
+            { "" },
+			
+			{ "BillType", "1", "Billing Method", "lbstr", 1, "-;Direct Bill;Agency Bill;", "onChange=\"lbUpdateX( this, 'input', ';PayDirectBill;PayAgencyBill;' );\"" },
+            { "PayDirectBill", 1, "", "hidden", 1 },
+            { "PayAgencyBill", 1, "", "hidden", 1 },
+            
+            { "PayPlan", 1, "Payment Plan", "text", 100 },
+            { "" },
+            
+            { "AppStatusType", 1, "Application Status", "lbstr", 1, "-;Quote;Issued;Bound;", "onChange=\"lbUpdateX( this, 'input', ';Quote;PolIssue;Bound' );\"" },
+            { "Quote", 1, "", "hidden", 100 },
+            { "PolIssue", 1, "", "hidden", 100 },
+            { "Bound", 1, "", "hidden", 100 },
+
+            { "BounDate", 1, "Bound (date)", "date", 65 },
+
+
+            { "" },
+
+//            { "PolTypeSTD", 1, "Policy Type", "lbstr2d",1, "-;X|STD;-|Special;-|Other;" },
+
+			{ "PolicyType", 1, "PolicyType", "lbstr", 1, "-;Standard;Special;Other;", "onChange=\"lbUpdateX( this, 'input', ';PolTypeSTD;PolTypeSpec;PolTypeOther1' );\"" },
+            { "PolTypeSTD", 1, "", "hidden", 1 },
+            { "PolTypeSpec", 1, "", "hidden", 100 },
+            { "PolTypeOther1", 1, "", "hidden", 100 },
+            { "PolTypeOther2", 1, "Other Type", "text", 100 },
+            { "" },
+
+            { "CarrierDepositAmt", 1, "Deposit Amount", "DOLLARANDCENTS", 100 }
+
+        }
+        return( a )
+    END
+
+    METHOD LoadFromObject( data )
+        ::Date = data.Date
+        ::CarrierName = data.CarrierName
+        ::CodeNAIC = data.CodeNAIC
+        ::CarrierPolProgrName = data.CarrierPolProgrName
+        ::CarrierProgrCode = data.CarrierProgrCode
+        ::PolNew = data.PolNew
+        ::PolRenew = data.PolRenew
+        ::DateEff = data.DateEff
+        ::DateExp = data.DateExp
+        ::PayDirectBill = data.PayDirectBill
+        ::PayAgencyBill = data.PayAgencyBill
+        ::PayPlan = data.PayPlan
+        ::Quote = data.Quote
+        ::PolIssue = data.PolIssue
+        ::Bound = data.Bound
+        ::BounDate = data.BounDate
+        ::CarrierDepositAmt = data.CarrierDepositAmt
+        ::PolTypeSTD = data.PolTypeSTD
+        ::PolTypeSpec = data.PolTypeSpec
+        ::PolTypeOther1 = data.PolTypeOther1
+        ::PolTypeOther2 = data.PolTypeOther2
+        ::PolicyType = data.PolicyType
+        ::AppType = data.AppType
+        ::AppStatusType = data.AppStatusType
+        ::BillType = data.BillType
+        return( 1 )
+    END
+
+    METHOD put( data )
+        data.Date = ::Date
+        data.CarrierName = ::CarrierName
+        data.CodeNAIC = ::CodeNAIC
+        data.CarrierPolProgrName = ::CarrierPolProgrName
+        data.CarrierProgrCode = ::CarrierProgrCode
+        data.PolNew = ::PolNew
+        data.PolRenew = ::PolRenew
+        data.DateEff = ::DateEff
+        data.DateExp = ::DateExp
+        data.PayDirectBill = ::PayDirectBill
+        data.PayAgencyBill = ::PayAgencyBill
+        data.PayPlan = ::PayPlan
+        data.Quote = ::Quote
+        data.PolIssue = ::PolIssue
+        data.Bound = ::Bound
+        data.BounDate = ::BounDate
+        data.CarrierDepositAmt = ::CarrierDepositAmt
+        data.PolTypeSTD = ::PolTypeSTD
+        data.PolTypeSpec = ::PolTypeSpec
+        data.PolTypeOther1 = ::PolTypeOther1
+        data.PolTypeOther2 = ::PolTypeOther2
+        data.PolicyType = ::PolicyType
+        data.AppType = ::AppType
+        data.AppStatusType = ::AppTypeStatus
+        return( 1 )
+    END
+
+    METHOD validate( )
+        local s = ""
+        ::errmsg = s
+        return( strempty( ::errmsg ) )
+    END
+
+    METHOD update( data )
+        local line, val, key, i=1
+        while ( 1 )
+            line = strextract( data, "&", i++ )
+            if ( strempty( line ) )
+                break
+            end
+            key = strextract( line, "=", 1 )
+            val = webDecodeURL( right( line, len( line ) - ( len( key ) + 1 ) ) )
+            self.(upper(key)) = val
+        end
+        return( 1 )
+    END
+
+    ACCESS default( name )
+        name = name
+        return( '' )
+    END
+    ASSIGN default( name, val )
+        name = name
+        val = val
+    END
+
+    METHOD flatten( g )
+        return( g.CreateClassVarString( self ) )
+    END
+
+END
+
+CLASS A160_applicant_information
+  PUBLIC:
+    local _title, _class, obj, errmsg
+
+    local AppName, AppEmail, AppAdd, AppIndividual, AppPartnership, AppCorporation
+    local AppLLC, AppJointVenture, AppOther, GLPolNum, SIC, AppFeinSSN, InsContName
+    local InsContPhone, VerCredBureauName, VerCredBureauIDNum, AppEntityType
+
+    METHOD new( obj )
+        ::_title = "APPLICANT INFORMATION"
+        ::_class = "A160_applicant_information"
+        ::obj = obj
+        ::errmsg = ""
+        ::init( )
+        return( 1 )
+    END
+
+    METHOD init( )
+        ::AppName = ""
+        ::AppEmail = ""
+        ::AppAdd = ""
+        ::AppIndividual = ""
+        ::AppPartnership = ""
+        ::AppCorporation = ""
+        ::AppLLC = ""
+        ::AppJointVenture = ""
+        ::AppOther = ""
+        ::GLPolNum = ""
+        ::SIC = ""
+        ::AppFeinSSN = ""
+        ::InsContName = ""
+        ::InsContPhone = ""
+        ::VerCredBureauName = ""
+        ::VerCredBureauIDNum = ""
+        ::AppEntityType = ""
+        return( 1 )
+    END
+
+    ACCESS aVars
+        static a = {
+            { "AppName", 1, "Name", "textreadonly", 300 },
+            { "AppAdd", 1, "Address", "textareareadonly", 300, 3 },
+            { "" },
+//          { "AppIndividual", 1, "Firm Type", "lbstr2d",1, "-;X|Individual;-|Partnership;-|Corporation;-|LLC;-|Venture;-|Other;", "onChange='var i = input.AppIndividual.selectedIndex;input.AppPartnership.value = \"-\";input.AppCorporation.value = \"-\";input.AppLLC.value = \"-\"input.AppJointVenture.value = \"-\";input.AppOther.value = \"-\";switch ( i ) {  case 1:    input.AppPartnership.value = \"X\";    break  case 2:    input.AppCorporation.value = \"X\";    break   case 3:    input.AppLLC.value = \"X\";    break  case 2:    input.AppJointVenture.value = \"X\";    break   case 3:    input.AppOther.value = \"X\";    break }'" },
+            { "AppEntityType", 1, "Firm Type", "lbstr",1, "-;Individual;Partnership;Corporation;LLC;Venture;Other;", "onChange=\"lbUpdateX( this, 'input', ';AppIndividual;AppPartnership;AppCorporation;AppLLC;AppJointVenture;AppOther' );\"" },
+
+            { "AppIndividual", 1, "Firm Type", "hidden", 100 },
+            { "AppPartnership", 1, "Partnership", "hidden", 100 },
+            { "AppCorporation", 1, "Corporation", "hidden", 100 },
+            { "AppLLC", 1, "LLC", "hidden", 100 },
+            { "AppJointVenture", 1, "Venture", "hidden", 100 },
+            { "AppOther", 1, "Other", "hidden", 100 },
+            { "" },
+            { "GLPolNum", 1, "GL Code", "text", 100 },
+            { "SIC", 1, "SIC", "text", 100 },
+            { "AppFeinSSN", 1, "SSN/FEIN", "text", 100 },
+            { "" },
+            { "InsContName", 1, "Contact for Inspection", "text", 300 },
+            { "InsContPhone", 1, "Phone Number", "text", 100 },
+            { "" },
+            { "VerCredBureauName", 1, "Credit Bureau Name", "text", 300 },
+            { "VerCredBureauIDNum", 1, "Credit Bureau ID number", "text", 100 },
+            { "" },
+            { "AppEmail", 1, "Internet address", "text", 300 }
+        }
+        return( a )
+    END
+
+    METHOD LoadFromObject( data )
+        ::AppName = data.AppName
+        ::AppEmail = data.AppEmail
+        ::AppAdd = data.AppAdd
+        ::AppIndividual = data.AppIndividual
+        ::AppPartnership = data.AppPartnership
+        ::AppCorporation = data.AppCorporation
+        ::AppLLC = data.AppLLC
+        ::AppJointVenture = data.AppJointVenture
+        ::AppOther = data.AppOther
+        ::GLPolNum = data.GLPolNum
+        ::SIC = data.SIC
+        ::AppFeinSSN = data.AppFeinSSN
+        ::InsContName = data.InsContName
+        ::InsContPhone = data.InsContPhone
+        ::VerCredBureauName = data.VerCredBureauName
+        ::VerCredBureauIDNum = data.VerCredBureauIDNum
+        ::AppEntityType = data.AppEntityType
+        return( 1 )
+    END
+
+    METHOD put( data )
+        data.AppName = ::AppName
+        data.AppEmail = ::AppEmail
+        data.AppAdd = ::AppAdd
+        data.AppIndividual = ::AppIndividual
+        data.AppPartnership = ::AppPartnership
+        data.AppCorporation = ::AppCorporation
+        data.AppLLC = ::AppLLC
+        data.AppJointVenture = ::AppJointVenture
+        data.AppOther = ::AppOther
+        data.GLPolNum = ::GLPolNum
+        data.SIC = ::SIC
+        data.AppFeinSSN = ::AppFeinSSN
+        data.InsContName = ::InsContName
+        data.InsContPhone = ::InsContPhone
+        data.VerCredBureauName = ::VerCredBureauName
+        data.VerCredBureauIDNum = ::VerCredBureauIDNum
+        data.AppEntityType = ::AppEntityType
+        return( 1 )
+    END
+
+    METHOD validate( )
+        local s = ""
+        ::errmsg = s
+        return( strempty( ::errmsg ) )
+    END
+
+    METHOD update( data )
+        local line, val, key, i=1
+        while ( 1 )
+            line = strextract( data, "&", i++ )
+            if ( strempty( line ) )
+                break
+            end
+            key = strextract( line, "=", 1 )
+            val = webDecodeURL( right( line, len( line ) - ( len( key ) + 1 ) ) )
+            self.(key) = val
+        end
+        return( 1 )
+    END
+
+    ACCESS default( name )
+        name = name
+        return( '' )
+    END
+    ASSIGN default( name, val )
+        name = name
+        val = val
+    END
+
+    METHOD flatten( g )
+        return( g.CreateClassVarString( self ) )
+    END
+
+END
+
+CLASS A160_nature_business
+  PUBLIC:
+    local _title, _class, obj, errmsg
+
+    local BusOffice, BusService, BusRetail, BusWholesale, BusAppartments, BusCondo
+    local BusContract, BusRestaurant, BusOther1, BusOther2, DateBusStart, BusOpDesc
+    local BIncInstallation, BusType
+
+    METHOD new( obj )
+        ::_title = "NATURE OF BUSINESS"
+        ::_class = "A160_nature_business"
+        ::obj = obj
+        ::errmsg = ""
+        ::init( )
+        return( 1 )
+    END
+
+    METHOD init( )
+    	::BusType = ""
+        ::BusOffice = ""
+        ::BusService = ""
+        ::BusRetail = ""
+        ::BusWholesale = ""
+        ::BusAppartments = ""
+        ::BusCondo = ""
+        ::BusContract = ""
+        ::BusRestaurant = ""
+        ::BusOther1 = ""
+        ::BusOther2 = ""
+        ::DateBusStart = ""
+        ::BusOpDesc = ""
+        ::BIncInstallation = ""
+        return( 1 )
+    END
+
+    ACCESS aVars
+        static a = {
+//            	{ "", 260, "", "SETWIDTH" },
+
+            { "BusType", 1, "Nature of Business", "lbstr",1, "-;Office;Service;Retail;Wholesale;Apartments;Condominiums;Restaurant;Contractor;Other;", "onChange=\"lbUpdateX( this, 'input', ';BusOffice;BusService;BusRetail;BusWholesale;BusAppartments;BusCondo;BusRestaurant;BusContract;BusOther1' );\"" },
+
+            { "BusOffice", 1, "", "hidden" ,1 },
+            { "BusService", 1, "", "hidden", 100 },
+            { "BusRetail", 1, "", "hidden", 100 },
+            { "BusWholesale", 1, "", "hidden", 100 },
+            { "BusAppartments", 1, "", "hidden", 100 },
+            { "BusCondo", 1, "", "hidden", 100 },
+            { "BusRestaurant", 1, "", "hidden", 100 },
+            { "BusContract", 1, "", "hidden", 100 },
+            { "BusOther1", 1, "", "hidden", 100 },
+            { "BusOther2", 1, " If other, explain", "text", 300 },
+            { "" },
+            { "DateBusStart", 1, "Date business started", "date", 65 },
+            { "" },
+            { "BusOpDesc", 1, "Description of Operation", "textarea", 360, 4 },
+            { "" },
+            { "BIncInstallation", 1, "Retail Store, % installation, service or repair work", "lbnum", 1, 0, 100, 10 }
+        }
+        return( a )
+    END
+
+    METHOD LoadFromObject( data )
+        ::BusType = data.BusType
+        ::BusOffice = data.BusOffice
+        ::BusService = data.BusService
+        ::BusRetail = data.BusRetail
+        ::BusWholesale = data.BusWholesale
+        ::BusAppartments = data.BusAppartments
+        ::BusCondo = data.BusCondo
+        ::BusContract = data.BusContract
+        ::BusRestaurant = data.BusRestaurant
+        ::BusOther1 = data.BusOther1
+        ::BusOther2 = data.BusOther2
+        ::DateBusStart = data.DateBusStart
+        ::BusOpDesc = data.BusOpDesc
+        ::BIncInstallation = data.BIncInstallation
+        return( 1 )
+    END
+
+    METHOD put( data )
+        data.BusType = ::BusType
+        data.BusOffice = ::BusOffice
+        data.BusService = ::BusService
+        data.BusRetail = ::BusRetail
+        data.BusWholesale = ::BusWholesale
+        data.BusAppartments = ::BusAppartments
+        data.BusCondo = ::BusCondo
+        data.BusContract = ::BusContract
+        data.BusRestaurant = ::BusRestaurant
+        data.BusOther1 = ::BusOther1
+        data.BusOther2 = ::BusOther2
+        data.DateBusStart = ::DateBusStart
+        data.BusOpDesc = ::BusOpDesc
+        data.BIncInstallation = ::BIncInstallation
+        return( 1 )
+    END
+
+    METHOD validate( )
+        local s = ""
+        ::errmsg = s
+        return( strempty( ::errmsg ) )
+    END
+
+    METHOD update( data )
+        local line, val, key, i=1
+        while ( 1 )
+            line = strextract( data, "&", i++ )
+            if ( strempty( line ) )
+                break
+            end
+            key = strextract( line, "=", 1 )
+            val = webDecodeURL( right( line, len( line ) - ( len( key ) + 1 ) ) )
+            self.(upper(key)) = val
+        end
+        return( 1 )
+    END
+
+    ACCESS default( name )
+        name = name
+        return( '' )
+    END
+    ASSIGN default( name, val )
+        name = name
+        val = val
+    END
+
+    METHOD flatten( g )
+        return( g.CreateClassVarString( self ) )
+    END
+
+END
+CLASS A160_general_information
+  PUBLIC:
+    local _title, _class, obj, errmsg
+
+    local GI01Yes, GI01No, GI02Yes, GI02No, GI03Yes, GI03No, GI04Yes, GI04No, GI05Yes
+    local GI05No, GI06Yes, GI06No, GI07Yes, GI07No, GI08Yes, GI08No, GI09Yes, GI09No
+    local GI10Yes, GI10No, GI11Yes, GI11No, GI12Yes, GI12No, GI13Yes, GI13No, GI14Yes
+    local GI14No, GI15Yes, GI15No, GI16Yes, GI16No, GIOrganizName
+
+    METHOD new( obj )
+        ::_title = "GENERAL INFORMATION"
+        ::_class = "A160_general_information"
+        ::obj = obj
+        ::errmsg = ""
+        ::init( )
+        return( 1 )
+    END
+
+    METHOD init( )
+        ::GI01Yes = ""
+        ::GI01No = ""
+        ::GI02Yes = ""
+        ::GI02No = ""
+        ::GI03Yes = ""
+        ::GI03No = ""
+        ::GI04Yes = ""
+        ::GI04No = ""
+        ::GI05Yes = ""
+        ::GI05No = ""
+        ::GI06Yes = ""
+        ::GI06No = ""
+        ::GI07Yes = ""
+        ::GI07No = ""
+        ::GI08Yes = ""
+        ::GI08No = ""
+        ::GI09Yes = ""
+        ::GI09No = ""
+        ::GI10Yes = ""
+        ::GI10No = ""
+        ::GI11Yes = ""
+        ::GI11No = ""
+        ::GI12Yes = ""
+        ::GI12No = ""
+        ::GI13Yes = ""
+        ::GI13No = ""
+        ::GI14Yes = ""
+        ::GI14No = ""
+        ::GI15Yes = ""
+        ::GI15No = ""
+        ::GI16Yes = ""
+        ::GI16No = ""
+        ::GIOrganizName = ""
+        return( 1 )
+    END
+
+    ACCESS aVars
+        static a = {
+            { "", 1, "", "ALIGNLEFT" },
+            { "", 500, "", "SETWIDTH" },
+//            { "PLEASE EXPLAIN ALL YES RESPONSES", 1, "", "TITLE" },
+            { "GI01Yes", 1, "<B>1.</B> Do you have past, present or discontinued operations involved storing,treating,discarging, applying, disposing, or transporting of hazardous material (landfills, wastes, fuel tanks, etc.)?", "lbyn", 1, "GI01Yes", "GI01No" },
+            { "GI01No", 1, "", "hidden", 100 },
+            { "" },
+            { "GI02Yes", 1, "<B>2.</B> Are athletic teams sponsored?", "lbyn", 1, "GI02Yes", "GI02No" },
+            { "GI02No", 1, "", "hidden", 100 },
+            { "" },
+            { "GI03Yes", 1, "<B>3.</B> Are sub-contractors allowed to work without providing a certificate of insurance? If not who checks certificates", "lbyn", 1, "GI03Yes", "GI03No" },
+            { "GI03No", 1, "", "hidden", 100 },
+            { "" },
+            { "GI04Yes", 1, "<B>4.</B> During the last five years (ten in RI) has any applicant been convicted of any degree of the crime arson? (in RI failure to disclosure the existence of an arson conviction is a misdemeanor punishable by a sentence of up to one year of imprisonment", "lbyn", 1, "GI04Yes", "GI04No" },
+            { "GI04No", 1, "", "hidden", 100 },
+            { "" },
+            { "GI05Yes", 1, "<B>5.</B> Any policy or coverage declined, canceled ,or non-renewed during the prior 3 years?Not applicable in MO", "lbyn", 1, "GI05Yes", "GI05No" },
+            { "GI05No", 1, "", "hidden", 100 },
+            { "" },
+            { "GI06Yes", 1, "<B>6.</B> Do you release employees to or from other employers?", "lbyn", 1, "GI06Yes", "GI06No" },
+            { "GI06No", 1, "", "hidden", 100 },
+            { "" },
+            { "GI07Yes", 1, "<B>7.</B> Any workers compensation carried?", "lbyn", 1, "GI07Yes", "GI07No" },
+            { "GI07No", 1, "", "hidden", 100 },
+            { "" },
+            { "GI08Yes", 1, "<B>8.</B> Do you own or operate any other business?", "lbyn", 1, "GI08Yes", "GI08No" },
+            { "GI08No", 1, "", "hidden", 100 },
+            { "" },
+            { "GI09Yes", 1, "<B>9.</B> Any other insurance with this company?", "lbyn", 1, "GI09Yes", "GI09No" },
+            { "GI09No", 1, "", "hidden", 100 },
+            { "" },
+            { "GI10Yes", 1, "<B>10.</B> Are involved in manufacturing, mixing, relabeling, or repackaging of products?", "lbyn", 1, "GI10Yes", "GI10No" },
+            { "GI10No", 1, "", "hidden", 100 },
+            { "" },
+            { "GI11Yes", 1, "<B>11.</B> Do you rent or loan equipment to others?", "lbyn", 1, "GI11Yes", "GI11No" },
+            { "GI11No", 1, "", "hidden", 100 },
+            { "" },
+            { "GI12Yes", 1, "<B>12.</B> Has applicant had a Foreclosure, Repossession, Bankruptcy, Judgment or Lien during the past (5) years?", "lbyn", 1, "GI12Yes", "GI12No" },
+            { "GI12No", 1, "", "hidden", 100 },
+            { "" },
+            { "GI13Yes", 1, "<B>13.</B> Any exposure to Flammables, Explosives, or Chemicals?", "lbyn", 1, "GI13Yes", "GI13No" },
+            { "GI13No", 1, "", "hidden", 100 },
+            { "" },
+            { "GI14Yes", 1, "<B>14.</B> Any catastrophe exposure?", "lbyn", 1, "GI14Yes", "GI14No" },
+            { "GI14No", 1, "", "hidden", 100 },
+            { "" },
+            { "GI15Yes", 1, "<B>15.</B> Any past losses or claims relating to sexual abuse or molesting allegations, discriminating or negligent hiring?", "lbyn", 1, "GI15Yes", "GI15No" },
+            { "GI15No", 1, "", "hidden", 100 },
+            { "" },
+            { "GI16Yes", 1, "<B>16.</B> Any uncorrected fire code violations?", "lbyn", 1, "GI16Yes", "GI16No" },
+            { "GI16No", 1, "", "hidden", 100 },
+            { "" },
+            { "" },
+//            { "<hr>", 1, "", "title", 100 },
+            { "</b>Describe any location/ business interest owned /operated by insured but not listed:", 1, "", "title", 1 },
+            { "GIOrganizName", 1, "", "textarea", 550, 4, 1 }
+        }
+        return( a )
+    END
+
+    METHOD LoadFromObject( data )
+        ::GI01Yes = data.GI01Yes
+        ::GI01No = data.GI01No
+        ::GI02Yes = data.GI02Yes
+        ::GI02No = data.GI02No
+        ::GI03Yes = data.GI03Yes
+        ::GI03No = data.GI03No
+        ::GI04Yes = data.GI04Yes
+        ::GI04No = data.GI04No
+        ::GI05Yes = data.GI05Yes
+        ::GI05No = data.GI05No
+        ::GI06Yes = data.GI06Yes
+        ::GI06No = data.GI06No
+        ::GI07Yes = data.GI07Yes
+        ::GI07No = data.GI07No
+        ::GI08Yes = data.GI08Yes
+        ::GI08No = data.GI08No
+        ::GI09Yes = data.GI09Yes
+        ::GI09No = data.GI09No
+        ::GI10Yes = data.GI10Yes
+        ::GI10No = data.GI10No
+        ::GI11Yes = data.GI11Yes
+        ::GI11No = data.GI11No
+        ::GI12Yes = data.GI12Yes
+        ::GI12No = data.GI12No
+        ::GI13Yes = data.GI13Yes
+        ::GI13No = data.GI13No
+        ::GI14Yes = data.GI14Yes
+        ::GI14No = data.GI14No
+        ::GI15Yes = data.GI15Yes
+        ::GI15No = data.GI15No
+        ::GI16Yes = data.GI16Yes
+        ::GI16No = data.GI16No
+        ::GIOrganizName = data.GIOrganizName
+        return( 1 )
+    END
+
+    METHOD put( data )
+        data.GI01Yes = ::GI01Yes
+        data.GI01No = ::GI01No
+        data.GI02Yes = ::GI02Yes
+        data.GI02No = ::GI02No
+        data.GI03Yes = ::GI03Yes
+        data.GI03No = ::GI03No
+        data.GI04Yes = ::GI04Yes
+        data.GI04No = ::GI04No
+        data.GI05Yes = ::GI05Yes
+        data.GI05No = ::GI05No
+        data.GI06Yes = ::GI06Yes
+        data.GI06No = ::GI06No
+        data.GI07Yes = ::GI07Yes
+        data.GI07No = ::GI07No
+        data.GI08Yes = ::GI08Yes
+        data.GI08No = ::GI08No
+        data.GI09Yes = ::GI09Yes
+        data.GI09No = ::GI09No
+        data.GI10Yes = ::GI10Yes
+        data.GI10No = ::GI10No
+        data.GI11Yes = ::GI11Yes
+        data.GI11No = ::GI11No
+        data.GI12Yes = ::GI12Yes
+        data.GI12No = ::GI12No
+        data.GI13Yes = ::GI13Yes
+        data.GI13No = ::GI13No
+        data.GI14Yes = ::GI14Yes
+        data.GI14No = ::GI14No
+        data.GI15Yes = ::GI15Yes
+        data.GI15No = ::GI15No
+        data.GI16Yes = ::GI16Yes
+        data.GI16No = ::GI16No
+        data.GIOrganizName = ::GIOrganizName
+        return( 1 )
+    END
+
+    METHOD validate( )
+        local s = ""
+        ::errmsg = s
+        return( strempty( ::errmsg ) )
+    END
+
+    METHOD update( data )
+        local line, val, key, i=1
+        while ( 1 )
+            line = strextract( data, "&", i++ )
+            if ( strempty( line ) )
+                break
+            end
+            key = strextract( line, "=", 1 )
+            val = webDecodeURL( right( line, len( line ) - ( len( key ) + 1 ) ) )
+            self.(upper(key)) = val
+        end
+        return( 1 )
+    END
+
+    ACCESS default( name )
+        name = name
+        return( '' )
+    END
+    ASSIGN default( name, val )
+        name = name
+        val = val
+    END
+
+    METHOD flatten( g )
+        return( g.CreateClassVarString( self ) )
+    END
+
+END
+
+CLASS A160_prior_policy1
+  PUBLIC:
+    local _title, _class, obj, errmsg
+    local AttLossSum, CarrierPriorName, CarrierPriorPolNum, PremiumTotal, CarrierPriorPolNumExp
+    local LossNumYrs, LossTotAmt, LossDesc, Carriers, CarrierOnChange
+
+    METHOD new( obj )
+        ::_title = "PRIOR POLICY(IES) / LOSS HISTORY (I)"
+        ::_class = "A160_prior_policy1"
+        ::obj = obj
+        ::errmsg = ""
+        ::init( )
+        return( 1 )
+    END
+
+    METHOD init( )
+        ::AttLossSum = ""
+        ::CarrierPriorName = ""
+        ::CarrierPriorPolNum = ""
+        ::PremiumTotal = ""
+        ::CarrierPriorPolNumExp = ""
+        ::LossNumYrs = ""
+        ::LossTotAmt = ""
+        ::LossDesc = ""
+        ::Carriers = "Accident Fund Insurance Company|Accident Fund Insurance Company;Ace American Insurance Company|Ace American Insurance Company;Allianz of America|Allianz of America;Allied Insurance Company|Allied Insurance Company;Allmerica Financial|Allmerica Financial;Allstate Insurance Group|Allstate Insurance Group;American Family Insurance|American Family Insurance;American Mercury Insurance|American Mercury Insurance;Atlantic Mutual Insurance Company|Atlantic Mutual Insurance Company;AutoOwners Insurance Group|AutoOwners Insurance Group;W.R. Berkley Group|W.R. Berkley Group;CNA Insurance Companies|CNA Insurance Companies;Central Insurance Companies|Central Insurance Companies;CGU Insurance Company|CGU Insurance Company;Chubb|Chubb;Church Mutual Insurance Company|Church Mutual Insurance Company;Cincinnati Insurance Companies|Cincinnati Insurance Companies;Columbia Mutual Insurance Company|Columbia Mutual Insurance Company;Commercial Union Insurance Company|Commercial Union Insurance Company;Country Companies|Country Companies;Employer's Mutual Casualty Company|Employer's Mutual Casualty Company;Erie Insurance Company|Erie Insurance Company;Farmers Alliance Mutual Insurance Company|Farmers Alliance Mutual Insurance Company;Farmers Insurance Group|Farmers Insurance Group;Frankenmuth Mutual Insurance Company|Frankenmuth Mutual Insurance Company;Grange Mutual Casualty Company|Grange Mutual Casualty Company;Great American Property Casualty Group|Great American Property Casualty Group;Harleysville|Harleysville;Hartford Insurance Group|Hartford Insurance Group;Hastings Mutual Insurance Company|Hastings Mutual Insurance Company;Inscorp|Inscorp;Kemper|Kemper;Liberty Mutual Insurance Group|Liberty Mutual Insurance Group;Maine Street American Group|Maine Street American Group;Mercury General Group|Mercury General Group;Milwaukee Casualty Insurance Company|Milwaukee Casualty Insurance Company;Mutual of Enumclaw Insurance Company|Mutual of Enumclaw Insurance Company;Nationwide Mutual Insurance Company|Nationwide Mutual Insurance Company;Ohio Casualty Group|Ohio Casualty Group;One Beacon America Insurance Company|One Beacon America Insurance Company;Pekin Insurance Company|Pekin Insurance Company;Penn National Insurance|Penn National Insurance;Progressive Insurance Group|Progressive Insurance Group;Safeco Insurance Companies|Safeco Insurance Companies;Selective Insurance Company of America|Selective Insurance Company of America;St. Paul Companies|St. Paul Companies;State Auto Insurance Group|State Auto Insurance Group;State Farm Group|State Farm Group;Travelers Property Casualty Group|Travelers Property Casualty Group;United Fire and Casualty Group|United Fire and Casualty Group;Unitrin Inc.|Unitrin Inc.;Utica National Insurance Group|Utica National Insurance Group;West Bend Mutual Group|West Bend Mutual Group;Westfield Insurance Company|Westfield Insurance Company;Winterthur Swiss Group|Winterthur Swiss Group;Zurich Financial Services Group|Zurich Financial Services Group;Other Regional Carrier|Other Regional Carrier;Other National Carrier|Other National Carrier;Self-Insured|Self-Insured;No Current Insurance as new venture|No Current Insurance as new venture"
+        //::CarrierOnChange = "onChange='lbUpdateYN(input.ACCDNTFUND, input.ACE, input.ALLIANZ, input.ALLIED, input.ALLMERICA, input.ALSTINS, input.AMERFAM, input.AMERMERC, input.ATLANTIC, input.AUTOOWNER, input.BERKLEY, input.CNA, input.CENTRAL, input.CGU, input.CHUBB, input.CHURCH, input.CINCINNATI, input.COLUMBIA, input.COMMUNION, input.COUNTRYCO, input.EMPLOYERS, input.ERIE, input.FARMERSAL, input.FARMERSIN, input.FRANKENMTH, input.GRANGE, input.GRTAMRCN, input.HARLEYSVLE, input.HARTFORD, input.HASTINGS, input.INSCORP, input.KEMPER, input.LIBERTY, input.MAINEST, input.MERCURYGEN, input.MILWAUKEE, input.ENUMCLAW, input.NATIONWIDE, input.OHIOCSLTY, input.ONEBEACN, input.PEKIN, input.PENNNATL, input.PROGRESIVE, input.SAFECO, input.SLCTVINS, input.STPAUL, input.STATEAUTO, input.STFARM, input.TRVLRS, input.UNTDFIRE, input.UNITRIN, input.UTICA, input.WESTBEND, input.WESTFIELD, input.WINTSWISS, input.ZURICH, input.OTHERREG, input.OTHERNAT, input.SELFINSRD, input.NONENEW);'"
+        return( 1 )
+    END
+
+    ACCESS aVars
+        static a = {
+//            	{ "", 300, "", "SETWIDTH" },
+//            	{ "Prior Policy(ies) Loss History", 1, "", "TITLE" },
+            	{ "AttLossSum", 1, "See attached loss summary", "cb", 100 },
+            	{ "" },
+            	//{ "PolNew", 1, "Claim Status", "lbstr2d", 1, "|;X|New;-|Renewal", "onChange='lbUpdateYN(  input.PolNew, input.PolRenew );'" },
+            	//{ "CarrierPriorName", 1, "Prior Carrier", "lbstr2d", 1, ::Carriers, ::CarrierOnChange },
+            	{ "CarrierPriorName", 1, "Prior Carrier", "lbstr2d", 1, ::Carriers },
+            	{ "CarrierPriorPolNum", 1, "Policy number", "text", 100 },
+            	{ "PremiumTotal", 1, "Total premium", "dollarandcents", 100 },
+            	{ "CarrierPriorPolNumExp", 1, "Expiration date", "date", 100 },
+            	{ "LossNumYrs", 1, "Number of losses last year", "text", 100 },
+            	{ "LossTotAmt", 1, "Total losses", "text", 100 }
+        }
+        return( a )
+    END
+
+    METHOD LoadFromObject( data )
+        ::AttLossSum = data.AttLossSum
+        ::CarrierPriorName = data.CarrierPriorName
+        ::CarrierPriorPolNum = data.CarrierPriorPolNum
+        ::PremiumTotal = data.PremiumTotal
+        ::CarrierPriorPolNumExp = data.CarrierPriorPolNumExp
+        ::LossNumYrs = data.LossNumYrs
+        ::LossTotAmt = data.LossTotAmt
+        ::LossDesc = data.LossDesc
+        return( 1 )
+    END
+
+    METHOD put( data )
+        data.AttLossSum = ::AttLossSum
+        data.CarrierPriorName = ::CarrierPriorName
+        data.CarrierPriorPolNum = ::CarrierPriorPolNum
+        data.PremiumTotal = ::PremiumTotal
+        data.CarrierPriorPolNumExp = ::CarrierPriorPolNumExp
+        data.LossNumYrs = ::LossNumYrs
+        data.LossTotAmt = ::LossTotAmt
+        data.LossDesc = ::LossDesc
+        return( 1 )
+    END
+
+    METHOD validate( )
+        local s = ""
+        ::errmsg = s
+        return( strempty( ::errmsg ) )
+    END
+
+    METHOD update( data )
+        local line, val, key, i=1
+        while ( 1 )
+            line = strextract( data, "&", i++ )
+            if ( strempty( line ) )
+                break
+            end
+            key = strextract( line, "=", 1 )
+            val = webDecodeURL( right( line, len( line ) - ( len( key ) + 1 ) ) )
+            self.(upper(key)) = val
+        end
+        return( 1 )
+    END
+
+    ACCESS default( name )
+        name = name
+        return( '' )
+    END
+    ASSIGN default( name, val )
+        name = name
+        val = val
+    END
+
+    METHOD flatten( g )
+        return( g.CreateClassVarString( self ) )
+    END
+
+END
+
+CLASS A160_prior_policy2
+  PUBLIC:
+    local _title, _class, obj, errmsg
+
+    local LossType1, LossDate1, LossDesc1, LossAmt1, LossType2, LossDate2, LossDesc2
+    local LossAmt2, LossType3, LossDate3, LossDesc3, LossAmt3
+
+    METHOD new( obj )
+        ::_title = "PRIOR POLICY(IES)/LOSS HISTORY 2"
+        ::_class = "A160_prior_policy2"
+        ::obj = obj
+        ::errmsg = ""
+        ::init( )
+        return( 1 )
+    END
+
+    METHOD init( )
+        ::LossType1 = ""
+        ::LossDate1 = ""
+        ::LossDesc1 = ""
+        ::LossAmt1 = ""
+        ::LossType2 = ""
+        ::LossDate2 = ""
+        ::LossDesc2 = ""
+        ::LossAmt2 = ""
+        ::LossType3 = ""
+        ::LossDate3 = ""
+        ::LossDesc3 = ""
+        ::LossAmt3 = ""
+        return( 1 )
+    END
+
+    ACCESS aVars
+        static a = {
+            { "<u>LOSS # 1", 1, "", "TITLE", 150 },
+            {""},
+            { "LossType1", 1, "Type of loss", "text", 150 },
+            { "LossDate1", 1, "Date of Loss", "Date", 150 },
+            { "LossDesc1", 1, "Loss Description", "text", 150 },
+            { "LossAmt1", 1,  "Amount Paid", "Dollar", 150 },
+            {""},
+            { "<u>LOSS # 2", 1, "", "TITLE", 150 },
+            {""},
+            { "LossType2", 1, "Type of loss", "text", 150 },
+            { "LossDate2", 1, "Date of Loss", "Date", 150 },
+            { "LossDesc2", 1, "Loss Description", "text", 150 },
+            { "LossAmt2", 1,  "Amount Paid", "Dollar", 150 },
+            {""},
+            { "<u>LOSS # 2", 1, "", "TITLE", 150 },
+            {""},
+            { "LossType3", 1, "Type of loss", "text", 150 },
+            { "LossDate3", 1, "Date of Loss", "Date", 150 },
+            { "LossDesc3", 1, "Loss Description", "text", 150 },
+            { "LossAmt3", 1,  "Amount Paid", "Dollar", 150 }
+        }
+        return( a )
+    END
+
+    METHOD LoadFromObject( data )
+        ::LossType1 = data.LossType1
+        ::LossDate1 = data.LossDate1
+        ::LossDesc1 = data.LossDesc1
+        ::LossAmt1 = data.LossAmt1
+        ::LossType2 = data.LossType2
+        ::LossDate2 = data.LossDate2
+        ::LossDesc2 = data.LossDesc2
+        ::LossAmt2 = data.LossAmt2
+        ::LossType3 = data.LossType3
+        ::LossDate3 = data.LossDate3
+        ::LossDesc3 = data.LossDesc3
+        ::LossAmt3 = data.LossAmt3
+        return( 1 )
+    END
+
+    METHOD put( data )
+        data.LossType1 = ::LossType1
+        data.LossDate1 = ::LossDate1
+        data.LossDesc1 = ::LossDesc1
+        data.LossAmt1 = ::LossAmt1
+        data.LossType2 = ::LossType2
+        data.LossDate2 = ::LossDate2
+        data.LossDesc2 = ::LossDesc2
+        data.LossAmt2 = ::LossAmt2
+        data.LossType3 = ::LossType3
+        data.LossDate3 = ::LossDate3
+        data.LossDesc3 = ::LossDesc3
+        data.LossAmt3 = ::LossAmt3
+        return( 1 )
+    END
+
+    METHOD validate( )
+        local s = ""
+        ::errmsg = s
+        return( strempty( ::errmsg ) )
+    END
+
+    METHOD update( data )
+        local line, val, key, i=1
+        while ( 1 )
+            line = strextract( data, "&", i++ )
+            if ( strempty( line ) )
+                break
+            end
+            key = strextract( line, "=", 1 )
+            val = webDecodeURL( right( line, len( line ) - ( len( key ) + 1 ) ) )
+            self.(upper(key)) = val
+        end
+        return( 1 )
+    END
+
+    ACCESS default( name )
+        name = name
+        return( '' )
+    END
+    ASSIGN default( name, val )
+        name = name
+        val = val
+    END
+
+    METHOD flatten( g )
+        return( g.CreateClassVarString( self ) )
+    END
+
+END
+
+
+
+CLASS A160_policy_lever_cov1
+  PUBLIC:
+    local _title, _class, obj, errmsg
+
+    local LimCSL, DedCSL, LimBIPDOcc, DedBIPDOcc, LimBIPDAgg, DedBIPDAgg, LimMedExp, DedMedical
+    local LimRentDam, DedRentDam, LimProfLiab, DedProfLiab, LimLiquorLiabGenAgg
+    local LimLiquorLiabPers, LimLiquorLiabOther, CovLiquorLiabOther, DedLiquorLiabGenAgg
+    local DedLiquorLiabPers, DedOther
+
+    METHOD new( obj )
+        ::_title = "POLICY LEVEL COVERAGES (I)"
+        ::_class = "A160_policy_lever_cov1"
+        ::obj = obj
+        ::errmsg = ""
+        ::init( )
+        return( 1 )
+    END
+
+    METHOD init( )
+        ::LimCSL = ""
+        ::DedCSL = ""
+        ::LimBIPDOcc = ""
+        ::DedBIPDOcc = ""
+        ::LimBIPDAgg = ""
+        ::DedBIPDAgg = ""
+        ::LimMedExp = ""
+        ::DedMedical = ""
+        ::LimRentDam = ""
+        ::DedRentDam = ""
+        ::LimProfLiab = ""
+        ::DedProfLiab = ""
+        ::LimLiquorLiabGenAgg = ""
+        ::LimLiquorLiabPers = ""
+        ::LimLiquorLiabOther = ""
+        ::CovLiquorLiabOther = ""
+        ::DedLiquorLiabGenAgg = ""
+        ::DedLiquorLiabPers = ""
+        ::DedOther = ""
+        return( 1 )
+    END
+
+    ACCESS aVars
+	static a = {
+//	{ "", 300, "", "SETWIDTH" },
+	{ "<u>COMBINED SINGLE LIMIT", 1, "", "TITLE" },
+	{ ""},
+	{ "LimCSL", 1, "Limit", "lbstr", 1, "-;300,000.00;500,000.00;1,000,000.00;2,000,000.00;", "onChange=\"lbUpdateX( this, 'input', ';300,000.00;500,000.00;1,000,000.00;2,000,000.00' );\"" },
+	{ "DedCSL", 1, "Deductible", "lbstr", 1, "-;250.00;500.00;1,000.00;1,500.00;2,000.00;", "onChange=\"lbUpdateX( this, 'input', ';250.00;500.00;1,000.00;1,500.00;2,000.00' );\"" },
+	{ ""},
+	{ "<u>BODILY INJURY & PROPERTY DAMAGE", 1, "", "TITLE" },
+	{ ""},
+	{ "LimBIPDOcc", 1, "Occurance", "lbstr", 1, "-;300,000.00;500,000.00;1,000,000.00;2,000,000.00;", "onChange=\"lbUpdateX( this, 'input', ';300,000.00;500,000.00;1,000,000.00;2,000,000.00' );\"" },
+	{ "DedBIPDOcc", 1, "Deductible", "lbstr", 1, "-;250.00;500.00;1,000.00;1,500.00;2,000.00;", "onChange=\"lbUpdateX( this, 'input', ';250.00;500.00;1,000.00;1,500.00;2,000.00' );\"" },
+	{ ""},
+	{ "NoID", 1, "AGGREGATE", "TEXTONLY", 100 },
+	{ "LimBIPDAgg", 1, "Limit", "dollarandcents", 100 },
+	{ "DedBIPDAgg", 1, "Deductible", "dollarandcents", 100 },
+	{ ""},
+	{ "<u>MEDICAL EXPENCES", 1, "", "TITLE" },
+	{ "LimMedExp", 1, "Limit", "dollarandcents", 100 },
+	{ "DedMedical", 1, "Deductible", "dollarandcents", 100 },
+	{ "" },
+	{ "<u>DAMAGED RENTAL PREMISES", 1, "", "TITLE" },
+	{ "LimRentDam", 1, "Limit", "dollarandcents", 100 },
+	{ "DedRentDam", 1, "Deductible", "dollarandcents", 100 },
+	{ "" },
+	{ "<u>  PROFESSIONAL LIABILITY", 1, "", "TITLE" },
+	{ "LimProfLiab", 1, "Limit", "dollarandcents", 100 },
+	{ "DedProfLiab", 1, "Deductible", "dollarandcents", 100 },
+	{ "" },
+	{ "<u>LIQUOR LIABILITY", 1, "", "TITLE" },
+	{ "" },
+	{ "NoID", 1, "GENERAL AGGREGATE", "TEXTONLY", 100 },
+	{ "LimLiquorLiabGenAgg", 1, "Limit", "dollarandcents", 100 },
+	{ "DedLiquorLiabGenAgg", 1, "Deductible", "dollarandcents", 100 },
+	{ "" },
+	{ "NoID", 1, "PER PERSON", "TEXTONLY", 100 },
+	{ "LimLiquorLiabPers", 1, "Limit", "dollarandcents", 100 },
+	{ "DedLiquorLiabPers", 1, "Deductible", "dollarandcents", 100 },
+	{ "" },
+	{ "CovLiquorLiabOther", 1, "OTHER LIABILITY", "text", 100 },
+	{ "LimLiquorLiabOther", 1, "Limit", "dollarandcents", 100 },
+	{ "DedOther", 1, "Deductible", "dollarandcents", 100 }
+	}
+	return( a )
+    END
+
+    METHOD LoadFromObject( data )
+        ::LimCSL = data.LimCSL
+        ::DedCSL = data.DedCSL
+        ::LimBIPDOcc = data.LimBIPDOcc
+        ::DedBIPDOcc = data.DedBIPDOcc
+        ::LimBIPDAgg = data.LimBIPDAgg
+        ::DedBIPDAgg = data.DedBIPDAgg
+        ::LimMedExp = data.LimMedExp
+        ::DedMedical = data.DedMedical
+        ::LimRentDam = data.LimRentDam
+        ::DedRentDam = data.DedRentDam
+        ::LimProfLiab = data.LimProfLiab
+        ::DedProfLiab = data.DedProfLiab
+        ::LimLiquorLiabGenAgg = data.LimLiquorLiabGenAgg
+        ::LimLiquorLiabPers = data.LimLiquorLiabPers
+        ::LimLiquorLiabOther = data.LimLiquorLiabOther
+        ::CovLiquorLiabOther = data.CovLiquorLiabOther
+        ::DedLiquorLiabGenAgg = data.DedLiquorLiabGenAgg
+        ::DedLiquorLiabPers = data.DedLiquorLiabPers
+        ::DedOther = data.DedOther
+        return( 1 )
+    END
+
+    METHOD put( data )
+        data.LimCSL = ::LimCSL
+        data.DedCSL = ::DedCSL
+        data.LimBIPDOcc = ::LimBIPDOcc
+        data.DedBIPDOcc = ::DedBIPDOcc
+        data.LimBIPDAgg = ::LimBIPDAgg
+        data.DedBIPDAgg = ::DedBIPDAgg
+        data.LimMedExp = ::LimMedExp
+        data.DedMedical = ::DedMedical
+        data.LimRentDam = ::LimRentDam
+        data.DedRentDam = ::DedRentDam
+        data.LimProfLiab = ::LimProfLiab
+        data.DedProfLiab = ::DedProfLiab
+        data.LimLiquorLiabGenAgg = ::LimLiquorLiabGenAgg
+        data.LimLiquorLiabPers = ::LimLiquorLiabPers
+        data.LimLiquorLiabOther = ::LimLiquorLiabOther
+        data.CovLiquorLiabOther = ::CovLiquorLiabOther
+        data.DedLiquorLiabGenAgg = ::DedLiquorLiabGenAgg
+        data.DedLiquorLiabPers = ::DedLiquorLiabPers
+        data.DedOther = ::DedOther
+        return( 1 )
+    END
+
+    METHOD validate( )
+        local s = ""
+        ::errmsg = s
+        return( strempty( ::errmsg ) )
+    END
+
+    METHOD update( data )
+        local line, val, key, i=1
+        while ( 1 )
+            line = strextract( data, "&", i++ )
+            if ( strempty( line ) )
+                break
+            end
+            key = strextract( line, "=", 1 )
+            val = webDecodeURL( right( line, len( line ) - ( len( key ) + 1 ) ) )
+            self.(upper(key)) = val
+        end
+        return( 1 )
+    END
+
+    ACCESS default( name )
+        name = name
+        return( '' )
+    END
+    ASSIGN default( name, val )
+        name = name
+        val = val
+    END
+
+    METHOD flatten( g )
+        return( g.CreateClassVarString( self ) )
+    END
+
+END
+
+
+CLASS A160_policy_lever_cov2
+  PUBLIC:
+    local _title, _class, obj, errmsg
+
+    local LimHiredAutoLiab, DedHiredAutoLiab, LimAutoNoOwn, DedAutoNoOwn, LimEmpBen
+    local DedEmpBen, CovOther1Sec1, LimOther1, DedOther1Sec1, CovOther2Sec1, LimOther2
+    local DedOther2Sec1, CovOther3Sec1, LimOther3, DedOther3Sec1, CovOther4Sec1
+    local LimOther4, DedOther4Sec1, CovOther5Sec1, LimOther5, DedOther5Sec1, CovOther6Sec1
+    local LimOther6, DedOther6Sec1, CovOther7Sec1, LimOther7, DedOther7Sec1
+
+    METHOD new( obj )
+        ::_title = "POLICY LEVEL COVERAGES (II)"
+        ::_class = "A160_policy_lever_cov2"
+        ::obj = obj
+        ::errmsg = ""
+        ::init( )
+        return( 1 )
+    END
+
+    METHOD init( )
+        ::LimHiredAutoLiab = ""
+        ::DedHiredAutoLiab = ""
+        ::LimAutoNoOwn = ""
+        ::DedAutoNoOwn = ""
+        ::LimEmpBen = ""
+        ::DedEmpBen = ""
+        ::CovOther1Sec1 = ""
+        ::LimOther1 = ""
+        ::DedOther1Sec1 = ""
+        ::CovOther2Sec1 = ""
+        ::LimOther2 = ""
+        ::DedOther2Sec1 = ""
+        ::CovOther3Sec1 = ""
+        ::LimOther3 = ""
+        ::DedOther3Sec1 = ""
+        ::CovOther4Sec1 = ""
+        ::LimOther4 = ""
+        ::DedOther4Sec1 = ""
+        ::CovOther5Sec1 = ""
+        ::LimOther5 = ""
+        ::DedOther5Sec1 = ""
+        ::CovOther6Sec1 = ""
+        ::LimOther6 = ""
+        ::DedOther6Sec1 = ""
+        ::CovOther7Sec1 = ""
+        ::LimOther7 = ""
+        ::DedOther7Sec1 = ""
+        return( 1 )
+    END
+
+    ACCESS aVars
+        static a = {
+              	   { "", 250, "", "SETWIDTH" },
+	           { "<U>HIRED AUTO", 1, "", "TITLE" },
+	           { "LimHiredAutoLiab", 1, "Limit", "dollarandcents", 100 },
+	           { "DedHiredAutoLiab", 1, "Deductible", "dollarandcents", 100 },
+	    	   { "" },
+	           { "<U> NON-OWNED AUTO", 1, "", "TITLE" },
+	           { "LimAutoNoOwn", 1, "Limit", "dollarandcents", 100 },
+	           { "DedAutoNoOwn", 1, "Deductible", "dollarandcents", 100 },
+	     	   { "" },
+	           { "<U> EMPLOYEE BENEFITS", 1, "", "TITLE" },
+	           { "LimEmpBen", 1, "Limit", "dollarandcents", 100 },
+	           { "DedEmpBen", 1, "Deductible", "dollarandcents", 100 },
+	    	   { "" },
+	    	   { "<U> HIRED AUTO PHYSICAL DAMAGE", 1, "", "TITLE" },
+	           { "CovOther1Sec1", 1, "", "HIDDEN", 100 },
+	           { "LimOther1", 1, "Limit", "dollarandcents", 100 },
+	           { "DedOther1Sec1", 1, "Deductible", "dollarandcents", 100 },
+	    	   { "" },
+	    	   { "<U>OTHER COVERAGE (I)", 1, "", "TITLE" },
+	           { "CovOther2Sec1", 1, "Other coverage name", "text", 100 },
+	           { "LimOther2", 1, "Limit", "dollarandcents", 100 },
+	           { "DedOther2Sec1", 1, "Deductible", "dollarandcents", 100 },
+	           { "" },
+	           { "<U>OTHER COVERAGE (II)", 1, "", "TITLE" },
+	           { "CovOther3Sec1", 1, "Other coverage name", "text", 100 },
+	           { "LimOther3", 1, "Limit", "dollarandcents", 100 },
+	           { "DedOther3Sec1", 1, "Deductible", "dollarandcents", 100 },
+	     	   { "" },
+	     	   { "<U>OTHER COVERAGE (III)", 1, "", "TITLE" },
+	           { "CovOther4Sec1", 1, "Other coverage name", "hidden", 100 },
+	           { "LimOther4", 1, "Limit", "dollarandcents", 100 },
+	           { "DedOther4Sec1", 1, "Deductible", "dollarandcents", 100 },
+	    	   { "" },
+	    	   { "<U>OTHER COVERAGE (IV)", 1, "", "TITLE" },
+	           { "CovOther5Sec1", 1, "Other coverage name", "text", 100 },
+	           { "LimOther5", 1, "Limit", "dollarandcents", 100 },
+	           { "DedOther5Sec1", 1, "Deductible", "dollarandcents", 100 },
+	           { "" },
+	           { "<U>OTHER COVERAGE (V)", 1, "", "TITLE" },
+	           { "CovOther6Sec1", 1, "Other coverage name", "text", 100 },
+	           { "LimOther6", 1, "Limit", "dollarandcents", 100 },
+	           { "DedOther6Sec1", 1, "Deductible", "dollarandcents", 100 },
+	           { "" },
+	           { "<U>OTHER COVERAGE (VI)", 1, "", "TITLE" },
+	           { "CovOther7Sec1", 1, "Other coverage name", "text", 100 },
+	           { "LimOther7", 1, "Limit", "dollarandcents", 100 },
+	           { "DedOther7Sec1", 1, "Deductible", "dollarandcents", 100 }
+        }
+        return( a )
+    END
+
+    METHOD LoadFromObject( data )
+        ::LimHiredAutoLiab = data.LimHiredAutoLiab
+        ::DedHiredAutoLiab = data.DedHiredAutoLiab
+        ::LimAutoNoOwn = data.LimAutoNoOwn
+        ::DedAutoNoOwn = data.DedAutoNoOwn
+        ::LimEmpBen = data.LimEmpBen
+        ::DedEmpBen = data.DedEmpBen
+        ::CovOther1Sec1 = data.CovOther1Sec1
+        ::LimOther1 = data.LimOther1
+        ::DedOther1Sec1 = data.DedOther1Sec1
+        ::CovOther2Sec1 = data.CovOther2Sec1
+        ::LimOther2 = data.LimOther2
+        ::DedOther2Sec1 = data.DedOther2Sec1
+        ::CovOther3Sec1 = data.CovOther3Sec1
+        ::LimOther3 = data.LimOther3
+        ::DedOther3Sec1 = data.DedOther3Sec1
+        ::CovOther4Sec1 = data.CovOther4Sec1
+        ::LimOther4 = data.LimOther4
+        ::DedOther4Sec1 = data.DedOther4Sec1
+        ::CovOther5Sec1 = data.CovOther5Sec1
+        ::LimOther5 = data.LimOther5
+        ::DedOther5Sec1 = data.DedOther5Sec1
+        ::CovOther6Sec1 = data.CovOther6Sec1
+        ::LimOther6 = data.LimOther6
+        ::DedOther6Sec1 = data.DedOther6Sec1
+        ::CovOther7Sec1 = data.CovOther7Sec1
+        ::LimOther7 = data.LimOther7
+        ::DedOther7Sec1 = data.DedOther7Sec1
+        return( 1 )
+    END
+
+    METHOD put( data )
+        data.LimHiredAutoLiab = ::LimHiredAutoLiab
+        data.DedHiredAutoLiab = ::DedHiredAutoLiab
+        data.LimAutoNoOwn = ::LimAutoNoOwn
+        data.DedAutoNoOwn = ::DedAutoNoOwn
+        data.LimEmpBen = ::LimEmpBen
+        data.DedEmpBen = ::DedEmpBen
+        data.CovOther1Sec1 = ::CovOther1Sec1
+        data.LimOther1 = ::LimOther1
+        data.DedOther1Sec1 = ::DedOther1Sec1
+        data.CovOther2Sec1 = ::CovOther2Sec1
+        data.LimOther2 = ::LimOther2
+        data.DedOther2Sec1 = ::DedOther2Sec1
+        data.CovOther3Sec1 = ::CovOther3Sec1
+        data.LimOther3 = ::LimOther3
+        data.DedOther3Sec1 = ::DedOther3Sec1
+        data.CovOther4Sec1 = ::CovOther4Sec1
+        data.LimOther4 = ::LimOther4
+        data.DedOther4Sec1 = ::DedOther4Sec1
+        data.CovOther5Sec1 = ::CovOther5Sec1
+        data.LimOther5 = ::LimOther5
+        data.DedOther5Sec1 = ::DedOther5Sec1
+        data.CovOther6Sec1 = ::CovOther6Sec1
+        data.LimOther6 = ::LimOther6
+        data.DedOther6Sec1 = ::DedOther6Sec1
+        data.CovOther7Sec1 = ::CovOther7Sec1
+        data.LimOther7 = ::LimOther7
+        data.DedOther7Sec1 = ::DedOther7Sec1
+        return( 1 )
+    END
+
+    METHOD validate( )
+        local s = ""
+        ::errmsg = s
+        return( strempty( ::errmsg ) )
+    END
+
+    METHOD update( data )
+        local line, val, key, i=1
+        while ( 1 )
+            line = strextract( data, "&", i++ )
+            if ( strempty( line ) )
+                break
+            end
+            key = strextract( line, "=", 1 )
+            val = webDecodeURL( right( line, len( line ) - ( len( key ) + 1 ) ) )
+            self.(upper(key)) = val
+        end
+        return( 1 )
+    END
+
+    ACCESS default( name )
+        name = name
+        return( '' )
+    END
+    ASSIGN default( name, val )
+        name = name
+        val = val
+    END
+
+    METHOD flatten( g )
+        return( g.CreateClassVarString( self ) )
+    END
+
+END
+
+
+CLASS a160_Add_cov_tot1
+  PUBLIC:
+    local _title, _class, obj, errmsg
+
+    local CovActLossSust1, NumMonths1, LimXtraExp, DedXtraExp, EndNum1Sec1, CovActLossSust2
+    local NumMonths2, LimLossInc, DedLossInc, EndNum2Sec1, LimValPapTotAmt, DedValPap
+    local EndNum3Sec1, LimAccRecTotAmt, DedAccRec, EndNum4Sec1, LimSignTotAmt, DedSign
+    local EndNum5Sec1, LimEmpDishon, DedEmpDishon, EndNum6Sec1, LimBurgRobbStk, DedBurgRobbStk
+    local EndNum7Sec1, LimBurgRobbMny, DedBurgRobb, EndNum8Sec1, LimMoneyIn, DedMoneyIn
+    local EndNum9Sec1, LimMonSecurOut, DedMonSecurOut, EndNum10Sec1, LimSpoilageTotAmt
+    local DedSpoilage, EndNum11Sec1
+
+    METHOD new( obj )
+        ::_title = "ADDITIONAL COVERAGES (I)"
+        ::_class = "a160_Add_cov_tot1"
+        ::obj = obj
+        ::errmsg = ""
+        ::init( )
+        return( 1 )
+    END
+
+    METHOD init( )
+        ::CovActLossSust1 = ""
+        ::NumMonths1 = ""
+        ::LimXtraExp = ""
+        ::DedXtraExp = ""
+        ::EndNum1Sec1 = ""
+        ::CovActLossSust2 = ""
+        ::NumMonths2 = ""
+        ::LimLossInc = ""
+        ::DedLossInc = ""
+        ::EndNum2Sec1 = ""
+        ::LimValPapTotAmt = ""
+        ::DedValPap = ""
+        ::EndNum3Sec1 = ""
+        ::LimAccRecTotAmt = ""
+        ::DedAccRec = ""
+        ::EndNum4Sec1 = ""
+        ::LimSignTotAmt = ""
+        ::DedSign = ""
+        ::EndNum5Sec1 = ""
+        ::LimEmpDishon = ""
+        ::DedEmpDishon = ""
+        ::EndNum6Sec1 = ""
+        ::LimBurgRobbStk = ""
+        ::DedBurgRobbStk = ""
+        ::EndNum7Sec1 = ""
+        ::LimBurgRobbMny = ""
+        ::DedBurgRobb = ""
+        ::EndNum8Sec1 = ""
+        ::LimMoneyIn = ""
+        ::DedMoneyIn = ""
+        ::EndNum9Sec1 = ""
+        ::LimMonSecurOut = ""
+        ::DedMonSecurOut = ""
+        ::EndNum10Sec1 = ""
+        ::LimSpoilageTotAmt = ""
+        ::DedSpoilage = ""
+        ::EndNum11Sec1 = ""
+        return( 1 )
+    END
+
+    ACCESS aVars
+        static a = {
+            { "", 1, "", "alignright" },
+            { "", 300, "", "setwidth" },
+            { "<u>EXTRA EXPENCES", 1, "", "title" },
+            { "" },
+            { "CovActLossSust1", 1, "Actual Loss Sustained", "cb", 100 },
+            { "NumMonths1", 1, "Number of months", "text", 25 },
+            { "LimXtraExp", 1, "Total amount", "dollarandcents", 100 },
+            { "DedXtraExp", 1, "Deductible ($)", "dollarandcents", 100 },
+            { "EndNum1Sec1", 1, "Ending Numbers", "text", 250 },
+            { "" },
+            { "<u>LOSS OF INC", 1, "", "title" },
+            { "" },
+            { "CovActLossSust2", 1, "Actual Loss Sustained", "cb", 100 },
+            { "NumMonths2", 1, "Number of months", "text", 25 },
+            { "LimLossInc", 1, "Total Amount", "text", 100 },
+            { "DedLossInc", 1, "Deductible ($)", "dollarandcents", 100 },
+            { "EndNum2Sec1", 1, "Ending Numbers", "text", 250 },
+            { "" },
+            { "<u> VALUABLE PAPERS", 1, "", "title"},
+            { "" },
+            { "LimValPapTotAmt", 1, "Total Amount", "dollarandcents", 100 },
+            { "DedValPap", 1, "Deductible", "dollarandcents", 100 },
+            { "EndNum3Sec1", 1, "Ending Numbers", "text", 250 },
+            { "" },
+            { "<u>ACCNTS REC", 1, "", "title"},
+            { "" },
+            { "LimAccRecTotAmt", 1, "Total Amount", "Dollarandcents", 100 },
+            { "DedAccRec", 1, "Deductible", "dollarsandcents", 100 },
+            { "EndNum4Sec1", 1, "Ending Numbers", "text", 250 },
+            { "" },
+            { "<u>SIGN", 1, "", "title"},
+            { "" },
+            { "LimSignTotAmt", 1, "Total Amount", "dollarandcents", 100 },
+            { "DedSign", 1, "Deductible", "dollarcents", 100 },
+            { "EndNum5Sec1", 1, "Ending Numbers", "text", 250 },
+   	    { "" },
+            { "<u>EMPLOYEE DISHONESTY", 1, "", "title"},
+            { "" },
+            { "LimEmpDishon", 1, "Total Amount", "dollarandcents", 100 },
+            { "DedEmpDishon", 1, "Deductible", "dollarandcents", 100 },
+            { "EndNum6Sec1", 1, "Ending Numbers", "text", 250 },
+ 	    { "" },
+            { "<u>BRG/ROB STK", 1, "", "title"},
+            { "" },
+            { "LimBurgRobbStk", 1, "Total Amount", "dollarandcents", 100 },
+            { "DedBurgRobbStk", 1, "Deductible", "dollarandcents", 100 },
+            { "EndNum7Sec1", 1, "Ending Numbers", "text", 250 },
+            { "" },
+            { "<u>BRG/ROB MNY", 1, "", "title"},
+            { "" },
+            { "LimBurgRobbMny", 1, "Total Amounts", "dollarandcents", 100 },
+            { "DedBurgRobb", 1, "Deductible", "dollarandcents", 100 },
+            { "EndNum8Sec1", 1, "Ending Numbers", "text", 250 },
+	    { "" },
+            { "<u>MONEY& SEC - INSIDE", 1, "", "title"},
+            { "" },
+            { "LimMoneyIn", 1, "Total Amount", "dollarandcents", 100 },
+            { "DedMoneyIn", 1, "Deductible", "dollarandcents", 100 },
+            { "EndNum9Sec1", 1, "Ending Numbers", "text", 250 },
+ 	    { "" },
+            { "<u>MONEY& SEC - OUTSIDE", 1, "", "title"},
+            { "" },
+            { "LimMonSecurOut", 1, "Total Amount", "dollarandcents", 100 },
+            { "DedMonSecurOut", 1, "Deductible", "dollarandcents", 100 },
+            { "EndNum10Sec1", 1, "Ending Numbers", "text", 250 },
+	    { "" },
+            { "<u>SPOILAGE", 1, "", "title"},
+            { "" },
+            { "LimSpoilageTotAmt", 1, "Total Amount", "Dollarandcents", 100 },
+            { "DedSpoilage", 1, "Deductible", "Dollarandcents", 100 },
+            { "EndNum11Sec1", 1, "Ending Amounts", "text", 250 }
+        }
+        return( a )
+    END
+
+    METHOD LoadFromObject( data )
+        ::CovActLossSust1 = data.CovActLossSust1
+        ::NumMonths1 = data.NumMonths1
+        ::LimXtraExp = data.LimXtraExp
+        ::DedXtraExp = data.DedXtraExp
+        ::EndNum1Sec1 = data.EndNum1Sec1
+        ::CovActLossSust2 = data.CovActLossSust2
+        ::NumMonths2 = data.NumMonths2
+        ::LimLossInc = data.LimLossInc
+        ::DedLossInc = data.DedLossInc
+        ::EndNum2Sec1 = data.EndNum2Sec1
+        ::LimValPapTotAmt = data.LimValPapTotAmt
+        ::DedValPap = data.DedValPap
+        ::EndNum3Sec1 = data.EndNum3Sec1
+        ::LimAccRecTotAmt = data.LimAccRecTotAmt
+        ::DedAccRec = data.DedAccRec
+        ::EndNum4Sec1 = data.EndNum4Sec1
+        ::LimSignTotAmt = data.LimSignTotAmt
+        ::DedSign = data.DedSign
+        ::EndNum5Sec1 = data.EndNum5Sec1
+        ::LimEmpDishon = data.LimEmpDishon
+        ::DedEmpDishon = data.DedEmpDishon
+        ::EndNum6Sec1 = data.EndNum6Sec1
+        ::LimBurgRobbStk = data.LimBurgRobbStk
+        ::DedBurgRobbStk = data.DedBurgRobbStk
+        ::EndNum7Sec1 = data.EndNum7Sec1
+        ::LimBurgRobbMny = data.LimBurgRobbMny
+        ::DedBurgRobb = data.DedBurgRobb
+        ::EndNum8Sec1 = data.EndNum8Sec1
+        ::LimMoneyIn = data.LimMoneyIn
+        ::DedMoneyIn = data.DedMoneyIn
+        ::EndNum9Sec1 = data.EndNum9Sec1
+        ::LimMonSecurOut = data.LimMonSecurOut
+        ::DedMonSecurOut = data.DedMonSecurOut
+        ::EndNum10Sec1 = data.EndNum10Sec1
+        ::LimSpoilageTotAmt = data.LimSpoilageTotAmt
+        ::DedSpoilage = data.DedSpoilage
+        ::EndNum11Sec1 = data.EndNum11Sec1
+        return( 1 )
+    END
+
+    METHOD put( data )
+        data.CovActLossSust1 = ::CovActLossSust1
+        data.NumMonths1 = ::NumMonths1
+        data.LimXtraExp = ::LimXtraExp
+        data.DedXtraExp = ::DedXtraExp
+        data.EndNum1Sec1 = ::EndNum1Sec1
+        data.CovActLossSust2 = ::CovActLossSust2
+        data.NumMonths2 = ::NumMonths2
+        data.LimLossInc = ::LimLossInc
+        data.DedLossInc = ::DedLossInc
+        data.EndNum2Sec1 = ::EndNum2Sec1
+        data.LimValPapTotAmt = ::LimValPapTotAmt
+        data.DedValPap = ::DedValPap
+        data.EndNum3Sec1 = ::EndNum3Sec1
+        data.LimAccRecTotAmt = ::LimAccRecTotAmt
+        data.DedAccRec = ::DedAccRec
+        data.EndNum4Sec1 = ::EndNum4Sec1
+        data.LimSignTotAmt = ::LimSignTotAmt
+        data.DedSign = ::DedSign
+        data.EndNum5Sec1 = ::EndNum5Sec1
+        data.LimEmpDishon = ::LimEmpDishon
+        data.DedEmpDishon = ::DedEmpDishon
+        data.EndNum6Sec1 = ::EndNum6Sec1
+        data.LimBurgRobbStk = ::LimBurgRobbStk
+        data.DedBurgRobbStk = ::DedBurgRobbStk
+        data.EndNum7Sec1 = ::EndNum7Sec1
+        data.LimBurgRobbMny = ::LimBurgRobbMny
+        data.DedBurgRobb = ::DedBurgRobb
+        data.EndNum8Sec1 = ::EndNum8Sec1
+        data.LimMoneyIn = ::LimMoneyIn
+        data.DedMoneyIn = ::DedMoneyIn
+        data.EndNum9Sec1 = ::EndNum9Sec1
+        data.LimMonSecurOut = ::LimMonSecurOut
+        data.DedMonSecurOut = ::DedMonSecurOut
+        data.EndNum10Sec1 = ::EndNum10Sec1
+        data.LimSpoilageTotAmt = ::LimSpoilageTotAmt
+        data.DedSpoilage = ::DedSpoilage
+        data.EndNum11Sec1 = ::EndNum11Sec1
+        return( 1 )
+    END
+
+    METHOD validate( )
+        local s = ""
+        ::errmsg = s
+        return( strempty( ::errmsg ) )
+    END
+
+    METHOD update( data )
+        local line, val, key, i=1
+        while ( 1 )
+            line = strextract( data, "&", i++ )
+            if ( strempty( line ) )
+                break
+            end
+            key = strextract( line, "=", 1 )
+            val = webDecodeURL( right( line, len( line ) - ( len( key ) + 1 ) ) )
+            self.(upper(key)) = val
+        end
+        return( 1 )
+    END
+
+    ACCESS default( name )
+        name = name
+        return( '' )
+    END
+    ASSIGN default( name, val )
+        name = name
+        val = val
+    END
+
+    METHOD flatten( g )
+        return( g.CreateClassVarString( self ) )
+    END
+
+END
+
+CLASS a160_Add_cov_tot2
+  PUBLIC:
+    local _title, _class, obj, errmsg
+
+    local LimCompMedia, DedCompMedia, EndNum1Sec2, LimOrdLawTotAmt, DedOrdLaw, EndNum2Sec2
+    local LimERISATotAmt, DedERISA, EndNum3Sec2, LimFlood, DedFlood, EndNum4Sec2
+    local LimEQ, DedEQ, EndNum5Sec2, LimBMBasic, DedBMBasic, EndNum6Sec2, LimBMBroad
+    local DedBMBroad, EndNum7Sec2, LimBMSpoil, DedBMSpoil, EndNum8Sec2, LimTransit
+    local DedTransit, EndNum9Sec2, CovOther1Sec2, LimOther1Sec2, DedOther1Sec2, EndNum10Sec2
+    local CovOther2Sec2, LimOther2Sec2, DedOther2Sec2, EndNum11Sec2, CovOther3Sec2
+    local LimOther3Sec2, DedOther3Sec2, EndNum12Sec2, CovOther4Sec2, LimOther4Sec2
+    local DedOther4Sec2, EndNum13Sec2
+
+    METHOD new( obj )
+        ::_title = "ADDITIONAL COVERAGES (II) "
+        ::_class = "a160_Add_cov_tot2"
+        ::obj = obj
+        ::errmsg = ""
+        ::init( )
+        return( 1 )
+    END
+
+    METHOD init( )
+        ::LimCompMedia = ""
+        ::DedCompMedia = ""
+        ::EndNum1Sec2 = ""
+        ::LimOrdLawTotAmt = ""
+        ::DedOrdLaw = ""
+        ::EndNum2Sec2 = ""
+        ::LimERISATotAmt = ""
+        ::DedERISA = ""
+        ::EndNum3Sec2 = ""
+        ::LimFlood = ""
+        ::DedFlood = ""
+        ::EndNum4Sec2 = ""
+        ::LimEQ = ""
+        ::DedEQ = ""
+        ::EndNum5Sec2 = ""
+        ::LimBMBasic = ""
+        ::DedBMBasic = ""
+        ::EndNum6Sec2 = ""
+        ::LimBMBroad = ""
+        ::DedBMBroad = ""
+        ::EndNum7Sec2 = ""
+        ::LimBMSpoil = ""
+        ::DedBMSpoil = ""
+        ::EndNum8Sec2 = ""
+        ::LimTransit = ""
+        ::DedTransit = ""
+        ::EndNum9Sec2 = ""
+        ::CovOther1Sec2 = ""
+        ::LimOther1Sec2 = ""
+        ::DedOther1Sec2 = ""
+        ::EndNum10Sec2 = ""
+        ::CovOther2Sec2 = ""
+        ::LimOther2Sec2 = ""
+        ::DedOther2Sec2 = ""
+        ::EndNum11Sec2 = ""
+        ::CovOther3Sec2 = ""
+        ::LimOther3Sec2 = ""
+        ::DedOther3Sec2 = ""
+        ::EndNum12Sec2 = ""
+        ::CovOther4Sec2 = ""
+        ::LimOther4Sec2 = ""
+        ::DedOther4Sec2 = ""
+        ::EndNum13Sec2 = ""
+        return( 1 )
+    END
+
+    ACCESS aVars
+        static a = {
+        { "", 1, "", "alignright" },
+        { "", 300, "", "setwidth" },
+        { "<u>COMPUTERS", 1, "", "title"},
+        { "" },
+        { "LimCompMedia", 1, "Total Amount", "dollarandcents", 100 },
+        { "DedCompMedia", 1, "Deductible", "dollarandcents", 100 },
+        { "EndNum1Sec2", 1, "Ending Numbers", "text", 250 },
+        { "" },
+        { "<u>ORDER OR LAW", 1, "", "title"},
+        { "" },
+        { "LimOrdLawTotAmt", 1, "Total Amount", "dollarandcents", 100 },
+        { "DedOrdLaw", 1, "Deductible", "dollarandcents", 100 },
+        { "EndNum2Sec2", 1, "Ending Numbers", "text", 250 },
+	{ "" },
+        { "<u>ERISA", 1, "", "title"},
+        { "" },
+        { "LimERISATotAmt", 1, "Total Amount", "dollarandcents", 100 },
+        { "DedERISA", 1, "Deductible", "dollarandcents", 100 },
+        { "EndNum3Sec2", 1, "Ending Number", "text", 250 },
+	{ "" },
+        { "<u>FLOOD", 1, "", "title"},
+        { "" },
+        { "LimFlood", 1, "Total Amount", "dollarandcents", 100 },
+        { "DedFlood", 1, "Deductible", "dollarandcents", 100 },
+        { "EndNum4Sec2", 1, "Ending Numbers", "text", 250 },
+        { "" },
+        { "<u>ERTHQUAKE", 1, "", "title"},
+        { "" },
+        { "LimEQ", 1, "Total Amount", "dollarandcents", 100 },
+        { "DedEQ", 1, "Deductibles", "dollarandcents", 100 },
+        { "EndNum5Sec2", 1, "Ending Numbers", "text", 250 },
+        { "" },
+        { "<u>B & M BASIC", 1, "", "title"},
+        { "" },
+        { "LimBMBasic", 1, "Total Amount", "dollarandcents", 100 },
+        { "DedBMBasic", 1, "Deductible", "dollarandcents", 100 },
+        { "EndNum6Sec2", 1, "Ending Numbers", "text", 250 },
+        { "" },
+        { "<u>B & M BROAD", 1, "", "title"},
+        { "" },
+        { "LimBMBroad", 1, "Total Amount", "dollarandcents", 100 },
+        { "DedBMBroad", 1, "Deductible", "dollarandcents", 100 },
+        { "EndNum7Sec2", 1, "Ending Numbers", "text", 250 },
+        { "" },
+        { "<u>B & M SPOILAGE", 1, "", "title"},
+        { "LimBMSpoil", 1, "Total Amount", "dollarandcents", 100 },
+        { "DedBMSpoil", 1, "Deductible", "dollarandcents", 100 },
+        { "EndNum8Sec2", 1, "Ending Numbers", "text", 250 },
+        { "" },
+        { "<u>TRANSIT", 1, "", "title"},
+        { "" },
+        { "LimTransit", 1, "Total Amount", "dollarandcents", 100 },
+        { "DedTransit", 1, "Deductible", "dollarandcents", 100 },
+        { "EndNum9Sec2", 1, "Ending Numbers", "text", 250 },
+	{ "" },
+        { "<u>FORGERY LIMIT", 1, "", "title"},
+        { "CovOther1Sec2", 1, "", "HIDDEN", 150 },
+        { "LimOther1Sec2", 1, "Total Amount", "dollarandcents", 100 },
+        { "DedOther1Sec2", 1, "Deductible", "dollarandcents", 100 },
+        { "EndNum10Sec2", 1, "Ending Numbers", "text", 250 },
+        { "" },
+        { "<u>OTHER COVERAGE (I)", 1, "", "title"},
+        { "CovOther2Sec2", 1, "Coverage name", "text", 150 },
+        { "LimOther2Sec2", 1, "Total Amount", "dollarandcents", 100 },
+        { "DedOther2Sec2", 1, "Deductible", "dollarandcents", 100 },
+        { "EndNum11Sec2", 1, "Ending Numbers", "text", 250 },
+        { "" },
+        { "<u>OTHER COVERAGE (II)", 1, "", "title"},
+        { "CovOther3Sec2", 1, "Coverage name", "text", 150 },
+        { "LimOther3Sec2", 1, "Total Amount", "dollarandcents", 100 },
+        { "DedOther3Sec2", 1, "Deductible", "dollarandcents", 100 },
+        { "EndNum12Sec2", 1, "Ending Numbers", "text", 250 },
+	{ "" },
+        { "<u>OTHER COVERAGE (III)", 1, "", "title"},
+        { "CovOther4Sec2", 1, "Coverage Name", "text", 150 },
+        { "LimOther4Sec2", 1, "Total Amount", "dollarandcents", 100 },
+        { "DedOther4Sec2", 1, "Deductible", "dollarandcents", 100 },
+        { "EndNum13Sec2", 1, "Ending Numbers", "text", 250 }
+
+        }
+        return( a )
+    END
+
+    METHOD LoadFromObject( data )
+        ::LimCompMedia = data.LimCompMedia
+        ::DedCompMedia = data.DedCompMedia
+        ::EndNum1Sec2 = data.EndNum1Sec2
+        ::LimOrdLawTotAmt = data.LimOrdLawTotAmt
+        ::DedOrdLaw = data.DedOrdLaw
+        ::EndNum2Sec2 = data.EndNum2Sec2
+        ::LimERISATotAmt = data.LimERISATotAmt
+        ::DedERISA = data.DedERISA
+        ::EndNum3Sec2 = data.EndNum3Sec2
+        ::LimFlood = data.LimFlood
+        ::DedFlood = data.DedFlood
+        ::EndNum4Sec2 = data.EndNum4Sec2
+        ::LimEQ = data.LimEQ
+        ::DedEQ = data.DedEQ
+        ::EndNum5Sec2 = data.EndNum5Sec2
+        ::LimBMBasic = data.LimBMBasic
+        ::DedBMBasic = data.DedBMBasic
+        ::EndNum6Sec2 = data.EndNum6Sec2
+        ::LimBMBroad = data.LimBMBroad
+        ::DedBMBroad = data.DedBMBroad
+        ::EndNum7Sec2 = data.EndNum7Sec2
+        ::LimBMSpoil = data.LimBMSpoil
+        ::DedBMSpoil = data.DedBMSpoil
+        ::EndNum8Sec2 = data.EndNum8Sec2
+        ::LimTransit = data.LimTransit
+        ::DedTransit = data.DedTransit
+        ::EndNum9Sec2 = data.EndNum9Sec2
+        ::CovOther1Sec2 = data.CovOther1Sec2
+        ::LimOther1Sec2 = data.LimOther1Sec2
+        ::DedOther1Sec2 = data.DedOther1Sec2
+        ::EndNum10Sec2 = data.EndNum10Sec2
+        ::CovOther2Sec2 = data.CovOther2Sec2
+        ::LimOther2Sec2 = data.LimOther2Sec2
+        ::DedOther2Sec2 = data.DedOther2Sec2
+        ::EndNum11Sec2 = data.EndNum11Sec2
+        ::CovOther3Sec2 = data.CovOther3Sec2
+        ::LimOther3Sec2 = data.LimOther3Sec2
+        ::DedOther3Sec2 = data.DedOther3Sec2
+        ::EndNum12Sec2 = data.EndNum12Sec2
+        ::CovOther4Sec2 = data.CovOther4Sec2
+        ::LimOther4Sec2 = data.LimOther4Sec2
+        ::DedOther4Sec2 = data.DedOther4Sec2
+        ::EndNum13Sec2 = data.EndNum13Sec2
+        return( 1 )
+    END
+
+    METHOD put( data )
+        data.LimCompMedia = ::LimCompMedia
+        data.DedCompMedia = ::DedCompMedia
+        data.EndNum1Sec2 = ::EndNum1Sec2
+        data.LimOrdLawTotAmt = ::LimOrdLawTotAmt
+        data.DedOrdLaw = ::DedOrdLaw
+        data.EndNum2Sec2 = ::EndNum2Sec2
+        data.LimERISATotAmt = ::LimERISATotAmt
+        data.DedERISA = ::DedERISA
+        data.EndNum3Sec2 = ::EndNum3Sec2
+        data.LimFlood = ::LimFlood
+        data.DedFlood = ::DedFlood
+        data.EndNum4Sec2 = ::EndNum4Sec2
+        data.LimEQ = ::LimEQ
+        data.DedEQ = ::DedEQ
+        data.EndNum5Sec2 = ::EndNum5Sec2
+        data.LimBMBasic = ::LimBMBasic
+        data.DedBMBasic = ::DedBMBasic
+        data.EndNum6Sec2 = ::EndNum6Sec2
+        data.LimBMBroad = ::LimBMBroad
+        data.DedBMBroad = ::DedBMBroad
+        data.EndNum7Sec2 = ::EndNum7Sec2
+        data.LimBMSpoil = ::LimBMSpoil
+        data.DedBMSpoil = ::DedBMSpoil
+        data.EndNum8Sec2 = ::EndNum8Sec2
+        data.LimTransit = ::LimTransit
+        data.DedTransit = ::DedTransit
+        data.EndNum9Sec2 = ::EndNum9Sec2
+        data.CovOther1Sec2 = ::CovOther1Sec2
+        data.LimOther1Sec2 = ::LimOther1Sec2
+        data.DedOther1Sec2 = ::DedOther1Sec2
+        data.EndNum10Sec2 = ::EndNum10Sec2
+        data.CovOther2Sec2 = ::CovOther2Sec2
+        data.LimOther2Sec2 = ::LimOther2Sec2
+        data.DedOther2Sec2 = ::DedOther2Sec2
+        data.EndNum11Sec2 = ::EndNum11Sec2
+        data.CovOther3Sec2 = ::CovOther3Sec2
+        data.LimOther3Sec2 = ::LimOther3Sec2
+        data.DedOther3Sec2 = ::DedOther3Sec2
+        data.EndNum12Sec2 = ::EndNum12Sec2
+        data.CovOther4Sec2 = ::CovOther4Sec2
+        data.LimOther4Sec2 = ::LimOther4Sec2
+        data.DedOther4Sec2 = ::DedOther4Sec2
+        data.EndNum13Sec2 = ::EndNum13Sec2
+        return( 1 )
+    END
+
+    METHOD validate( )
+        local s = ""
+        ::errmsg = s
+        return( strempty( ::errmsg ) )
+    END
+
+    METHOD update( data )
+        local line, val, key, i=1
+        while ( 1 )
+            line = strextract( data, "&", i++ )
+            if ( strempty( line ) )
+                break
+            end
+            key = strextract( line, "=", 1 )
+            val = webDecodeURL( right( line, len( line ) - ( len( key ) + 1 ) ) )
+            self.(upper(key)) = val
+        end
+        return( 1 )
+    END
+
+    ACCESS default( name )
+        name = name
+        return( '' )
+    END
+    ASSIGN default( name, val )
+        name = name
+        val = val
+    END
+
+    METHOD flatten( g )
+        return( g.CreateClassVarString( self ) )
+    END
+
+END
+
+
+CLASS a160_specialty_programs
+  PUBLIC:
+    local _title, _class, obj, errmsg
+
+    local AttAcord185BusRest, AttAcord186BusContr, AttAcord187
+
+    METHOD new( obj )
+        ::_title = "Specialty Programs"
+        ::_class = "a160_specialty_programs"
+        ::obj = obj
+        ::errmsg = ""
+        ::init( )
+        return( 1 )
+    END
+
+    METHOD init( )
+        ::AttAcord185BusRest = ""
+        ::AttAcord186BusContr = ""
+        ::AttAcord187 = ""
+        return( 1 )
+    END
+
+    ACCESS aVars
+        static a = {
+        { "", 1, "", "alignleft" },
+        { "", 300, "", "setwidth" },
+        { "AttAcord185BusRest", 1, "Restaurants-Attach Accord 185 for each location", "CB", 300 },
+        { "" },
+        { "AttAcord186BusContr", 1, "Contractors-Attach Accord 186 for each location", "CB", 300 },
+        { "" },
+        { "AttAcord187", 1, "Professional Liability-Attach  Accord 187 for barber and beauty shops, funeral homes, optical and hearing aid establishments, printers or veterinarians", "CB", 300 }
+
+        }
+        return( a )
+    END
+
+    METHOD LoadFromObject( data )
+        ::AttAcord185BusRest = data.AttAcord185BusRest
+        ::AttAcord186BusContr = data.AttAcord186BusContr
+        ::AttAcord187 = data.AttAcord187
+        return( 1 )
+    END
+
+    METHOD put( data )
+        data.AttAcord185BusRest = ::AttAcord185BusRest
+        data.AttAcord186BusContr = ::AttAcord186BusContr
+        data.AttAcord187 = ::AttAcord187
+        return( 1 )
+    END
+
+    METHOD validate( )
+        local s = ""
+        ::errmsg = s
+        return( strempty( ::errmsg ) )
+    END
+
+    METHOD update( data )
+        local line, val, key, i=1
+        while ( 1 )
+            line = strextract( data, "&", i++ )
+            if ( strempty( line ) )
+                break
+            end
+            key = strextract( line, "=", 1 )
+            val = webDecodeURL( right( line, len( line ) - ( len( key ) + 1 ) ) )
+            self.(upper(key)) = val
+        end
+        return( 1 )
+    END
+
+    ACCESS default( name )
+        name = name
+        return( '' )
+    END
+    ASSIGN default( name, val )
+        name = name
+        val = val
+    END
+
+    METHOD flatten( g )
+        return( g.CreateClassVarString( self ) )
+    END
+
+END
+
+CLASS a160_additional_interests1
+  PUBLIC:
+    local _title, _class, obj, errmsg
+
+    local AIRank, AIAddInsSec1, AILossPaySec1, AIMortgageeSec1, AILienholderSec1
+    local AIOther1Sec1, AIOther2Sec1, AIOther3Sec1, AIOther4Sec1
+
+    METHOD new( obj )
+        ::_title = "ADDITIONAL INTEREST (I)"
+        ::_class = "a160_additional_interests1"
+        ::obj = obj
+        ::errmsg = ""
+        ::init( )
+        return( 1 )
+    END
+
+    METHOD init( )
+        ::AIRank = ""
+        ::AIAddInsSec1 = ""
+        ::AILossPaySec1 = ""
+        ::AIMortgageeSec1 = ""
+        ::AILienholderSec1 = ""
+        ::AIOther1Sec1 = ""
+        ::AIOther2Sec1 = ""
+        ::AIOther3Sec1 = ""
+        ::AIOther4Sec1 = ""
+        return( 1 )
+    END
+
+    ACCESS aVars
+        static a = {
+            { "AIRank", 1, "Rank", "text", 50 },
+            { "" },
+    	    { "AIAddInsSec1", 1, "Additional Insured", "cb", 100 },
+    	    { "AILossPaySec1", 1, "Loss Payee", "cb", 100 },
+    	    { "AIMortgageeSec1", 1, "Mortgage", "cb", 100 },
+    	    { "AILienholderSec1", 1, "Lienholder", "cb", 100 },
+    	    { "" },
+    	    { "AIOther1Sec1", 1, "Other 1", "CB", 100 },
+    	    { "AIOther2Sec1", 1, "Description", "text", 150 },
+    	    { "" },
+            { "AIOther3Sec1", 1, "Other 2", "CB", 100 },
+            { "AIOther4Sec1", 1, "Other interest name", "text", 150 }
+        }
+        return( a )
+    END
+
+    METHOD LoadFromObject( data )
+        ::AIRank = data.AIRank
+        ::AIAddInsSec1 = data.AIAddInsSec1
+        ::AILossPaySec1 = data.AILossPaySec1
+        ::AIMortgageeSec1 = data.AIMortgageeSec1
+        ::AILienholderSec1 = data.AILienholderSec1
+        ::AIOther1Sec1 = data.AIOther1Sec1
+        ::AIOther2Sec1 = data.AIOther2Sec1
+        ::AIOther3Sec1 = data.AIOther3Sec1
+        ::AIOther4Sec1 = data.AIOther4Sec1
+        return( 1 )
+    END
+
+    METHOD put( data )
+        data.AIRank = ::AIRank
+        data.AIAddInsSec1 = ::AIAddInsSec1
+        data.AILossPaySec1 = ::AILossPaySec1
+        data.AIMortgageeSec1 = ::AIMortgageeSec1
+        data.AILienholderSec1 = ::AILienholderSec1
+        data.AIOther1Sec1 = ::AIOther1Sec1
+        data.AIOther2Sec1 = ::AIOther2Sec1
+        data.AIOther3Sec1 = ::AIOther3Sec1
+        data.AIOther4Sec1 = ::AIOther4Sec1
+        return( 1 )
+    END
+
+    METHOD validate( )
+        local s = ""
+        ::errmsg = s
+        return( strempty( ::errmsg ) )
+    END
+
+    METHOD update( data )
+        local line, val, key, i=1
+        while ( 1 )
+            line = strextract( data, "&", i++ )
+            if ( strempty( line ) )
+                break
+            end
+            key = strextract( line, "=", 1 )
+            val = webDecodeURL( right( line, len( line ) - ( len( key ) + 1 ) ) )
+            self.(upper(key)) = val
+        end
+        return( 1 )
+    END
+
+    ACCESS default( name )
+        name = name
+        return( '' )
+    END
+    ASSIGN default( name, val )
+        name = name
+        val = val
+    END
+
+    METHOD flatten( g )
+        return( g.CreateClassVarString( self ) )
+    END
+
+END
+
+CLASS a160_additional_interests2
+  PUBLIC:
+    local _title, _class, obj, errmsg
+
+    local AttAcord45, AIRefNum, AICertReq, AINameAdd, AItemDesc
+
+    METHOD new( obj )
+        ::_title = "ADDITIONAL INTEREST (II)"
+        ::_class = "a160_additional_interests2"
+        ::obj = obj
+        ::errmsg = ""
+        ::init( )
+        return( 1 )
+    END
+
+    METHOD init( )
+        ::AttAcord45 = ""
+        ::AIRefNum = ""
+        ::AICertReq = ""
+        ::AINameAdd = ""
+        ::AItemDesc = ""
+        return( 1 )
+    END
+
+    ACCESS aVars
+        static a = {
+            { "", 260, "", "setwidth" },
+            { "AttAcord45", 1, "<b><u>Accord 45 Attached", "cb", 100 },
+            { "" },
+            { "AIRefNum", 1, "Reference Number", "text", 150 },
+            { "" },
+            { "AICertReq", 1, "Certificate Required", "cb", 100 },
+            { "" },
+            { "AINameAdd", 1, "Name and Address", "textarea", 300, 5 },
+            { "" },
+            { "AItemDesc", 1, "Item Description", "textarea", 300 }
+        }
+        return( a )
+    END
+
+    METHOD LoadFromObject( data )
+        ::AttAcord45 = data.AttAcord45
+        ::AIRefNum = data.AIRefNum
+        ::AICertReq = data.AICertReq
+        ::AINameAdd = data.AINameAdd
+        ::AItemDesc = data.AItemDesc
+        return( 1 )
+    END
+
+    METHOD put( data )
+        data.AttAcord45 = ::AttAcord45
+        data.AIRefNum = ::AIRefNum
+        data.AICertReq = ::AICertReq
+        data.AINameAdd = ::AINameAdd
+        data.AItemDesc = ::AItemDesc
+        return( 1 )
+    END
+
+    METHOD validate( )
+        local s = ""
+        ::errmsg = s
+        return( strempty( ::errmsg ) )
+    END
+
+    METHOD update( data )
+        local line, val, key, i=1
+        while ( 1 )
+            line = strextract( data, "&", i++ )
+            if ( strempty( line ) )
+                break
+            end
+            key = strextract( line, "=", 1 )
+            val = webDecodeURL( right( line, len( line ) - ( len( key ) + 1 ) ) )
+            self.(upper(key)) = val
+        end
+        return( 1 )
+    END
+
+    ACCESS default( name )
+        name = name
+        return( '' )
+    END
+    ASSIGN default( name, val )
+        name = name
+        val = val
+    END
+
+    METHOD flatten( g )
+        return( g.CreateClassVarString( self ) )
+    END
+
+END
+
+CLASS a160_interest_in_item_number
+  PUBLIC:
+    local _title, _class, obj, errmsg
+
+    local AIPremLoc, AItemBldg, AIVeh, AIBoat, AISchedItem, AIOther
+
+    METHOD new( obj )
+        ::_title = "ADDITIONAL INTEREST (III)"
+        ::_class = "a160_interest_in_item_number"
+        ::obj = obj
+        ::errmsg = ""
+        ::init( )
+        return( 1 )
+    END
+
+    METHOD init( )
+        ::AIPremLoc = ""
+        ::AItemBldg = ""
+        ::AIVeh = ""
+        ::AIBoat = ""
+        ::AISchedItem = ""
+        ::AIOther = ""
+        return( 1 )
+    END
+
+    ACCESS aVars
+        static a = {
+            { "", 1, "", "alignleft" },
+            { "<U>INTEREST IN ITEM NUMBER", 1, "", "title", 100 },
+            { "", 1, "", "alignright" },
+            { "", 240, "", "setwidth" },
+            { "AIPremLoc", 1, "Premises", "text", 100 },
+            { "AItemBldg", 1, "Building", "text", 100 },
+            { "AIVeh", 1, "Vehicle", "text", 100 },
+            { "AIBoat", 1, "Boat", "text", 100 },
+            { "" },
+            { "AISchedItem", 1, "Scheduled Item Number", "text", 100 },
+            { "" },
+            { "AIOther", 1, "Other", "textarea", 250, 3 }
+        }
+        return( a )
+    END
+
+    METHOD LoadFromObject( data )
+        ::AIPremLoc = data.AIPremLoc
+        ::AItemBldg = data.AItemBldg
+        ::AIVeh = data.AIVeh
+        ::AIBoat = data.AIBoat
+        ::AISchedItem = data.AISchedItem
+        ::AIOther = data.AIOther
+        return( 1 )
+    END
+
+    METHOD put( data )
+        data.AIPremLoc = ::AIPremLoc
+        data.AItemBldg = ::AItemBldg
+        data.AIVeh = ::AIVeh
+        data.AIBoat = ::AIBoat
+        data.AISchedItem = ::AISchedItem
+        data.AIOther = ::AIOther
+        return( 1 )
+    END
+
+    METHOD validate( )
+        local s = ""
+        ::errmsg = s
+        return( strempty( ::errmsg ) )
+    END
+
+    METHOD update( data )
+        local line, val, key, i=1
+        while ( 1 )
+            line = strextract( data, "&", i++ )
+            if ( strempty( line ) )
+                break
+            end
+            key = strextract( line, "=", 1 )
+            val = webDecodeURL( right( line, len( line ) - ( len( key ) + 1 ) ) )
+            self.(upper(key)) = val
+        end
+        return( 1 )
+    END
+
+    ACCESS default( name )
+        name = name
+        return( '' )
+    END
+    ASSIGN default( name, val )
+        name = name
+        val = val
+    END
+
+    METHOD flatten( g )
+        return( g.CreateClassVarString( self ) )
+    END
+
+END
+
+CLASS a160_remarks1
+  PUBLIC:
+    local _title, _class, obj, errmsg
+
+    local Remarks1
+
+    METHOD new( obj )
+        ::_title = "REMARKS (I)"
+        ::_class = "a160_remarks1"
+        ::obj = obj
+        ::errmsg = ""
+        ::init( )
+        return( 1 )
+    END
+
+    METHOD init( )
+        ::Remarks2 = ""
+        return( 1 )
+    END
+
+    ACCESS aVars
+        static a = {
+            { "Remarks1", 1, "Remarks", "textarea", 500, 10 }
+        }
+        return( a )
+    END
+
+    METHOD LoadFromObject( data )
+        ::Remarks1 = data.Remarks1
+        return( 1 )
+    END
+
+    METHOD put( data )
+        data.Remarks1 = ::Remarks1
+        return( 1 )
+    END
+
+    METHOD validate( )
+        local s = ""
+        ::errmsg = s
+        return( strempty( ::errmsg ) )
+    END
+
+    METHOD update( data )
+        local line, val, key, i=1
+        while ( 1 )
+            line = strextract( data, "&", i++ )
+            if ( strempty( line ) )
+                break
+            end
+            key = strextract( line, "=", 1 )
+            val = webDecodeURL( right( line, len( line ) - ( len( key ) + 1 ) ) )
+            self.(upper(key)) = val
+        end
+        return( 1 )
+    END
+
+    ACCESS default( name )
+        name = name
+        return( '' )
+    END
+    ASSIGN default( name, val )
+        name = name
+        val = val
+    END
+
+    METHOD flatten( g )
+        return( g.CreateClassVarString( self ) )
+    END
+
+END
+
+CLASS a160_attachments
+  PUBLIC:
+    local _title, _class, obj, errmsg
+
+    local AttStateSupp, AttOther1, AttOther2, AttOther3, AttOther4, AttOther5, AttOther6
+    local AttOther7, AttOther8
+
+    METHOD new( obj )
+        ::_title = "Attachments"
+        ::_class = "a160_attachments"
+        ::obj = obj
+        ::errmsg = ""
+        ::init( )
+        return( 1 )
+    END
+
+    METHOD init( )
+        ::AttStateSupp = ""
+        ::AttOther1 = ""
+        ::AttOther2 = ""
+        ::AttOther3 = ""
+        ::AttOther4 = ""
+        ::AttOther5 = ""
+        ::AttOther6 = ""
+        ::AttOther7 = ""
+        ::AttOther8 = ""
+        return( 1 )
+    END
+
+    ACCESS aVars
+        static a = {
+            { "", 300, "", "setwidth" },
+            { "State Suppliments", 1, "", "TITLE", 100 },
+            { "AttStateSupp", 1, "", "HIDDEN", 100 },
+            { "AttOther1", 1, "Other 1", "cb", 100 },
+            { "AttOther2", 1, "Describe Other 1", "textarea", 300 },
+            { "" },
+            { "AttOther3", 1, "Other 2", "cb", 100 },
+            { "AttOther4", 1, "Describe Other 2", "textarea", 300 },
+            { "" },
+            { "AttOther5", 1, "Other 3", "cb", 100 },
+            { "AttOther6", 1, "Describe other 3", "textarea", 300 },
+            { "" },
+            { "AttOther7", 1, "Other 4", "cb", 100 },
+            { "AttOther8", 1, "Describe Other 4", "textarea", 300 }
+        }
+        return( a )
+    END
+
+    METHOD LoadFromObject( data )
+        ::AttStateSupp = data.AttStateSupp
+        ::AttOther1 = data.AttOther1
+        ::AttOther2 = data.AttOther2
+        ::AttOther3 = data.AttOther3
+        ::AttOther4 = data.AttOther4
+        ::AttOther5 = data.AttOther5
+        ::AttOther6 = data.AttOther6
+        ::AttOther7 = data.AttOther7
+        ::AttOther8 = data.AttOther8
+        return( 1 )
+    END
+
+    METHOD put( data )
+        data.AttStateSupp = ::AttStateSupp
+        data.AttOther1 = ::AttOther1
+        data.AttOther2 = ::AttOther2
+        data.AttOther3 = ::AttOther3
+        data.AttOther4 = ::AttOther4
+        data.AttOther5 = ::AttOther5
+        data.AttOther6 = ::AttOther6
+        data.AttOther7 = ::AttOther7
+        data.AttOther8 = ::AttOther8
+        return( 1 )
+    END
+
+    METHOD validate( )
+        local s = ""
+        ::errmsg = s
+        return( strempty( ::errmsg ) )
+    END
+
+    METHOD update( data )
+        local line, val, key, i=1
+        while ( 1 )
+            line = strextract( data, "&", i++ )
+            if ( strempty( line ) )
+                break
+            end
+            key = strextract( line, "=", 1 )
+            val = webDecodeURL( right( line, len( line ) - ( len( key ) + 1 ) ) )
+            self.(upper(key)) = val
+        end
+        return( 1 )
+    END
+
+    ACCESS default( name )
+        name = name
+        return( '' )
+    END
+    ASSIGN default( name, val )
+        name = name
+        val = val
+    END
+
+    METHOD flatten( g )
+        return( g.CreateClassVarString( self ) )
+    END
+
+END
+
+CLASS a160_signature
+  PUBLIC:
+    local _title, _class, obj, errmsg
+
+    local Date1, AgcyNumber
+
+    METHOD new( obj )
+        ::_title = "Signature Section"
+        ::_class = "a160_signature"
+        ::obj = obj
+        ::errmsg = ""
+        ::init( )
+        return( 1 )
+    END
+
+    METHOD init( )
+        ::Date1 = ""
+        ::AgcyNumber = ""
+        return( 1 )
+    END
+
+    ACCESS aVars
+        static a = {
+        { "Date1", 1, "Date of Signature", "date", 100 },
+        { "AgcyNumber", 1, "National Producer Number", "text", 100 }
+        }
+        return( a )
+    END
+
+    METHOD LoadFromObject( data )
+        ::Date1 = data.Date1
+        ::AgcyNumber = data.AgcyNumber
+        return( 1 )
+    END
+
+    METHOD put( data )
+        data.Date1 = ::Date1
+        data.AgcyNumber = ::AgcyNumber
+        return( 1 )
+    END
+
+    METHOD validate( )
+        local s = ""
+        ::errmsg = s
+        return( strempty( ::errmsg ) )
+    END
+
+    METHOD update( data )
+        local line, val, key, i=1
+        while ( 1 )
+            line = strextract( data, "&", i++ )
+            if ( strempty( line ) )
+                break
+            end
+            key = strextract( line, "=", 1 )
+            val = webDecodeURL( right( line, len( line ) - ( len( key ) + 1 ) ) )
+            self.(upper(key)) = val
+        end
+        return( 1 )
+    END
+
+    ACCESS default( name )
+        name = name
+        return( '' )
+    END
+    ASSIGN default( name, val )
+        name = name
+        val = val
+    END
+
+    METHOD flatten( g )
+        return( g.CreateClassVarString( self ) )
+    END
+
+END
+
+CLASS a160_prem_info1
+  PUBLIC:
+    local _title, _class, obj, errmsg
+
+    local PremLoc, RateBlanketYes, PremAdd, RateBlanketNo, AttAcord139, PremIntOwner
+    local PremIntTenant, PremPercOcc, PremSurExposFront, PremSurExposRight, PremSqFtOcc
+    local PremYrBuilt, PremSurExposRear, PremSurExposLeft, PremProtClass, PremRateTerr
+    local PremDistHyd, PremDistFireSt, PremFireDist, PremLeas, PremNoLeas, PremOutCL
+    local PremInsCL, PremZip, PremCounty, PremPrimary
+    local PremBldg, InterestType
+
+    METHOD new( obj )
+        ::_title = "PREMISES 1"
+        ::_class = "a160_prem_info1"
+        ::obj = obj
+        ::errmsg = ""
+        ::init( )
+        return( 1 )
+    END
+
+    METHOD init( )
+        ::PremLoc = "1"
+        ::RateBlanketYes = ""
+        ::PremAdd = ""
+        ::RateBlanketNo = ""
+        ::AttAcord139 = ""
+        ::PremIntOwner = ""
+        ::PremIntTenant = ""
+        ::PremPercOcc = ""
+        ::PremSurExposFront = ""
+        ::PremSurExposRight = ""
+        ::PremSqFtOcc = ""
+        ::PremYrBuilt = ""
+        ::PremSurExposRear = ""
+        ::PremSurExposLeft = ""
+        ::PremProtClass = ""
+        ::PremRateTerr = ""
+        ::PremDistHyd = ""
+        ::PremDistFireSt = ""
+        ::PremFireDist = ""
+        ::PremLeas = ""
+        ::PremNoLeas = ""
+        ::PremOutCL = ""
+        ::PremInsCL = ""
+        ::PremZip = ""
+        ::PremCounty = ""
+        ::PremPrimary = ""
+        ::PremBldg = "1"
+        ::InterestType = ""
+        return( 1 )
+    END
+
+    ACCESS aVars
+        static a = {
+//            { "", 300, "", "SETWIDTH" },
+//            { "Premises:", 1, "", "TITLE" },
+            { "PremLoc", 1, "Premises Number", "text", 100 },
+            { "PremBldg", 1, "Building Number", "text", 100 },
+            { "PremPrimary", 1, "Check if primary premises", "cb", 100 },
+            { "" },
+            { "RateBlanketNo", 1, "", "hidden", 100 },
+            { "RateBlanketYes", 1, "Blanket Rate", "lbyn", 1, "RateBlanketYes", "RateBlanketNo" },
+            { "" },
+            { "AttAcord139", 1, "Accord 139 attached", "cb", 100 },
+            { "" },
+            { "PremAdd", 1, "Address (street/city/state)", "textarea", 300, 3 },
+            { "PremCounty", 1, "County", "text", 100 },
+            { "PremZip", 1, "Zip Code", "text", 100 },
+            { "" },
+            { "InterestType", 1, "Interest", "lbstr", 1, "-;Owner;Tenant;", "onChange=\"lbUpdateX( this, 'input', ';PremIntOwner;PremIntTenant' );\"" },
+            { "PremIntOwner", 1, "", "hidden", 1 },
+            { "PremIntTenant", 1, "", "hidden", 1 },
+            { "" },
+            { "PremPercOcc", 1, "Percentage occupied %", "lbnum", 1, 0, 100, 5 },
+            { "" },
+//            { "Surrounding Exposures:", 1, "", "TITLE" },
+            { "PremSurExposFront", 1, "Surrounding exposures - Front", "text", 200 },
+            { "PremSurExposRight", 1, "Right", "text", 200 },
+            { "PremSurExposRear", 1, "Rear", "text", 200 },
+            { "PremSurExposLeft", 1, "Left", "text", 200 },
+            { "" },
+            { "PremYrBuilt", 1, "Year Built", "date", 100 },
+            { "PremSqFtOcc", 1, "Square foot occupied", "text", 100 },
+            { "" },
+            { "PremLeas", 1, "Any Area Leased", "lbyn", 1, "PremLeas", "PremNoLeas" },
+            { "PremNoLeas", 1, "", "hidden", 100 },
+            { "" },
+            //{ "PremProtClass", 1, "Protection class", "text", 100 },
+	    { "PremProtClass", 1, "Protection class", "lbstr",1, "-;01;02;03;04;05;06;07;08;09;", "onChange=\"lbUpdateX( this, 'input', ';01;02;03;04;05;06;07;08;09' );\"" },
+            { "PremRateTerr", 1, "Rate territory", "text", 100 },
+            { "" },
+            { "PremDistHyd", 1, "Distance to fire hydrant (Feet)", "text", 100 },
+            { "PremDistFireSt", 1, "Distance to fire station (miles)", "text", 100 },
+            { "" },
+            { "PremFireDist", 1, "Fire District code /number", "text", 100 },
+            { "" },
+            { "PremOutCL", 1, "", "hidden", 100 },
+            { "PremInsCL", 1, "Inside city limits", "lbyn", 1, "PremInsCL", "PremOutCL" }
+        }
+        return( a )
+    END
+
+    METHOD LoadFromObject( data )
+        ::PremLoc = data.PremLoc
+        ::RateBlanketYes = data.RateBlanketYes
+        ::PremAdd = data.PremAdd
+        ::RateBlanketNo = data.RateBlanketNo
+        ::AttAcord139 = data.AttAcord139
+        ::PremIntOwner = data.PremIntOwner
+        ::PremIntTenant = data.PremIntTenant
+        ::PremPercOcc = data.PremPercOcc
+        ::PremSurExposFront = data.PremSurExposFront
+        ::PremSurExposRight = data.PremSurExposRight
+        ::PremSqFtOcc = data.PremSqFtOcc
+        ::PremYrBuilt = data.PremYrBuilt
+        ::PremSurExposRear = data.PremSurExposRear
+        ::PremSurExposLeft = data.PremSurExposLeft
+        ::PremProtClass = data.PremProtClass
+        ::PremRateTerr = data.PremRateTerr
+        ::PremDistHyd = data.PremDistHyd
+        ::PremDistFireSt = data.PremDistFireSt
+        ::PremFireDist = data.PremFireDist
+        ::PremLeas = data.PremLeas
+        ::PremNoLeas = data.PremNoLeas
+        ::PremOutCL = data.PremOutCL
+        ::PremInsCL = data.PremInsCL
+        ::PremZip = data.PremZip
+        ::PremCounty = data.PremCounty
+        ::PremPrimary = data.PremPrimary
+        ::PremBldg = data.PremBldg
+        ::InterestType = data.InterestType
+        return( 1 )
+    END
+
+    METHOD put( data )
+        data.PremLoc = ::PremLoc
+        data.RateBlanketYes = ::RateBlanketYes
+        data.PremAdd = ::PremAdd
+        data.RateBlanketNo = ::RateBlanketNo
+        data.AttAcord139 = ::AttAcord139
+        data.PremIntOwner = ::PremIntOwner
+        data.PremIntTenant = ::PremIntTenant
+        data.PremPercOcc = ::PremPercOcc
+        data.PremSurExposFront = ::PremSurExposFront
+        data.PremSurExposRight = ::PremSurExposRight
+        data.PremSqFtOcc = ::PremSqFtOcc
+        data.PremYrBuilt = ::PremYrBuilt
+        data.PremSurExposRear = ::PremSurExposRear
+        data.PremSurExposLeft = ::PremSurExposLeft
+        data.PremProtClass = ::PremProtClass
+        data.PremRateTerr = ::PremRateTerr
+        data.PremDistHyd = ::PremDistHyd
+        data.PremDistFireSt = ::PremDistFireSt
+        data.PremFireDist = ::PremFireDist
+        data.PremLeas = ::PremLeas
+        data.PremNoLeas = ::PremNoLeas
+        data.PremOutCL = ::PremOutCL
+        data.PremInsCL = ::PremInsCL
+        data.PremZip = ::PremZip
+        data.PremCounty = ::PremCounty
+        data.PremPrimary = ::PremPrimary
+        data.PremBldg = ::PremBldg
+        data.InterestType = ::InterestType
+        return( 1 )
+    END
+
+    METHOD validate( )
+        local s = ""
+        ::errmsg = s
+        return( strempty( ::errmsg ) )
+    END
+
+    METHOD update( data )
+        local line, val, key, i=1
+        while ( 1 )
+            line = strextract( data, "&", i++ )
+            if ( strempty( line ) )
+                break
+            end
+            key = strextract( line, "=", 1 )
+            val = webDecodeURL( right( line, len( line ) - ( len( key ) + 1 ) ) )
+            self.(upper(key)) = val
+        end
+        return( 1 )
+    END
+
+    ACCESS default( name )
+        name = name
+        return( '' )
+    END
+    ASSIGN default( name, val )
+        name = name
+        val = val
+    END
+
+    METHOD flatten( g )
+        return( g.CreateClassVarString( self ) )
+    END
+
+END
+
+
+CLASS a160_prem_info2
+  PUBLIC:
+    local _title, _class, obj, errmsg
+
+    local PremUse, PremBuildDesc, PremNumEmp, OpHrsFrom, OpHrsTo, BusAnnSaleReceipt
+    local BusTotPayRoll, PremClassCode, PremRateNum, PremRateGr, PremOcc
+
+    METHOD new( obj )
+        ::_title = "PREMISES 2"
+        ::_class = "a160_prem_info2"
+        ::obj = obj
+        ::errmsg = ""
+        ::init( )
+        return( 1 )
+    END
+
+    METHOD init( )
+        ::PremUse = ""
+        ::PremBuildDesc = ""
+        ::PremNumEmp = ""
+        ::OpHrsFrom = ""
+        ::OpHrsTo = ""
+        ::BusAnnSaleReceipt = ""
+        ::BusTotPayRoll = ""
+        ::PremClassCode = ""
+        ::PremRateNum = ""
+        ::PremRateGr = ""
+        ::PremOcc = ""
+        return( 1 )
+    END
+
+    ACCESS aVars
+        static a = {
+            	{ "", 300, "", "SETWIDTH" },
+            { "PremUse", 1, "Description of operations at this premises", "textarea", 300 },
+            { "PremBuildDesc", 1, "Building description", "textarea", 300 },
+            { "" },
+            { "PremNumEmp", 1, "Number of Employees", "text", 100 },
+            { "Hours of operation", 1, "", "TITLE" },
+            { "OpHrsFrom", 1, "Start time", "text", 100 },
+            { "OpHrsTo", 1, "Closing time", "text", 100 },
+            { "" },
+            { "BusAnnSaleReceipt", 1, "Annual receipts", "dollarandcents", 100 },
+            { "BusTotPayRoll", 1, "Total payroll", "dollarandcents", 100 },
+            { "" },
+            { "PremClassCode", 1, "Class code", "text", 100 },
+            { "PremRateNum", 1, "Rate number", "text", 100 },
+            { "PremRateGr", 1, "Rate group", "text", 100 },
+            { "PremOcc", 1, "Description of all occupancies at this premises", "textarea", 300 }
+        }
+        return( a )
+    END
+
+    METHOD LoadFromObject( data )
+        ::PremUse = data.PremUse
+        ::PremBuildDesc = data.PremBuildDesc
+        ::PremNumEmp = data.PremNumEmp
+        ::OpHrsFrom = data.OpHrsFrom
+        ::OpHrsTo = data.OpHrsTo
+        ::BusAnnSaleReceipt = data.BusAnnSaleReceipt
+        ::BusTotPayRoll = data.BusTotPayRoll
+        ::PremClassCode = data.PremClassCode
+        ::PremRateNum = data.PremRateNum
+        ::PremRateGr = data.PremRateGr
+        ::PremOcc = data.PremOcc
+        return( 1 )
+    END
+
+    METHOD put( data )
+        data.PremUse = ::PremUse
+        data.PremBuildDesc = ::PremBuildDesc
+        data.PremNumEmp = ::PremNumEmp
+        data.OpHrsFrom = ::OpHrsFrom
+        data.OpHrsTo = ::OpHrsTo
+        data.BusAnnSaleReceipt = ::BusAnnSaleReceipt
+        data.BusTotPayRoll = ::BusTotPayRoll
+        data.PremClassCode = ::PremClassCode
+        data.PremRateNum = ::PremRateNum
+        data.PremRateGr = ::PremRateGr
+        data.PremOcc = ::PremOcc
+        return( 1 )
+    END
+
+    METHOD validate( )
+        local s = ""
+        ::errmsg = s
+        return( strempty( ::errmsg ) )
+    END
+
+    METHOD update( data )
+        local line, val, key, i=1
+        while ( 1 )
+            line = strextract( data, "&", i++ )
+            if ( strempty( line ) )
+                break
+            end
+            key = strextract( line, "=", 1 )
+            val = webDecodeURL( right( line, len( line ) - ( len( key ) + 1 ) ) )
+            self.(upper(key)) = val
+        end
+        return( 1 )
+    END
+
+    ACCESS default( name )
+        name = name
+        return( '' )
+    END
+    ASSIGN default( name, val )
+        name = name
+        val = val
+    END
+
+    METHOD flatten( g )
+        return( g.CreateClassVarString( self ) )
+    END
+
+END
+
+
+CLASS a160_prop_info
+  PUBLIC:
+    local _title, _class, obj, errmsg
+    local LimBuilding, LimPersProp, CoinPerc1, CoinPerc2, CovValRC1, CovValFVRC1
+    local CovValFVRC2, CovValRC2, CovValOther3, CovValACV1, CovValOther1, CovValACV2
+    local CovValOther4, CovValOther2, CovInfGrdPerc, DedPersProp, DedBuilding, PremConst
+    local PremNumStories, PremSprinklerPerc, PropTotSqFtArea, PremWiringYr, PropBasemYes
+    local PropBasemFinish, PropBasemNoFinish, PropBasemNo, PremWindClassOther, PremWindClassSemi
+    local PremWindClassRes, PremTaxCode, PremRoofingYr, PremPlumbYr, PremHeatingYr
+    local PremRoofType, PremBldgCode, VerInspectedYes, VerInspectedNo, CovSpecial
+    local CovComm, BuildingValType, PersPropValType, WindClassType
+    local ConstFrame,ConstJoistedMasonry,ConstNonCombustible,ConstMasonryNonCombustible
+    local ConstModifiedFireResistive,ConstFireResistive
+
+    METHOD new( obj )
+        ::_title = "PROPERTY"
+        ::_class = "a160_prop_info"
+        ::obj = obj
+        ::errmsg = ""
+        ::init( )
+        return( 1 )
+    END
+
+    METHOD init( )
+        ::LimBuilding = ""
+        ::LimPersProp = ""
+        ::CoinPerc1 = ""
+        ::CoinPerc2 = ""
+        ::ConstFireResistive
+	::ConstFrame
+	::ConstJoistedMasonry
+	::ConstMasonryNonCombustible
+	::ConstModifiedFireResistive
+	::ConstNonCombustible
+        ::CovValRC1 = ""
+        ::CovValFVRC1 = ""
+        ::CovValFVRC2 = ""
+        ::CovValRC2 = ""
+        ::CovValOther3 = ""
+        ::CovValACV1 = ""
+        ::CovValOther1 = ""
+        ::CovValACV2 = ""
+        ::CovValOther4 = ""
+        ::CovValOther2 = ""
+        ::CovInfGrdPerc = ""
+        ::DedPersProp = ""
+        ::DedBuilding = ""
+        ::PremConst = ""
+        ::PremNumStories = ""
+        ::PremSprinklerPerc = ""
+        ::PropTotSqFtArea = ""
+        ::PremWiringYr = ""
+        ::PropBasemYes = ""
+        ::PropBasemFinish = ""
+        ::PropBasemNoFinish = ""
+        ::PropBasemNo = ""
+        ::PremWindClassOther = ""
+        ::PremWindClassSemi = ""
+        ::PremWindClassRes = ""
+        ::PremTaxCode = ""
+        ::PremRoofingYr = ""
+        ::PremPlumbYr = ""
+        ::PremHeatingYr = ""
+        ::PremRoofType = ""
+        ::PremBldgCode = ""
+        ::VerInspectedYes = ""
+        ::VerInspectedNo = ""
+        ::CovSpecial = ""
+        ::CovComm = ""
+        ::BuildingValType = ""
+        ::PersPropValType = ""
+        ::WindClassType = ""
+        return( 1 )
+    END
+
+    ACCESS aVars
+        static a = {
+		{ "Building:", 1, "", "title" },
+		{ "LimBuilding", 1, "Building Limit", "dollar", 100 },
+		{ "CoinPerc1", 1, "Coinsurance percentage", "lbnum", 1, 0, 100, 5 },
+		{ "" },
+		{ "BuildingValType", 1, "Valuation Type", "lbstr", 1, "-;RC;FVRC;ACV;Other;", "onChange=\"lbUpdateX( this, 'input', ';CovValRC1;CovValFVRC1;CovValACV1;CovValOther1' );\"" },
+		{ "CovValRC1", 1, "", "hidden", 1 },
+		{ "CovValFVRC1", 1, "", "hidden", 100 },
+		{ "CovValACV1", 1, "", "hidden", 100 },
+		{ "CovValOther1", 1, "", "hidden", 100 },
+		{ "CovValOther2", 1, "If other, specify", "text", 200 },
+		{ "" },
+		{ "CovInfGrdPerc", 1, "Inflation Percentage", "lbnum", 1, 0, 100, 5 },
+		{ "DedBuilding", 1, "Deductible", "dollar", 100 },
+		//{ "PremConst", 1, "Construction Type", "text", 200 },
+		{ "PremConst", 1, "Construction Type", "lbstr" , 1, "-;Frame;Joisted Masonry;Non-Combustible;Masonry Non-Combustible;Modified Fire Resistive;Fire Resistive;", "onChange=\"lbUpdateX( this, 'input', ';ConstFrame;ConstJoistedMasonry;ConstNonCombustible;ConstMasonryNonCombustible;ConstModifiedFireResistive;ConstFireResistive' );\"" },
+		{ "PropTotSqFtArea", 1, "Total square foot", "text", 100 },
+		{ "" },
+		{ "Personal Property:", 1, "", "title" },
+		{ "LimPersProp", 1, "Personal Property Limit", "dollar", 100 },
+		{ "CoinPerc2", 1, "Coinsurance percentage", "lbnum", 1, 0, 100, 5 },
+		{ "" },
+		{ "PersPropValType", 1, "Valuation Type", "lbstr", 1, "-;RC;FVRC;ACV;Other;", "onChange=\"lbUpdateX( this, 'input', ';CovValRC2;CovValFVRC2;CovValACV2;CovValOther3' );\"" },
+		{ "CovValRC2", 1, "", "hidden", 1 },
+		{ "CovValFVRC2", 1, "", "hidden", 100 },
+		{ "CovValACV2", 1, "", "hidden", 100 },
+		{ "CovValOther3", 1, "", "hidden", 100 },
+		{ "CovValOther4", 1, "If other, specify", "text", 200 },
+		{ "" },
+		{ "DedPersProp", 1, "Deductible", "DOLLAR", 100 },
+		{ "" },
+		{ "PremNumStories", 1, "Number of stories", "lbstr", 1, "-;1;2;3;4;5;6;7;8;9;10+" },
+		{ "PremSprinklerPerc", 1, "Percentage of sprinklers", "lbnum", 1, 0, 100, 5 },
+		{ "PropBasemYes", 1, "Basement present", "lbyn", 1, "PropBasemYes", "PropBasemNo" },
+		{ "PropBasemNo", 1, "", "hidden", 100 },
+		{ "PropBasemFinish", 1, "Is basement finished", "lbyn", 1, "PropBasemFinish", "PropBasemNoFinish" },
+		{ "PropBasemNoFinish", 1, "", "hidden", 100 },
+		{ "" },
+		{ "Building Improvements:", 1, "", "TITLE" },
+		{ "PremWiringYr", 1, "Wiring year", "date", 100 },
+		{ "PremRoofingYr", 1, "Roof year", "date", 100 },
+		{ "PremPlumbYr", 1, "Plumbing year", "date", 100 },
+		{ "PremHeatingYr", 1, "Heating year", "date", 100 },
+		{ "PremRoofType", 1, "Roof type", "text", 100 },
+		{ "" },
+		{ "PremBldgCode", 1, "Building code grade", "text", 100 },
+		{ "VerInspectedYes", 1, "Inspected", "lbyn", 1, "VerInspectedYes", "VerInspectedNo" },
+		{ "VerInspectedNo", 1, "", "hidden", 100 },
+		{ "CovComm", 1, "Type", "lbstr2d",1, "-;X|Community;-|Special;", "onChange='lbUpdateYN( input.CovComm, input.CovSpecial );'" },
+		{ "CovSpecial", 1, "", "hidden", 100 },
+		{ "" },
+		{ "PremTaxCode", 1, "Tax code", "text", 100 },
+		{ "" },
+		{ "WindClassType", 1, "Wind class", "lbstr", 1, "-;Resistive;Semi-resistive;Other;", "onChange=\"lbUpdateX( this, 'input', ';PremWindClassRes;PremWindClassSemi;PremWindClassOther' );\"" },
+		{ "PremWindClassRes", 1, "", "hidden", 1 },
+		{ "PremWindClassSemi", 1, "", "hidden", 100 },
+		{ "PremWindClassOther", 1, "", "hidden", 100 }
+        }
+        return( a )
+    END
+
+    METHOD LoadFromObject( data )
+        ::LimBuilding = data.LimBuilding
+        ::LimPersProp = data.LimPersProp
+        ::CoinPerc1 = data.CoinPerc1
+        ::CoinPerc2 = data.CoinPerc2
+        ::CovValRC1 = data.CovValRC1
+        ::CovValFVRC1 = data.CovValFVRC1
+        ::CovValFVRC2 = data.CovValFVRC2
+        ::CovValRC2 = data.CovValRC2
+        ::CovValOther3 = data.CovValOther3
+        ::CovValACV1 = data.CovValACV1
+        ::CovValOther1 = data.CovValOther1
+        ::CovValACV2 = data.CovValACV2
+        ::CovValOther4 = data.CovValOther4
+        ::CovValOther2 = data.CovValOther2
+        ::CovInfGrdPerc = data.CovInfGrdPerc
+        ::DedPersProp = data.DedPersProp
+        ::DedBuilding = data.DedBuilding
+        ::PremConst = data.PremConst
+        ::PremNumStories = data.PremNumStories
+        ::PremSprinklerPerc = data.PremSprinklerPerc
+        ::PropTotSqFtArea = data.PropTotSqFtArea
+        ::PremWiringYr = data.PremWiringYr
+        ::PropBasemYes = data.PropBasemYes
+        ::PropBasemFinish = data.PropBasemFinish
+        ::PropBasemNoFinish = data.PropBasemNoFinish
+        ::PropBasemNo = data.PropBasemNo
+        ::PremWindClassOther = data.PremWindClassOther
+        ::PremWindClassSemi = data.PremWindClassSemi
+        ::PremWindClassRes = data.PremWindClassRes
+        ::PremTaxCode = data.PremTaxCode
+        ::PremRoofingYr = data.PremRoofingYr
+        ::PremPlumbYr = data.PremPlumbYr
+        ::PremHeatingYr = data.PremHeatingYr
+        ::PremRoofType = data.PremRoofType
+        ::PremBldgCode = data.PremBldgCode
+        ::VerInspectedYes = data.VerInspectedYes
+        ::VerInspectedNo = data.VerInspectedNo
+        ::CovSpecial = data.CovSpecial
+        ::CovComm = data.CovComm
+		::BuildingValType = data.BuildingValType
+		::PersPropValType = data.PersPropValType
+		::WindClassType = data.WindClassType
+        return( 1 )
+    END
+
+    METHOD put( data )
+        data.LimBuilding = ::LimBuilding
+        data.LimPersProp = ::LimPersProp
+        data.CoinPerc1 = ::CoinPerc1
+        data.CoinPerc2 = ::CoinPerc2
+        data.CovValRC1 = ::CovValRC1
+        data.CovValFVRC1 = ::CovValFVRC1
+        data.CovValFVRC2 = ::CovValFVRC2
+        data.CovValRC2 = ::CovValRC2
+        data.CovValOther3 = ::CovValOther3
+        data.CovValACV1 = ::CovValACV1
+        data.CovValOther1 = ::CovValOther1
+        data.CovValACV2 = ::CovValACV2
+        data.CovValOther4 = ::CovValOther4
+        data.CovValOther2 = ::CovValOther2
+        data.CovInfGrdPerc = ::CovInfGrdPerc
+        data.DedPersProp = ::DedPersProp
+        data.DedBuilding = ::DedBuilding
+        data.PremConst = ::PremConst
+        data.PremNumStories = ::PremNumStories
+        data.PremSprinklerPerc = ::PremSprinklerPerc
+        data.PropTotSqFtArea = ::PropTotSqFtArea
+        data.PremWiringYr = ::PremWiringYr
+        data.PropBasemYes = ::PropBasemYes
+        data.PropBasemFinish = ::PropBasemFinish
+        data.PropBasemNoFinish = ::PropBasemNoFinish
+        data.PropBasemNo = ::PropBasemNo
+        data.PremWindClassOther = ::PremWindClassOther
+        data.PremWindClassSemi = ::PremWindClassSemi
+        data.PremWindClassRes = ::PremWindClassRes
+        data.PremTaxCode = ::PremTaxCode
+        data.PremRoofingYr = ::PremRoofingYr
+        data.PremPlumbYr = ::PremPlumbYr
+        data.PremHeatingYr = ::PremHeatingYr
+        data.PremRoofType = ::PremRoofType
+        data.PremBldgCode = ::PremBldgCode
+        data.VerInspectedYes = ::VerInspectedYes
+        data.VerInspectedNo = ::VerInspectedNo
+        data.CovSpecial = ::CovSpecial
+        data.CovComm = ::CovComm
+		data.BuildingValType = ::BuildingValType
+		data.PersPropValType = ::PersPropValType
+		data.WindClassType = ::WindClassType
+        return( 1 )
+    END
+
+    METHOD validate( )
+        local s = ""
+        ::errmsg = s
+        return( strempty( ::errmsg ) )
+    END
+
+    METHOD update( data )
+        local line, val, key, i=1
+        while ( 1 )
+            line = strextract( data, "&", i++ )
+            if ( strempty( line ) )
+                break
+            end
+            key = strextract( line, "=", 1 )
+            val = webDecodeURL( right( line, len( line ) - ( len( key ) + 1 ) ) )
+            self.( key ) = val
+        end
+        return( 1 )
+    END
+
+    ACCESS default( name )
+        name = name
+        return( '' )
+    END
+    ASSIGN default( name, val )
+        name = name
+        val = val
+    END
+
+    METHOD flatten( g )
+        return( g.CreateClassVarString( self ) )
+    END
+
+END
+
+
+
+CLASS a160_liab_prem1
+  PUBLIC:
+    local _title, _class, obj, errmsg
+
+    local CovOtherSec3, CovOther1Sec3, CovOther2Sec3, LimLiquorLiabGenAgg1, CovOther3Sec3
+    local DedLiquorLiabGenAgg1, CovOther4Sec3, LimOther1Sec4, DedOther1Sec4, LimLiquorLiabPers1
+    local LimOther1Sec3, LimOther2Sec3, LimOther3Sec3, LimOther4Sec3, DedLiquorLiabPers1
+    local DedOther1Sec3, DedOther2Sec3, DedOther3Sec3, DedOther4Sec3, CovOther5Sec3
+    local CovOther6Sec3, CovOther7Sec3, CovOther8Sec3, CovOther9Sec3, CovOther10Sec3
+    local LimOther2Sec4, LimOther3Sec4, LimOther4Sec4, LimOther5Sec4, LimOther6Sec4
+    local LimOther7Sec4, DedOther2Sec4, DedOther3Sec4, DedOther4Sec4, DedOther5Sec4
+    local DedOther6Sec4, DedOther7Sec4
+
+    METHOD new( obj )
+        ::_title = "LIABILITY - PREMISES COVERAGE ONLY (I)"
+        ::_class = "a160_liab_prem1"
+        ::obj = obj
+        ::errmsg = ""
+        ::init( )
+        return( 1 )
+    END
+
+    METHOD init( )
+        ::CovOtherSec3 = ""
+        ::CovOther1Sec3 = ""
+        ::CovOther2Sec3 = ""
+        ::LimLiquorLiabGenAgg1 = ""
+        ::CovOther3Sec3 = ""
+        ::DedLiquorLiabGenAgg1 = ""
+        ::CovOther4Sec3 = ""
+        ::LimOther1Sec4 = ""
+        ::DedOther1Sec4 = ""
+        ::LimLiquorLiabPers1 = ""
+        ::LimOther1Sec3 = ""
+        ::LimOther2Sec3 = ""
+        ::LimOther3Sec3 = ""
+        ::LimOther4Sec3 = ""
+        ::DedLiquorLiabPers1 = ""
+        ::DedOther1Sec3 = ""
+        ::DedOther2Sec3 = ""
+        ::DedOther3Sec3 = ""
+        ::DedOther4Sec3 = ""
+        ::CovOther5Sec3 = ""
+        ::CovOther6Sec3 = ""
+        ::CovOther7Sec3 = ""
+        ::CovOther8Sec3 = ""
+        ::CovOther9Sec3 = ""
+        ::CovOther10Sec3 = ""
+        ::LimOther2Sec4 = ""
+        ::LimOther3Sec4 = ""
+        ::LimOther4Sec4 = ""
+        ::LimOther5Sec4 = ""
+        ::LimOther6Sec4 = ""
+        ::LimOther7Sec4 = ""
+        ::DedOther2Sec4 = ""
+        ::DedOther3Sec4 = ""
+        ::DedOther4Sec4 = ""
+        ::DedOther5Sec4 = ""
+        ::DedOther6Sec4 = ""
+        ::DedOther7Sec4 = ""
+        return( 1 )
+    END
+
+    ACCESS aVars
+        static a = {
+{ "", 310, "", "SETWIDTH" },
+            {"<u>LIQUOR LIABILITY",1, "","TITLE",100},
+            { "NoID", 1, "GENERAL AGGREGATE", "textonly", 100 },
+            { "LimLiquorLiabGenAgg1", 1, "Limit", "DOLLARANDCENTS", 150 },
+            { "DedLiquorLiabGenAgg1", 1, "Deductible", "DOLLARANDCENTS", 150 },
+            {""},
+            { "NoID", 1, "PER PERSON", "textonly", 150 },
+            { "LimLiquorLiabPers1", 1, "Limit", "DOLLARANDCENTS", 150 },
+            { "DedLiquorLiabPers1", 1, "Deductible", "DOLLARANDCENTS", 150 },
+            {""},
+            { "CovOtherSec3", 1, "OTHER", "text", 150 },
+            { "LimOther1Sec3", 1, "Limit", "DOLLARANDCENTS", 150 },
+            { "DedOther1Sec3", 1, "Deductible", "DOLLARANDCENTS", 150 },
+            {""},
+            {"<u>OTHER COVERAGE",1, "","TITLE",100},
+            { "NoID", 1, "OTHER COVERAGE 1", "textonly", 150 },
+            { "CovOther1Sec3", 1, "Coverage name", "text", 150 },
+            { "LimOther2Sec3", 1, "Limit", "DOLLARANDCENTS", 150 },
+            { "DedOther2Sec3", 1, "Deductible", "DOLLARANDCENTS", 150},
+            {""},
+            { "NoID", 1, "OTHER COVERAGE 2", "textonly", 150 },
+            { "CovOther2Sec3", 1, "Coverage name", "text", 150 },
+            { "LimOther3Sec3", 1, "Limit", "DOLLARANDCENTS", 150 },
+            { "DedOther3Sec3", 1, "Deductible", "DOLLARANDCENTS", 150 },
+            {""},
+            { "NoID", 1, "OTHER COVERAGE 3", "textonly", 150 },
+            { "CovOther3Sec3", 1, "Coverage name", "text", 150 },
+            { "LimOther4Sec3", 1, "Limit", "DOLLARANDCENTS", 150 },
+            { "DedOther4Sec3", 1, "Deductible", "DOLLARANDCENTS", 150 },
+            {""},
+            { "NoID", 1, "OTHER COVERAGE 4", "textonly", 150 },
+            { "CovOther4Sec3", 1, "Coverage name", "text", 150 },
+            { "LimOther1Sec4", 1, "Limit", "DOLLARANDCENTS", 150 },
+            { "DedOther1Sec4", 1, "Deductible", "DOLLARANDCENTS", 150 },
+            {""},
+            { "NoID", 1, "OTHER COVERAGE 5", "textonly", 150 },
+            { "CovOther5Sec3", 1, "Coverage name", "text", 150 },
+            { "LimOther2Sec4", 1, "Limit", "DOLLARANDCENTS", 150 },
+            { "DedOther2Sec4", 1, "Deductible", "DOLLARANDCENTS", 150 },
+            {""},
+            { "NoID", 1, "OTHER COVERAGE 6", "textonly", 150 },
+            { "CovOther6Sec3", 1, "Coverage name", "text", 150 },
+            { "LimOther3Sec4", 1, "Limit", "DOLLARANDCENTS", 150 },
+            { "DedOther3Sec4", 1, "Deductible", "DOLLARANDCENTS", 150 },
+            {""},
+            { "NoID", 1, "OTHER COVERAGE 7", "textonly", 150 },
+            { "CovOther7Sec3", 1, "Coverage name", "text", 150 },
+            { "LimOther4Sec4", 1, "Limit", "DOLLARANDCENTS", 150 },
+            { "DedOther4Sec4", 1, "Deductible", "DOLLARANDCENTS", 150 },
+            {""},
+            { "NoID", 1, "OTHER COVERAGE 8", "textonly", 150 },
+            { "CovOther8Sec3", 1, "Coverage name", "text", 150 },
+            { "LimOther5Sec4", 1, "Limit", "DOLLARANDCENTS", 150 },
+            { "DedOther5Sec4", 1, "Deductible", "DOLLARANDCENTS", 100 },
+	    {""},
+            { "NoID", 1, "OTHER COVERAGE 9", "textonly", 150 },
+            { "CovOther9Sec3", 1, "Coverage name", "text", 150 },
+            { "LimOther6Sec4", 1, "Limit", "DOLLARANDCENTS", 150 },
+            { "DedOther6Sec4", 1, "Deductible", "DOLLARANDCENTS", 150 },
+            {""},
+            { "NoID", 1, "OTHER COVERAGE 10", "textonly", 150 },
+            { "CovOther10Sec3", 1, "Coverage name", "text", 150 },
+            { "LimOther7Sec4", 1, "Limit", "DOLLARANDCENTS", 150 },
+            { "DedOther7Sec4", 1, "Deductible", "DOLLARANDCENTS", 150 }
+        }
+        return( a )
+    END
+
+    METHOD LoadFromObject( data )
+        ::CovOtherSec3 = data.CovOtherSec3
+        ::CovOther1Sec3 = data.CovOther1Sec3
+        ::CovOther2Sec3 = data.CovOther2Sec3
+        ::LimLiquorLiabGenAgg1 = data.LimLiquorLiabGenAgg1
+        ::CovOther3Sec3 = data.CovOther3Sec3
+        ::DedLiquorLiabGenAgg1 = data.DedLiquorLiabGenAgg1
+        ::CovOther4Sec3 = data.CovOther4Sec3
+        ::LimOther1Sec4 = data.LimOther1Sec4
+        ::DedOther1Sec4 = data.DedOther1Sec4
+        ::LimLiquorLiabPers1 = data.LimLiquorLiabPers1
+        ::LimOther1Sec3 = data.LimOther1Sec3
+        ::LimOther2Sec3 = data.LimOther2Sec3
+        ::LimOther3Sec3 = data.LimOther3Sec3
+        ::LimOther4Sec3 = data.LimOther4Sec3
+        ::DedLiquorLiabPers1 = data.DedLiquorLiabPers1
+        ::DedOther1Sec3 = data.DedOther1Sec3
+        ::DedOther2Sec3 = data.DedOther2Sec3
+        ::DedOther3Sec3 = data.DedOther3Sec3
+        ::DedOther4Sec3 = data.DedOther4Sec3
+        ::CovOther5Sec3 = data.CovOther5Sec3
+        ::CovOther6Sec3 = data.CovOther6Sec3
+        ::CovOther7Sec3 = data.CovOther7Sec3
+        ::CovOther8Sec3 = data.CovOther8Sec3
+        ::CovOther9Sec3 = data.CovOther9Sec3
+        ::CovOther10Sec3 = data.CovOther10Sec3
+        ::LimOther2Sec4 = data.LimOther2Sec4
+        ::LimOther3Sec4 = data.LimOther3Sec4
+        ::LimOther4Sec4 = data.LimOther4Sec4
+        ::LimOther5Sec4 = data.LimOther5Sec4
+        ::LimOther6Sec4 = data.LimOther6Sec4
+        ::LimOther7Sec4 = data.LimOther7Sec4
+        ::DedOther2Sec4 = data.DedOther2Sec4
+        ::DedOther3Sec4 = data.DedOther3Sec4
+        ::DedOther4Sec4 = data.DedOther4Sec4
+        ::DedOther5Sec4 = data.DedOther5Sec4
+        ::DedOther6Sec4 = data.DedOther6Sec4
+        ::DedOther7Sec4 = data.DedOther7Sec4
+        return( 1 )
+    END
+
+    METHOD put( data )
+        data.CovOtherSec3 = ::CovOtherSec3
+        data.CovOther1Sec3 = ::CovOther1Sec3
+        data.CovOther2Sec3 = ::CovOther2Sec3
+        data.LimLiquorLiabGenAgg1 = ::LimLiquorLiabGenAgg1
+        data.CovOther3Sec3 = ::CovOther3Sec3
+        data.DedLiquorLiabGenAgg1 = ::DedLiquorLiabGenAgg1
+        data.CovOther4Sec3 = ::CovOther4Sec3
+        data.LimOther1Sec4 = ::LimOther1Sec4
+        data.DedOther1Sec4 = ::DedOther1Sec4
+        data.LimLiquorLiabPers1 = ::LimLiquorLiabPers1
+        data.LimOther1Sec3 = ::LimOther1Sec3
+        data.LimOther2Sec3 = ::LimOther2Sec3
+        data.LimOther3Sec3 = ::LimOther3Sec3
+        data.LimOther4Sec3 = ::LimOther4Sec3
+        data.DedLiquorLiabPers1 = ::DedLiquorLiabPers1
+        data.DedOther1Sec3 = ::DedOther1Sec3
+        data.DedOther2Sec3 = ::DedOther2Sec3
+        data.DedOther3Sec3 = ::DedOther3Sec3
+        data.DedOther4Sec3 = ::DedOther4Sec3
+        data.CovOther5Sec3 = ::CovOther5Sec3
+        data.CovOther6Sec3 = ::CovOther6Sec3
+        data.CovOther7Sec3 = ::CovOther7Sec3
+        data.CovOther8Sec3 = ::CovOther8Sec3
+        data.CovOther9Sec3 = ::CovOther9Sec3
+        data.CovOther10Sec3 = ::CovOther10Sec3
+        data.LimOther2Sec4 = ::LimOther2Sec4
+        data.LimOther3Sec4 = ::LimOther3Sec4
+        data.LimOther4Sec4 = ::LimOther4Sec4
+        data.LimOther5Sec4 = ::LimOther5Sec4
+        data.LimOther6Sec4 = ::LimOther6Sec4
+        data.LimOther7Sec4 = ::LimOther7Sec4
+        data.DedOther2Sec4 = ::DedOther2Sec4
+        data.DedOther3Sec4 = ::DedOther3Sec4
+        data.DedOther4Sec4 = ::DedOther4Sec4
+        data.DedOther5Sec4 = ::DedOther5Sec4
+        data.DedOther6Sec4 = ::DedOther6Sec4
+        data.DedOther7Sec4 = ::DedOther7Sec4
+        return( 1 )
+    END
+
+    METHOD validate( )
+        local s = ""
+        ::errmsg = s
+        return( strempty( ::errmsg ) )
+    END
+
+    METHOD update( data )
+        local line, val, key, i=1
+        while ( 1 )
+            line = strextract( data, "&", i++ )
+            if ( strempty( line ) )
+                break
+            end
+            key = strextract( line, "=", 1 )
+            val = webDecodeURL( right( line, len( line ) - ( len( key ) + 1 ) ) )
+            self.(upper(key)) = val
+        end
+        return( 1 )
+    END
+
+    ACCESS default( name )
+        name = name
+        return( '' )
+    END
+    ASSIGN default( name, val )
+        name = name
+        val = val
+    END
+
+    METHOD flatten( g )
+        return( g.CreateClassVarString( self ) )
+    END
+
+END
+
+
+
+
+CLASS a160_liab_prem2
+  PUBLIC:
+    local _title, _class, obj, errmsg
+
+    local PremLiabClassific1, PremLiabClassific2, PremLiabClassific3, PropClassCode1
+    local PropClassCode2, PropClassCode3, PremiumExposBasis1, PremiumExposBasis2
+    local PremiumExposBasis3, Code1, Code2, Code3
+
+    METHOD new( obj )
+        ::_title = "LIABILITY - PREMISES COVERAGE ONLY (II)"
+        ::_class = "a160_liab_prem2"
+        ::obj = obj
+        ::errmsg = ""
+        ::init( )
+        return( 1 )
+    END
+
+    METHOD init( )
+        ::PremLiabClassific1 = ""
+        ::PremLiabClassific2 = ""
+        ::PremLiabClassific3 = ""
+        ::PropClassCode1 = ""
+        ::PropClassCode2 = ""
+        ::PropClassCode3 = ""
+        ::PremiumExposBasis1 = ""
+        ::PremiumExposBasis2 = ""
+        ::PremiumExposBasis3 = ""
+        ::Code1 = ""
+        ::Code2 = ""
+        ::Code3 = ""
+        return( 1 )
+    END
+
+    ACCESS aVars
+        static a = {
+            { "", 300, "", "SETWIDTH" },
+            { "<u>CLASSIFICATION # 1", 1, "", "TITLE" },
+            { "PremLiabClassific1", 1, "Classification", "text", 100 },
+            { "PropClassCode1", 1, "Class code", "text", 100 },
+            { "" },
+            { "PremiumExposBasis1", 1, "PREMIUM BASIS", "textonly", 100 },
+            { "PremiumExposBasis1", 1, "Exposure ", "text", 300 },
+            { "Code1", 1, "Code", "text", 100 },
+            { "" },
+            { "<u>CLASSIFICATION # 2", 1, "", "TITLE" },
+            { "PremLiabClassific2", 1, "Classification", "text", 100 },
+            { "PropClassCode2", 1, "Class code", "text", 100 },
+            { "" },
+            { "PremiumExposBasis2", 1, "PREMIUM BASIS", "textonly", 100 },
+            { "PremiumExposBasis2", 1, "Exposure ", "text", 300 },
+            { "Code2", 1, "Code", "text", 100 },
+            { "" },
+            { "<u>CLASSIFICATION # 3", 1, "", "TITLE" },
+            { "PremLiabClassific3", 1, "Classification", "text", 100 },
+            { "" },
+            { "PropClassCode3", 1, "Class code", "text", 100 },
+            { "" },
+            { "PremiumExposBasis3", 1, "PREMIUM BASIS", "textonly", 100 },
+            { "PremiumExposBasis3", 1, "Exposure", "text", 100 },
+            { "Code3", 1, "Code", "text", 100 }
+        }
+        return( a )
+    END
+
+    METHOD LoadFromObject( data )
+        ::PremLiabClassific1 = data.PremLiabClassific1
+        ::PremLiabClassific2 = data.PremLiabClassific2
+        ::PremLiabClassific3 = data.PremLiabClassific3
+        ::PropClassCode1 = data.PropClassCode1
+        ::PropClassCode2 = data.PropClassCode2
+        ::PropClassCode3 = data.PropClassCode3
+        ::PremiumExposBasis1 = data.PremiumExposBasis1
+        ::PremiumExposBasis2 = data.PremiumExposBasis2
+        ::PremiumExposBasis3 = data.PremiumExposBasis3
+        ::Code1 = data.Code1
+        ::Code2 = data.Code2
+        ::Code3 = data.Code3
+        return( 1 )
+    END
+
+    METHOD put( data )
+        data.PremLiabClassific1 = ::PremLiabClassific1
+        data.PremLiabClassific2 = ::PremLiabClassific2
+        data.PremLiabClassific3 = ::PremLiabClassific3
+        data.PropClassCode1 = ::PropClassCode1
+        data.PropClassCode2 = ::PropClassCode2
+        data.PropClassCode3 = ::PropClassCode3
+        data.PremiumExposBasis1 = ::PremiumExposBasis1
+        data.PremiumExposBasis2 = ::PremiumExposBasis2
+        data.PremiumExposBasis3 = ::PremiumExposBasis3
+        data.Code1 = ::Code1
+        data.Code2 = ::Code2
+        data.Code3 = ::Code3
+        return( 1 )
+    END
+
+    METHOD validate( )
+        local s = ""
+        ::errmsg = s
+        return( strempty( ::errmsg ) )
+    END
+
+    METHOD update( data )
+        local line, val, key, i=1
+        while ( 1 )
+            line = strextract( data, "&", i++ )
+            if ( strempty( line ) )
+                break
+            end
+            key = strextract( line, "=", 1 )
+            val = webDecodeURL( right( line, len( line ) - ( len( key ) + 1 ) ) )
+            self.(upper(key)) = val
+        end
+        return( 1 )
+    END
+
+    ACCESS default( name )
+        name = name
+        return( '' )
+    END
+    ASSIGN default( name, val )
+        name = name
+        val = val
+    END
+
+    METHOD flatten( g )
+        return( g.CreateClassVarString( self ) )
+    END
+
+END
+
+
+CLASS a160_add_cov1
+  PUBLIC:
+    local _title, _class, obj, errmsg
+
+    local CovActLossSust1Sec1, NumMonths1Sec1, LimXtraExpSec1, DedXtraExpSec1, EndNum1Sec3
+    local CovActLossSust2Sec1, NumMonths2Sec1, LimLossIncSec1, LimValPapTotAmtSec1
+    local LimAccRecTotAmtSec1, LimSignTotAmtSec1, LimEmpDishonSec1, LimBurgRobbStkSec1
+    local LimBurgRobbMnySec1, LimMonSecurOutSec1, LimMoneyInSec1, DedLossIncSec1
+    local DedValPapSec1, DedAccRecSec1, DedSignSec1, DedEmpDishonSec1, DedBurgRobbStkSec1
+    local DedBurgRobbSec1, DedMoneyInSec1, DedMonSecurOutSec1, EndNum2Sec3, EndNum3Sec3
+    local EndNum4Sec3, EndNum5Sec3, EndNum6Sec3, EndNum7Sec3, EndNum8Sec3, EndNum9Sec3
+    local EndNum10Sec3
+
+    METHOD new( obj )
+        ::_title = "ADDITIONAL COVERAGES  1"
+        ::_class = "a160_add_cov1"
+        ::obj = obj
+        ::errmsg = ""
+        ::init( )
+        return( 1 )
+    END
+
+    METHOD init( )
+        ::CovActLossSust1Sec1 = ""
+        ::NumMonths1Sec1 = ""
+        ::LimXtraExpSec1 = ""
+        ::DedXtraExpSec1 = ""
+        ::EndNum1Sec3 = ""
+        ::CovActLossSust2Sec1 = ""
+        ::NumMonths2Sec1 = ""
+        ::LimLossIncSec1 = ""
+        ::LimValPapTotAmtSec1 = ""
+        ::LimAccRecTotAmtSec1 = ""
+        ::LimSignTotAmtSec1 = ""
+        ::LimEmpDishonSec1 = ""
+        ::LimBurgRobbStkSec1 = ""
+        ::LimBurgRobbMnySec1 = ""
+        ::LimMonSecurOutSec1 = ""
+        ::LimMoneyInSec1 = ""
+        ::DedLossIncSec1 = ""
+        ::DedValPapSec1 = ""
+        ::DedAccRecSec1 = ""
+        ::DedSignSec1 = ""
+        ::DedEmpDishonSec1 = ""
+        ::DedBurgRobbStkSec1 = ""
+        ::DedBurgRobbSec1 = ""
+        ::DedMoneyInSec1 = ""
+        ::DedMonSecurOutSec1 = ""
+        ::EndNum2Sec3 = ""
+        ::EndNum3Sec3 = ""
+        ::EndNum4Sec3 = ""
+        ::EndNum5Sec3 = ""
+        ::EndNum6Sec3 = ""
+        ::EndNum7Sec3 = ""
+        ::EndNum8Sec3 = ""
+        ::EndNum9Sec3 = ""
+        ::EndNum10Sec3 = ""
+        return( 1 )
+    END
+
+    ACCESS aVars
+        static a = {
+            	{ "", 240, "", "SETWIDTH" },
+            	{ "Extra Expenses", 1, "", "TITLE" },
+            { "CovActLossSust1Sec1", 1, "Extra expenses", "cb", 100 },
+            { "NumMonths1Sec1", 1, "Number of months", "lbnum", 1, 0, 24, 1 },
+            { "LimXtraExpSec1", 1, "Total amount", "dollarandcents", 100 },
+            { "DedXtraExpSec1", 1, "Deductible", "dollarandcents", 100 },
+            { "EndNum1Sec3", 1, "End number", "text", 100 },
+            	{ "Loss of Income:", 1, "", "TITLE" },
+            { "CovActLossSust2Sec1", 1, "Loss of Income", "cb", 100 },
+            { "NumMonths2Sec1", 1, "Number of months", "lbnum", 1, 0, 24, 1 },
+            { "LimLossIncSec1", 1, "Total amount", "dollarandcents", 100 },
+            { "DedLossIncSec1", 1, "Deductible", "dollarandcents", 100 },
+            { "EndNum2Sec3", 1, "End number", "text", 100 },
+            	{ "" },
+            	{ "Valuable papers:", 1, "", "TITLE" },
+            	{ "" },
+            { "LimValPapTotAmtSec1", 1, "Total Amount", "dollarandcents", 100 },
+            { "DedValPapSec1", 1, "Deductible", "dollarandcents", 100 },
+            { "EndNum3Sec3", 1, "End number", "text", 100 },
+            	{ "" },
+            	{ "Accounts Receivables:", 1, "", "TITLE" },
+            	{ "" },
+            { "LimAccRecTotAmtSec1", 1, "Total Amount", "dollarandcents", 100 },
+            { "DedAccRecSec1", 1, "Deductible", "dollarandcents", 100 },
+            { "EndNum4Sec3", 1, "End number", "text", 100 },
+            	{ "" },
+            	{ "Sign:", 1, "", "TITLE" },
+            	{ "" },
+            { "LimSignTotAmtSec1", 1, "Total Amount", "dollarandcents", 100 },
+            { "DedSignSec1", 1, "Deductible", "dollarandcents", 100 },
+            { "EndNum5Sec3", 1, "End number", "text", 100 },
+            	{ "" },
+            	{ "Employee Dishonesty", 1, "", "TITLE" },
+            	{ "" },
+            { "LimEmpDishonSec1", 1, "Total Amount", "dollarandcents", 100 },
+            { "DedEmpDishonSec1", 1, "Deductible", "dollarandcents", 100 },
+            { "EndNum6Sec3", 1, "End number", "text", 100 },
+            	{ "" },
+            	{ "Robbery/Theft", 1, "", "TITLE" },
+            	{ "" },
+            { "LimBurgRobbStkSec1", 1, "Total Amount", "dollarandcents", 100 },
+            { "DedBurgRobbStkSec1", 1, "Deductible", "dollarandcents", 100 },
+            { "EndNum7Sec3", 1, "End number", "text", 100 },
+            	{ "" },
+            	{ "Robbery/Burglary", 1, "", "TITLE" },
+            	{ "" },
+            { "LimBurgRobbMnySec1", 1, "Total Amount", "dollarandcents", 100 },
+            { "DedBurgRobbSec1", 1, "Deductible", "dollarandcents", 100 },
+            { "EndNum8Sec3", 1, "End number", "text", 100 },
+            	{ "" },
+            	{ "Money & Securities - inside", 1, "", "TITLE" },
+            	{ "" },
+            { "LimMonSecurOutSec1", 1, "Total Amount", "dollarandcents", 100 },
+            { "DedMonSecurOutSec1", 1, "Deductible", "dollarandcents", 100 },
+            { "EndNum9Sec3", 1, "End number", "text", 100 },
+            	{ "" },
+            	{ "Money & Securities - outside", 1, "", "TITLE" },
+            	{ "" },
+            { "LimMoneyInSec1", 1, "Total Amount", "dollarandcents", 100 },
+            { "DedMoneyInSec1", 1, "Deductible", "dollarandcents", 100 },
+            { "EndNum10Sec3", 1, "End number", "text", 100 }
+        }
+        return( a )
+    END
+
+    METHOD LoadFromObject( data )
+        ::CovActLossSust1Sec1 = data.CovActLossSust1Sec1
+        ::NumMonths1Sec1 = data.NumMonths1Sec1
+        ::LimXtraExpSec1 = data.LimXtraExpSec1
+        ::DedXtraExpSec1 = data.DedXtraExpSec1
+        ::EndNum1Sec3 = data.EndNum1Sec3
+        ::CovActLossSust2Sec1 = data.CovActLossSust2Sec1
+        ::NumMonths2Sec1 = data.NumMonths2Sec1
+        ::LimLossIncSec1 = data.LimLossIncSec1
+        ::LimValPapTotAmtSec1 = data.LimValPapTotAmtSec1
+        ::LimAccRecTotAmtSec1 = data.LimAccRecTotAmtSec1
+        ::LimSignTotAmtSec1 = data.LimSignTotAmtSec1
+        ::LimEmpDishonSec1 = data.LimEmpDishonSec1
+        ::LimBurgRobbStkSec1 = data.LimBurgRobbStkSec1
+        ::LimBurgRobbMnySec1 = data.LimBurgRobbMnySec1
+        ::LimMonSecurOutSec1 = data.LimMonSecurOutSec1
+        ::LimMoneyInSec1 = data.LimMoneyInSec1
+        ::DedLossIncSec1 = data.DedLossIncSec1
+        ::DedValPapSec1 = data.DedValPapSec1
+        ::DedAccRecSec1 = data.DedAccRecSec1
+        ::DedSignSec1 = data.DedSignSec1
+        ::DedEmpDishonSec1 = data.DedEmpDishonSec1
+        ::DedBurgRobbStkSec1 = data.DedBurgRobbStkSec1
+        ::DedBurgRobbSec1 = data.DedBurgRobbSec1
+        ::DedMoneyInSec1 = data.DedMoneyInSec1
+        ::DedMonSecurOutSec1 = data.DedMonSecurOutSec1
+        ::EndNum2Sec3 = data.EndNum2Sec3
+        ::EndNum3Sec3 = data.EndNum3Sec3
+        ::EndNum4Sec3 = data.EndNum4Sec3
+        ::EndNum5Sec3 = data.EndNum5Sec3
+        ::EndNum6Sec3 = data.EndNum6Sec3
+        ::EndNum7Sec3 = data.EndNum7Sec3
+        ::EndNum8Sec3 = data.EndNum8Sec3
+        ::EndNum9Sec3 = data.EndNum9Sec3
+        ::EndNum10Sec3 = data.EndNum10Sec3
+        return( 1 )
+    END
+
+    METHOD put( data )
+        data.CovActLossSust1Sec1 = ::CovActLossSust1Sec1
+        data.NumMonths1Sec1 = ::NumMonths1Sec1
+        data.LimXtraExpSec1 = ::LimXtraExpSec1
+        data.DedXtraExpSec1 = ::DedXtraExpSec1
+        data.EndNum1Sec3 = ::EndNum1Sec3
+        data.CovActLossSust2Sec1 = ::CovActLossSust2Sec1
+        data.NumMonths2Sec1 = ::NumMonths2Sec1
+        data.LimLossIncSec1 = ::LimLossIncSec1
+        data.LimValPapTotAmtSec1 = ::LimValPapTotAmtSec1
+        data.LimAccRecTotAmtSec1 = ::LimAccRecTotAmtSec1
+        data.LimSignTotAmtSec1 = ::LimSignTotAmtSec1
+        data.LimEmpDishonSec1 = ::LimEmpDishonSec1
+        data.LimBurgRobbStkSec1 = ::LimBurgRobbStkSec1
+        data.LimBurgRobbMnySec1 = ::LimBurgRobbMnySec1
+        data.LimMonSecurOutSec1 = ::LimMonSecurOutSec1
+        data.LimMoneyInSec1 = ::LimMoneyInSec1
+        data.DedLossIncSec1 = ::DedLossIncSec1
+        data.DedValPapSec1 = ::DedValPapSec1
+        data.DedAccRecSec1 = ::DedAccRecSec1
+        data.DedSignSec1 = ::DedSignSec1
+        data.DedEmpDishonSec1 = ::DedEmpDishonSec1
+        data.DedBurgRobbStkSec1 = ::DedBurgRobbStkSec1
+        data.DedBurgRobbSec1 = ::DedBurgRobbSec1
+        data.DedMoneyInSec1 = ::DedMoneyInSec1
+        data.DedMonSecurOutSec1 = ::DedMonSecurOutSec1
+        data.EndNum2Sec3 = ::EndNum2Sec3
+        data.EndNum3Sec3 = ::EndNum3Sec3
+        data.EndNum4Sec3 = ::EndNum4Sec3
+        data.EndNum5Sec3 = ::EndNum5Sec3
+        data.EndNum6Sec3 = ::EndNum6Sec3
+        data.EndNum7Sec3 = ::EndNum7Sec3
+        data.EndNum8Sec3 = ::EndNum8Sec3
+        data.EndNum9Sec3 = ::EndNum9Sec3
+        data.EndNum10Sec3 = ::EndNum10Sec3
+        return( 1 )
+    END
+
+    METHOD validate( )
+        local s = ""
+        ::errmsg = s
+        return( strempty( ::errmsg ) )
+    END
+
+    METHOD update( data )
+        local line, val, key, i=1
+        while ( 1 )
+            line = strextract( data, "&", i++ )
+            if ( strempty( line ) )
+                break
+            end
+            key = strextract( line, "=", 1 )
+            val = webDecodeURL( right( line, len( line ) - ( len( key ) + 1 ) ) )
+            self.(upper(key)) = val
+        end
+        return( 1 )
+    END
+
+    ACCESS default( name )
+        name = name
+        return( '' )
+    END
+    ASSIGN default( name, val )
+        name = name
+        val = val
+    END
+
+    METHOD flatten( g )
+        return( g.CreateClassVarString( self ) )
+    END
+
+END
+
+
+
+CLASS a160_add_cov2
+  PUBLIC:
+    local _title, _class, obj, errmsg
+
+    local LimSpoilageTotAmtSec1, DedSpoilageSec1, EndNum1Sec4, LimCompMediaSec1
+    local DedCompMediaSec1, EndNum2Sec4, LimOrdLawSec1, DedOrdLawSec1, EndNum3Sec4
+    local LimFloodSec1, DedFloodSec1, EndNum4Sec4, LimEQSec1, DedEQSec1, EndNum5Sec4
+    local LimBMBasicSec1, DedBMBasicSec1, EndNum6Sec4, LimBMBroadSec1, DedBMBroadSec1
+    local EndNum7Sec4, LimBMSpoilSec1, DedBMSpoilSec1, EndNum8Sec4, LimTransitSec1
+    local DedTransitLim1, EndNum9Sec4, CovOther1Sec4, LimOther1Sec5, DedOther1Sec5
+    local EndNum10Sec4, CovOther2Sec4, LimOther2Sec5, DedOther2Sec5, EndNum11Sec4
+    local CovOther3Sec4, LimOther3Sec5, DedOther3Sec5, EndNum12Sec4
+
+    METHOD new( obj )
+        ::_title = "ADDITIONAL COVERAGES (II)"
+        ::_class = "a160_add_cov2"
+        ::obj = obj
+        ::errmsg = ""
+        ::init( )
+        return( 1 )
+    END
+
+    METHOD init( )
+        ::LimSpoilageTotAmtSec1 = ""
+        ::DedSpoilageSec1 = ""
+        ::EndNum1Sec4 = ""
+        ::LimCompMediaSec1 = ""
+        ::DedCompMediaSec1 = ""
+        ::EndNum2Sec4 = ""
+        ::LimOrdLawSec1 = ""
+        ::DedOrdLawSec1 = ""
+        ::EndNum3Sec4 = ""
+        ::LimFloodSec1 = ""
+        ::DedFloodSec1 = ""
+        ::EndNum4Sec4 = ""
+        ::LimEQSec1 = ""
+        ::DedEQSec1 = ""
+        ::EndNum5Sec4 = ""
+        ::LimBMBasicSec1 = ""
+        ::DedBMBasicSec1 = ""
+        ::EndNum6Sec4 = ""
+        ::LimBMBroadSec1 = ""
+        ::DedBMBroadSec1 = ""
+        ::EndNum7Sec4 = ""
+        ::LimBMSpoilSec1 = ""
+        ::DedBMSpoilSec1 = ""
+        ::EndNum8Sec4 = ""
+        ::LimTransitSec1 = ""
+        ::DedTransitLim1 = ""
+        ::EndNum9Sec4 = ""
+        ::CovOther1Sec4 = ""
+        ::LimOther1Sec5 = ""
+        ::DedOther1Sec5 = ""
+        ::EndNum10Sec4 = ""
+        ::CovOther2Sec4 = ""
+        ::LimOther2Sec5 = ""
+        ::DedOther2Sec5 = ""
+        ::EndNum11Sec4 = ""
+        ::CovOther3Sec4 = ""
+        ::LimOther3Sec5 = ""
+        ::DedOther3Sec5 = ""
+        ::EndNum12Sec4 = ""
+        return( 1 )
+    END
+
+    ACCESS aVars
+        static a = {
+            { "", 240, "", "SETWIDTH" },
+            { "Spoilage", 1, "", "TITLE" },
+            { "" },
+            { "LimSpoilageTotAmtSec1", 1, "Total Amount", "dollarandcents", 100 },
+            { "DedSpoilageSec1", 1, "Deductible", "dollarandcents", 100 },
+            { "EndNum1Sec4", 1, "Ending number", "text", 100 },
+            { "" },
+            { "Computers", 1, "", "TITLE" },
+            { "" },
+            { "LimCompMediaSec1", 1, "Total Amount", "dollarandcents", 100 },
+            { "DedCompMediaSec1", 1, "Deductible", "dollarandcents", 100 },
+            { "EndNum2Sec4", 1, "Ending number", "text", 100 },
+            { "" },
+	    { "Law", 1, "", "TITLE" },
+            { "" },
+            { "LimOrdLawSec1", 1, "Total Amount", "dollarandcents", 100 },
+            { "DedOrdLawSec1", 1, "Deductible", "dollarandcents", 100 },
+            { "EndNum3Sec4", 1, "Ending number", "text", 100 },
+            { "" },
+	    { "Flood", 1, "", "TITLE" },
+            { "" },
+            { "LimFloodSec1", 1, "Total Amount", "dollarandcents", 100 },
+            { "DedFloodSec1", 1, "Deductible", "dollarandcents", 100 },
+            { "EndNum4Sec4", 1, "Ending number", "text", 100 },
+            { "" },
+	    { "Earthquake", 1, "", "TITLE" },
+            { "" },
+            { "LimEQSec1", 1, "Total Amount", "dollarandcents", 100 },
+            { "DedEQSec1", 1, "Deductible", "dollarandcents", 100 },
+            { "EndNum5Sec4", 1, "Ending number", "text", 100 },
+            { "" },
+	    { "B and M Basic", 1, "", "TITLE" },
+            { "" },
+            { "LimBMBasicSec1", 1, "Total Amount", "dollarandcents", 100 },
+            { "DedBMBasicSec1", 1, "Deductible", "dollarandcents", 100 },
+            { "EndNum6Sec4", 1, "Ending number", "text", 100 },
+            { "" },
+	    { "B and M Broad", 1, "", "TITLE" },
+            { "" },
+            { "LimBMBroadSec1", 1, "Total Amount", "dollarandcents", 100 },
+            { "DedBMBroadSec1", 1, "Deductible", "dollarandcents", 100 },
+            { "EndNum7Sec4", 1, "Ending number", "text", 100 },
+            { "" },
+	    { "B and M Spoilage", 1, "", "TITLE" },
+            { "" },
+            { "LimBMSpoilSec1", 1, "Total Amount", "dollarandcents", 100 },
+            { "DedBMSpoilSec1", 1, "Deductible", "dollarandcents", 100 },
+            { "EndNum8Sec4", 1, "Ending number", "text", 100 },
+            { "" },
+	    { "Transit", 1, "", "TITLE" },
+            { "" },
+            { "LimTransitSec1", 1, "Total Amount", "dollarandcents", 100 },
+            { "DedTransitLim1", 1, "Deductible", "dollarandcents", 100 },
+            { "EndNum9Sec4", 1, "Ending number", "text", 100 },
+            { "" },
+	    { "Forgery", 1, "", "TITLE" },
+            { "" },
+            { "CovOther1Sec4", 1, "Total Amount", "lbstr", 1, "5,000.00;10,000.00;15,000.00;20,000.00;25,000.00;30,000.00;35,000.00;40,000.00;45,000.00;50,000.00;55,000.00;60,000.00;65,000.00;70,000.00;75,000.00;80,000.00;85,000.00;90,000.00;95,000.00;100,000.00;", "onChange=\"lbUpdateX( this, 'input', ';5,000.00;10,000.00;15,000.00;20,000.00;25,000.00;30,000.00;35,000.00;40,000.00;45,000.00;50,000.00;55,000.00;60,000.00;65,000.00;70,000.00;75,000.00;80,000.00;85,000.00;90,000.00;95,000.00;100,000.00;' );\"" },
+//            { "CovOther1Sec4", 1, "Total Amount", "dollarandcents", 100 },
+            { "LimOther1Sec5", 1, "Deductible", "dollarandcents", 100 },
+            { "DedOther1Sec5", 1, "Ending number", "text", 100 },
+            { "" },
+	    { "Other", 1, "", "TITLE" },
+            { "" },
+            { "EndNum10Sec4", 1, "Total Amount", "dollarandcents", 100 },
+            { "CovOther2Sec4", 1, "Deductible", "dollarandcents", 100 },
+            { "LimOther2Sec5", 1, "Ending number", "text", 100 },
+            { "" },
+	    { "Other", 1, "", "TITLE" },
+            { "" },
+            { "DedOther2Sec5", 1, "Total Amount", "dollarandcents", 100 },
+            { "EndNum11Sec4", 1, "Deductible", "dollarandcents", 100 },
+            { "CovOther3Sec4", 1, "Ending number", "text", 100 },
+            { "LimOther3Sec5", 1, "", "hidden", 100 },
+            { "DedOther3Sec5", 1, "", "hidden", 100 },
+            { "EndNum12Sec4", 1, "", "hidden", 100 }
+        }
+        return( a )
+    END
+
+    METHOD LoadFromObject( data )
+        ::LimSpoilageTotAmtSec1 = data.LimSpoilageTotAmtSec1
+        ::DedSpoilageSec1 = data.DedSpoilageSec1
+        ::EndNum1Sec4 = data.EndNum1Sec4
+        ::LimCompMediaSec1 = data.LimCompMediaSec1
+        ::DedCompMediaSec1 = data.DedCompMediaSec1
+        ::EndNum2Sec4 = data.EndNum2Sec4
+        ::LimOrdLawSec1 = data.LimOrdLawSec1
+        ::DedOrdLawSec1 = data.DedOrdLawSec1
+        ::EndNum3Sec4 = data.EndNum3Sec4
+        ::LimFloodSec1 = data.LimFloodSec1
+        ::DedFloodSec1 = data.DedFloodSec1
+        ::EndNum4Sec4 = data.EndNum4Sec4
+        ::LimEQSec1 = data.LimEQSec1
+        ::DedEQSec1 = data.DedEQSec1
+        ::EndNum5Sec4 = data.EndNum5Sec4
+        ::LimBMBasicSec1 = data.LimBMBasicSec1
+        ::DedBMBasicSec1 = data.DedBMBasicSec1
+        ::EndNum6Sec4 = data.EndNum6Sec4
+        ::LimBMBroadSec1 = data.LimBMBroadSec1
+        ::DedBMBroadSec1 = data.DedBMBroadSec1
+        ::EndNum7Sec4 = data.EndNum7Sec4
+        ::LimBMSpoilSec1 = data.LimBMSpoilSec1
+        ::DedBMSpoilSec1 = data.DedBMSpoilSec1
+        ::EndNum8Sec4 = data.EndNum8Sec4
+        ::LimTransitSec1 = data.LimTransitSec1
+        ::DedTransitLim1 = data.DedTransitLim1
+        ::EndNum9Sec4 = data.EndNum9Sec4
+        ::CovOther1Sec4 = data.CovOther1Sec4
+        ::LimOther1Sec5 = data.LimOther1Sec5
+        ::DedOther1Sec5 = data.DedOther1Sec5
+        ::EndNum10Sec4 = data.EndNum10Sec4
+        ::CovOther2Sec4 = data.CovOther2Sec4
+        ::LimOther2Sec5 = data.LimOther2Sec5
+        ::DedOther2Sec5 = data.DedOther2Sec5
+        ::EndNum11Sec4 = data.EndNum11Sec4
+        ::CovOther3Sec4 = data.CovOther3Sec4
+        ::LimOther3Sec5 = data.LimOther3Sec5
+        ::DedOther3Sec5 = data.DedOther3Sec5
+        ::EndNum12Sec4 = data.EndNum12Sec4
+        return( 1 )
+    END
+
+    METHOD put( data )
+        data.LimSpoilageTotAmtSec1 = ::LimSpoilageTotAmtSec1
+        data.DedSpoilageSec1 = ::DedSpoilageSec1
+        data.EndNum1Sec4 = ::EndNum1Sec4
+        data.LimCompMediaSec1 = ::LimCompMediaSec1
+        data.DedCompMediaSec1 = ::DedCompMediaSec1
+        data.EndNum2Sec4 = ::EndNum2Sec4
+        data.LimOrdLawSec1 = ::LimOrdLawSec1
+        data.DedOrdLawSec1 = ::DedOrdLawSec1
+        data.EndNum3Sec4 = ::EndNum3Sec4
+        data.LimFloodSec1 = ::LimFloodSec1
+        data.DedFloodSec1 = ::DedFloodSec1
+        data.EndNum4Sec4 = ::EndNum4Sec4
+        data.LimEQSec1 = ::LimEQSec1
+        data.DedEQSec1 = ::DedEQSec1
+        data.EndNum5Sec4 = ::EndNum5Sec4
+        data.LimBMBasicSec1 = ::LimBMBasicSec1
+        data.DedBMBasicSec1 = ::DedBMBasicSec1
+        data.EndNum6Sec4 = ::EndNum6Sec4
+        data.LimBMBroadSec1 = ::LimBMBroadSec1
+        data.DedBMBroadSec1 = ::DedBMBroadSec1
+        data.EndNum7Sec4 = ::EndNum7Sec4
+        data.LimBMSpoilSec1 = ::LimBMSpoilSec1
+        data.DedBMSpoilSec1 = ::DedBMSpoilSec1
+        data.EndNum8Sec4 = ::EndNum8Sec4
+        data.LimTransitSec1 = ::LimTransitSec1
+        data.DedTransitLim1 = ::DedTransitLim1
+        data.EndNum9Sec4 = ::EndNum9Sec4
+        data.CovOther1Sec4 = ::CovOther1Sec4
+        data.LimOther1Sec5 = ::LimOther1Sec5
+        data.DedOther1Sec5 = ::DedOther1Sec5
+        data.EndNum10Sec4 = ::EndNum10Sec4
+        data.CovOther2Sec4 = ::CovOther2Sec4
+        data.LimOther2Sec5 = ::LimOther2Sec5
+        data.DedOther2Sec5 = ::DedOther2Sec5
+        data.EndNum11Sec4 = ::EndNum11Sec4
+        data.CovOther3Sec4 = ::CovOther3Sec4
+        data.LimOther3Sec5 = ::LimOther3Sec5
+        data.DedOther3Sec5 = ::DedOther3Sec5
+        data.EndNum12Sec4 = ::EndNum12Sec4
+        return( 1 )
+    END
+
+    METHOD validate( )
+        local s = ""
+        ::errmsg = s
+        return( strempty( ::errmsg ) )
+    END
+
+    METHOD update( data )
+        local line, val, key, i=1
+        while ( 1 )
+            line = strextract( data, "&", i++ )
+            if ( strempty( line ) )
+                break
+            end
+            key = strextract( line, "=", 1 )
+            val = webDecodeURL( right( line, len( line ) - ( len( key ) + 1 ) ) )
+            self.(upper(key)) = val
+        end
+        return( 1 )
+    END
+
+    ACCESS default( name )
+        name = name
+        return( '' )
+    END
+    ASSIGN default( name, val )
+        name = name
+        val = val
+    END
+
+    METHOD flatten( g )
+        return( g.CreateClassVarString( self ) )
+    END
+
+END
+
+
+
+CLASS a160_add_cov3
+  PUBLIC:
+    local _title, _class, obj, errmsg
+
+    local PremGlassGrFloorLength, PremGlassGrFloorSqFt, NumPlates1, PremGlassAboveGrLength
+    local PremGlassType2, PremGlassType1, PremInter1, PremInter2, PremTenantExt1
+    local PremTenantExt2, PremGlassVal1, PremGlassVal2, DedGlassAmt2, DedGlassAmt1
+    local NumPlates2, PremGlassAboveGrFloorSqFt
+
+    METHOD new( obj )
+        ::_title = "ADDITIONAL COVERAGES  3 (Glass)"
+        ::_class = "a160_add_cov3"
+        ::obj = obj
+        ::errmsg = ""
+        ::init( )
+        return( 1 )
+    END
+
+    METHOD init( )
+        ::PremGlassGrFloorLength = ""
+        ::PremGlassGrFloorSqFt = ""
+        ::NumPlates1 = ""
+        ::PremGlassAboveGrLength = ""
+        ::PremGlassType2 = ""
+        ::PremGlassType1 = ""
+        ::PremInter1 = ""
+        ::PremInter2 = ""
+        ::PremTenantExt1 = ""
+        ::PremTenantExt2 = ""
+        ::PremGlassVal1 = ""
+        ::PremGlassVal2 = ""
+        ::DedGlassAmt2 = ""
+        ::DedGlassAmt1 = ""
+        ::NumPlates2 = ""
+        ::PremGlassAboveGrFloorSqFt = ""
+        return( 1 )
+    END
+
+    ACCESS aVars
+        static a = {
+            { "", 250, "", "SETWIDTH" },
+            { "Ground Floor Glass", 1, "", "TITLE", 100 },
+            { "NumPlates1", 1, "Number of Plates", "text", 100 },
+            { "PremGlassGrFloorSqFt", 1, "Area square foot", "text", 100 },
+            { "PremGlassGrFloorLength", 1, "Length linear footage", "text", 100 },
+            { "PremGlassType1", 1, "Glass type", "text", 100 },
+            { "PremInter1", 1, "Interior", "text", 100 },
+            { "PremTenantExt1", 1, "Tenants Extension", "text", 100 },
+            { "PremGlassVal1", 1, "Value", "dollarandcents", 100 },
+            { "DedGlassAmt1", 1, "Deductible", "dollar", 100 },
+            { "" },
+            { "Above Ground Floor Glass", 1, "", "TITLE" },
+            { "" },
+            { "NumPlates2", 1, "Number of Plates", "text", 100 },
+            { "PremGlassAboveGrFloorSqFt", 1, "Area square foot", "text", 100 },
+            { "PremGlassAboveGrLength", 1, "Length linear footage", "text", 100 },
+            { "PremGlassType2", 1, "Glass type", "text", 100 },
+            { "PremInter2", 1, "Interior", "text", 100 },
+            { "PremTenantExt2", 1, "Tenants Extension", "text", 100 },
+            { "PremGlassVal2", 1, "Value", "text", 100 },
+            { "DedGlassAmt2", 1, "Deductible", "dollar", 100 }
+        }
+        return( a )
+    END
+
+    METHOD LoadFromObject( data )
+        ::PremGlassGrFloorLength = data.PremGlassGrFloorLength
+        ::PremGlassGrFloorSqFt = data.PremGlassGrFloorSqFt
+        ::NumPlates1 = data.NumPlates1
+        ::PremGlassAboveGrLength = data.PremGlassAboveGrLength
+        ::PremGlassType2 = data.PremGlassType2
+        ::PremGlassType1 = data.PremGlassType1
+        ::PremInter1 = data.PremInter1
+        ::PremInter2 = data.PremInter2
+        ::PremTenantExt1 = data.PremTenantExt1
+        ::PremTenantExt2 = data.PremTenantExt2
+        ::PremGlassVal1 = data.PremGlassVal1
+        ::PremGlassVal2 = data.PremGlassVal2
+        ::DedGlassAmt2 = data.DedGlassAmt2
+        ::DedGlassAmt1 = data.DedGlassAmt1
+        ::NumPlates2 = data.NumPlates2
+        ::PremGlassAboveGrFloorSqFt = data.PremGlassAboveGrFloorSqFt
+        return( 1 )
+    END
+
+    METHOD put( data )
+        data.PremGlassGrFloorLength = ::PremGlassGrFloorLength
+        data.PremGlassGrFloorSqFt = ::PremGlassGrFloorSqFt
+        data.NumPlates1 = ::NumPlates1
+        data.PremGlassAboveGrLength = ::PremGlassAboveGrLength
+        data.PremGlassType2 = ::PremGlassType2
+        data.PremGlassType1 = ::PremGlassType1
+        data.PremInter1 = ::PremInter1
+        data.PremInter2 = ::PremInter2
+        data.PremTenantExt1 = ::PremTenantExt1
+        data.PremTenantExt2 = ::PremTenantExt2
+        data.PremGlassVal1 = ::PremGlassVal1
+        data.PremGlassVal2 = ::PremGlassVal2
+        data.DedGlassAmt2 = ::DedGlassAmt2
+        data.DedGlassAmt1 = ::DedGlassAmt1
+        data.NumPlates2 = ::NumPlates2
+        data.PremGlassAboveGrFloorSqFt = ::PremGlassAboveGrFloorSqFt
+        return( 1 )
+    END
+
+    METHOD validate( )
+        local s = ""
+        ::errmsg = s
+        return( strempty( ::errmsg ) )
+    END
+
+    METHOD update( data )
+        local line, val, key, i=1
+        while ( 1 )
+            line = strextract( data, "&", i++ )
+            if ( strempty( line ) )
+                break
+            end
+            key = strextract( line, "=", 1 )
+            val = webDecodeURL( right( line, len( line ) - ( len( key ) + 1 ) ) )
+            self.(upper(key)) = val
+        end
+        return( 1 )
+    END
+
+    ACCESS default( name )
+        name = name
+        return( '' )
+    END
+    ASSIGN default( name, val )
+        name = name
+        val = val
+    END
+
+    METHOD flatten( g )
+        return( g.CreateClassVarString( self ) )
+    END
+
+END
+
+
+CLASS a160_prem_GI
+  PUBLIC:
+    local _title, _class, obj, errmsg
+
+    local GI01YesSec1, GI01NoSec1, GI02ComSec1, GI03YesSec1, GI03NoSec1, GI05YesSec1
+    local GI05NoSec1, GI05Opt1Sec1, GI05Opt2Sec1, GI05Opt3Sec1, GI05Opt4Sec1, GI05Opt5Sec1
+    local GI05Opt6Sec1, GI05Opt7Sec1, GI04YesSec1, GI04NoSec1
+
+    METHOD new( obj )
+        ::_title = "PREMISES  GENERAL  INFORMATION"
+        ::_class = "a160_prem_GI"
+        ::obj = obj
+        ::errmsg = ""
+        ::init( )
+        return( 1 )
+    END
+
+    METHOD init( )
+        ::GI01YesSec1 = ""
+        ::GI01NoSec1 = ""
+        ::GI02ComSec1 = ""
+        ::GI03YesSec1 = ""
+        ::GI03NoSec1 = ""
+        ::GI05YesSec1 = ""
+        ::GI05NoSec1 = ""
+        ::GI05Opt1Sec1 = ""
+        ::GI05Opt2Sec1 = ""
+        ::GI05Opt3Sec1 = ""
+        ::GI05Opt4Sec1 = ""
+        ::GI05Opt5Sec1 = ""
+        ::GI05Opt6Sec1 = ""
+        ::GI05Opt7Sec1 = ""
+        ::GI04YesSec1 = ""
+        ::GI04NoSec1 = ""
+        return( 1 )
+    END
+
+    ACCESS aVars
+        static a = {
+            { "", 1, "", "ALIGNLEFT" },
+            { "", 300, "", "SETWIDTH" },
+            { "GI01YesSec1", 1, "<B>1.</B> Does applicant have a heating processing boiler? (If yes, please indicate date of last inspection)", "rbyn", 100 },
+            { "GI01NoSec1", 1, "", "hidden", 100 },
+            { "" },
+            { "GI02ComSec1", 1, "<B>2.</B> What is the current carrier for Boiler and Machinery coverage", "text", 100 },
+            { "" },
+            { "GI03YesSec1", 1, "<B>3.</B> Any specialized equipment, such as medical equipment or other, valued over $100,000? (if Yes, please describe)", "rbyn", 100 },
+            { "GI03NoSec1", 1, "", "hidden", 100 },
+            { "" },
+            { "GI04YesSec1", 1, "<B>4.</B> is all equipment inspected annually and well maintained?", "rbyn", 100 },
+            { "GI04NoSec1", 1, "", "hidden", 100 },
+            { "" },
+            { "GI05YesSec1", 1, "<B>5.</B> Is there a swimming pool on the premises", "rbyn", 100 },
+            { "GI05NoSec1", 1, "", "hidden", 100 },
+            { "" },
+            { "Swimming pool", 1, "", "TITLE" },
+            { "" },
+            { "", 1, "", "ALIGNRIGHT" },
+            { "GI05Opt1Sec1", 1, "Fenced in", "cb", 100 },
+            { "GI05Opt2Sec1", 1, "Limited access", "cb", 100 },
+            { "GI05Opt3Sec1", 1, "Diving board", "cb", 100 },
+            { "GI05Opt4Sec1", 1, "Slide", "cb", 100 },
+            { "GI05Opt5Sec1", 1, "Above ground", "cb", 100 },
+            { "GI05Opt6Sec1", 1, "In-ground", "cb", 100 },
+            { "GI05Opt7Sec1", 1, "Life Guard", "cb", 100 }
+        }
+        return( a )
+    END
+
+    METHOD LoadFromObject( data )
+        ::GI01YesSec1 = data.GI01YesSec1
+        ::GI01NoSec1 = data.GI01NoSec1
+        ::GI02ComSec1 = data.GI02ComSec1
+        ::GI03YesSec1 = data.GI03YesSec1
+        ::GI03NoSec1 = data.GI03NoSec1
+        ::GI05YesSec1 = data.GI05YesSec1
+        ::GI05NoSec1 = data.GI05NoSec1
+        ::GI05Opt1Sec1 = data.GI05Opt1Sec1
+        ::GI05Opt2Sec1 = data.GI05Opt2Sec1
+        ::GI05Opt3Sec1 = data.GI05Opt3Sec1
+        ::GI05Opt4Sec1 = data.GI05Opt4Sec1
+        ::GI05Opt5Sec1 = data.GI05Opt5Sec1
+        ::GI05Opt6Sec1 = data.GI05Opt6Sec1
+        ::GI05Opt7Sec1 = data.GI05Opt7Sec1
+        ::GI04YesSec1 = data.GI04YesSec1
+        ::GI04NoSec1 = data.GI04NoSec1
+        return( 1 )
+    END
+
+    METHOD put( data )
+        data.GI01YesSec1 = ::GI01YesSec1
+        data.GI01NoSec1 = ::GI01NoSec1
+        data.GI02ComSec1 = ::GI02ComSec1
+        data.GI03YesSec1 = ::GI03YesSec1
+        data.GI03NoSec1 = ::GI03NoSec1
+        data.GI05YesSec1 = ::GI05YesSec1
+        data.GI05NoSec1 = ::GI05NoSec1
+        data.GI05Opt1Sec1 = ::GI05Opt1Sec1
+        data.GI05Opt2Sec1 = ::GI05Opt2Sec1
+        data.GI05Opt3Sec1 = ::GI05Opt3Sec1
+        data.GI05Opt4Sec1 = ::GI05Opt4Sec1
+        data.GI05Opt5Sec1 = ::GI05Opt5Sec1
+        data.GI05Opt6Sec1 = ::GI05Opt6Sec1
+        data.GI05Opt7Sec1 = ::GI05Opt7Sec1
+        data.GI04YesSec1 = ::GI04YesSec1
+        data.GI04NoSec1 = ::GI04NoSec1
+        return( 1 )
+    END
+
+    METHOD validate( )
+        local s = ""
+        ::errmsg = s
+        return( strempty( ::errmsg ) )
+    END
+
+    METHOD update( data )
+        local line, val, key, i=1
+        while ( 1 )
+            line = strextract( data, "&", i++ )
+            if ( strempty( line ) )
+                break
+            end
+            key = strextract( line, "=", 1 )
+            val = webDecodeURL( right( line, len( line ) - ( len( key ) + 1 ) ) )
+            self.(upper(key)) = val
+        end
+        return( 1 )
+    END
+
+    ACCESS default( name )
+        name = name
+        return( '' )
+    END
+    ASSIGN default( name, val )
+        name = name
+        val = val
+    END
+
+    METHOD flatten( g )
+        return( g.CreateClassVarString( self ) )
+    END
+
+END
+
+
+
+CLASS a160_GI_remarks
+  PUBLIC:
+    local _title, _class, obj, errmsg
+
+    local GIRemarks
+
+    METHOD new( obj )
+        ::_title = "GENERAL INFORMATION - REMARKS"
+        ::_class = "a160_GI_remarks"
+        ::obj = obj
+        ::errmsg = ""
+        ::init( )
+        return( 1 )
+    END
+
+    METHOD init( )
+        ::GIRemarks = ""
+        return( 1 )
+    END
+
+    ACCESS aVars
+        static a = {
+            { "GIRemarks", 1, "Remarks", "textarea", 500, 10 }
+        }
+        return( a )
+    END
+
+    METHOD LoadFromObject( data )
+        ::GIRemarks = data.GIRemarks
+        return( 1 )
+    END
+
+    METHOD put( data )
+        data.GIRemarks = ::GIRemarks
+        return( 1 )
+    END
+
+    METHOD validate( )
+        local s = ""
+        ::errmsg = s
+        return( strempty( ::errmsg ) )
+    END
+
+    METHOD update( data )
+        local line, val, key, i=1
+        while ( 1 )
+            line = strextract( data, "&", i++ )
+            if ( strempty( line ) )
+                break
+            end
+            key = strextract( line, "=", 1 )
+            val = webDecodeURL( right( line, len( line ) - ( len( key ) + 1 ) ) )
+            self.(upper(key)) = val
+        end
+        return( 1 )
+    END
+
+    ACCESS default( name )
+        name = name
+        return( '' )
+    END
+    ASSIGN default( name, val )
+        name = name
+        val = val
+    END
+
+    METHOD flatten( g )
+        return( g.CreateClassVarString( self ) )
+    END
+
+END
+
+
+
+CLASS a160_app_condo
+  PUBLIC:
+    local _title, _class, obj, errmsg
+
+    local Quest1Yes, Quest1No, Quest2No, Quest2Yes, Quest5Opt1, Quest5Opt2, Quest5Opt3
+    local Quest3Com1, Quest3Com2, Quest3Com3, Quest7Yes, Quest8Yes, Quest8No, Quest7No
+    local Quest4Opt1, Quest4Opt2
+
+    METHOD new( obj )
+        ::_title = "APARTMENTS  AND  CONDOMINIUMS"
+        ::_class = "a160_app_condo"
+        ::obj = obj
+        ::errmsg = ""
+        ::init( )
+        return( 1 )
+    END
+
+    METHOD init( )
+        ::Quest1Yes = ""
+        ::Quest1No = ""
+        ::Quest2No = ""
+        ::Quest2Yes = ""
+        ::Quest5Opt1 = ""
+        ::Quest5Opt2 = ""
+        ::Quest5Opt3 = ""
+        ::Quest3Com1 = ""
+        ::Quest3Com2 = ""
+        ::Quest3Com3 = ""
+        ::Quest7Yes = ""
+        ::Quest8Yes = ""
+        ::Quest8No = ""
+        ::Quest7No = ""
+        ::Quest4Opt1 = ""
+        ::Quest4Opt2 = ""
+        return( 1 )
+    END
+
+    ACCESS aVars
+        static a = {
+            { "", 260, "", "SETWIDTH" },
+            { "", 1, "", "ALIGNLEFT" },
+            { "Quest1Yes", 1, "<B>1.</B>  Is there a playground on premises?", "RBYN", 100, "Quest1Yes", 'CurVal', 'DefVal', 'OnChange' },
+            { "Quest1No", 1, "", "HIDDEN" },
+            {" "},
+            { "Quest2Yes", 1, "<B>2.</B>  Is aluminum wire used? (if yes, describe protection)?", "RBYN", 100, "Quest2Yes", 'CurVal', 'DefVal', 'OnChange' },
+            { "Quest2No", 1, "", "HIDDEN", 100 },
+            {" "},
+            { "Quest3Com1", 1, "<B>3.</B>   Number of fire divisions", "text", 100 },
+            { "Quest3Com2", 1, "Number of units per fire division", "text", 100 },
+            { "Quest3Com3", 1, "Number of units  owner occupied", "text", 100 },
+            {" "},
+            { "Quest4Opt1", 1, "<B>4.</B>   Indicate where coverage applies to", "lbstr2d", 1, "|;X|Bare Walls;-|Finished Walls", "onChange='lbUpdateYN( input.Quest4Opt1, input.Quest4Opt2 );'" },
+            { "Quest4Opt2", 1, "", "HIDDEN" },
+            {" "},
+            { "Quest5Opt1", 1, "<B>5.</B>   Smoke detectors", "lbstr2d",1, "-;X|None;-|Battery;-|Wired;", "onChange='var i = input.Quest5Opt1.selectedIndex;input.Quest5Opt2.value = \"-\";input.Quest5Opt3.value = \"-\";switch ( i ) {  case 1:    input.Quest5Opt2.value = \"X\";    break  case 2:    input.Quest5Opt3.value = \"X\";    break }'" },
+	    { "Quest5Opt2", 1, "", "HIDDEN", 100 },
+            { "Quest5Opt3", 1, "", "HIDDEN", 100 },
+            {" "},
+            { "Quest7Yes", 1, "<B>6.</B>   Attach copy of condo association bylaws if D&O coverage is requested.", "textonly", 100 },
+            {" "},
+            { "Quest7Yes", 1, "<B>7.</B>    Is developer or contractor a board member?", "RBYN", 100, "Quest7Yes", 'CurVal', 'DefVal', 'OnChange' },
+            { "Quest7No", 1, "", "HIDDEN", 100 },
+            {" "},
+            { "Quest8Yes", 1, "<B>8.</B>    Is a property manager employed?", "RBYN", 100, "Quest8Yes", 'CurVal', 'DefVal', 'OnChange' },
+            { "Quest8No", 1, "", "HIDDEN", 100 }
+
+        }
+        return( a )
+    END
+
+    METHOD LoadFromObject( data )
+        ::Quest1Yes = data.Quest1Yes
+        ::Quest1No = data.Quest1No
+        ::Quest2No = data.Quest2No
+        ::Quest2Yes = data.Quest2Yes
+        ::Quest5Opt1 = data.Quest5Opt1
+        ::Quest5Opt2 = data.Quest5Opt2
+        ::Quest5Opt3 = data.Quest5Opt3
+        ::Quest3Com1 = data.Quest3Com1
+        ::Quest3Com2 = data.Quest3Com2
+        ::Quest3Com3 = data.Quest3Com3
+        ::Quest7Yes = data.Quest7Yes
+        ::Quest8Yes = data.Quest8Yes
+        ::Quest8No = data.Quest8No
+        ::Quest7No = data.Quest7No
+        ::Quest4Opt1 = data.Quest4Opt1
+        ::Quest4Opt2 = data.Quest4Opt2
+        return( 1 )
+    END
+
+    METHOD put( data )
+        data.Quest1Yes = ::Quest1Yes
+        data.Quest1No = ::Quest1No
+        data.Quest2No = ::Quest2No
+        data.Quest2Yes = ::Quest2Yes
+        data.Quest5Opt1 = ::Quest5Opt1
+        data.Quest5Opt2 = ::Quest5Opt2
+        data.Quest5Opt3 = ::Quest5Opt3
+        data.Quest3Com1 = ::Quest3Com1
+        data.Quest3Com2 = ::Quest3Com2
+        data.Quest3Com3 = ::Quest3Com3
+        data.Quest7Yes = ::Quest7Yes
+        data.Quest8Yes = ::Quest8Yes
+        data.Quest8No = ::Quest8No
+        data.Quest7No = ::Quest7No
+        data.Quest4Opt1 = ::Quest4Opt1
+        data.Quest4Opt2 = ::Quest4Opt2
+        return( 1 )
+    END
+
+    METHOD validate( )
+        local s = ""
+        ::errmsg = s
+        return( strempty( ::errmsg ) )
+    END
+
+    METHOD update( data )
+        local line, val, key, i=1
+        while ( 1 )
+            line = strextract( data, "&", i++ )
+            if ( strempty( line ) )
+                break
+            end
+            key = strextract( line, "=", 1 )
+            val = webDecodeURL( right( line, len( line ) - ( len( key ) + 1 ) ) )
+            self.(upper(key)) = val
+        end
+        return( 1 )
+    END
+
+    ACCESS default( name )
+        name = name
+        return( '' )
+    END
+    ASSIGN default( name, val )
+        name = name
+        val = val
+    END
+
+    METHOD flatten( g )
+        return( g.CreateClassVarString( self ) )
+    END
+
+END
+
+
+CLASS a160_crime1
+  PUBLIC:
+    local _title, _class, obj, errmsg
+
+    local PremBAHold, PremBAPrem, PremBASafe, PremBAOther1, PremBAOther2, PremBALocGo
+    local PremBACtralStatWKey, PremBACtralStatWOKey, PremBAPolic, PremBurgAlarmGrade
+    local SafeVaultPart, SafeVaultComp, CrmExtProtPrem1, CrmExtProtPrem2, CrmExtProtPrem3
+    local SafeVaultManuf, SafeVaultLabelUL, SafeVaultLabelSMNA, SafeVaultClass
+    local PremBurgAlarmCert, PremBACertExpDate
+
+    METHOD new( obj )
+        ::_title = "CRIME (I)"
+        ::_class = "a160_crime1"
+        ::obj = obj
+        ::errmsg = ""
+        ::init( )
+        return( 1 )
+    END
+
+    METHOD init( )
+        ::PremBAHold = ""
+        ::PremBAPrem = ""
+        ::PremBASafe = ""
+        ::PremBAOther1 = ""
+        ::PremBAOther2 = ""
+        ::PremBALocGo = ""
+        ::PremBACtralStatWKey = ""
+        ::PremBACtralStatWOKey = ""
+        ::PremBAPolic = ""
+        ::PremBurgAlarmGrade = ""
+        ::SafeVaultPart = ""
+        ::SafeVaultComp = ""
+        ::CrmExtProtPrem1 = ""
+        ::CrmExtProtPrem2 = ""
+        ::CrmExtProtPrem3 = ""
+        ::SafeVaultManuf = ""
+        ::SafeVaultLabelUL = ""
+        ::SafeVaultLabelSMNA = ""
+        ::SafeVaultClass = ""
+
+        ::PremBurgAlarmCert = ""
+        ::PremBACertExpDate = ""
+        return( 1 )
+    END
+
+    ACCESS aVars
+        static a = {
+            { "", 300, "", "SETWIDTH" },
+            { "PremBAHold", 1, "ALARM TYPE", "textonly", 100 },
+            { "PremBAHold", 1, "Hold-up", "CB", 100 },
+            { "PremBAPrem", 1, "Premises", "CB", 100 },
+            { "PremBASafe", 1, "Safe/Vault", "CB", 100 },
+            { "PremBAOther1", 1, "Other", "CB", 100 },
+            { "PremBAOther2", 1, "Other alarm type", "TEXT", 100 },
+            { "PremBALocGo", 1, "ALARM DESCRIPTION", "textonly", 100 },
+            { "PremBALocGo", 1, "Local going", "CB", 100 },
+            { "PremBACtralStatWKey", 1, "Central station w/ keys", "CB", 100 },
+            { "PremBACtralStatWOKey", 1, "Central station w/o keys", "CB", 100 },
+            { "PremBAPolic", 1, "Police connect", "CB", 100 },
+            { "PremBurgAlarmGrade", 1, "Grade", "text", 100 },
+            { "SafeVaultPart", 1, "EXTENT OF PROTECTION", "textonly", 100 },
+            { "SafeVaultPart", 1, "Safe/Vault", "lbstr2d", 1, "|;X|Partial;-|Complete", "onChange='lbUpdateYN( input.SafeVaultPart, input.SafeVaultComp );'" },
+            { "SafeVaultComp", 1, "", "HIDDEN", 100 },
+            { "CrmExtProtPrem1", 1, "Premises alarm: 1", "CB", 100 },
+            { "CrmExtProtPrem2", 1, "2", "CB", 100 },
+            { "CrmExtProtPrem3", 1, "3", "CB", 100 },
+            { "SafeVaultManuf", 1, "Safe/Vault manufacturer's name", "textarea", 300, 5 },
+            { "SafeVaultLabelUL", 1, "Label", "lbstr2d", 1, "|;X|UL;-|SMNA", "onChange='lbUpdateYN( input.SafeVaultLabelUL, input.SafeVaultLabelSMNA );'" },
+            { "SafeVaultLabelSMNA", 1, "", "HIDDEN", 100 },
+            { "SafeVaultClass", 1, "Class", "text", 100 },
+            {""},
+            { "PremBurgAlarmCert", 1, "Certificate Number", "text", 100 },
+            { "PremBACertExpDate", 1, "Expiration date", "DATE", 100 }
+
+
+        }
+        return( a )
+    END
+
+    METHOD LoadFromObject( data )
+        ::PremBAHold = data.PremBAHold
+        ::PremBAPrem = data.PremBAPrem
+        ::PremBASafe = data.PremBASafe
+        ::PremBAOther1 = data.PremBAOther1
+        ::PremBAOther2 = data.PremBAOther2
+        ::PremBALocGo = data.PremBALocGo
+        ::PremBACtralStatWKey = data.PremBACtralStatWKey
+        ::PremBACtralStatWOKey = data.PremBACtralStatWOKey
+        ::PremBAPolic = data.PremBAPolic
+        ::PremBurgAlarmGrade = data.PremBurgAlarmGrade
+        ::SafeVaultPart = data.SafeVaultPart
+        ::SafeVaultComp = data.SafeVaultComp
+        ::CrmExtProtPrem1 = data.CrmExtProtPrem1
+        ::CrmExtProtPrem2 = data.CrmExtProtPrem2
+        ::CrmExtProtPrem3 = data.CrmExtProtPrem3
+        ::SafeVaultManuf = data.SafeVaultManuf
+        ::SafeVaultLabelUL = data.SafeVaultLabelUL
+        ::SafeVaultLabelSMNA = data.SafeVaultLabelSMNA
+        ::SafeVaultClass = data.SafeVaultClass
+        ::PremBurgAlarmCert = data.PremBurgAlarmCert
+        ::PremBACertExpDate = data.PremBACertExpDate
+        return( 1 )
+    END
+
+    METHOD put( data )
+        data.PremBAHold = ::PremBAHold
+        data.PremBAPrem = ::PremBAPrem
+        data.PremBASafe = ::PremBASafe
+        data.PremBAOther1 = ::PremBAOther1
+        data.PremBAOther2 = ::PremBAOther2
+        data.PremBALocGo = ::PremBALocGo
+        data.PremBACtralStatWKey = ::PremBACtralStatWKey
+        data.PremBACtralStatWOKey = ::PremBACtralStatWOKey
+        data.PremBAPolic = ::PremBAPolic
+        data.PremBurgAlarmGrade = ::PremBurgAlarmGrade
+        data.SafeVaultPart = ::SafeVaultPart
+        data.SafeVaultComp = ::SafeVaultComp
+        data.CrmExtProtPrem1 = ::CrmExtProtPrem1
+        data.CrmExtProtPrem2 = ::CrmExtProtPrem2
+        data.CrmExtProtPrem3 = ::CrmExtProtPrem3
+        data.SafeVaultManuf = ::SafeVaultManuf
+        data.SafeVaultLabelUL = ::SafeVaultLabelUL
+        data.SafeVaultLabelSMNA = ::SafeVaultLabelSMNA
+        data.SafeVaultClass = ::SafeVaultClass
+
+        data.PremBurgAlarmCert = ::PremBurgAlarmCert
+        data.PremBACertExpDate = ::PremBACertExpDate
+        return( 1 )
+    END
+
+    METHOD validate( )
+        local s = ""
+        ::errmsg = s
+        return( strempty( ::errmsg ) )
+    END
+
+    METHOD update( data )
+        local line, val, key, i=1
+        while ( 1 )
+            line = strextract( data, "&", i++ )
+            if ( strempty( line ) )
+                break
+            end
+            key = strextract( line, "=", 1 )
+            val = webDecodeURL( right( line, len( line ) - ( len( key ) + 1 ) ) )
+            self.(upper(key)) = val
+        end
+        return( 1 )
+    END
+
+    ACCESS default( name )
+        name = name
+        return( '' )
+    END
+    ASSIGN default( name, val )
+        name = name
+        val = val
+    END
+
+    METHOD flatten( g )
+        return( g.CreateClassVarString( self ) )
+    END
+
+END
+
+CLASS a160_crime2
+  PUBLIC:
+    local _title, _class, obj, errmsg
+
+    local BusMaxCashPrem, BusMaxCashMasseng, BusCashOverNight, BusDepFreq, PremDeadBltCylDoor
+    local PremNoDeadBltCylDoor,SafeVaultDoorConstr, PremOtherProt
+
+    METHOD new( obj )
+        ::_title = "CRIME (II)"
+        ::_class = "a160_crime2"
+        ::obj = obj
+        ::errmsg = ""
+        ::init( )
+        return( 1 )
+    END
+
+    METHOD init( )
+        ::BusMaxCashPrem = ""
+        ::BusMaxCashMasseng = ""
+        ::BusCashOverNight = ""
+        ::BusDepFreq = ""
+        ::PremDeadBltCylDoor = ""
+        ::PremNoDeadBltCylDoor = ""
+        ::SafeVaultDoorConstr = ""
+        ::PremOtherProt = ""
+        return( 1 )
+    END
+
+    ACCESS aVars
+        static a = {
+            { "", 300, "", "SETWIDTH" },
+            { "BusMaxCashPrem", 1, "Maximum cash on premises", "DOLLAR", 100 },
+            { "BusMaxCashMasseng", 1, "Maximum cash with messenger", "DOLLAR", 100 },
+            { "BusCashOverNight", 1, "Money on premises overnight", "DOLLAR", 100 },
+            { "BusDepFreq", 1, "Frequency of deposits", "text", 100 },
+            {""},
+            { "PremDeadBltCylDoor", 1, "Has claim been previously reported?", "lbstr2d", 1, "|;X|Yes;-|No", "onChange='lbUpdateYN( input.PremDeadBltCylDoor, input.PremNoDeadBltCylDoor );'" },
+            { "PremNoDeadBltCylDoor", 1, "", "HIDDEN" },
+            { "SafeVaultDoorConstr", 1, "Safe door construction", "text", 100 },
+            {""},
+            { "PremOtherProt", 1, "Other protection (Lighting, fences, watch persons, etc)", "TEXTAREA", 300, 5 }
+        }
+        return( a )
+    END
+
+    METHOD LoadFromObject( data )
+        ::BusMaxCashPrem = data.BusMaxCashPrem
+        ::BusMaxCashMasseng = data.BusMaxCashMasseng
+        ::BusCashOverNight = data.BusCashOverNight
+        ::BusDepFreq = data.BusDepFreq
+        ::PremDeadBltCylDoor = data.PremDeadBltCylDoor
+        ::PremNoDeadBltCylDoor = data.PremNoDeadBltCylDoor
+        ::SafeVaultDoorConstr = data.SafeVaultDoorConstr
+        ::PremOtherProt = data.PremOtherProt
+        return( 1 )
+    END
+
+    METHOD put( data )
+        data.BusMaxCashPrem = ::BusMaxCashPrem
+        data.BusMaxCashMasseng = ::BusMaxCashMasseng
+        data.BusCashOverNight = ::BusCashOverNight
+        data.BusDepFreq = ::BusDepFreq
+        data.PremDeadBltCylDoor = ::PremDeadBltCylDoor
+        data.PremNoDeadBltCylDoor = ::PremNoDeadBltCylDoor
+        data.SafeVaultDoorConstr = ::SafeVaultDoorConstr
+        data.PremOtherProt = ::PremOtherProt
+        return( 1 )
+    END
+
+    METHOD validate( )
+        local s = ""
+        ::errmsg = s
+        return( strempty( ::errmsg ) )
+    END
+
+    METHOD update( data )
+        local line, val, key, i=1
+        while ( 1 )
+            line = strextract( data, "&", i++ )
+            if ( strempty( line ) )
+                break
+            end
+            key = strextract( line, "=", 1 )
+            val = webDecodeURL( right( line, len( line ) - ( len( key ) + 1 ) ) )
+            self.(upper(key)) = val
+        end
+        return( 1 )
+    END
+
+    ACCESS default( name )
+        name = name
+        return( '' )
+    END
+    ASSIGN default( name, val )
+        name = name
+        val = val
+    END
+
+    METHOD flatten( g )
+        return( g.CreateClassVarString( self ) )
+    END
+
+END
+
+CLASS a160_remarks2
+  PUBLIC:
+    local _title, _class, obj, errmsg
+
+    local Remarks2
+
+    METHOD new( obj )
+        ::_title = "REMARKS (II)"
+        ::_class = "a160_remarks2"
+        ::obj = obj
+        ::errmsg = ""
+        ::init( )
+        return( 1 )
+    END
+
+    METHOD init( )
+        ::Remarks2 = ""
+        return( 1 )
+    END
+
+    ACCESS aVars
+        static a = {
+            { "Remarks2", 1, "REMARKS", "textarea", 500, 10 }
+        }
+        return( a )
+    END
+
+    METHOD LoadFromObject( data )
+        ::Remarks2 = data.Remarks2
+        return( 1 )
+    END
+
+    METHOD put( data )
+        data.Remarks2 = ::Remarks2
+        return( 1 )
+    END
+
+    METHOD validate( )
+        local s = ""
+        ::errmsg = s
+        return( strempty( ::errmsg ) )
+    END
+
+    METHOD update( data )
+        local line, val, key, i=1
+        while ( 1 )
+            line = strextract( data, "&", i++ )
+            if ( strempty( line ) )
+                break
+            end
+            key = strextract( line, "=", 1 )
+            val = webDecodeURL( right( line, len( line ) - ( len( key ) + 1 ) ) )
+            self.(upper(key)) = val
+        end
+        return( 1 )
+    END
+
+    ACCESS default( name )
+        name = name
+        return( '' )
+    END
+    ASSIGN default( name, val )
+        name = name
+        val = val
+    END
+
+    METHOD flatten( g )
+        return( g.CreateClassVarString( self ) )
+    END
+
+END
+
+
+
+

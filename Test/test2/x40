@@ -1,0 +1,4 @@
+println ( strat ( "x", "testxthisxisxhere" ) )
+println ( strat ( "x", "testxthisxisxhere", 6 ) )
+println ( strat ( "x", "testxthisxisxhere", 10 ) )
+println ( strat ( "x", "testxthisxisxhere", 13 ) )

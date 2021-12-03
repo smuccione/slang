@@ -1,0 +1,8 @@
+
+<[
+
+ip =  webAddrFromHost( "www.smallbuscomp.aig.com" )
+
+!ip
+
+]>

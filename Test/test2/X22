@@ -1,0 +1,15 @@
+local a, b
+
+
+a = "this is a test"
+
+print ( "input a: " )
+a = input ( a )
+println();
+
+print ( "input b: " )
+b = input ( 20 )
+
+println();
+println ( a, " : ", b )
+ 

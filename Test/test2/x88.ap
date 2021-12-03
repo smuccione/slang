@@ -1,0 +1,82 @@
+<[
+	function convertFIDtoFName ( path, fid )
+		local	hash
+		local	t1,t2,t3
+		local	p1,p2,p3
+		local	loop
+		
+		hash = hashSHA1 ( fid )
+		
+		t1 = t2 = t3 = 0
+		
+		for ( loop = 1; loop < len ( hash ); loop++ )
+			switch ( loop % 3 )
+				case 0
+					t1 = t1 + asc ( hash[loop] )
+					break
+				case 1
+					t2 = t2 + asc ( hash[loop] )
+					break
+				case 2
+					t3 = t3 + asc ( hash[loop] )
+					break
+			end
+		end
+		
+		p1 = "" + (t1 % 64)
+		p2 = "" + (t2 % 64)
+		p3 = "" + (t3 % 64)
+		
+		if ( right ( path, 1 ) != '\' )
+			path = path + '\'
+		end
+		
+		return ( path + p1 + '\' + p2 + '\' + p3 + '\' + fid )
+	end
+	
+	function buildDirFromPath ( path )
+		local	drive
+		local	baseDir
+		
+		if ( mkdir ( path ) )
+			// can't make the subdirectory
+			baseDir = fparsefp ( path )
+			drive	= fparsedr ( path )
+			
+			buildDirfromPath ( fMake ( drive, baseDir, "", "" ) )
+			
+			if ( mkdir ( path ) )
+				return ( 0 )
+			end
+		end
+		return ( 1 )
+	end
+	
+	function buildDirFromFName ( fName )
+		local 	fDrive
+		local	fPath
+		
+		fDrive = fparsedr ( fName )
+		fPath  = fparsefp ( fName )
+		
+		buildDirFromPath ( fmake ( fDrive, fPath, "", "" ) )
+	end
+	
+	
+	local fid
+	
+	DebugBreak()
+	
+	fid = "123123875982"
+	fName = convertFIDToFName ( 'c:\tmp', fid )
+	
+	fid = "123123875983"
+	fName = convertFIDToFName ( 'c:\tmp', fid )
+	
+	fid = "123123875984"
+	fName = convertFIDToFName ( 'c:\tmp', fid )
+	
+	buildDirFromFName ( fName )
+
+
+]>

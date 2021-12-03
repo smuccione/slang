@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="bcFuncDef">
+    <DisplayString>{name,sb}</DisplayString>
+  </Type>
+  <Type Name="bcClass">
+    <DisplayString>{name,sb}</DisplayString>
+    <Expand>
+      <Item Name="name">name</Item>
+      <Item Name="atom">atom</Item>
+      <Item Name="loadImage">loadImage</Item>
+      <Item Name="nPack">nPack</Item>
+      <ArrayItems>
+        <Size>nVTable</Size>
+        <ValuePointer>vTable</ValuePointer>
+      </ArrayItems>
+      <ArrayItems>
+        <Size>nInherit</Size>
+        <ValuePointer>inherit</ValuePointer>
+      </ArrayItems>
+      <ArrayItems>
+        <Size>nElements</Size>
+        <ValuePointer>elements</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+  <Type Name="nParamType">
+    <DisplayString>{count}</DisplayString>
+    <Expand>
+      <Item Name="count">count</Item>
+      <ArrayItems>
+        <Size>count</Size>
+        <ValuePointer>firstVarParam</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+  <Type Name="VAR">
+    <DisplayString Condition="type==slangType::eNULL">{type,en}</DisplayString>
+    <DisplayString Condition="type==slangType::eLONG">{type,en} {dat.l}</DisplayString>
+    <DisplayString Condition="type==slangType::eDOUBLE">{type,en} {dat.d}</DisplayString>
+    <DisplayString Condition="type==slangType::eATOM">{type,en} {dat.atom}</DisplayString>
+    <DisplayString Condition="type==slangType::eSTRING">{type,en} {dat.str.c,s}</DisplayString>
+    <DisplayString Condition="type==slangType::eARRAY_SPARSE">{type,en} {(void *)this, na}</DisplayString>
+    <DisplayString Condition="type==slangType::eREFERENCE">{type,en} {dat.ref.v,na} {{{(void*)dat.ref.v}}}</DisplayString>
+    <DisplayString Condition="type==slangType::eMOVED">{type,en} {dat.ref.v,na} {{{(void*)dat.ref.v}}}</DisplayString>
+    <DisplayString Condition="type==slangType::eOBJECT">{type,en} {dat.obj.classDef->name,sb}</DisplayString>
+    <DisplayString Condition="type==slangType::eOBJECT_ROOT &amp;&amp; dat.ref.v->type == slangType::eMOVED">{type,en}->{dat.ref.v,na} {{{(void*)dat.ref.v->dat.ref.v}}}</DisplayString>
+    <DisplayString Condition="type==slangType::eOBJECT_ROOT &amp;&amp; dat.ref.v==dat.ref.obj">{type,en}->{dat.ref.v,na} {{{(void*)dat.ref.v}}}</DisplayString>
+    <DisplayString Condition="type==slangType::eOBJECT_ROOT">{type,en}->{dat.ref.v,na}::{dat.ref.v[1].dat.ref.v,na} {{{dat.ref.v}}} {{{(void*)dat.ref.v}}</DisplayString>
+    <DisplayString Condition="type==slangType::eCODEBLOCK_ROOT">{type,en}->{dat.ref.v,na}::{dat.ref.v[1].dat.ref.v,na} {{{dat.ref.v}}} {{{(void*)dat.ref.v}}</DisplayString>
+    <DisplayString Condition="type==slangType::eMOVED">{type,en}->{dat.ref.v,na}</DisplayString>
+    <DisplayString Condition="type==slangType::ePCALL">{type,en} nParams={dat.pCall.nParams,i}</DisplayString>
+    <DisplayString Condition="(type==slangType::eARRAY_ROOT) &amp;&amp; (dat.ref.v->type==slangType::eARRAY_SPARSE)">{type,en} [{dat.ref.v->dat.aSparse.maxI}] {{{(void*)dat.ref.v}}}</DisplayString>
+    <DisplayString Condition="(type==slangType::eARRAY_ROOT) &amp;&amp; (dat.ref.v->type==slangType::eARRAY_FIXED)">{type,en} [{dat.ref.v->dat.arrayFixed.startIndex} {dat.ref.v->dat.arrayFixed.endIndex}  size={(dat.ref.v->dat.arrayFixed.endIndex - dat.ref.v->dat.arrayFixed.startIndex + 1)}] {{{(void*)dat.ref.v}}}</DisplayString>
+    <DisplayString Condition="type==slangType::eDEBUG_MARKER">{type,en}</DisplayString>
+    <DisplayString>{type,en}</DisplayString>
+    <Expand>
+      <Item Name ="type" >type,en</Item>
+      <Item Name="ref.v" Condition="type == slangType::eREFERENCE || type == slangType::eOBJECT_ROOT || type == slangType::eARRAY_ROOT">dat.ref.v</Item>
+      <Item Name="ref.obj" Condition="type == slangType::eREFERENCE || type == slangType::eOBJECT_ROOT || type == slangType::eARRAY_ROOT">dat.ref.obj,na</Item>
+      <Item Name="ref.v" Condition="type == slangType::eMOVED">dat.ref.v,na</Item>
+      <ExpandedItem Condition="type==slangType::eLONG">dat.l</ExpandedItem>
+      <ExpandedItem Condition="type==slangType::eLONG">dat.d</ExpandedItem>
+      <ExpandedItem Condition="type==slangType::eSTRING">dat.str</ExpandedItem>
+      <ExpandedItem Condition="type==slangType::eARRAY_ROOT">*dat.ref.v</ExpandedItem>
+      <ExpandedItem Condition="type==slangType::eARRAY_SPARSE">dat.aSparse</ExpandedItem>
+      <ExpandedItem Condition="type==slangType::eARRAY_ELEM">dat.aElem</ExpandedItem>
+      <ExpandedItem Condition="type==slangType::eREFERENCE">*dat.ref.v</ExpandedItem>
+      <ExpandedItem Condition="type==slangType::eOBJECT_ROOT">*dat.ref.v</ExpandedItem>
+      <ExpandedItem Condition="type==slangType::eCODEBLOCK_ROOT">*dat.ref.v</ExpandedItem>
+      <ExpandedItem Condition="type==slangType::eCODEBLOCK">dat.cb</ExpandedItem>
+      <ExpandedItem Condition="type==slangType::eMOVED">*dat.ref.v</ExpandedItem>
+      <Item Name="classDef" Condition="type==slangType::eOBJECT">dat.obj.classDef</Item>
+      <Item Name="cargo" Condition="type==slangType::eOBJECT">dat.obj.cargo</Item>
+      <ArrayItems Condition="type==slangType::eOBJECT">
+        <Size>dat.obj.classDef->numVars</Size>
+        <ValuePointer>this</ValuePointer>
+      </ArrayItems>
+      <ArrayItems Condition="type==slangType::ePCALL">
+        <Size>dat.pCall.nParams</Size>
+        <ValuePointer>this - dat.pCall.nParams</ValuePointer>
+      </ArrayItems>
+      <ArrayItems ModuleName="arrayFixed" Condition="type==slangType::eARRAY_FIXED">
+        <Size>(dat.arrayFixed.endIndex - dat.arrayFixed.startIndex + 1)</Size>
+        <ValuePointer>this + 1</ValuePointer>
+      </ArrayItems>
+      <CustomListItems Optional="true" >
+        <Variable Name="elem" InitialValue="dat.aSparse.v" />
+        <Break Condition="type != slangType::eARRAY_SPARSE"/>
+        <Loop Condition="elem != nullptr">
+          <Break Condition="elem==nullptr"/>
+          <Item Name="{elem->dat.aElem.elemNum}">elem->dat.aElem.var</Item>
+          <Exec>elem=elem->dat.aElem.next</Exec>
+        </Loop>
+      </CustomListItems>
+    </Expand>
+  </Type>
+</AutoVisualizer>

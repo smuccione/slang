@@ -1,0 +1,7 @@
+<[
+
+            x = sendMail( "smtp.bluetie.com", "fgl_mail.brtsystems", "p@ssw0rd", "srepetti@brtsystems.com", "Steve Repetti", "home.muccione@verizon.net", "Steve Muccione", "testing...", "", "hello, this is a test" )
+
+println( ">>> Error code: " + x )
+
+]>

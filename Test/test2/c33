@@ -1,0 +1,34 @@
+class base
+   local Var1
+end
+
+class test
+   inherit base
+
+   local loc1
+
+   method meth()
+      return 1
+   end
+
+   access acc1 ()
+      return NULL
+   end
+
+   assign acc2 ( var )
+   end
+
+   message test is var1 in base
+end
+
+o = new ( "test" )
+
+a = classElements ( o )
+
+for ( loop = 1; loop <= len ( a ); loop++ )
+   for ( loop2 = 1; loop2 <= len ( a[loop] ); loop2++ )
+      print ( a[loop,loop2], "\t" )
+   end
+
+   println()
+end

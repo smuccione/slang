@@ -1,0 +1,38 @@
+<[
+
+CLASS VirtualClass
+
+  PUBLIC:
+    // Create the default method handler
+
+    METHOD default( meth )
+
+        local cnt, i, x
+
+        println( "Method=" + meth )
+
+        // Get any parameters that may have been passed in
+
+        cnt = pcount( ) - 2
+
+        for ( i=1; i<=cnt; i++ )
+
+            x = param( i + 2 )
+
+            println( "Param " + i + " = " + x + " " + type( x ) )
+
+        end
+        return( 1 )
+
+    END
+END
+ 
+
+obj = new( "VirtualClass" )
+
+debugbreak()
+
+obj.SecretMethod( 1, "two" )   // displays: Method=SecretMethod
+obj.anotherone( 5, "six" )   // displays: Method=SecretMethod
+
+]>

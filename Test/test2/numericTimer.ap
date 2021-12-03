@@ -1,0 +1,12 @@
+<[
+	a = {}
+
+	timeStart = secondsh( )
+	for ( i=1; i<=1000; i++ )
+		a[i] = rand()
+	end
+	timeEnd = secondsh( )
+	
+	! timeEnd - timeStart
+
+]>

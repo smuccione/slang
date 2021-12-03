@@ -1,0 +1,75 @@
+<[
+// WebSuite Web Server - Guest Book
+// (c) 1997-2001 by West Coast Web Adventures, Inc., All Rights Reserved
+
+_apGenerate( )
+
+websrvr = 0 + param( 1 )
+sessionId = 0 + param( 2 )
+
+//basedir = webServerHome( websrvr )
+basedir = 'c:\sdweb\home'
+email_addr = ""
+
+]>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<!-- FGL Active Page, www.westcoastwebadventures.com -->
+<HTML>
+<head>
+ <title>My WebSuite - Guest Book</title>
+ <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+ <style>
+  A { COLOR:#0D9BFC; FONT-FAMILY: Arial, helvetica, sans-serif; text-decoration: none; }
+  A:hover { COLOR: #0D9BFC; FONT-FAMILY: Arial, helvetica, sans-serif; text-decoration: underline; }
+  .txt { COLOR: #000000; FONT-FAMILY: Arial, helvetica, sans-serif; text-decoration: none; font-size:9pt;}
+ </style>
+</head>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#00FFFF" VLINK="#00FFFF" ALINK="#00FFFF">
+
+<TABLE BORDER=0 WIDTH=100% height=400 cellspacing=0 cellpadding=0 class=txt>
+ <TR>
+  <TD WIDTH=100% VALIGN="top">
+
+
+   <P>
+   
+<[
+	filename = basedir + "\\angie\\guestbk.dat"
+	if ( ! fileExists( filename ) )
+		! "No Data!"
+	else
+		data = fileReadASCII( filename )
+		if ( ( ! data ) || strempty( data ) )
+			! "No Data!"
+		else
+			cnt = chrcount( "\r", data ) + 1
+			z = 0
+			data = strswap( data, "\n", "" )
+			for ( i=cnt; i>0; i-- )
+				line = strextract( data, "\r", i )
+				if ( strempty( line ) || ( line[1] == chr(26) ) )
+					continue
+				end
+				z++
+				
+				date = strextract( line, "|", 1 )
+				msg  = strextract( line, "|", 2 )
+				from = strextract( line, "|", 3 )
+
+				! "<B>" + date + "</B><BR>"
+				! "<FONT COLOR=\"#404040\">" + msg + "</FONT><font color=#0D9BFC><br> --- <B>" + from + "</B></font><br><hr>"
+				
+			end
+		end
+	end
+]>   
+
+  </TD>
+ </TR>
+</TABLE>
+
+
+</center>
+
+</BODY>
+</HTML>

@@ -1,0 +1,93 @@
+library c:\slang\test\test2\httplib.flb
+
+function dump ( obj, indent )
+   while ( obj )
+      print   ( space ( indent ) )
+      println ( className ( obj ) )
+
+	x = classElements ( obj )
+
+	for ( loop = 1; loop <= len ( x ); loop++ )
+		switch ( x[loop][2] )
+			case 0
+			case 6
+				switch ( x[loop][1] )
+					case "FIRSTCHILD"
+                              case "CHILDNODES"
+                              case "ATTRIBUTES"
+						break;
+                              default
+						print ( space ( indent + 3 ) )
+						val = obj.(x[loop][1]);
+						if ( type ( val ) == "C" )
+							val = strswap ( val, "\r", "\\r" )
+							val = strswap ( val, "\n", "\\n" )
+						end
+						println ( x[loop][1], " : ", val )
+						break;
+				end
+				break;
+			case 1
+			case 2
+			case 3
+			case 4
+				break;
+				print ( space ( indent + 3 ) )
+				println ( x[loop][1], " : (method) " )
+				break;
+		end
+	end
+
+	for ( loop = 1; loop <= len ( x ); loop++ )
+		switch ( x[loop][2] )
+			case 0
+			case 6
+				switch ( x[loop][1] )
+					case "FIRSTCHILD"
+					case "CHILDNODES"
+					case "ATTRIBUTES"
+						val = obj.(x[loop][1]);
+						print ( space ( indent + 3 ) )
+						println ( x[loop][1], " : ", val )
+
+						val = obj.(x[loop][1]);
+						if ( type ( val ) == "O" )
+							dump ( val, indent + 6 )
+						end
+						break;
+					default
+						break;
+				end
+				break;
+			case 1
+			case 2
+			case 3
+			case 4
+				break;
+				print ( space ( indent + 3 ) )
+				println ( x[loop][1], " : (method) " )
+				break;
+		end
+	end
+
+
+	try 
+	      obj = obj.nextSibling
+	catch ( error )
+		return
+	end
+   end
+
+end
+
+x = webPageGet ( 127.0.0.1, "GET", "insmgmt/index.ap" )
+
+page = x[len(x)]
+
+dom = new ( "document", page )
+
+debugBreak()
+
+dump ( dom, 0 )
+
+

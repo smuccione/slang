@@ -1,0 +1,25 @@
+<[
+	d = OdbcConnection ( "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=dbTest.mdb", OdbcConnection::OdbcConnectMode::connectModeShareExclusive  )
+	
+	o2 = odbcRecordSet ( d, "tblTest", odbcRecordSet::OdbcRecordsetOpenMode::openTable )
+
+	a = o2.GetFieldValue ( 0 )
+	b = o2.GetFieldValue ( "Description" )
+	c = o2.GetFieldValue ( 2 )
+	
+	wa = o2.workarea
+
+DebugBreak()
+	(wa)->dbGoTop()
+	while ( !(wa)->dbEof() )
+		println ( (wa)->Description )
+		(wa)->dbSkip ( 1 )
+	end
+	
+	(wa)->dbGoTop()
+	while ( !(wa)->dbEof() )
+		println ( (wa)->Description )
+		(wa)->dbSkip ( 2 )
+	end
+	
+]>

@@ -1,0 +1,234 @@
+<[
+
+FUNCTION GetUserCount( session )
+	local x = len( session.UserLog )
+	return( "" + x + " user" + ( x == 1 ? "" : "s" ) )
+END
+
+FUNCTION ImpliedUsers( cnt, secs )
+	x = 3.14 * 33 * cnt * secs
+	for ( i=1; i<=secs; i++ )
+		x = x * .9
+	end
+	return( int( x ) )
+END
+
+
+FUNCTION amax( a )
+	local i, x=0
+	
+	for ( i=1; i<=len( a ); i++ )
+		if ( a[i] > x )
+			x = a[i]
+		end
+	end
+	return( x )
+END
+
+FUNCTION CreateArray( session, aval )
+	local log, x, s=""
+	
+	log = session.ActivityLog( aval )
+	x = amax( log )
+	for ( i=1; i<len( log ); i++ )
+		s += "g(" + aval + ",'" + strcommas( "" + log[i] ) + "'," + int( 100 * ( log[i]  / ( x < 1 ? 1 : x ) ) ) + ",'');\r\n"
+	end
+	return( s )
+END
+
+session = new( "session" )
+
+serverpath = 'c:\sdweb'
+
+sysfilelog = serverpath + '\systemLog.txt'
+transfilelog = serverpath + '\transLog.txt'
+configfile = serverpath + '\server.ini'
+enginefile = serverpath + '\engine.ini'
+
+]>
+<html>
+<head>
+<title>CornerOFFICE Server Status</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<META http-equiv="refresh" content="30; url=status.htm" >
+<style>
+  A { COLOR: #FFFFFF; FONT-FAMILY: Arial, helvetica, sans-serif; text-decoration: none; }
+  A:hover { COLOR: #72C6F2; FONT-FAMILY: Arial, helvetica, sans-serif; text-decoration: underline; }
+  .spcr { COLOR: #000000; font-size:6pt; FONT-FAMILY: Arial, helvetica, sans-serif; }
+  .navtxt { COLOR: #FFFFFF; font-size:8pt; FONT-FAMILY: Arial, helvetica, sans-serif; }
+  .txt { COLOR: #FFFFFF; font-size:9pt; FONT-FAMILY: Arial, helvetica, sans-serif; }
+  .smtxt { COLOR: #FFFFFF; font-size:7pt; FONT-FAMILY: Arial, helvetica, sans-serif; }
+  .bigtxt { COLOR: #FFFFFF; font-size:12pt; FONT-FAMILY: Arial, helvetica, sans-serif; }
+  .gr { font-size:1pt; cursor:hand; }
+  .spacer { COLOR: #FFFFFF; font-size:5pt; FONT-FAMILY: Arial, helvetica, sans-serif; }
+</style>
+
+<script language="JavaScript">
+
+var aStatus = new Array( );
+var StatusCnt = 0;
+
+function AdminStatus( transCat, transQuantity, trHeight, trLink ) {
+	this.transCat = transCat;
+	this.transQuantity = transQuantity;
+	this.trHeight = trHeight;
+	this.trLink = trLink;
+}
+
+function g( transCat, transQuantity, trHeight, trLink ) {
+	aStatus[StatusCnt++] = new AdminStatus( transCat, transQuantity, trHeight, trLink )
+}
+
+
+function displayGraph( transCat, title, caption ) {
+
+	var i=0;
+
+	document.write( "<table border=1 width=380 height=57 cellspacing=1 cellpadding=0><tr><td>" );
+	document.write( "<table border=0 width=380 height=57 cellspacing=1 cellpadding=0 bgcolor=black><tr>" );
+
+	while ( 1 ) {
+		if ( aStatus[i].transCat == -1 ) {
+			break;
+		}
+
+		if ( aStatus[i].transCat == transCat ) {
+			var clr = "";
+			pct = aStatus[i].trHeight;
+
+			if (pct < 1){
+				pct = 1;
+			}
+
+			if (pct > 74){
+				clr = "95C6F0";
+			}
+			else if (pct > 49){
+				clr = "75A4C0";
+			}
+			else if (pct > 24){
+				clr = "61829F";
+			}
+			else{
+				clr = "40576C";
+			}
+			
+			var height = aStatus[i].trHeight;
+			if ( aStatus[i].trHeight < 1 ) {
+				height = 1;
+			}
+
+			document.write( "<td><span title='" + aStatus[i].transQuantity + " " + caption + "'><table border=0 width=100% height=100% cellspacing=0 cellpadding=0 class=gr><tr height=*><td>&nbsp;</td></tr><tr height=" + height + "% bgcolor='" + clr + "'><td>&nbsp;</td></tr></table></span></td>" );
+		}
+		i++
+	}
+
+	document.write( "</tr></table>" );
+	document.write( "</td></tr></table>" + title + "<font class=spacer><br><br></font>" );
+
+	return;
+}
+
+<[
+
+	! CreateArray( session, 0 )
+	! CreateArray( session, 1 )
+	! CreateArray( session, 2 )
+	! CreateArray( session, 3 )
+	! CreateArray( session, 5 )
+	! CreateArray( session, 4 )
+
+]>
+
+g( -1 );
+
+</script>
+
+</head>
+
+<body bgcolor="#2159A4" text="#000000" leftmargin=0 topmargin=0 marginwidth=0 marginheight=0><font class="spcr">
+
+<table border=0 width=760 height=480 cellspacing=0 cellpadding=10 class=txt bgcolor="#2159A4"><tr><td valign=top>
+ <table border=0 cellspacing=0 cellpadding=0 class=txt width=100%>
+  <tr>
+   <td width=300><img src="CornerOfficeLogo.jpg" border=0 width=200 height=57></td>
+   <td width=* align=right class=bigtxt nowrap><b>CornerOFFICE<br><font color="#72C6F2">System Status Window</b></font></td>
+  </tr>
+  <tr><td>&nbsp;</td></tr>
+
+  <tr>
+   <td valign=top width=450>
+
+    <table border=1 cellspacing=0 cellpadding=10 class=txt width=340><tr><td>
+    <table border=0 cellspacing=0 cellpadding=0 class=txt width=100%>
+     <tr><td>Server Start Time:</td><td align=right nowrap><[ ! session.serverStartTime ]></td></tr>
+     <tr><td>&nbsp;</td></tr>
+
+     <tr><td>HTTP Version:</td><td align=right><[ ! strcommas( "" + session.HTTPVersion ) ]></td></tr>
+     <tr><td>Total Connections:</td><td align=right><[ ! strcommas( "" + session.TotalConnections ) ]></td></tr>
+     <tr><td>&nbsp;</td></tr>
+
+     <tr><td>Total Requests:</td><td align=right><[ ! strcommas( "" + session.TotalRequests ) ]></td></tr>
+
+     <tr><td>Total Request Bytes:</td><td align=right><[ ! strcommas( "" + session.TotalBytesRcvd ) ]>k</td></tr>
+     <tr><td>Average Request Bytes:</td><td align=right><[ ! strcommas( "" + int( session.TotalBytesRcvd / ( session.TotalRequests < 1 ? 1 : session.TotalRequests ) ) ) ]>k</td></tr>
+     <tr><td>&nbsp;</td></tr>
+ 
+     <tr><td>Total Responses:</td><td align=right><[ ! strcommas( "" + session.TotalResponses ) ]></td></tr>
+     <tr><td>Total Response Bytes:</td><td align=right><[ ! strcommas( "" + session.TotalBytesSent ) ]>k</td></tr>
+     <tr><td>Average Response Bytes:</td><td align=right><[ ! strcommas( "" + int( session.TotalBytesSent / ( session.TotalResponses < 1 ? 1 : session.TotalResponses ) ) ) ]>k</td></tr>
+     <tr><td>&nbsp;</td></tr>
+   
+     <tr><td>Active Page Requests:</td><td align=right><[ ! strcommas( "" + session.APPagesSent ) ]></td></tr>
+     <tr><td>Active Page Bytes Generated:</td><td align=right><[ ! strcommas( "" + session.APBytesSent ) ]>k</td></tr>
+     <tr><td>Average Active Page Bytes :</td><td align=right><[ ! strcommas( "" + int( session.APBytesSent / ( session.APPagesSent < 1 ? 1 : session.APPagesSent ) ) ) ]>k</td></tr>
+     <tr><td>&nbsp;</td></tr>
+
+     <tr><td>Authentication Challenges:</td><td align=right><[ ! strcommas( "" + session.AuthenticateChallenges ) ]></td></tr>
+     <tr><td>Authentication Failures:</td><td align=right><[ ! strcommas( "" + session.AuthenticateFailures ) ]></td></tr>
+    </table>
+    </td></tr></table><br>
+
+    <table border=1 cellspacing=0 cellpadding=10 class=txt width=340 height=115><tr><td>
+    <table border=0 cellspacing=0 cellpadding=0 class=txt width=100% height=100%>
+     <tr><td><a href="ActiveUsers.htm">View Active Users...</a></td><td align=right><[ ! GetUserCount( session ) ]></td></tr>
+     <tr><td>&nbsp;</td></tr>
+     <tr><td>Simultaneous Users (Implied):</td><td align=right>&nbsp;</td></tr>
+     <tr><td> &nbsp; - 1 second delay</td><td align=right><[ ! strcommas( "" + ImpliedUsers( len( session.UserLog ), 1 ) ) ]> users</td></tr>
+     <tr><td> &nbsp; - 2 second delay</td><td align=right><[ ! strcommas( "" + ImpliedUsers( len( session.UserLog ), 2 ) ) ]> users</td></tr>
+     <tr><td> &nbsp; - 3 second delay</td><td align=right><[ ! strcommas( "" + ImpliedUsers( len( session.UserLog ), 3 ) ) ]> users</td></tr>
+     <tr><td>&nbsp;</td></tr>
+     <tr><td><a href="TransLog.htm">View Transaction Log File...</a></td><td align=right><[ ! strcommas( "" + fileSize( transfilelog ) ) ]> bytes</tr>
+     <tr><td><a href="SystemLog.htm">View System Log File...</a></td><td align=right><[ ! strcommas( "" + fileSize( sysfilelog ) ) ]> bytes</td></tr>
+     <tr><td>&nbsp;</td></tr>
+<!--
+     <tr><td><a href="ConfigFile.ap">View Server Configuration...</a></td><td align=right><[ ! strcommas( "" + fileSize( configfile ) ) ]> bytes</tr>
+     <tr><td><a href="EngineFile.ap">View Engine Configuration...</a></td><td align=right><[ ! strcommas( "" + fileSize( enginefile ) ) ]> bytes</tr>
+-->
+    </table>
+    </td></tr></table>
+
+   </td>
+
+   <td valign=top>
+   
+   <script language=JavaScript>
+   
+   displayGraph( 0, "User Activity Log", "user(s)" );
+   displayGraph( 1, "System Requests", "request(s)" );
+   displayGraph( 2, "Data Sent", "byte(s)" );
+   displayGraph( 3, "Data Received", "byte(s)" );
+   displayGraph( 5, "Authentication Challenges", "challenge(s)" );
+   displayGraph( 4, "Authentication Failures", "failure(s)" );
+   
+   </script>
+   
+   </td>
+   
+  </tr>
+</table>
+<center><br><font class=smtxt><font color="#72C6F2">(c) 1996-2004 by <a href="http://www.brtsystems.com" target=_blank>Business Risk Technologies, Inc.</a>, All Rights Reserved</font></font></center>
+</td></tr></table>
+
+</body>
+

@@ -1,0 +1,5 @@
+loop = 0;
+b = &'{||omCollect(), println ( "here" ), a = "hello" + " ", b = "there" + " ", c = a + b, omCollect(), 0}'
+taskWait ( b )
+
+ 

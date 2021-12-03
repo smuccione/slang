@@ -1,0 +1,15 @@
+global a
+
+function x()
+ local a
+
+ a = "there"
+end
+
+a = "hello"
+
+x()
+
+println ( a )
+
+ 

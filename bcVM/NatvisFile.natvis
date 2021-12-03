@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="bcFuncDef">
+    <DisplayString>{name,sb}</DisplayString>
+  </Type>
+  <Type Name="atom">
+    <DisplayString Condition ="type == aLOADIMAGE">loadImage {name,[30]sb</DisplayString>
+    <DisplayString Condition ="type == aCLASSDEF" >classDef  {name,[30]sb</DisplayString>
+    <DisplayString Condition ="type == aFUNCDEF"  >funcDef   {name,[30]sb</DisplayString>
+    <Expand>
+      <Item Name="isDeleteable">isDeleteable</Item>
+      <Item Name="isPersistant">isPersistant</Item>
+      <Item Name="image" Condition ="type == aLOADIMAGE">loadImage</Item>
+      <Item Name="class" Condition ="type == aCLASSDEF">classDef</Item>
+      <Item Name="func" Condition ="type == aFUNCDEF">funcDef</Item>
+    </Expand>
+    </Type>
+  <Type Name ="atomTable">
+    <Expand>
+      <CustomListItems Optional="true" >
+        <Variable Name="atm" InitialValue="used" />
+        <Loop Condition="atm != nullptr">
+          <Break Condition="atm==nullptr"/>
+          <Item Name="{atm->index}">atm</Item>
+          <Exec>atm=atm->next</Exec>
+        </Loop>
+      </CustomListItems>
+    </Expand>
+  </Type>
+  </AutoVisualizer>

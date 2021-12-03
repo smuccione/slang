@@ -1,0 +1,36 @@
+//	HTTP interface library
+
+function webPageGet ( ipAddress, method, uri, data )
+
+	local requestString
+	local dataString
+	local nData
+	local	loop
+
+	// acutal request
+	requestString = method + " HTTP://" + upper ( uri ) + " HTTP/1.1\r\n"
+
+	// any other headers insert here
+
+	// end of other headers
+
+	if ( data )
+		dataString = ""
+		nData = len ( data )
+		for ( loop = 1; loop <= nData; loop++ )
+			dataString += webEncodeURL ( data[loop][1] ) + "=" + webEncodeURL (data[loop][2] )
+			if ( loop < nData )
+				dataString += "&"
+			end
+		end
+		requestString += "Content-Length: " + len ( dataString ) + "\r\n"
+
+		requestString += "\r\n"
+		requestString += dataString
+	else
+		requestString += "\r\n"
+	end
+
+	// get the page
+	return ( webSend ( ipAddress, 80, requestString ) )
+end

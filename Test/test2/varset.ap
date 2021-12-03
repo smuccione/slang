@@ -1,0 +1,17 @@
+<[
+
+
+	session = new ( "session" )
+	
+	println ( "test  = ", session.var ( "test" )  )
+	println ( "test2 = ", session.var ( "test2" )  )
+	
+	session.varset ( "test2", "this" )
+	
+	session.varset ( "test", "this" )
+	session.varset ( "test2", "this2" )
+	
+	println ( "test  = ", session.var ( "test" )  )
+	println ( "test2 = ", session.var ( "test2" )  )
+	
+]>

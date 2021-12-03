@@ -1,0 +1,18 @@
+// should NOT generate any warnings
+// this test will NOT run... it is a compile time only test
+
+function test ( a, b, d )
+   local c
+
+   c = { a.a(), b }
+
+   c = {||d}
+
+   return c
+end
+
+function main ()
+   local a, b
+
+   test ( a, b )
+end

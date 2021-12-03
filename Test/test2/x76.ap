@@ -1,0 +1,30 @@
+<[
+
+class test
+	const  c1 = 5
+	const  c2 = "string"
+	const  c3 = { 5, "string" }
+	const  c4 = {||println ( "hello world" ) }
+	
+	method out()
+		println ( ::c1 )
+		(::c4)()
+	end
+end
+
+debugBreak()
+
+x = test::c1
+x = ("te" + "st")::c1
+x = ("test")::c1
+x = test::"c1"
+x= ("te" + "st")::("c" + "1" )
+x = test::c2
+x = test::c3
+x = test::c4
+
+(test::c4)()
+
+test().out()
+
+]>

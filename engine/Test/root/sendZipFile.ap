@@ -1,0 +1,16 @@
+<[
+
+	try {
+		s = new webSession;
+		s.mimeType = ".zip";
+		s.contentDisposition = "attachment; filename=test.zip";
+		s.sendZipFile	(	{
+								{ 'c:\tmp\test.txt', 'test1\test.txt' }, 
+								{ 'c:\tmp\test.txt', 'test2\test.txt', 1 }, 
+							}
+						);
+	} catch ( e ) 
+	{
+		println ( $"error {e}" );
+	}
+]>

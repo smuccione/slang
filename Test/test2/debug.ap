@@ -1,0 +1,28 @@
+<html>
+<body>
+<[
+for ( x = 0; x < 10; x++ )
+! "test " + x + " "
+end
+]>
+<br>
+end of test
+<br>
+Current GMT time: <[ ! webGMT() ]>
+<br>
+One minute from now GMT time: <[ ! webGMT( 60 ) ]>
+<br>
+Current JDate: <[ ! jdate() ]>
+<br>
+Current Day of the Week: <[ !cdow ( jdate() ) ]>
+<br>
+<[ except ( 1000 ) ]>
+Current Day is: <[ ! day ( jdate() ) ]>
+<br>
+<img src="/cgi/Countnt.exe?df=sample.dat&dd=B">
+<br>
+<a href="/cgi/env">Click for environment...</a>
+<br>
+<a href="/cgi/counter.pl?key=test.ap">Click Me...</a>
+</html>
+</body>

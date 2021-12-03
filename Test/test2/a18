@@ -1,0 +1,8 @@
+println ( "hello" )
+switch ( 1 )
+   case 0
+      println ( " wrong" )
+      break
+   default
+      println ( " there" )
+end

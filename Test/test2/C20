@@ -1,0 +1,46 @@
+class op
+   local val
+
+   operator = ( a )
+      return self.val = a
+   end
+
+   operator += ( a )
+      return self.val += a
+   end
+
+   operator ++()
+      return self.val++
+   end
+
+   operator [ ( a )
+      if ( pcount() == 2 )
+         return self.val[a]
+      else
+         return ( mid ( self.val, a, param ( 3 ) ) )
+      end
+   end
+end
+
+
+class test
+   inherit op
+
+   method test
+      println ( self.val )
+   end
+end
+
+local obj
+
+obj = new ( "test" )
+
+obj  = "test"
+
+println ( obj.val )
+println ( obj[1], obj[2], obj[3], obj[4] )
+
+obj = "this is a test"
+
+println ( obj[0, 5], obj[10,4] )
+ 

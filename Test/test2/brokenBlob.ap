@@ -1,0 +1,137 @@
+<[
+CLASS objformID
+	PUBLIC:
+		local IsOpen, key, status, dbFileName, FormID, dbIndexName1, dataPath
+	METHOD New( )
+		::IsOpen = 0
+		::Init( )
+		return( 1 )
+	END
+
+	METHOD Init( )
+		::key = ""
+		::status = 0
+		::datapath = 'C:\slang\test\test2\'
+		::dbFileName = 'formID.db'
+		::dbIndexName1 = 'formID1.dx'
+		return( 1 )
+	END
+
+	METHOD create( )
+		local db_struct = {
+		// key = TYPEOF + ID
+		{ "KEY", 	"C", 65, 0 },
+		{ "ID", 	"C", 65, 0 },
+		{ "GROUP", 	"C", 65, 0 },
+		{ "TYPEOF", 	"C", 20, 0 },
+		{ "COMMENT", 	"B" },
+		{ "HOWUSED", 	"B" },
+		{ "PARAMETERS", "B" },
+		{ "DATA", 	"B" },
+		}
+		return( dbcreate( ::dataPath + ::dbFileName, db_struct ) )
+	END
+
+	METHOD open( )
+		local NewFlag = 0
+		ferase ( ::dataPath + ::dbFileName );
+		ferase ( ::dataPath + ::dbIndexName1 );
+		if ( ! ::IsOpen )
+			if ( ! fileExists( ::dataPath + ::dbFileName ) )
+				if ( ::create( ) )
+					NewFlag = 1
+				END
+			END
+			::formID = dbuse( ::dataPath + ::dbFileName, "formID" )
+			if ( ! fileExists( ::dataPath + ::dbIndexName1 ) )
+				println( "Creating index -> " + ::dataPath + ::dbIndexName1 )
+				(::formID)->dbCreateIndex( ::dataPath + ::dbIndexName1, "upper( field->ID )", 0 )
+			END
+			( ::formID )->dbOpenIndex( ::dataPath + ::dbIndexName1 )
+			( ::formID )->dbGoTop( )
+
+		END
+		::IsOpen++
+		return( newFlag )
+	END
+
+	METHOD close( )
+		if ( ::IsOpen == 1 )
+			(::formID)->dbClose( )
+		END
+		::IsOpen--
+		return( 1 )
+	END
+	
+	METHOD addrecord( item )
+		::open( )
+		::formID->dbappend( )
+		::formID->KEY =		item[1]
+		::formID->ID =		item[2]
+		::formID->GROUP =	item[3]
+		::formID->TYPEOF =	item[4]
+		::formID->COMMENT =	item[5]
+		debugbreak() // Error happens on the next record
+		::formID->HOWUSED =	item[6]
+		::formID->PARAMETERS =	item[7]
+		::formID->DATA =	item[8]
+		
+	END
+
+	METHOD getIDs2( item )
+		::addrecord( item )
+	END
+
+END
+
+
+LOCAL FormIDobj, a
+
+	a = {
+	"text",
+	"blah blah",
+	"still blah",
+	"",
+	"",
+	"this field will not write",
+	"",
+	"",
+	"adding to nonexisitant field",
+	}
+
+	FormIDobj = new( "objformID" )
+	formIDobj.getIDs2( a )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+]>

@@ -1,0 +1,96 @@
+<[
+	LIBRARY libs\system.slb
+
+	function setValue ( rep, name, value )
+	{
+		for ( loop = 1; loop <= len ( rep ); loop++ )
+		{
+			if ( rep[loop][1] == name )
+			{
+				rep[loop][2] = value
+				return;
+			}
+		}
+	}
+
+	current = xmlTime()
+	before = xmlTime(seconds() - 60 )
+	after = xmlTime(seconds() + 3600 * 24 )
+
+	// NOTE: the template MUST be the canonical xml response... if it's not canonical it WILL NOT be signed correctly
+	rep =	{
+					{"{X509Certificate}",	 	""},
+					{"{DigestValue}", 			""},
+					{"{SignatureValue}",	 	""},
+					{"{NotOnOrAfter}", 			after},
+					{"{NotBefore}", 			before},
+					{"{AuthnInstant}", 			current},
+					{"{SessionNotOnOrAfter}", 	after},
+					{"{SignedInfo}",			"" },
+					{"{Signature}",				"" },
+					{"{IssueInstant}", 			current},
+					{"{Issuer}",				"SCIEX"},
+					{"{IssuerURL}",				"http://sledtest.agisent.com" },
+					{"{Recipient}",				"https://www.linxivv3.us/Linx/gateway" },
+					{"{Audience}",				"https://www.ndex.fbi.gov/ndexsp" },
+					{"{SignedInfoNS}",			" xmlns=\"http://www.w3.org/2000/09/xmldsig#\""},		// NOTE: Space is important here!
+					{"{ResponseId}", 			"signedData"},
+// values below here must be filled in by the application				
+					{"{NameId}", 								"_8cff06c88c90dfd9cf1662383f2d3f7e"},
+					{"{AssertionId}",							"_1dc8661a867f9ead43a2e0e9d0695598"},
+					{"{SessionIndex}",							"_ce559e123cb98d243003d8eba93493d8"},
+					{"{SpNameQualifier}",						"https://www.ndex.fbi.gov/ndexsp"},
+					{"{LocalId}", 								"dlutfy" }, //user.id },
+					{"{UserId}", 								"dlutfy" }, //user.id },
+			 		{"{FirstName}", 							"David" }, //user.data.fname },
+			 		{"{LastName}", 								"Lutfy" }, //user.data.lname },
+			 		{"{EmailAddress}", 							"dlutfy@agisent.com" }, //user.data.email },
+			 		{"{TelephoneNumber}", 						"18005551212" }, //user.mobilePhone },
+			 		{"{EmployerName}", 							"SCIEX"},
+			 		{"{IdentityProviderId}", 					"SCIEX"},
+			 		{"{FederationId}", 							"SCIEX_" + "dlutfy" },
+			 		{"{SwornLawEnforcementOfficerIndicator}", 	"1"},
+			 		{"{NDExPrivilegeIndicator}", 				"0"},
+			 		{"{EAALV}", 								"NISTLEVEL2"},
+//			 		{"{EmployerORI}", 							agency.data.ori }
+			 		{"{EmployerORI}", 							"SC0000123" }
+			}
+
+	signedInfo = fileReadAscii ( 'root\saml\signedInfo.template' )
+	signature = fileReadAscii ( 'root\saml\signature.template' )
+	assertion = fileReadAscii ( 'root\saml\saml.template' )
+	x509Cert  = fileReadAscii ( 'root\saml\x509.cert' )
+	
+	signedInfo = strswap ( signedInfo, "\n", "" )
+	signature = strswap ( signature, "\n", "" )
+	assertion = strswap ( assertion, "\n", "" )
+	x509Cert = strswap ( x509Cert, "\n", "" )
+
+	x = strTemplate ( assertion, rep )
+	setValue ( rep, "{DigestValue}",base64Encode ( HashSha1Raw ( x ) ) );
+	
+	signedInfoNS = strTemplate ( signedInfo, rep )
+	setValue ( rep, "{X509Certificate}", x509Cert );
+	
+	sign = rsaSign ( 'root\saml\private.key', signedInfoNS );
+	setValue ( rep, "{SignatureValue}", sign );
+
+	setValue ( rep, "{SignedInfoNS}", "" );
+	signedInfo = strTemplate ( signedInfo, rep )		// get the value of the signed info WITHOUT the NS
+	setValue ( rep, "{SignedInfo}", signedInfo )
+		
+	signature = strTemplate ( signature, rep )
+	setValue ( rep, "{Signature}", signature );
+	
+	x = strTemplate ( assertion, rep )
+
+	//! base64encode (x)
+	//webSession().mimeType=".xml"
+
+	web = new webclient;
+	web.domain = "www.linxivv3.us"
+	web.ssl = 1;
+	
+	y = web.submit ( {{"SAMLResponse",base64encode(x)}}, "Linx/gateway?ACTION=ACTION_SAML_ASSERTION", 1 )
+	! web.page
+]>

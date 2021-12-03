@@ -1,0 +1,11 @@
+
+debugBreak()
+
+o = socket()
+
+o.bind ( 81 )
+o.listen()
+o2 = o.accept()
+
+println ( o2.ip, ":", o2.port, " - ", o2.recv ( 100 ) )
+

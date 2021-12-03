@@ -1,0 +1,6 @@
+//#include "std.ch"
+
+
+ println ( if ( 1, "hello", "there" ) )
+ println ( if ( 0, "hello", "there" ) )
+ 
