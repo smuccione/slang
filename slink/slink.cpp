@@ -57,7 +57,7 @@ using namespace boost;
 
 fileCache	globalFileCache ( 0, 0 );
 
-uint8_t *getExeResource ( size_t &size )
+static uint8_t *getExeResource ( size_t &size )
 {
 	HGLOBAL     res_handle = NULL;
 	HRSRC       res;
@@ -77,7 +77,7 @@ uint8_t *getExeResource ( size_t &size )
 	return (uint8_t *)LockResource ( res_handle );
 }
 
-std::vector<std::string> parseArgs ( std::string const &line )
+static std::vector<std::string> parseArgs ( std::string const &line )
 {
 	std::vector<std::string>	res;
 

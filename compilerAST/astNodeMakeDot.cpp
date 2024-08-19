@@ -59,7 +59,7 @@ static void emitNode ( astNode *node, BUFFER &buff, double value )
 	bufferPrintf ( &buff, " | %x", node );
 }
 
-astNode *makeDotNodesCB ( astNode *node, astNode *parent, symbolStack *sym, bool isAccess, bool isInFunctionCall, BUFFER &buff )
+static astNode *makeDotNodesCB ( astNode *node, astNode *parent, symbolStack *sym, bool isAccess, bool isInFunctionCall, BUFFER &buff )
 {
 	uint32_t		arrIndex;
 
@@ -263,7 +263,7 @@ astNode *makeDotNodesCB ( astNode *node, astNode *parent, symbolStack *sym, bool
 	return node;
 }
 
-astNode *makeDotGraphCB ( astNode *node, astNode *parent, symbolStack *sym, bool isInFunctionCall, bool isAccess, BUFFER &buff )
+static astNode *makeDotGraphCB ( astNode *node, astNode *parent, symbolStack *sym, bool isInFunctionCall, bool isAccess, BUFFER &buff )
 {
 	switch ( node->getOp() )
 	{

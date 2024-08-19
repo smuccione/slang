@@ -73,7 +73,7 @@ maker::maker ()
 	};
 };
 
-stringi getGuid ( void )
+static stringi getGuid ( void )
 {
 	stringi ret;
 	GUID guid;
@@ -1143,7 +1143,7 @@ void maker::addVariable ( stringi const &assign, origin orig )
 	variables[firstToken].add ( linePtr );
 }
 
-void pipePrinter ( HANDLE pipe )
+static void pipePrinter ( HANDLE pipe )
 {
 
 }
