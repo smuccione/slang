@@ -1,0 +1,507 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Address Sanitizer|x64">
+      <Configuration>Address Sanitizer</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug-Linux|x64">
+      <Configuration>Debug-Linux</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release_No_Inline|x64">
+      <Configuration>Release_No_Inline</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Static Analysis|x64">
+      <Configuration>Static Analysis</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="blob.h" />
+    <ClInclude Include="Db.h" />
+    <ClInclude Include="dbConfig.h" />
+    <ClInclude Include="dbDef.h" />
+    <ClInclude Include="dbFilter.h" />
+    <ClInclude Include="dbIoServer.h" />
+    <ClInclude Include="dbMsg.h" />
+    <ClInclude Include="ftx.h" />
+    <ClInclude Include="odbf.h" />
+    <ClInclude Include="StdAfx.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="blob.cpp" />
+    <ClCompile Include="database.cpp" />
+    <ClCompile Include="dbConfig.cpp" />
+    <ClCompile Include="dbConnectionMgmt.cpp" />
+    <ClCompile Include="dbDef.cpp" />
+    <ClCompile Include="dbIoServer.cpp" />
+    <ClCompile Include="dbProcess.cpp" />
+    <ClCompile Include="dbProcessConn.cpp" />
+    <ClCompile Include="dbRecordLock.cpp" />
+    <ClCompile Include="dbRepair.cpp" />
+    <ClCompile Include="ftx.cpp" />
+    <ClCompile Include="_tbappen.cpp" />
+    <ClCompile Include="_tbbof.cpp" />
+    <ClCompile Include="_tbbuild.cpp" />
+    <ClCompile Include="_tbclose.cpp" />
+    <ClCompile Include="_tbcopy.cpp" />
+    <ClCompile Include="_tbcreat.cpp" />
+    <ClCompile Include="_tbCreateDuplicate.cpp" />
+    <ClCompile Include="_tbdelet.cpp" />
+    <ClCompile Include="_tbeof.cpp" />
+    <ClCompile Include="_tbfcheck.cpp" />
+    <ClCompile Include="_tbfcoun.cpp" />
+    <ClCompile Include="_tbfdec.cpp" />
+    <ClCompile Include="_tbfget.cpp" />
+    <ClCompile Include="_tbflen.cpp" />
+    <ClCompile Include="_tbflistBuild.cpp" />
+    <ClCompile Include="_tbflistCheck.cpp" />
+    <ClCompile Include="_tbfname.cpp" />
+    <ClCompile Include="_tbfoff.cpp" />
+    <ClCompile Include="_tbfpos.cpp" />
+    <ClCompile Include="_tbfput.cpp" />
+    <ClCompile Include="_tbfrecover.cpp" />
+    <ClCompile Include="_tbfsize.cpp" />
+    <ClCompile Include="_tbftype.cpp" />
+    <ClCompile Include="_tbgoto.cpp" />
+    <ClCompile Include="_tbisdel.cpp" />
+    <ClCompile Include="_tblrec.cpp" />
+    <ClCompile Include="_tbopen.cpp" />
+    <ClCompile Include="_tbrecno.cpp" />
+    <ClCompile Include="_tbrget.cpp" />
+    <ClCompile Include="_tbrput.cpp" />
+    <ClCompile Include="_tbrTotal.cpp" />
+    <ClCompile Include="_tbskip.cpp" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{E63FF491-6AE9-4304-9771-D3E4025B1347}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>fglDatabase</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>NotSet</CharacterSet>
+    <UseOfMfc>Static</UseOfMfc>
+    <EnableASAN>false</EnableASAN>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Linux|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>ClangCL</PlatformToolset>
+    <CharacterSet>NotSet</CharacterSet>
+    <UseOfMfc>Static</UseOfMfc>
+    <EnableASAN>false</EnableASAN>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Static Analysis|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>NotSet</CharacterSet>
+    <UseOfMfc>Static</UseOfMfc>
+    <EnableASAN>false</EnableASAN>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Address Sanitizer|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>NotSet</CharacterSet>
+    <UseOfMfc>Static</UseOfMfc>
+    <EnableASAN>true</EnableASAN>
+    <EnableFuzzer>false</EnableFuzzer>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>NotSet</CharacterSet>
+    <UseOfMfc>Static</UseOfMfc>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <EnableASAN>false</EnableASAN>
+    <PlatformToolset>v143</PlatformToolset>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_No_Inline|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>NotSet</CharacterSet>
+    <UseOfMfc>Static</UseOfMfc>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <EnableASAN>false</EnableASAN>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Linux|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Static Analysis|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Address Sanitizer|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_No_Inline|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(SolutionDir);$(SolutionDir)packages\boost.1.82.0\lib\native\include;$(SolutionDir)packages\openssl-vc140-static-32_64.1.1.1.1\lib\native\include;$(SolutionDir)packages\zlib_static.1.2.11.12\build\native\include;$(SolutionDir)packages\zlib_static.1.2.11.11\build\native\include;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(Configuration)\$(Platform)\$(RootNamespace)\</IntDir>
+    <ClangTidyChecks>Modernize-*,performance-*,bugprone-*, -header-filter=((?!.*\\packages\\.*),clang-analyzer-*,portability-*,concurrency-*, -bugprone-easily-swappable-parameters,-bugprone-assignment-in-if-condition</ClangTidyChecks>
+    <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
+    <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
+    <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Linux|x64'">
+    <IncludePath>$(SolutionDir);$(SolutionDir)packages\boost.1.82.0\lib\native\include;$(SolutionDir)packages\openssl-vc140-static-32_64.1.1.1.1\lib\native\include;$(SolutionDir)packages\zlib_static.1.2.11.12\build\native\include;$(SolutionDir)packages\zlib_static.1.2.11.11\build\native\include;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(Configuration)\$(Platform)\$(RootNamespace)\</IntDir>
+    <ClangTidyChecks>Modernize-*,performance-*,bugprone-*, -header-filter=((?!.*\\packages\\.*),clang-analyzer-*,portability-*,concurrency-*, -bugprone-easily-swappable-parameters,-bugprone-assignment-in-if-condition</ClangTidyChecks>
+    <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
+    <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
+    <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Static Analysis|x64'">
+    <IncludePath>$(SolutionDir);$(SolutionDir)packages\boost.1.82.0\lib\native\include;$(SolutionDir)packages\openssl-vc140-static-32_64.1.1.1.1\lib\native\include;$(SolutionDir)packages\zlib_static.1.2.11.12\build\native\include;$(SolutionDir)packages\zlib_static.1.2.11.11\build\native\include;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(Configuration)\$(Platform)\$(RootNamespace)\</IntDir>
+    <ClangTidyChecks>Modernize-*,performance-*,bugprone-*, -header-filter=((?!.*\\packages\\.*),clang-analyzer-*,portability-*,concurrency-*, -bugprone-easily-swappable-parameters,-bugprone-assignment-in-if-condition</ClangTidyChecks>
+    <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
+    <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
+    <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Address Sanitizer|x64'">
+    <IncludePath>$(SolutionDir);$(SolutionDir)packages\boost.1.82.0\lib\native\include;$(SolutionDir)packages\openssl-vc140-static-32_64.1.1.1.1\lib\native\include;$(SolutionDir)packages\zlib_static.1.2.11.12\build\native\include;$(SolutionDir)packages\zlib_static.1.2.11.11\build\native\include;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(Configuration)\$(Platform)\$(RootNamespace)\</IntDir>
+    <ClangTidyChecks>Modernize-*,performance-*,bugprone-*, -header-filter=((?!.*\\packages\\.*),clang-analyzer-*,portability-*,concurrency-*, -bugprone-easily-swappable-parameters,-bugprone-assignment-in-if-condition¶</ClangTidyChecks>
+    <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
+    <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
+    <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>$(SolutionDir);$(SolutionDir)packages\boost.1.82.0\lib\native\include;$(SolutionDir)packages\openssl-vc140-static-32_64.1.1.1.1\lib\native\include;$(SolutionDir)packages\zlib_static.1.2.11.12\build\native\include;$(SolutionDir)packages\zlib_static.1.2.11.11\build\native\include;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(Configuration)\$(Platform)\$(RootNamespace)\</IntDir>
+    <ClangTidyChecks>Modernize-*,performance-*,bugprone-*, -header-filter=((?!.*\\packages\\.*),clang-analyzer-*,portability-*,concurrency-*, -bugprone-easily-swappable-parameters,-bugprone-assignment-in-if-condition¶</ClangTidyChecks>
+    <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
+    <EnableClangTidyCodeAnalysis>false</EnableClangTidyCodeAnalysis>
+    <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_No_Inline|x64'">
+    <IncludePath>$(SolutionDir);$(SolutionDir)packages\boost.1.82.0\lib\native\include;$(SolutionDir)packages\openssl-vc140-static-32_64.1.1.1.1\lib\native\include;$(SolutionDir)packages\zlib_static.1.2.11.12\build\native\include;$(SolutionDir)packages\zlib_static.1.2.11.11\build\native\include;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(Configuration)\$(Platform)\$(RootNamespace)\</IntDir>
+    <ClangTidyChecks>Modernize-*,performance-*,bugprone-*, -header-filter=((?!.*\\packages\\.*),clang-analyzer-*,portability-*,concurrency-*, -bugprone-easily-swappable-parameters,-bugprone-assignment-in-if-condition¶</ClangTidyChecks>
+    <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
+    <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
+    <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>BOOST_ALL_NO_LIB;WIN64;_DEBUG;_CONSOLE;_LIB;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;_WIN32_WINNT=_WIN32_WINNT_WIN10;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ShowIncludes>false</ShowIncludes>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <UseUnicodeForAssemblerListing>false</UseUnicodeForAssemblerListing>
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <OpenMPSupport>false</OpenMPSupport>
+      <MinimalRebuild>false</MinimalRebuild>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAsManaged>false</CompileAsManaged>
+      <OmitFramePointers>false</OmitFramePointers>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <StringPooling>false</StringPooling>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <DiagnosticsFormat>Caret</DiagnosticsFormat>
+      <SupportJustMyCode>true</SupportJustMyCode>
+      <UseFullPaths>true</UseFullPaths>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <ConformanceMode>true</ConformanceMode>
+      <ErrorReporting>Prompt</ErrorReporting>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <IntelJCCErratum>true</IntelJCCErratum>
+      <AdditionalOptions>/MP /favor:INTEL64 %(AdditionalOptions)</AdditionalOptions>
+      <BrowseInformation>false</BrowseInformation>
+      <EnableModules>false</EnableModules>
+      <RemoveUnreferencedCodeData>false</RemoveUnreferencedCodeData>
+      <BuildStlModules>false</BuildStlModules>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <Lib />
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
+    <Lib />
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Linux|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>BOOST_ALL_NO_LIB;WIN64;_DEBUG;_CONSOLE;_LIB;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;_WIN32_WINNT=_WIN32_WINNT_WIN10;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ShowIncludes>false</ShowIncludes>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <UseUnicodeForAssemblerListing>false</UseUnicodeForAssemblerListing>
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <OpenMPSupport>false</OpenMPSupport>
+      <MinimalRebuild>false</MinimalRebuild>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAsManaged>false</CompileAsManaged>
+      <OmitFramePointers>false</OmitFramePointers>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <StringPooling>false</StringPooling>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <DiagnosticsFormat>Caret</DiagnosticsFormat>
+      <SupportJustMyCode>true</SupportJustMyCode>
+      <UseFullPaths>true</UseFullPaths>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <ConformanceMode>true</ConformanceMode>
+      <ErrorReporting>Prompt</ErrorReporting>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <IntelJCCErratum>true</IntelJCCErratum>
+      <BrowseInformation>false</BrowseInformation>
+      <EnableModules>false</EnableModules>
+      <RemoveUnreferencedCodeData>false</RemoveUnreferencedCodeData>
+      <BuildStlModules>false</BuildStlModules>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <Lib />
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
+    <Lib />
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Static Analysis|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>BOOST_ALL_NO_LIB;WIN64;_DEBUG;_CONSOLE;_LIB;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;_WIN32_WINNT=_WIN32_WINNT_WIN10;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ShowIncludes>false</ShowIncludes>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <UseUnicodeForAssemblerListing>false</UseUnicodeForAssemblerListing>
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <OpenMPSupport>false</OpenMPSupport>
+      <MinimalRebuild>false</MinimalRebuild>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAsManaged>false</CompileAsManaged>
+      <OmitFramePointers>false</OmitFramePointers>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <StringPooling>false</StringPooling>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <DiagnosticsFormat>Caret</DiagnosticsFormat>
+      <SupportJustMyCode>true</SupportJustMyCode>
+      <UseFullPaths>true</UseFullPaths>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <ConformanceMode>true</ConformanceMode>
+      <ErrorReporting>Prompt</ErrorReporting>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <IntelJCCErratum>true</IntelJCCErratum>
+      <BrowseInformation>false</BrowseInformation>
+      <EnableModules>false</EnableModules>
+      <BuildStlModules>false</BuildStlModules>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <Lib />
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
+    <Lib />
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Address Sanitizer|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>BOOST_ALL_NO_LIB;WIN64;_DEBUG;_CONSOLE;_LIB;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;_WIN32_WINNT=_WIN32_WINNT_WIN10;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ShowIncludes>false</ShowIncludes>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <UseUnicodeForAssemblerListing>false</UseUnicodeForAssemblerListing>
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <OpenMPSupport>false</OpenMPSupport>
+      <MinimalRebuild>false</MinimalRebuild>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAsManaged>false</CompileAsManaged>
+      <OmitFramePointers>false</OmitFramePointers>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <StringPooling>false</StringPooling>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <DiagnosticsFormat>Caret</DiagnosticsFormat>
+      <SupportJustMyCode>true</SupportJustMyCode>
+      <UseFullPaths>true</UseFullPaths>
+      <ConformanceMode>true</ConformanceMode>
+      <ErrorReporting>Prompt</ErrorReporting>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <IntelJCCErratum>true</IntelJCCErratum>
+      <AdditionalOptions>/MP /favor:INTEL64 %(AdditionalOptions)</AdditionalOptions>
+      <BrowseInformation>false</BrowseInformation>
+      <EnableModules>false</EnableModules>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <BuildStlModules>false</BuildStlModules>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <Lib />
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
+    <Lib />
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>BOOST_ALL_NO_LIB;WIN64;NDEBUG;_CONSOLE;RUNTIME;_LIB;_WIN32_WINNT=_WIN32_WINNT_WIN10;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ShowIncludes>false</ShowIncludes>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <StringPooling>true</StringPooling>
+      <SmallerTypeCheck>false</SmallerTypeCheck>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <UseUnicodeForAssemblerListing>false</UseUnicodeForAssemblerListing>
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <OpenMPSupport>false</OpenMPSupport>
+      <CompileAsManaged>false</CompileAsManaged>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <DiagnosticsFormat>Caret</DiagnosticsFormat>
+      <UseFullPaths>true</UseFullPaths>
+      <ErrorReporting>Prompt</ErrorReporting>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <IntelJCCErratum>true</IntelJCCErratum>
+      <AdditionalOptions>/MP /favor:INTEL64 /cgthreads8 /Zo %(AdditionalOptions)</AdditionalOptions>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <SupportJustMyCode>true</SupportJustMyCode>
+      <EnableModules>false</EnableModules>
+      <BuildStlModules>false</BuildStlModules>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <Lib />
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_No_Inline|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>BOOST_ALL_NO_LIB;WIN64;NDEBUG;_CONSOLE;RUNTIME;_LIB;_WIN32_WINNT=_WIN32_WINNT_WIN10;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ShowIncludes>false</ShowIncludes>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <StringPooling>true</StringPooling>
+      <SmallerTypeCheck>false</SmallerTypeCheck>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <UseUnicodeForAssemblerListing>false</UseUnicodeForAssemblerListing>
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <OpenMPSupport>false</OpenMPSupport>
+      <CompileAsManaged>false</CompileAsManaged>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <DiagnosticsFormat>Caret</DiagnosticsFormat>
+      <UseFullPaths>true</UseFullPaths>
+      <ErrorReporting>Prompt</ErrorReporting>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <IntelJCCErratum>true</IntelJCCErratum>
+      <AdditionalOptions>/MP /favor:INTEL64 /cgthreads8 /Zo %(AdditionalOptions)</AdditionalOptions>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <SupportJustMyCode>true</SupportJustMyCode>
+      <EnableModules>false</EnableModules>
+      <BuildStlModules>false</BuildStlModules>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <Lib />
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets" />
+</Project>

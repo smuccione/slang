@@ -1,0 +1,3 @@
+<[
+	webSendFileTus ( 'http://dev.agisent.com/tus.ap', 'c:\tmp\test.big.txt' );
+]>

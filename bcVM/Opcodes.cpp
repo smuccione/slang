@@ -1,0 +1,116 @@
+#include "Opcodes.h"
+
+bool opCanDoCall ( fglOpcodes op )
+{
+	switch ( op )
+	{
+		case fglOpcodes::callC:
+		case fglOpcodes::callCPop:
+		case fglOpcodes::callBC:
+		case fglOpcodes::callBCPop:
+		case fglOpcodes::callBCTail:
+		case fglOpcodes::objCallFuncOv:
+		case fglOpcodes::objCallFuncOvPop:
+		case fglOpcodes::callV:
+		case fglOpcodes::callVPop:
+		case fglOpcodes::callBCVirt:
+		case fglOpcodes::callBCVirtPop:
+		case fglOpcodes::storeLocalv:
+		case fglOpcodes::storeLocalPopv:
+		case fglOpcodes::storeGlobalv:
+		case fglOpcodes::storeGlobalPopv:
+		case fglOpcodes::incLocalv:
+		case fglOpcodes::incRef:
+		case fglOpcodes::incGlobalv:
+		case fglOpcodes::decLocalv:
+		case fglOpcodes::decGlobalv:
+		case fglOpcodes::decRef:
+		case fglOpcodes::store:
+		case fglOpcodes::storePop:
+		case fglOpcodes::storeLocalAdd:
+		case fglOpcodes::storeLocalSub:
+		case fglOpcodes::storeLocalMul:
+		case fglOpcodes::storeLocalDiv:
+		case fglOpcodes::storeLocalMod:
+		case fglOpcodes::storeLocalPow:
+		case fglOpcodes::storeLocalBwAnd:
+		case fglOpcodes::storeLocalBwOr:
+		case fglOpcodes::storeLocalBwXor:
+		case fglOpcodes::storeLocalShLeft:
+		case fglOpcodes::storeLocalShRight:
+		case fglOpcodes::storeGlobalAdd:
+		case fglOpcodes::storeGlobalSub:
+		case fglOpcodes::storeGlobalMul:
+		case fglOpcodes::storeGlobalDiv:
+		case fglOpcodes::storeGlobalMod:
+		case fglOpcodes::storeGlobalPow:
+		case fglOpcodes::storeGlobalBwAnd:
+		case fglOpcodes::storeGlobalBwOr:
+		case fglOpcodes::storeGlobalBwXor:
+		case fglOpcodes::storeGlobalShLeft:
+		case fglOpcodes::storeGlobalShRight:
+		case fglOpcodes::storeClassIVarAdd:
+		case fglOpcodes::storeClassIVarSub:
+		case fglOpcodes::storeClassIVarMul:
+		case fglOpcodes::storeClassIVarDiv:
+		case fglOpcodes::storeClassIVarMod:
+		case fglOpcodes::storeClassIVarPow:
+		case fglOpcodes::storeClassIVarBwAnd:
+		case fglOpcodes::storeClassIVarBwOr:
+		case fglOpcodes::storeClassIVarBwXor:
+		case fglOpcodes::storeClassIVarShLeft:
+		case fglOpcodes::storeClassIVarShRight:
+		case fglOpcodes::storeRefAdd:
+		case fglOpcodes::storeRefSub:
+		case fglOpcodes::storeRefMul:
+		case fglOpcodes::storeRefDiv:
+		case fglOpcodes::storeRefMod:
+		case fglOpcodes::storeRefPow:
+		case fglOpcodes::storeRefBwAnd:
+		case fglOpcodes::storeRefBwOr:
+		case fglOpcodes::storeRefBwXor:
+		case fglOpcodes::storeRefShLeft:
+		case fglOpcodes::storeRefShRight:
+		case fglOpcodes::objConstruct:
+		case fglOpcodes::objConstructV:
+		case fglOpcodes::objRelease:
+		case fglOpcodes::objAccess:
+		case fglOpcodes::objAccessInd:
+		case fglOpcodes::objAccessRef:
+		case fglOpcodes::objAccessRefInd:
+		case fglOpcodes::objStore:
+		case fglOpcodes::objStoreInd:
+		case fglOpcodes::objStorePop:
+		case fglOpcodes::objStoreIndPop:
+		case fglOpcodes::objCall:
+		case fglOpcodes::objCallPop:
+		case fglOpcodes::addv:
+		case fglOpcodes::subv:
+		case fglOpcodes::divv:
+		case fglOpcodes::mulv:
+		case fglOpcodes::modv:
+		case fglOpcodes::powv:
+		case fglOpcodes::maxv:
+		case fglOpcodes::minv:
+		case fglOpcodes::negv:
+		case fglOpcodes::twocv:
+		case fglOpcodes::notv:
+		case fglOpcodes::ltv:
+		case fglOpcodes::lteqv:
+		case fglOpcodes::gtv:
+		case fglOpcodes::gteqv:
+		case fglOpcodes::eqv:
+		case fglOpcodes::neqv:
+		case fglOpcodes::bworv:
+		case fglOpcodes::bwandv:
+		case fglOpcodes::bwxorv:
+		case fglOpcodes::shlv:
+		case fglOpcodes::shrv:
+		case fglOpcodes::arrDeref:
+		case fglOpcodes::arrDerefRef:
+			return true;
+		default:
+			return false;
+	}
+}
+

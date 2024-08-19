@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="cacheString">
+    <DisplayString>{entry->str,sb}</DisplayString>
+    <StringView>entry->str,sb</StringView>
+  </Type>
+  <Type Name="stringi">
+    <DisplayString>{str,sb}</DisplayString>
+    <StringView>str,sb</StringView>
+  </Type>
+    <Type Name="symbolDef">
+        <DisplayString> </DisplayString>
+        <StringView> </StringView>
+    </Type>
+    <Type Name="std::variant&lt;bool, opFunction *, opClassElement *, opSymbol *&gt;">
+    <Intrinsic Name="index" Expression="(int)_Which"/>
+    <DisplayString Condition="index() ==  0" Optional="true">&lt;empty&gt;</DisplayString>
+    <DisplayString Condition="index() ==  1" Optional="true">{_Tail._Head->name.str,sb}</DisplayString>
+    <DisplayString Condition="index() ==  2" Optional="true">{_Tail._Tail._Head->name.str,sb}</DisplayString>
+    <DisplayString Condition="index() ==  3" Optional="true">{_Tail._Tail._Tail._Head->name.str,sb}</DisplayString>
+    <StringView Condition="index() ==  1" Optional="true">_Tail._Head->name.str,sb</StringView>
+    <StringView Condition="index() ==  2" Optional="true">_Tail._Tail._Head->name.str,sb</StringView>
+    <StringView Condition="index() ==  3" Optional="true">_Tail._Tail._Tail._Head->name.str,sb</StringView>
+    <Expand>
+      <Item Name="index">index()</Item>
+      <Item Name="[empty]" Condition="index() ==  0" Optional="true">0</Item>
+      <ExpandedItem Condition="index() ==  1" Optional="true">_Tail._Head</ExpandedItem>
+      <ExpandedItem Condition="index() ==  2" Optional="true">_Tail._Tail._Head</ExpandedItem>
+      <ExpandedItem Condition="index() ==  3" Optional="true">_Tail._Tail._Tail._Head</ExpandedItem>
+    </Expand>
+   </Type>
+  <Type Name="astNode">
+    <Intrinsic Name="intValue"        Expression="nodeData._Tail._Head"/>
+    <Intrinsic Name="doubleValue"     Expression="nodeData._Tail._Tail._Head"/>
+    <Intrinsic Name="symbolValue"     Expression="nodeData._Tail._Tail._Tail._Head"/>
+    <Intrinsic Name="nameValue"       Expression="nodeData._Tail._Tail._Tail._Head"/>
+    <Intrinsic Name="symbolDef"       Expression="nodeData._Tail._Tail._Tail._Tail._Head"/>
+    <Intrinsic Name="arrayValue"      Expression="nodeData._Tail._Tail._Tail._Tail._Tail._Head"/>
+    <Intrinsic Name="codeblockValue"  Expression="nodeData._Tail._Tail._Tail._Tail._Tail._Tail._Head"/>
+    <Intrinsic Name="pList"           Expression="nodeData._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Head"/>
+    <Intrinsic Name="conditionData"   Expression="nodeData._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Head"/>
+    <Intrinsic Name="basicData"       Expression="nodeData._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Head"/>
+    <Intrinsic Name="switchData"      Expression="nodeData._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Head"/>
+    <Intrinsic Name="ifData"          Expression="nodeData._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Head"/>
+    <Intrinsic Name="inlineFunc"      Expression="nodeData._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Head"/>
+    <Intrinsic Name="gotoData"        Expression="nodeData._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Head"/>
+    <Intrinsic Name="node"            Expression="nodeData._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Head"/>
+    <Intrinsic Name="loopData"        Expression="nodeData._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Head"/>
+    <Intrinsic Name="forEachData"     Expression="nodeData._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Head"/>
+    <Intrinsic Name="returnData"      Expression="nodeData._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Head"/>
+    <Intrinsic Name="tryCatchData"    Expression="nodeData._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Head"/>
+    <Intrinsic Name="stringValue"     Expression="nodeData._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Head"/>
+    <Intrinsic Name="errorValue"      Expression="nodeData._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Head"/>
+    <Intrinsic Name="warnValue"       Expression="nodeData._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Head"/>
+    <DisplayString Condition="op == astOp::intValue"            >{op,en} {intValue()}</DisplayString>
+    <DisplayString Condition="op == astOp::doubleValue"         >{op,en} {doubleValue()}</DisplayString>
+    <DisplayString Condition="op == astOp::symbolValue"         >{op,en} {symbolValue()}</DisplayString>
+    <DisplayString Condition="op == astOp::atomValue"           >{op,en} {symbolValue()}</DisplayString>
+    <DisplayString Condition="op == astOp::stringValue"         >{op,en} {stringValue()}</DisplayString>
+    <DisplayString Condition="op == astOp::fieldValue"          >{op,en} {symbolValue()}</DisplayString>
+    <DisplayString Condition="op == astOp::funcValue"           >{op,en} {symbolValue()}</DisplayString>
+    <DisplayString Condition="op == astOp::nameValue"           >{op,en} {nameValue()}</DisplayString>
+    <DisplayString Condition="op == astOp::errorValue"          >{op,en} {errorValue()}</DisplayString>
+    <DisplayString Condition="op == astOp::codeBlockExpression" >{op,en} {symbolValue()}</DisplayString>
+    <DisplayString Condition="op == astOp::btAnnotation"        >{op,en} {stringValue()}</DisplayString>
+    <DisplayString Condition="op == astOp::btLabel"             >{op,en} {symbolValue()}</DisplayString>
+    <DisplayString Condition="op == astOp::symbolDef"           >{op,en} {symbolDef()}</DisplayString>
+    <DisplayString Condition="op == astOp::arrayValue"          >{op,en} {arrayValue()}</DisplayString>
+    <DisplayString Condition="op == astOp::btBasic"             >{op,en} [{nodeData._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Tail._Head.blocks.size()}]</DisplayString>
+    <DisplayString Condition="op == astOp::btGoto"              >{op,en} {gotoData().label} {gotoData().nPop}</DisplayString>
+    <DisplayString Condition="op == astOp::btBreak"             >{op,en} {gotoData().label} {gotoData().nPop}</DisplayString>
+    <DisplayString Condition="op == astOp::btCont"              >{op,en} {gotoData().label} {gotoData().nPop}</DisplayString>
+    <DisplayString Condition="op == astOp::warnValue"           >{op,en} {warnValue().num} {warnValue().text}</DisplayString>
+    <DisplayString Condition ="1">{op,en}</DisplayString>
+    <Expand>
+      <Item Name ="op" >op</Item>
+      <Item Name ="left">left,na</Item>
+      <Item Name ="right">right,na</Item>
+      <ExpandedItem>location</ExpandedItem>
+      <ExpandedItem>extendedSelection</ExpandedItem>
+      <Item Name= "i" Condition="op == astOp::intValue">intValue()</Item>
+      <Item Name ="d" Condition="op == astOp::doubleValue">doubleValue()</Item>
+      <ArrayItems Condition="op == astOp::btBasic">
+        <Size>basicData().blocks._Mypair._Myval2._Mylast - basicData().blocks._Mypair._Myval2._Myfirst</Size>
+        <ValuePointer>basicData().blocks._Mypair._Myval2._Myfirst</ValuePointer>
+      </ArrayItems>
+      <ExpandedItem Condition="op == astOp::btBreak">gotoData()</ExpandedItem>
+      <ExpandedItem Condition="op == astOp::btCont">gotoData()</ExpandedItem>
+      <ExpandedItem Condition="op == astOp::btGoto">gotoData()</ExpandedItem>
+      <ExpandedItem Condition="op == astOp::btSwitch">switchData()</ExpandedItem>
+      <ExpandedItem Condition="op == astOp::btIf">ifData()</ExpandedItem>
+      <ExpandedItem Condition="op == astOp::btInline">inlineFunc()</ExpandedItem>
+      <ExpandedItem Condition="op == astOp::btFor">loopData()</ExpandedItem>
+      <ExpandedItem Condition="op == astOp::btWhile">loopData()</ExpandedItem>
+      <ExpandedItem Condition="op == astOp::btRepeat">loopData()</ExpandedItem>
+      <ExpandedItem Condition="op == astOp::btForEach">forEachData()</ExpandedItem>
+      <ExpandedItem Condition="op == astOp::btTry">tryCatchData()</ExpandedItem>
+      <ExpandedItem Condition="op == astOp::btReturn">returnData()</ExpandedItem>
+      <ExpandedItem Condition="op == astOp::btInlineRet">returnData(), na</ExpandedItem>
+      <ExpandedItem Condition="op == astOp::btLabel">stringValue()</ExpandedItem>
+      <ExpandedItem Condition="op == astOp::codeBlockExpression">stringValue()</ExpandedItem>
+      <ExpandedItem Condition="op == astOp::stringValue">stringValue()</ExpandedItem>
+      <ExpandedItem Condition="op == astOp::symbolValue">symbolValue()</ExpandedItem>
+      <ExpandedItem Condition="op == astOp::atomValue">symbolValue()</ExpandedItem>
+      <ExpandedItem Condition="op == astOp::fieldValue">symbolValue()</ExpandedItem>
+      <ExpandedItem Condition="op == astOp::funcValue">symbolValue()</ExpandedItem>
+      <ExpandedItem Condition="op == astOp::nameValue">nameValue()</ExpandedItem>
+      <ExpandedItem Condition="op == astOp::errorValue">errorValue()</ExpandedItem>
+      <ExpandedItem Condition="op == astOp::warnValue">warnValue()</ExpandedItem>
+      <ExpandedItem Condition="op == astOp::btAnnotation">stringValue()</ExpandedItem>
+      <ExpandedItem Condition="op == astOp::varrayValue">arrayValue()</ExpandedItem>
+      <ExpandedItem Condition="op == astOp::symbolPack">arrayValue()</ExpandedItem>
+      <ExpandedItem Condition="op == astOp::codeBlockValue">codeblockValue()</ExpandedItem>
+      <ExpandedItem Condition="op == astOp::conditional">conditionData()</ExpandedItem>
+      <ExpandedItem Condition="op == astOp::symbolDef">symbolDef()</ExpandedItem>
+      <ArrayItems Condition="op == astOp::funcCall || op==astOp::arrayDeref || op == astOp::cArrayDeref">
+        <Size>pList().param._Mypair._Myval2._Mylast - pList().param._Mypair._Myval2._Myfirst</Size>
+        <ValuePointer>pList().param._Mypair._Myval2._Myfirst</ValuePointer>
+      </ArrayItems>
+      <ArrayItems Condition="op == astOp::arrayValue || op==astOp::varrayValue">
+        <Size>arrayValue().nodes._Mypair._Myval2._Mylast - arrayValue().nodes._Mypair._Myval2._Myfirst</Size>
+        <ValuePointer>arrayValue().nodes._Mypair._Myval2._Myfirst</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+</AutoVisualizer>
+

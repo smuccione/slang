@@ -1,0 +1,19 @@
+<[
+	webSession = new session();
+	printf ( "upload called\r\n")
+	if ( webSession.numParts() > 1 )
+	{
+		cmd = upper ( webSession.var ( "name", 2 ) )
+
+		if ( cmd == "UPLOADFILE" )
+		{
+			for ( loop = 2; loop <= webSession.numParts(); loop++ )
+			{
+				println ( "------- ", loop, "  ", webSession.var("filename", loop) )
+				webSession.postDataWrite ( "c:\\upload\\testUpload_" + loop, loop )
+			}
+			return ( 1 )
+		}
+	}
+
+]>

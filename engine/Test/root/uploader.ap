@@ -1,0 +1,16 @@
+<[
+	try {
+		webSendFile ( 'c:\tmp\test.zip', "http://dev.agisent.com/upload.ap?cmd=UPLOADFILE" );
+
+		debugBreak()
+
+		x = webSendFileList()
+
+		println ( "" )
+	} catch ( e ) 
+	{
+		println ( "error ", e );
+	}
+
+]>
+

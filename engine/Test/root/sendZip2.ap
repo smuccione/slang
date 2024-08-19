@@ -1,0 +1,52 @@
+<[
+FUNCTION jsDecode( data, decSpace=0 ) {
+	if ( ! data ) {
+		return( "" )
+	}
+	if ( decSpace ) {
+		data = webDecodeURL( data )
+		data = strswap( data, "%20", " " )
+		data = strswap( data, "&#32", " " )
+		return( data )		
+		
+//		return( strswap( strswap( webDecodeURL( data ), "%20", " " ), "&#32", " " ) )
+		//return( webDecodeURL( data ).strswap( "%20", " " ).strswap( "&#32", " " ) )
+	}
+	return( webDecodeURL( data ) )
+}
+
+debugBreak()
+	session = new( "webSession" )
+
+	zipname = session.var( "zipname" )
+	if ( ! zipname ) {
+		! "No ZIPNAME specified."
+		return
+	}
+
+	data = "%5B%5B%22c%3A%5C%5Cagisent_data%5C%5Cdocs%5C%5C59%5C%5C36%5C%5C9%5C%5Cep012igh00001b0g%5C%5CDO017L6X000008RE.JPG%22%2C%22temp%5C%5Cmugshot_female.jpg%22%5D%2C%5B%22c%3A%5C%5Cagisent_data%5C%5Cdocs%5C%5C37%5C%5C8%5C%5C1%5C%5Cag011e5i00000017%5C%5CDO017K1C000008UH.JPG%22%2C%22temp%5C%5Cagisent_citation_scan2.jpg%22%5D%2C%5B%22c%3A%5C%5Cagisent_data%5C%5Cdocs%5C%5C37%5C%5C8%5C%5C1%5C%5Cag011e5i00000017%5C%5CDO017JBG000008J3.JPG%22%2C%22temp%5C%5Cagisent_cad.jpg%22%5D%2C%5B%22c%3A%5C%5Cagisent_data%5C%5Cdocs%5C%5C37%5C%5C8%5C%5C1%5C%5Cag011e5i00000017%5C%5CDO017IH4000008TL.JPG%22%2C%22temp%5C%5Cagisent_citation_scan.jpg%22%5D%2C%5B%22c%3A%5C%5Cagisent_data%5C%5Cdocs%5C%5C37%5C%5C8%5C%5C1%5C%5Cag011e5i00000017%5C%5CDO017HZX000008T5.JPG%22%2C%22temp%5C%5Csafety%2520harbor%5C%5C1168house2.jpg%22%5D%2C%5B%22c%3A%5C%5Cagisent_data%5C%5Cdocs%5C%5C37%5C%5C8%5C%5C1%5C%5Cag011e5i00000017%5C%5CDO017HCW000008V1.JPG%22%2C%22temp%5C%5Caffidavit.jpg%22%5D%2C%5B%22c%3A%5C%5Cagisent_data%5C%5Cdocs%5C%5C37%5C%5C8%5C%5C1%5C%5Cag011e5i00000017%5C%5CDO017GST000008LF.JPG%22%2C%22temp%5C%5C9305.jpg%22%5D%2C%5B%22c%3A%5C%5Cagisent_data%5C%5Cdocs%5C%5C37%5C%5C8%5C%5C1%5C%5Cag011e5i00000017%5C%5CDO017E3L000008LP.JPG%22%2C%22temp%5C%5Csafety%2520harbor%5C%5C1168house.jpg%22%5D%2C%5B%22c%3A%5C%5Cagisent_data%5C%5Cdocs%5C%5C37%5C%5C8%5C%5C1%5C%5Cag011e5i00000017%5C%5CDO017CE2000008QB.JPG%22%2C%22temp%5C%5Csafety%2520harbor%5C%5C1168house_snow.JPG%22%5D%2C%5B%22c%3A%5C%5Cagisent_data%5C%5Cdocs%5C%5C37%5C%5C8%5C%5C1%5C%5Cag011e5i00000017%5C%5CDO017AUE000008NS.JPG%22%2C%22temp%5C%5C836house.jpg%22%5D%2C%5B%22c%3A%5C%5Cagisent_data%5C%5Cdocs%5C%5C53%5C%5C8%5C%5C55%5C%5Cep019a8b00000hcp%5C%5CDO0170SN000008KS.JPG%22%2C%22temp%5C%5Cdogs%5C%5Ccosmo%5C%5Ccosmo.jpg%22%5D%2C%5B%22c%3A%5C%5Cagisent_data%5C%5Cdocs%5C%5C27%5C%5C5%5C%5C40%5C%5Cep01asf4000009ar%5C%5CDO016Z2G000008OP.JPG%22%2C%22temp%5C%5Cdrum1.jpg%22%5D%2C%5B%22c%3A%5C%5Cagisent_data%5C%5Cdocs%5C%5C14%5C%5C36%5C%5C18%5C%5Cep01301g000003bo%5C%5CDO016XJF000008OH.JPG%22%2C%22temp%5C%5Cdogs%5C%5Ccosmo%5C%5CcosmoSleeping.JPG%22%5D%2C%5B%22c%3A%5C%5Cagisent_data%5C%5Cdocs%5C%5C53%5C%5C41%5C%5C45%5C%5Cep017vn800000f7t%5C%5CDO016RRQ000008JH.JPG%22%2C%22temp%5C%5Cdogs%5C%5Cmindy%5C%5Cmindy.jpg%22%5D%5D"
+	
+	data = jsDecode( data, 1 )
+	if ( ! data ) {
+		! "No files specified to zip."
+		return
+	}
+	
+	try {
+		aFiles = &( data )
+	}
+	catch ( e ) {
+		! "Error converting json."
+		return
+	}
+
+//	session.mimeType = ".zip";
+//	session.contentDisposition = "attachment; filename=" + zipname;
+
+	try {	
+		session.sendZipFile(  aFiles )
+	} 
+	catch ( e ) {
+		println( $"error {e}" )
+	}
+]>

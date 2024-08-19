@@ -1,0 +1,791 @@
+// Web Client Class
+
+//	objWebService
+//	_webEncodeURL( str )
+//	WebClient
+
+FUNCTION _webEncodeURL( str )
+	if ( type( str ) != "C" )
+		return( str )
+	end
+	return( webEncodeURL( str ) )
+END
+
+
+class WebClient
+	public:
+		local	iHeaders
+		local 	port=80
+		local 	portSSL=443
+		local	contentType
+		local 	urlParamDelimiter = "?"
+
+	private:
+		local	IpAddress
+		local	UrlAddress
+		local	Dom
+		local 	_xml
+//		local	iHeaders
+		local	Cookies
+		local	isSSL
+		local	rc;
+		local 	_domain
+		local 	_pageDate
+		local 	_referer
+		local	redirectCount
+		
+		local	user
+		local	password
+		local	bearerId
+		
+		local	additionalheaders
+		local	_accept
+
+		//  takes a cookie string, parses it, saves off the important bits... replacing any older entries
+		method setCookie ( str )
+			local	path
+			local	domain
+			local	secure
+			local	expires
+			local	v, s1, s2
+			local	loop
+			local	numCookie
+			local	cookie
+			local	name
+
+			secure	= 0
+			path		= "/"
+			domain	= NULL
+
+			v = token ( str, ";", 1 )
+			s1 = token ( v, "=", 1 )
+			s2 = mid ( v, len ( s1 ) + 1, -1 )
+			
+			s1 = alltrim ( s1 )
+			s2 = alltrim ( s2 )
+			
+			name = s1
+			cookie = s1 + "=" + s2
+
+			for ( loop = 2, v = token ( str, ";", loop ); v; )
+				s1 = token ( v, "=", 1 )
+				s2 = token ( v, "=", 2 )
+
+				s1 = alltrim ( s1 )
+				s2 = alltrim ( s2 )
+
+				switch ( upper ( s1 ) )
+					case "PATH"
+						path = s2
+						if ( path[len(path)] != "/" )
+							path = path + "/"
+						end
+						break
+					case "EXPIRES"
+						expires = s2
+						break
+					case "DOMAIN"
+						domain = s2
+						break
+					case "SECURE"
+						secure = 1
+						break
+					default
+						// unknown extension
+						break
+				end
+				v = token ( str, ";", ++loop )
+			end
+
+			if ( !::cookies )
+				::cookies = {}
+			end
+
+			numCookie = len ( ::cookies )
+
+			for ( loop = 1; loop <= numCookie; loop++ )
+				if ( (::cookies[loop][1] == name) && (::cookies[loop][3] == path) && (::cookies[loop][4] == domain) )
+					break
+				end
+			end
+
+			::cookies[loop][1] = name
+			::cookies[loop][2] = cookie
+			::cookies[loop][3] = upper ( path )
+			::cookies[loop][4] = domain
+			::cookies[loop][5] = expires
+			::cookies[loop][6] = secure
+			::cookies[loop][7] = expires ? webToTime ( expires ) : NULL
+			
+			return( 1 )
+		end
+
+		// gets the pertinent cookies for the specified URL (if any)
+		method getCookie ( url )
+			local	nICookies
+			local	nCookies
+			local	loop
+			local	l
+			local	cookies, c
+			local 	pt, ct
+			local	d
+			local tmp;
+			local l1, l2, loop2, loop3
+			
+			d = UrlDomain ( url )
+
+			nICookies = len ( ::cookies )
+
+			for ( loop = 1; loop <= nICookies; loop++ )
+				for ( loop2 = loop; loop2 <= nICookies; loop2++ )
+					l1 = len ( ::cookies[loop][3] )
+					l2 = len ( ::cookies[loop2][3] )
+
+					if ( l2 > l1 )
+						for( loop3 = 1; loop3 <= 7; loop3++ )
+							tmp = ::cookies[loop][loop3]
+							::cookies[loop][loop3] = ::cookies[loop2][loop3]
+							::cookies[loop2][loop3] = tmp
+						end
+// should work... why doesn't it... locks up the server... infinite dereference loop
+//						tmp  = @(::cookies[loop])
+//						tmp2 = @(::cookies[loop2])
+//						::cookies[loop]  = tmp2
+//						::cookies[loop2] = tmp
+					end
+				end
+			end
+
+			cookies = {}
+			nCookies = 1
+
+			for ( loop = 1; loop <= nICookies; loop++ )
+				l = len ( ::cookies[loop][3] )
+				if ( upper ( left ( url, l ) ) == ::cookies[loop][3] )
+					pt = webToTime ( ::_pageDate ? ::_pageDate : "" )
+					ct = ::cookies[loop][7] ? ::cookies[loop][7] : 0
+					if ( !ct || (pt <= ct) )
+						// ok... we want to store this cookie... make sure it's the "best" cookie
+						for ( loop2 = 1; loop2 <= len ( cookies ); loop2++ )
+							if ( cookies[loop2][1] == ::cookies[loop][1] )
+								// found duplicate... which is better?
+								if ( len ( cookies[loop2][3] ) < ::cookies[loop2][3] )
+									// longer path is better so replace existing cookie
+									cookies[loop2] = ::cookies[loop]
+									break;
+								end
+								if ( len ( cookies[loop2][4] ) < ::cookies[loop2][4] )
+									// longer (more exact) domain is better
+									cookies[loop2] = ::cookies[loop2]
+									break;
+								end
+								
+								// what we have is best so keeep it
+								break;
+							end
+						end
+						if ( loop2 > len ( cookies ) )
+							cookies[nCookies]= ::cookies[loop]
+							nCookies++
+						end
+					end
+				end
+			end
+			
+			C = {}
+			for ( loop = 1; loop <= len ( cookies); loop++ )
+				c[loop] = cookies[loop][2]		// just return the cookie, not the array of parts
+			end
+
+			return ( c )
+		end
+
+		// actually does the page load
+		method webPageGet ( httpMethod, data, date, encode=1 )
+			local	requestString
+			local	dataString
+			local	nData
+			local	loop
+			local	newUri
+			local	arr
+			local	cookie
+			local 	hostname
+			local 	e
+			local	headers
+			local 	port
+
+			// so we don't have infinite redirects
+			::redirectCount++
+
+			// create the request string
+			httpMethod = upper ( httpMethod)
+
+//			printf ( "-----------------------------------------\r\n%s\r\n", requestString )
+
+			// any other headers insert here
+
+			headers = ""
+			if ( ::_accept )
+				headers += "Accept: " + ::_accept + "\r\n"
+			else
+				headers += "Accept: image/gif, image/x-xbitmap, image/jpeg, image/pjpeg, application/x-shockwave-flash, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/msword, application/xaml+xml, application/json, application/vnd.ms-xpsdocument, application/x-ms-xbap, application/x-ms-application, application/x-silverlight, */*\r\n"
+			end
+			headers += "Accept-Language: en_Us\r\n"
+			headers += "Accept-Encoding: gzip\r\n"
+			headers += "User-Agent: Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 1.0.3705; .NET CLR 1.1.4322; Media Center PC 4.0; .NET CLR 2.0.50727; .NET CLR 3.0.04506.30; .NET CLR 3.0.04506.648; .NET CLR 3.5.21022; InfoPath.1)\r\n"
+			headers += "Host: " + ::_domain + "\r\n"
+//			headers += "Connection: Keep-Alive\r\n"
+			headers += "Connection: Close\r\n"
+
+			switch ( type ( ::additionalheaders ) )
+				case "C":
+					headers += ::additionalheaders + "\r\n"
+					break;
+				case "A"
+					for ( loop = 1; loop <= len ( ::additionalheaders ); loop++ )
+						headers += ::additionalheaders[loop][1] + ": \"" + ::additionalheaders[loop][2] + "\"\r\n"
+					end
+					break;
+			end
+			
+			
+			if ( ::_referer )
+				headers += "Referer: " + ::_referer + "\r\n"
+			end
+
+			if ( date )
+				headers += "If-Modified-Since: " + date + "\r\n"
+			end
+
+			cookie = ::getCookie ( ::urlAddress )
+			if ( cookie )
+				headers += "Cookie: "
+				for ( loop = 1; loop <= len ( cookie ); loop++ )
+					headers += cookie[loop]
+					if ( loop != len ( cookie ) )
+						headers += '; '
+					end
+				end
+				headers += "\r\n"
+			end
+
+			// end of other headers
+			if ( httpMethod != "GET"  )
+				if ( data )
+					switch ( TYPE ( data ) )
+						case 'A'
+							dataString = ""
+							nData = len ( data )
+							for ( loop = 1; loop <= nData; loop++ )
+								if (data[loop][1] != NULL)
+									if ( encode )
+										dataString += _webEncodeURL ( data[loop][1] ) + "=" + _webEncodeURL (data[loop][2] )
+									else
+										dataString += data[loop][1] + "=" + data[loop][2]
+									end
+									if ( loop < nData )
+										dataString += "&"
+									end
+								end
+							end
+							headers += "Content-Type: application/x-www-form-urlencoded\r\n"
+							break;
+						case 'C':
+							dataString = data
+							if ( ::contentType )
+								headers += "Content-Type: " + ::contentType + "\r\n"
+							else
+								headers += "Content-Type: text/html; charset=utf-8\r\n"
+							end
+							break;
+						default:
+							dataString = NULL;
+							break;
+					end
+					requestString = dataString
+				end
+			else
+				if ( ::contentType )
+					headers += "Content-Type: " + ::contentType + "\r\n"
+				end
+			end
+
+			//port = ::port ? ::port : ( ::isSSL ? ::portSSL : 80 )
+			port = ::isSSL ? ( ::portSSL ? ::portSSL : 443 ) : ( ::port ? ::port : 80 )
+
+			if ( ::bearerId )
+				headers += "Authorization: Bearer " + ::bearerId + "\r\n" 
+				arr = webSendEx ( httpMethod, ::_domain, ::UrlAddress, port, headers, requestString, ::isSSL );
+			elseif ( ::user )
+				arr = webSendBasic ( httpMethod, ::_domain, ::UrlAddress, port, headers, requestString, ::isSSL, ::user, ::password  );
+			else
+				arr = webSendEx ( httpMethod, ::_domain, ::UrlAddress, port, headers, requestString, ::isSSL );
+			end
+
+if ( type( arr ) != "A" )
+//	println( "Error on WEBSEND to " + ::_domain + "/" + ::UrlAddress )
+end
+
+if( 0 )
+for ( loop = 1; loop < len ( arr ); loop++ )
+  arr[loop] ? printf ( "%s\r\n", arr[loop] ) : 0;
+end
+end
+//printf ( "\r\n" );
+
+			// process any headers that we need
+			cookie={}
+			for ( loop = 1; loop <= len ( arr ); loop++ )
+				if ( upper ( mid ( arr[loop], 0, 12 ) ) == "SET-COOKIE: " )
+					::SetCookie ( right ( arr[loop], len ( arr[loop] ) - 12 ) )
+				elseif ( upper ( mid ( arr[loop], 0, 6 ) ) == "DATE: " )
+					::_pageDate = right ( arr[loop], len ( arr[loop] ) - 6 )
+				end
+			end
+
+			::rc = 0 + token ( arr[1], " ", 2 )
+
+			if ( ::rc == "302" || ::rc == "301" )
+				// handle any redirection automatically
+				for ( loop = 1; loop <= len ( arr ); loop++ )
+					if ( upper ( mid ( arr[loop], 0, 10 ) ) == "LOCATION: " )
+
+						newUri = right ( arr[loop], len ( arr[loop] ) - 10 )
+
+						// still need to concider ftp redirects and other types
+						// http://, https://, news://, mailto: and ftp://
+						if ( left ( newUri, 7 ) == "http://" )
+							hostName = UrlDomain( newUri )
+							newUri = uri ( newUri )
+							::isSSL = 0;
+						elseif ( left ( newUri, 8 ) == "https://" )
+							hostName = UrlDomain ( newUri )
+							newUri = uri ( newUri )
+							::isSSL = 1
+						end
+
+						if( hostName )
+							::domain = ( type( hostName ) == "C" ) ? hostName : "127.0.0.1"
+						end
+						if ( newUri[1] != '/' )
+							newUri = "/" + newUri
+						end
+						::_referer = (::isSSL ? "https://" : "http://") + ::_domain + ::UrlAddress
+						::UrlAddress = newUri
+						::Dom = NULL
+						
+						if ( ::redirectCount < 4 )
+							return ( ::webPageGet ( "GET", null ) )
+						else
+							return ( NULL )
+						end
+					end
+				end
+			end
+			
+			::_referer = (::isSSL ? "https://" : "http://") + ::_domain + ::UrlAddress
+
+			// do any uncompression if necessary
+			try
+				for ( loop = 1; loop <= len ( arr ); loop++ )
+					if ( upper ( mid ( arr[loop], 0, 18 ) ) == "CONTENT-ENCODING: " )
+						if ( upper ( alltrim ( ( right ( arr[loop], len ( arr[loop] ) - 18 ) ) ) ) == "GZIP" )
+							arr[len(arr)] = inflate ( arr[len(arr)] )
+						end
+					end
+				end
+			catch( e )
+				return( null )
+			end
+			
+			return ( arr )
+		end
+
+	protected:
+		method new ()
+			::IpAddress		= NULL
+			::UrlAddress	= NULL
+			::Dom			= NULL
+			::iHeaders		= {}
+			::Cookies		= {}
+			::isSSL			= 0
+			::redirectCount	= 0;
+
+			if ( pcount() > 1 )
+				:: domain = param ( 2 )
+				if ( pcount() > 2 )
+					if ( pcount() > 3 )
+						::ssl = param (4)
+					end
+					::url = param ( 3 )
+				end
+			end
+			return ( 1 )
+		end
+
+	public:
+		assign Domain ( v )
+			::Dom		 = 0
+			::iHeaders	 = {}
+			::UrlAddress = ""
+
+			::_domain = v
+
+			switch ( type ( v ) )
+				case 'N':
+					::IpAddress = 0.0.0.0 + v
+					break
+				case 'C':
+					::IpAddress = WebAddrFromHost ( v )
+					::ssl = strati( "https:", v ) ? 1 : 0
+					break
+				case 'I':
+					::IpAddress = v
+					break
+			end
+
+			return
+		end
+
+		access Domain
+			return ( ::IpAddress )
+		end
+
+		assign Url ( page )
+			if ( page[1] != '/' )
+				page = "/" + page
+			end
+
+			::_referer = (::isSSL ? "https://" : "http://") + ::_domain + ::UrlAddress
+			::UrlAddress = page
+			::Dom = NULL
+
+			::redirectCount = 0;
+			
+			::iheaders = ::webPageGet ( "GET", NULL )
+
+			if ( ::headers )
+				return
+			else
+				return
+			end
+		end
+
+		assign SSL ( isSSL )
+			if ( isSSL )
+				::isSSL = 1
+			else
+				::isSSL = 0
+			end
+		end
+
+		access SSL
+			return ( ::isSSL )
+		end
+
+		access Url ( )
+			return ( ::UrlAddress )
+		end
+
+		access Document ()
+			if ( !::Dom )
+				if ( ::iheaders )
+					::Dom = new ( "htmlDocument", ::iheaders[len(::iheaders)] )
+				end
+			end
+			return ( ::Dom )
+		end
+
+		access Headers ()
+			return ( ::iHeaders )
+		end
+
+		access page ()
+			local maxElement
+
+			if ( ::headers )
+				maxElement = len(::iHeaders)
+				return ( ::iHeaders[len(::iHeaders)] )
+			else
+				return ""
+			end
+		end
+
+		access content( )
+			return( ::page )
+		end
+
+		access xml( )
+			if ( !::_xml )
+				if ( ::iheaders )
+					::_xml = new ( "xmlDocument", ::iheaders[len(::iheaders)] )
+				end
+			end
+			return ( ::_xml )
+		end
+
+		access responseCode
+			return ( ::rc )
+		end
+		
+		access date
+			local loop
+
+			for ( loop = 1; loop < len ( ::iHeaders ) - 2; loop++ )
+				if ( upper ( left ( ::iHeaders[loop], 5 ) ) == "DATE:" )
+					return ( alltrim ( mid ( ::iHeaders[loop], 6, len ( ::iHeaders[loop] ) ) ) )
+				end
+			end
+
+			return ( NULL )
+		end
+		
+		assign accept ( a )
+			::_accept = a
+		end
+		
+		access accept ()
+			return ::_accept
+		end
+		
+		assign bearer ( a )
+			::bearerId = a
+		end
+		
+		access bearer ()
+			return ::bearerId
+		end
+		
+		assign extraHeaders (  hdrs )
+			::additionalHeaders = hdrs
+		end
+		
+		method authenticate ( user, password )
+			::user = user
+			::password = password
+		end
+
+		method submit ( data, page, encode = 1 )
+			if ( !data )
+				if ( ::dom )
+					data = ::dom.GetPostData()
+				end
+			end
+
+			if ( page )
+				if ( page[1] != '/' )
+					page = "/" + page
+				end
+				::UrlAddress = page
+			end
+			
+			//::_referer = (::isSSL ? "https://" : "http://") + ::_domain + ::UrlAddress
+
+
+			::redirectCount = 0
+			::iheaders = ::webPageGet ( "POST", data, , encode )
+			::additionalHeaders = NULL
+
+			::Dom = NULL
+
+			if ( ::headers )
+				return ( 1 )
+			else
+				return ( 0 )
+			end
+
+		end
+
+		method put ( data, page )
+			if ( !data )
+				if ( ::dom )
+					data = ::dom.GetPostData()
+				end
+			end
+
+			//::_referer = (::isSSL ? "https://" : "http://") + ::_domain + ::UrlAddress
+			if ( page )
+				if ( page[1] != '/' )
+					page = "/" + page
+				end
+				::UrlAddress = page
+			end
+
+			::redirectCount = 0
+			::iheaders = ::webPageGet ( "PUT", data )
+			::additionalHeaders = NULL
+
+			::Dom = NULL
+
+			if ( ::headers )
+				return ( 1 )
+			else
+				return ( 0 )
+			end
+
+		end
+
+		METHOD get( page, data=NULL, date=NULL, isRelative )
+
+			if ( page && ( ! isRelative ) )
+				if ( page[1] != '/' )
+					page = "/" + page
+				end
+			end
+			
+			::_referer = NULL
+			::UrlAddress = page
+
+			if ( ! data )
+				if ( ::dom )
+					data = ::dom.GetPostData()
+				end
+			end
+
+			::redirectCount = 0
+			::iheaders = ::webPageGet ( "GET", data, date )
+			::additionalHeaders = NULL
+
+			::Dom = NULL
+
+			return( ::headers ? 1 : 0 )
+		END
+
+end
+
+
+
+CLASS objWebService
+  PRIVATE:
+  	static _oarray, _owebclient
+  	
+  PUBLIC:
+  	local opts, rawData, err, header
+
+	METHOD new( optsP )
+		::init( )
+		if ( optsP )
+			if ( type( optsP ) == "C" )
+				if ( ! strati( "{", optsP ) )
+					optsP = "{ url : '" + optsP + "' }"
+				end
+			end
+			::oarray.assocUpdate( ::opts, optsP )
+		end
+		return( 1 )
+	END
+
+	METHOD init( )
+		::opts = aArray().add( {
+			{ "url", "" },
+			{ "domain", "" },
+			{ "uri", "" },
+			{ "port", 80 },
+			{ "ssl", 0 },
+			{ "headers", null },
+			{ "method", "http" },
+			{ "results", "content" },
+			{ "user", "" },
+			{ "password", "" }
+		} )
+		::rawData = ""
+		::err = null
+	END
+
+	ACCESS oarray
+		if ( ! ::_oarray )
+			::_oarray = new( "objArray" )
+		end
+		return( ::_oarray )
+	END
+
+	ACCESS owebclient
+		if ( ! ::_owebclient )
+			::_owebclient = new( "webClient" )
+		end
+		return( ::_owebclient )
+	END
+
+	METHOD get( optsP )
+		if ( optsP )
+			if ( type( optsP ) == "C" )
+				if ( ! strati( "{", optsP ) )
+					optsP = "{ url : '" + optsP + "' }"
+				end
+			end
+			::oarray.assocUpdate( ::opts, optsP )
+		end
+		::updateData( )
+
+		::owebclient.domain = ::opts["domain"]
+		::owebclient.url = ::opts["uri"]
+
+		::rawData = ::owebclient.page
+		::setHeader( )
+		
+		return( ::results( ::rawData ) )
+	END
+
+	METHOD results( data )
+		local e
+		
+		if ( ! data )
+			data = ::rawData
+		end
+	
+		switch ( ::opts["results"].lower( ) )
+		  case "content"
+		  	return( data )
+		  case "dom"
+		  	return( new( "htmlDocument", data ) )
+		  case "xml"
+		  	try
+		  		data = new( "xmlDocument", data )
+		  	catch ( e )
+		  		::err = e
+		  	end
+		  	return( data )
+		  case "headers"
+		  	return( ::owebclient.iHeaders )
+		end
+		
+		return( data )
+	END
+
+	METHOD setHeader( )
+		local a={}, cnt, i, x
+		
+		cnt = len( ::owebclient.iHeaders )
+		if ( cnt )
+			a[1] = { "protocol", strextract( ::owebclient.iHeaders[1], "/", 1 ) }
+			a[2] = { "version", strextract( ::owebclient.iHeaders[1], "/", 2 ).strextract( " ", 1 ) }
+			a[3] = { "result", strextract( ::owebclient.iHeaders[1], "/", 2 ).strextract( " ", 2 ).strextract( " ", 1 ) }
+			for ( i=2; i<cnt-1; i++ )
+				x = strat( ":", ::owebclient.iHeaders[i] )
+				if ( x )
+					a[ len(a)+1 ] = { left( ::owebclient.iHeaders[i], x-1 ).alltrim(), strcropl( ::owebclient.iHeaders[i], x+1 ).alltrim( ) }
+				end
+			end
+		end
+
+		::header = aArray().add( a )
+	END
+
+	METHOD updateData( )
+		local url
+		
+		url = ::opts["url"]
+		if ( url )
+			::opts["domain"] = domain( url )
+			::opts["uri"] = uri( url )
+			::opts["ssl"] = strati( "https:", url ) ? 1 : 0
+		end
+		
+		if ( ::opts["user"] && ::opts["password"] )
+			::owebclient.authenticate( ::opts["user"], ::opts["password"] )
+		end
+		
+	END
+
+END
+

@@ -1,0 +1,569 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="Tests">
+      <UniqueIdentifier>{71fd51a3-530c-447f-87c0-6df601bb0546}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="compilerTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\engine\applink.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="compilerTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="compilerTest.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\vmTest.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Tests\array.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\array_name_value.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\array_name_value2.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\array_name_value3.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\array2.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\blockLocals.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\braces_basic.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\cb.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\cClass.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\cFunc.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\conditional.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\constant_combining.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\coroutine.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\coRoutine_foreach.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\coRoutine2.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\coRoutine3.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\database.fg">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\deadcode.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\debugger.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\debugger2.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\destructuredAssignment.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\destructuredAssignment2.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\destructuredAssignment3.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\destructuredAssignment4.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\error.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\fib.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\fib2.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\fib3.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\fib4.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\fib5.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\firstclass.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\firstclass2.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\firstclass3.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\for.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\function.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\function_high_order.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\function_high_order2.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\function_native_test.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\function_overload.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\function_variant_call.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\function_variant_param.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\global.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\if.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\inline.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\inline2.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\inline3.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\inline4.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\inline5.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\inline6.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\inline7.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\inline8.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\inline9.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\inline10.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\inline11.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\inline13.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\iterator_aarray.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\iterator_fixedArray.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\iterator_foreach.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\iterator_iterator.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\iterator_iterator_method.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\iterator_queryable.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\iterator_queryable2.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\iterator_raw.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\iterator_simple.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\iterator_sparseArray.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\lambda.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\lambda2.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\lambda3.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\link_test_1_1.fg">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\link_test_1_2.fg">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\linq_from_expression.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\linq_from_from_select.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\linq_from_from_where_select.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\linq_from_group.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\linq_from_join.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\linq_from_join_into.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\linq_from_let_select.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\linq_from_select.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\linq_orderby.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\linq_orderby_descending.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\linq_orderby_thenby.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\mandel.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\namespace.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\page1.ap">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\seq.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\shortcircuitbool.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\strings.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\Switch.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\tailCall.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\trinary.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\trycatchfinally.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\typeInference.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\use_uninitialized.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\while.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\xmlDom.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\iterator_name_value.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\pack-object.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\pack-array.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\function-default-parameters.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\class_virtual_method_subclassing.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\class_virtual_inheritance.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\class_typed_method_recursion.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\class_subclassed_method_dispatch.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\class_subclassed_ivar_access.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\class_operator_less_construction.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\class_operator_array.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\class_new_function_class_string.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\class_method_variant_call.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\class_method_parameter_default_function.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\class_looped_instantiation.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\class_ivar_lambda_dispatch.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\class_ivar_access.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\class_global_initializer.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\class_destructor_virtual.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\class_destructor_base.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\class_default_methods_properties.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\class_constructor_destructor_order.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\class_basic_functionality.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\class_base_class_initialization.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\class_assign_access.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\bg_binaryTrees.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\bg_binaryTrees2.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\class_operator_virtual.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\iterator_map.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\library_test.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\json.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\pseudoObjCall.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\webDecodeEncode.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\fib6.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\inline_multiple_assign_access.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\multiline_string.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\range.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\for_local_variable_scope.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\class_message_in.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\class_polymophism.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\class_reference_op.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\goto_block_cleanup.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\class_property_assign_operator.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\warn.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\csvReader.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\container_map.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\container_multimap.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\container_unordered_multimap.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\container_multiset.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\container_set.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\container_unordered_map.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\container_unordered_multiset.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\container_unordered_set.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\if_dead_code.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\test.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\deadcode_switch.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\dopt.bat">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\fib7.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\inline_accessor_optimize.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\iterator_range.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\opt.bat">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\lambda_raw_functor.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\function_pass_by_reference.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\iterator_lambda_pred.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\lambda_self_capture.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\container_functor_predicate.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\goto_block_local_cleanup.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\union.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\container_functor_predicate_variant.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\class_member_reference.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\anonymous_type.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\array_pseudo_func.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\zbig.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\circular_parameter_dependency.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="packages.config" />
+    <None Include="Tests\lambda_self_capture_static.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\array_aadd_size.sl">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="Tests\expression_operator_continuation.sl">
+      <Filter>Tests</Filter>
+    </None>
+  </ItemGroup>
+</Project>

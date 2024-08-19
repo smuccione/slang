@@ -1,0 +1,20 @@
+<[
+debugBreak();
+return;
+	s = new webSession()
+	meth = s.data("REQUEST_METHOD" )
+	headers = s.headers;
+	headers += "x-forwarded-for: " + s.data ( "REMOTE_ADDR" )
+	headers = mid ( headers, strat ( "\r\n", headers ) + 1, -1 )
+	
+	x = webSend ( meth, "127.0.0.1", s.url, 8083, headers, s.body, false )
+
+	h = ""
+	for ( it = 1; it <= len ( x ); it++ )
+	{
+		h += x[it] + "\r\n"
+		if ( !x[it] ) break;
+	}
+	y = x[it + 1]
+	s.response ( h, y )
+]>

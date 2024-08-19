@@ -1,0 +1,11 @@
+/*
+	SVN Versioning template
+*/
+
+#pragma once
+
+#define STRINGIFY(x) #x
+
+#define SVN_REVISION			2028
+#define SVN_BUILD_TIME			STRINGIFY(2021/10/25 12:57:18)
+#define SVN_LOCAL_MODIFICATIONS	0

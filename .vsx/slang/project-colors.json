@@ -1,0 +1,96 @@
+{
+  "Version": 1,
+  "ProjectMap": {
+    "215d9ed3-426b-4c73-9149-16c758f3b618": {
+      "ProjectGuid": "215d9ed3-426b-4c73-9149-16c758f3b618",
+      "DisplayName": "Utility",
+      "ColorIndex": 0
+    },
+    "259f9e65-c3b7-421e-a911-6ce2c404c68e": {
+      "ProjectGuid": "259f9e65-c3b7-421e-a911-6ce2c404c68e",
+      "DisplayName": "compilerAST",
+      "ColorIndex": 1
+    },
+    "a2fe74e1-b743-11d0-ae1a-00a0c90fffc3": {
+      "ProjectGuid": "a2fe74e1-b743-11d0-ae1a-00a0c90fffc3",
+      "DisplayName": "Miscellaneous Files",
+      "ColorIndex": -1
+    },
+    "5a5799e0-8a75-43cd-b039-b2c6a8a8b06a": {
+      "ProjectGuid": "5a5799e0-8a75-43cd-b039-b2c6a8a8b06a",
+      "DisplayName": "slink",
+      "ColorIndex": 2
+    },
+    "4eb04ee9-46d6-471d-98c6-bf66aa978a68": {
+      "ProjectGuid": "4eb04ee9-46d6-471d-98c6-bf66aa978a68",
+      "DisplayName": "compilerBCGenerator",
+      "ColorIndex": 3
+    },
+    "7f76e6ec-a78e-484b-9c55-0a17753f89b1": {
+      "ProjectGuid": "7f76e6ec-a78e-484b-9c55-0a17753f89b1",
+      "DisplayName": "languageServer",
+      "ColorIndex": 4
+    },
+    "b94cfc23-8076-4347-b076-398d6a0ddfa0": {
+      "ProjectGuid": "b94cfc23-8076-4347-b076-398d6a0ddfa0",
+      "DisplayName": "debugAdapter",
+      "ColorIndex": 5
+    },
+    "a726afac-eeca-40c6-9b87-afc4726e87c0": {
+      "ProjectGuid": "a726afac-eeca-40c6-9b87-afc4726e87c0",
+      "DisplayName": "compilerParser",
+      "ColorIndex": 6
+    },
+    "469a4666-2b67-4c30-9e4d-8877a5284097": {
+      "ProjectGuid": "469a4666-2b67-4c30-9e4d-8877a5284097",
+      "DisplayName": "bcInterpreter",
+      "ColorIndex": 7
+    },
+    "d825565b-73d1-49c2-b8f7-aa07e7a883ab": {
+      "ProjectGuid": "d825565b-73d1-49c2-b8f7-aa07e7a883ab",
+      "DisplayName": "externals",
+      "ColorIndex": 8
+    },
+    "f8e9fc51-ac03-4cf5-a5ce-b4584799faaf": {
+      "ProjectGuid": "f8e9fc51-ac03-4cf5-a5ce-b4584799faaf",
+      "DisplayName": "compilerPreprocessor",
+      "ColorIndex": 9
+    },
+    "072bdca5-4b34-4402-9ac1-7691ee92850f": {
+      "ProjectGuid": "072bdca5-4b34-4402-9ac1-7691ee92850f",
+      "DisplayName": "bcVM",
+      "ColorIndex": 10
+    },
+    "137577f1-d295-4f40-841a-c8e04a723219": {
+      "ProjectGuid": "137577f1-d295-4f40-841a-c8e04a723219",
+      "DisplayName": "codeFormatter",
+      "ColorIndex": 11
+    },
+    "769eda05-c33f-4200-834c-70f8fdfe5bc6": {
+      "ProjectGuid": "769eda05-c33f-4200-834c-70f8fdfe5bc6",
+      "DisplayName": "builtinDatabase",
+      "ColorIndex": 12
+    },
+    "81be6c11-697f-4af6-983d-d88bbf4250d5": {
+      "ProjectGuid": "81be6c11-697f-4af6-983d-d88bbf4250d5",
+      "DisplayName": "engine",
+      "ColorIndex": 13
+    },
+    "d00a3959-caae-4f51-aa4c-740381dc3c0d": {
+      "ProjectGuid": "d00a3959-caae-4f51-aa4c-740381dc3c0d",
+      "DisplayName": "slangd",
+      "ColorIndex": 14
+    },
+    "5639c66b-3ee4-4a34-9047-7e6cfb2d7570": {
+      "ProjectGuid": "5639c66b-3ee4-4a34-9047-7e6cfb2d7570",
+      "DisplayName": "compilerTest",
+      "ColorIndex": 15
+    },
+    "14a64c6d-8fbc-4c73-b932-bc328fe687e9": {
+      "ProjectGuid": "14a64c6d-8fbc-4c73-b932-bc328fe687e9",
+      "DisplayName": "version",
+      "ColorIndex": 0
+    }
+  },
+  "NextColorIndex": 1
+}

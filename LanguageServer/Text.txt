@@ -1,0 +1,17 @@
+install nvm
+	https://github.com/coreybutler/nvm-windows/releases
+install npm & node.js
+	nvm install "lts"
+	nvm use (whatever)
+install yarn
+	npm install yarn
+install vcse
+	 npm install -g @vscode/vsce
+
+in an adminisstrative power shell
+	Set-ExecutionPolicy Unrestricted
+
+
+npm run compile
+
+

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="languageRegion">
+    <DisplayString>{language} {colStart}:{lineStart} {colStop}:{lineStop}</DisplayString>
+    <Expand>
+      <Item Name ="language">language</Item>
+      <Item Name ="colStart">colStart</Item>
+      <Item Name ="lineStart">lineStart</Item>
+      <Item Name ="colStop">colStop</Item>
+      <Item Name ="lineStop">lineStop</Item>
+    </Expand>
+  </Type>
+</AutoVisualizer>
+

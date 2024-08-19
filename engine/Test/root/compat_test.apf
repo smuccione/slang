@@ -1,0 +1,12 @@
+<html>
+<body>
+<h1>
+<[
+	for ( loop = 1; loop < 10; loop++ )
+		! "" + loop + "<BR>"
+	end
+]>
+</h1>
+</body>
+</html>
+

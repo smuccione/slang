@@ -1,0 +1,178 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="test">
+      <UniqueIdentifier>{ef2fd2d1-8851-42e7-9e8f-354dcdad6a3e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="test\root">
+      <UniqueIdentifier>{29d39f7b-9b55-4b55-bf40-6fceab9dd768}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="test\root\admin">
+      <UniqueIdentifier>{56afc6a6-fe55-4629-8217-dff5c56d4acb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="test\root\admin\admin2">
+      <UniqueIdentifier>{9fd3a623-1ae1-4586-9b59-09ec09be55cb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="test\root\admin\admin2\admin3">
+      <UniqueIdentifier>{0622fc79-eaea-4670-a0a3-6cb2862f1626}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="test\root\admin\admin2\admin3\admin4">
+      <UniqueIdentifier>{b7df5e0f-9810-4ea4-a8bd-f0fc95fad77d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="test\libs">
+      <UniqueIdentifier>{4ff01357-ac1b-47ad-877f-bd6ba9215da5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="test\root\saml">
+      <UniqueIdentifier>{182e1ad3-e65c-490a-b401-efce30af3b7e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="engine.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="engine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ServiceInterface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="applink.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Test\engine.ini">
+      <Filter>test</Filter>
+    </None>
+    <None Include="Test\server.ini">
+      <Filter>test</Filter>
+    </None>
+    <None Include="Test\serverssl.ini">
+      <Filter>test</Filter>
+    </None>
+    <None Include="Test\root\formTest.ap">
+      <Filter>test\root</Filter>
+    </None>
+    <None Include="Test\root\test.html">
+      <Filter>test\root</Filter>
+    </None>
+    <None Include="Test\root\upload.ap">
+      <Filter>test\root</Filter>
+    </None>
+    <None Include="Test\root\video.html">
+      <Filter>test\root</Filter>
+    </None>
+    <None Include="Test\root\admin\test.html">
+      <Filter>test\root\admin</Filter>
+    </None>
+    <None Include="Test\root\admin\admin2\test.html">
+      <Filter>test\root\admin\admin2</Filter>
+    </None>
+    <None Include="Test\root\admin\admin2\admin3\test.html">
+      <Filter>test\root\admin\admin2\admin3</Filter>
+    </None>
+    <None Include="Test\root\admin\admin2\admin3\admin4\test.html">
+      <Filter>test\root\admin\admin2\admin3\admin4</Filter>
+    </None>
+    <None Include="Test\root\uploader.ap">
+      <Filter>test\root</Filter>
+    </None>
+    <None Include="Test\root\compat_test.apf">
+      <Filter>test\root</Filter>
+    </None>
+    <None Include="Test\root\sendZipFile.ap">
+      <Filter>test\root</Filter>
+    </None>
+    <None Include="Test\root\tus.ap">
+      <Filter>test\root</Filter>
+    </None>
+    <None Include="Test\root\sendZip2.ap">
+      <Filter>test\root</Filter>
+    </None>
+    <None Include="Test\root\sendFile.ap">
+      <Filter>test\root</Filter>
+    </None>
+    <None Include="Test\root\sendFileTus.ap">
+      <Filter>test\root</Filter>
+    </None>
+    <None Include="Test\libs\webclient.fgl">
+      <Filter>test\libs</Filter>
+    </None>
+    <None Include="Test\root\saml\leep_saml.ap">
+      <Filter>test\root\saml</Filter>
+    </None>
+    <None Include="Test\root\saml\linx_saml.ap">
+      <Filter>test\root\saml</Filter>
+    </None>
+    <None Include="Test\root\saml\private.key">
+      <Filter>test\root\saml</Filter>
+    </None>
+    <None Include="Test\root\saml\public.crt">
+      <Filter>test\root\saml</Filter>
+    </None>
+    <None Include="Test\root\saml\saml.template">
+      <Filter>test\root\saml</Filter>
+    </None>
+    <None Include="Test\root\saml\signature.template">
+      <Filter>test\root\saml</Filter>
+    </None>
+    <None Include="Test\root\saml\signedInfo.template">
+      <Filter>test\root\saml</Filter>
+    </None>
+    <None Include="Test\root\saml\x509.cert">
+      <Filter>test\root\saml</Filter>
+    </None>
+    <None Include="Test\root\http404.ap">
+      <Filter>test\root</Filter>
+    </None>
+    <None Include="Test\database.ini">
+      <Filter>test</Filter>
+    </None>
+    <None Include="Test\root\filechanged.ap">
+      <Filter>test\root</Filter>
+    </None>
+    <None Include="Test\root\redact.apf">
+      <Filter>test\root</Filter>
+    </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\vmTest.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="slang.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+</Project>

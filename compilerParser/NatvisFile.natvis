@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="symbolTypeClass">
+    <DisplayString Condition="className.entry">{type,en} {className,sb} {potentiallyVariant}</DisplayString>
+    <DisplayString Condition="!className.entry">{type,en}</DisplayString>
+    <StringView>className,sb</StringView>
+    <Expand>
+      <Item Name ="type">type</Item>
+      <Item Name ="className">className,sb</Item>
+      <Item Name ="valueNode">valueNode</Item>
+      <Item Name ="potentiallyVariant">potentiallyVariant</Item>
+    </Expand>
+  </Type>
+  <Type Name="symbolLocal">
+    <DisplayString> 1 {symType,en} {name} {{{type}}}  AC=accessed  AS={assigned}  CO={closedOver}  INI={initialized}</DisplayString>
+    <Expand>
+      <Item Name ="initializer" >initializer,na</Item>
+      <Item Name ="location">location</Item>
+    </Expand>
+  </Type>
+  <Type Name="symbolField">
+    <DisplayString> 0 {symType,en} {name} {type}</DisplayString>
+    <Expand>
+      <Item Name ="initializer" >initializer</Item>
+    </Expand>
+  </Type>
+  <Type Name="symbolClass">
+    <DisplayString> 0 {symType,en} {className} {symbolTypeClass}</DisplayString>
+  </Type>
+  <Type Name="symbolSpaceClosures">
+    <DisplayString> {closures->size()} {symType,en} [{closures->size()}]</DisplayString>
+    <Expand>
+      <ArrayItems>
+        <Size>closures->_Mypair._Myval2._Mylast - closures->_Mypair._Myval2._Myfirst</Size>
+        <ValuePointer>closures->_Mypair._Myval2._Myfirst</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+  <Type Name="symbolSpaceLocalAdd">
+    <DisplayString> 0 {symType,en} [{locals.size()}]</DisplayString>
+    <Expand>
+      <ArrayItems>
+        <Size>locals._Mypair._Myval2._Mylast - locals._Mypair._Myval2._Myfirst</Size>
+        <ValuePointer>locals._Mypair._Myval2._Myfirst</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+  <Type Name="symbolSpacePCall">
+    <DisplayString> 1 {symType,en}</DisplayString>
+  </Type>
+  <Type Name="symbolParamDef">
+    <DisplayString>{name} {type.type,en} {type.className,sb}   AC={accessed} AS={assigned}  CO={closedOver}</DisplayString>
+    <Expand>
+      <Item Name ="initializer" >initializer,na</Item>
+      <Item Name ="location" >location</Item>
+    </Expand>
+  </Type>
+  <Type Name="symbolSpaceParams">
+    <DisplayString> {symbols.size()} {symType,en} [{symbols.size()}]</DisplayString>
+    <Expand>
+      <ArrayItems>
+        <Size>symbols._Mypair._Myval2._Mylast - symbols._Mypair._Myval2._Myfirst</Size>
+        <ValuePointer>symbols._Mypair._Myval2._Myfirst</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+  <Type Name="symbolStatic">
+    <DisplayString> 0 {symType,en} {name} {qualName} CO={closedOver}  INI={initialized}</DisplayString>
+  </Type>
+  <Type Name="symbolSpaceInline">
+    <DisplayString> 0 {symType,en} {funcName}</DisplayString>
+  </Type>
+  <Type Name="symbolSpaceStackValue">
+    <DisplayString> 1 {symType,en}     {description}</DisplayString>
+  </Type>
+  <Type Name="symbolSpaceNamespace">
+    <DisplayString> 0 {symType,en}</DisplayString>
+  </Type>
+  <Type Name="symbol">
+    <DisplayString> 1 {symType,en}</DisplayString>
+  </Type>
+
+  <Type Name="symbolStack">
+    <DisplayString>symbols: {syms.size()}</DisplayString>
+    <Expand>
+      <ArrayItems>
+        <Size>syms._Mypair._Myval2._Mylast - syms._Mypair._Myval2._Myfirst</Size>
+        <ValuePointer>syms._Mypair._Myval2._Myfirst</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+  <Type Name="opFunction">
+    <DisplayString>{name,sb}</DisplayString>
+    <StringView>name,sb</StringView>
+  </Type>
+  <Type Name="source">
+    <DisplayString>{expr, sb}</DisplayString>
+    <StringView>expr,sb</StringView>
+    <Expand>
+      <Item Name ="currentFileName">currentFileName</Item>
+      <Item Name ="primaryFileName">primaryFileName</Item>
+      <Item Name ="lineNumber">lineNumber</Item>
+      <Item Name ="columnNumber">columnNumber</Item>
+    </Expand>
+  </Type>
+</AutoVisualizer>
+

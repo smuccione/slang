@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+    <Type Name="srcLocation">
+        <DisplayString>{sourceIndex} {columnNumber}:{lineNumberStart} {columnNumberEnd}:{lineNumberEnd}</DisplayString>
+        <Expand>
+            <Item Name ="sourceIndex">sourceIndex</Item>
+            <Item Name ="columnNumber">columnNumber</Item>
+            <Item Name ="lineNumberStart">lineNumberStart</Item>
+            <Item Name ="columnNumberEnd">columnNumberEnd</Item>
+            <Item Name ="lineNumberEnd">lineNumberEnd</Item>
+        </Expand>
+    </Type>
+    <Type Name="BUFFER">
+        <DisplayString>{buffPos - buffStart} {buff,[buffPos - buffStart]sb}</DisplayString>
+        <Expand>
+            <Item Name ="buffSize">buffSize</Item>
+            <Item Name ="buffPos">buffPos</Item>
+            <Item Name ="buffStart">buffStart</Item>
+            <Item Name ="buff">buff</Item>
+        </Expand>
+    </Type>
+    <Type Name="jsonElement">
+        <Intrinsic Name="index"         Expression="(int)value._Which"/>
+        <Intrinsic Name="intValue"      Expression="value._Tail._Head"/>
+        <Intrinsic Name="doubleValue"   Expression="value._Tail._Tail._Head"/>
+        <Intrinsic Name="stringValue"   Expression="value._Tail._Tail._Tail._Head"/>
+        <Intrinsic Name="objectValue"   Expression="value._Tail._Tail._Tail._Tail._Head"/>
+        <Intrinsic Name="arrayValue"    Expression="value._Tail._Tail._Tail._Tail._Tail._Head"/>
+        <Intrinsic Name="boolValue"     Expression="value._Tail._Tail._Tail._Tail._Tail._Tail._Head"/>
+        <DisplayString Condition="index() ==  0" Optional="true">&lt;empty&gt;</DisplayString>
+        <DisplayString Condition="index() ==  1" Optional="true">{intValue()}</DisplayString>
+        <DisplayString Condition="index() ==  2" Optional="true">{doubleValue()}</DisplayString>
+        <DisplayString Condition="index() ==  3" Optional="true">{stringValue(),sb}</DisplayString>
+        <DisplayString Condition="index() ==  4" Optional="true">object</DisplayString>
+        <DisplayString Condition="index() ==  5" Optional="true">array</DisplayString>
+        <DisplayString Condition="index() ==  6" Optional="true">{boolValue()}</DisplayString>
+        <Expand>
+            <TreeItems Condition="index() == 4">
+                <Size>value._Tail._Tail._Tail._Tail._Head._Mypair._Myval2._Myval2._Mysize</Size>
+                <HeadPointer>value._Tail._Tail._Tail._Tail._Head._Mypair._Myval2._Myval2._Myhead-&gt;_Parent</HeadPointer>
+                <LeftPointer>_Left</LeftPointer>
+                <RightPointer>_Right</RightPointer>
+                <ValueNode Condition="!((bool)_Isnil)">_Myval</ValueNode>
+            </TreeItems>
+            <ArrayItems Condition="index() == 5">
+                <Size>value._Tail._Tail._Tail._Tail._Tail._Head._Mypair._Myval2._Mylast - value._Tail._Tail._Tail._Tail._Tail._Head._Mypair._Myval2._Myfirst</Size>
+                <ValuePointer>value._Tail._Tail._Tail._Tail._Tail._Head._Mypair._Myval2._Myfirst</ValuePointer>
+            </ArrayItems>
+        </Expand>
+    </Type>
+</AutoVisualizer>
+

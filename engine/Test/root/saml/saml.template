@@ -1,0 +1,60 @@
+<saml2p:Response xmlns:saml2p="urn:oasis:names:tc:SAML:2.0:protocol" Destination="{Recipient}" ID="{ResponseId}" IssueInstant="{AuthnInstant}" Version="2.0">
+<saml2:Issuer xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion" Format="urn:oasis:names:tc:SAML:2.0:nameid-format:entity">{IssuerURL}</saml2:Issuer>{Signature}
+<saml2p:Status>
+<saml2p:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"></saml2p:StatusCode>
+</saml2p:Status>
+<saml2:Assertion xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion" ID="{AssertionId}" IssueInstant="{AuthnInstant}" Version="2.0">
+<saml2:Issuer Format="urn:oasis:names:tc:SAML:2.0:nameid-format:entity">{Issuer}</saml2:Issuer>
+<saml2:Subject>
+<saml2:NameID Format="urn:oasis:names:tc:SAML:2.0:nameid-format:transient" NameQualifier="{Issuer}" SPNameQualifier="{Audience}">{NameId}</saml2:NameID>
+<saml2:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
+<saml2:SubjectConfirmationData NotOnOrAfter="{NotOnOrAfter}" Recipient="{Recipient}"></saml2:SubjectConfirmationData>
+</saml2:SubjectConfirmation>
+</saml2:Subject>
+<saml2:Conditions NotBefore="{NotBefore}" NotOnOrAfter="{NotOnOrAfter}">
+<saml2:AudienceRestriction>
+<saml2:Audience>{Audience}</saml2:Audience>
+</saml2:AudienceRestriction>
+</saml2:Conditions>
+<saml2:AuthnStatement AuthnInstant="{AuthnInstant}" SessionIndex="{SessionIndex}" SessionNotOnOrAfter="{NotOnOrAfter}">
+<saml2:AuthnContext>
+<saml2:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:Password</saml2:AuthnContextClassRef>
+</saml2:AuthnContext>
+</saml2:AuthnStatement>
+<saml2:AttributeStatement>
+<saml2:Attribute Name="gfipm:2.0:user:LocalId" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+<saml2:AttributeValue xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">{LocalId}</saml2:AttributeValue>
+</saml2:Attribute>
+<saml2:Attribute Name="gfipm:2.0:user:EmployerORI" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+<saml2:AttributeValue xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">{EmployerORI}</saml2:AttributeValue>
+</saml2:Attribute>
+<saml2:Attribute Name="gfipm:2.0:user:IdentityProviderId" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+<saml2:AttributeValue xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">{IdentityProviderId}</saml2:AttributeValue>
+</saml2:Attribute>
+<saml2:Attribute Name="gfipm:2.0:user:FederationId" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+<saml2:AttributeValue xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">{FederationId}</saml2:AttributeValue>
+</saml2:Attribute>
+<saml2:Attribute Name="gfipm:2.0:user:EmployerName" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+<saml2:AttributeValue xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">{EmployerName}</saml2:AttributeValue>
+</saml2:Attribute>
+<saml2:Attribute Name="gfipm:2.0:user:SurName" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+<saml2:AttributeValue xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">{LastName}</saml2:AttributeValue>
+</saml2:Attribute>
+<saml2:Attribute Name="gfipm:2.0:user:GivenName" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+<saml2:AttributeValue xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">{FirstName}</saml2:AttributeValue>
+</saml2:Attribute>
+<saml2:Attribute Name="gfipm:2.0:user:EmailAddressText" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+<saml2:AttributeValue xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">{EmailAddress}</saml2:AttributeValue>
+</saml2:Attribute>
+<saml2:Attribute Name="gfipm:2.0:user:TelephoneNumber" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+<saml2:AttributeValue xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">{TelephoneNumber}</saml2:AttributeValue>
+</saml2:Attribute>
+<saml2:Attribute Name="gfipm:2.0:user:NDExPrivilegeIndicator" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+<saml2:AttributeValue xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">true</saml2:AttributeValue>
+</saml2:Attribute>
+<saml2:Attribute Name="gfipm:2.0:user:SwornLawEnforcementOfficerIndicator" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+<saml2:AttributeValue xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">true</saml2:AttributeValue>
+</saml2:Attribute>
+</saml2:AttributeStatement>
+</saml2:Assertion>
+</saml2p:Response>

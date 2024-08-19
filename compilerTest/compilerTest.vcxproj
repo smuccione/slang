@@ -1,0 +1,857 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Address Sanitizer|x64">
+      <Configuration>Address Sanitizer</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug-Linux|x64">
+      <Configuration>Debug-Linux</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release_No_Inline|x64">
+      <Configuration>Release_No_Inline</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Static Analysis|x64">
+      <Configuration>Static Analysis</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{5639C66B-3EE4-4A34-9047-7E6CFB2D7570}</ProjectGuid>
+    <RootNamespace>compilerTest</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>Static</UseOfMfc>
+    <UseOfAtl>false</UseOfAtl>
+    <CharacterSet>NotSet</CharacterSet>
+    <CLRSupport>false</CLRSupport>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+    <EnableASAN>false</EnableASAN>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_No_Inline|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>Static</UseOfMfc>
+    <UseOfAtl>false</UseOfAtl>
+    <CharacterSet>NotSet</CharacterSet>
+    <CLRSupport>false</CLRSupport>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+    <EnableASAN>false</EnableASAN>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>Static</UseOfMfc>
+    <UseOfAtl>false</UseOfAtl>
+    <CharacterSet>NotSet</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <EnableASAN>false</EnableASAN>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Linux|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>Static</UseOfMfc>
+    <UseOfAtl>false</UseOfAtl>
+    <CharacterSet>NotSet</CharacterSet>
+    <PlatformToolset>ClangCL</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <EnableASAN>false</EnableASAN>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Static Analysis|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>Static</UseOfMfc>
+    <UseOfAtl>false</UseOfAtl>
+    <CharacterSet>NotSet</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <EnableASAN>false</EnableASAN>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Address Sanitizer|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>Static</UseOfMfc>
+    <UseOfAtl>false</UseOfAtl>
+    <CharacterSet>NotSet</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <EnableASAN>true</EnableASAN>
+    <EnableFuzzer>false</EnableFuzzer>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_No_Inline|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Linux|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Static Analysis|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Address Sanitizer|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug-Linux|x64'">$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Static Analysis|x64'">$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Address Sanitizer|x64'">$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(Configuration)\$(Platform)\$(RootNamespace)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug-Linux|x64'">$(Configuration)\$(Platform)\$(RootNamespace)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Static Analysis|x64'">$(Configuration)\$(Platform)\$(RootNamespace)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Address Sanitizer|x64'">$(Configuration)\$(Platform)\$(RootNamespace)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug-Linux|x64'">true</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Static Analysis|x64'">true</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Address Sanitizer|x64'">false</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release_No_Inline|x64'">$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(Configuration)\$(Platform)\$(RootNamespace)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release_No_Inline|x64'">$(Configuration)\$(Platform)\$(RootNamespace)\</IntDir>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug-Linux|x64'">NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Static Analysis|x64'">NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Address Sanitizer|x64'">NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug-Linux|x64'" />
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Static Analysis|x64'" />
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Address Sanitizer|x64'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug-Linux|x64'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Static Analysis|x64'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Address Sanitizer|x64'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release_No_Inline|x64'">NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release_No_Inline|x64'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release_No_Inline|x64'" />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(SolutionDir);$(SolutionDir)packages\boost.1.82.0\lib\native\include;$(SolutionDir)packages\openssl-vc140-static-32_64.1.1.1.1\lib\native\include;$(SolutionDir)packages\zlib_static.1.2.11.12\build\native\include;$(SolutionDir)packages\zlib_static.1.2.11.11\build\native\include;$(IncludePath)</IncludePath>
+    <ClangTidyChecks>Modernize-*,performance-*,bugprone-*, -header-filter=((?!.*\\packages\\.*),clang-analyzer-*,portability-*,concurrency-*, -bugprone-easily-swappable-parameters,-bugprone-assignment-in-if-condition</ClangTidyChecks>
+    <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
+    <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Linux|x64'">
+    <IncludePath>$(SolutionDir);$(SolutionDir)packages\boost.1.82.0\lib\native\include;$(SolutionDir)packages\openssl-vc140-static-32_64.1.1.1.1\lib\native\include;$(SolutionDir)packages\zlib_static.1.2.11.12\build\native\include;$(SolutionDir)packages\zlib_static.1.2.11.11\build\native\include;$(IncludePath)</IncludePath>
+    <ClangTidyChecks>Modernize-*,performance-*,bugprone-*, -header-filter=((?!.*\\packages\\.*),clang-analyzer-*,portability-*,concurrency-*, -bugprone-easily-swappable-parameters,-bugprone-assignment-in-if-condition</ClangTidyChecks>
+    <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
+    <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Static Analysis|x64'">
+    <IncludePath>$(SolutionDir);$(SolutionDir)packages\boost.1.82.0\lib\native\include;$(SolutionDir)packages\openssl-vc140-static-32_64.1.1.1.1\lib\native\include;$(SolutionDir)packages\zlib_static.1.2.11.12\build\native\include;$(SolutionDir)packages\zlib_static.1.2.11.11\build\native\include;$(IncludePath)</IncludePath>
+    <ClangTidyChecks>Modernize-*,performance-*,bugprone-*, -header-filter=((?!.*\\packages\\.*),clang-analyzer-*,portability-*,concurrency-*, -bugprone-easily-swappable-parameters,-bugprone-assignment-in-if-condition</ClangTidyChecks>
+    <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
+    <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Address Sanitizer|x64'">
+    <IncludePath>$(SolutionDir);$(SolutionDir)packages\boost.1.82.0\lib\native\include;$(SolutionDir)packages\openssl-vc140-static-32_64.1.1.1.1\lib\native\include;$(SolutionDir)packages\zlib_static.1.2.11.12\build\native\include;$(SolutionDir)packages\zlib_static.1.2.11.11\build\native\include;$(IncludePath)</IncludePath>
+    <ClangTidyChecks>Modernize-*,performance-*,bugprone-*, -header-filter=((?!.*\\packages\\.*),clang-analyzer-*,portability-*,concurrency-*, -bugprone-easily-swappable-parameters,-bugprone-assignment-in-if-condition¶</ClangTidyChecks>
+    <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
+    <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>$(SolutionDir);$(SolutionDir)packages\boost.1.82.0\lib\native\include;$(SolutionDir)packages\openssl-vc140-static-32_64.1.1.1.1\lib\native\include;$(SolutionDir)packages\zlib_static.1.2.11.12\build\native\include;$(SolutionDir)packages\zlib_static.1.2.11.11\build\native\include;$(IncludePath)</IncludePath>
+    <ClangTidyChecks>Modernize-*,performance-*,bugprone-*, -header-filter=((?!.*\\packages\\.*),clang-analyzer-*,portability-*,concurrency-*, -bugprone-easily-swappable-parameters,-bugprone-assignment-in-if-condition¶</ClangTidyChecks>
+    <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
+    <EnableClangTidyCodeAnalysis>false</EnableClangTidyCodeAnalysis>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_No_Inline|x64'">
+    <IncludePath>$(SolutionDir);$(SolutionDir)packages\boost.1.82.0\lib\native\include;$(SolutionDir)packages\openssl-vc140-static-32_64.1.1.1.1\lib\native\include;$(SolutionDir)packages\zlib_static.1.2.11.12\build\native\include;$(SolutionDir)packages\zlib_static.1.2.11.11\build\native\include;$(IncludePath)</IncludePath>
+    <ClangTidyChecks>Modernize-*,performance-*,bugprone-*, -header-filter=((?!.*\\packages\\.*),clang-analyzer-*,portability-*,concurrency-*, -bugprone-easily-swappable-parameters,-bugprone-assignment-in-if-condition¶</ClangTidyChecks>
+    <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
+    <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>BOOST_ALL_NO_LIB;WIN64;RUNTIME;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;_WIN32_WINNT=_WIN32_WINNT_WIN10;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>false</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <BrowseInformation>false</BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4503;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <CompileAsManaged>false</CompileAsManaged>
+      <OmitFramePointers>false</OmitFramePointers>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <UseUnicodeForAssemblerListing>false</UseUnicodeForAssemblerListing>
+      <ShowIncludes>false</ShowIncludes>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsWinRT>
+      </CompileAsWinRT>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <OpenMPSupport>false</OpenMPSupport>
+      <DiagnosticsFormat>Caret</DiagnosticsFormat>
+      <SupportJustMyCode>true</SupportJustMyCode>
+      <UseFullPaths>true</UseFullPaths>
+      <ConformanceMode>true</ConformanceMode>
+      <ErrorReporting>Prompt</ErrorReporting>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <IntelJCCErratum>true</IntelJCCErratum>
+      <AdditionalOptions>/MP /favor:INTEL64 %(AdditionalOptions)</AdditionalOptions>
+      <EnableModules>false</EnableModules>
+      <RemoveUnreferencedCodeData>false</RemoveUnreferencedCodeData>
+      <BuildStlModules>false</BuildStlModules>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>nafxcwd.lib;Libcmtd.lib;version.lib;imm32.lib;Dbghelp.lib;Rpcrt4.lib;Mpr.lib;netapi32.lib;Winhttp.lib;gdiplus.lib;%(AdditionalDependencies);Nafxcwd.lib</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>nafxcwd.lib;libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX64</TargetMachine>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <OptimizeReferences>false</OptimizeReferences>
+      <EnableCOMDATFolding>false</EnableCOMDATFolding>
+      <StackReserveSize>67108864</StackReserveSize>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Linux|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>BOOST_ALL_NO_LIB;WIN64;RUNTIME;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;_WIN32_WINNT=_WIN32_WINNT_WIN10;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>false</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <BrowseInformation>false</BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4503;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <CompileAsManaged>false</CompileAsManaged>
+      <OmitFramePointers>false</OmitFramePointers>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <UseUnicodeForAssemblerListing>false</UseUnicodeForAssemblerListing>
+      <ShowIncludes>false</ShowIncludes>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsWinRT>
+      </CompileAsWinRT>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <OpenMPSupport>false</OpenMPSupport>
+      <DiagnosticsFormat>Caret</DiagnosticsFormat>
+      <SupportJustMyCode>true</SupportJustMyCode>
+      <UseFullPaths>true</UseFullPaths>
+      <ConformanceMode>true</ConformanceMode>
+      <ErrorReporting>Prompt</ErrorReporting>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <IntelJCCErratum>true</IntelJCCErratum>
+      <EnableModules>false</EnableModules>
+      <RemoveUnreferencedCodeData>false</RemoveUnreferencedCodeData>
+      <BuildStlModules>false</BuildStlModules>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>nafxcwd.lib;Libcmtd.lib;version.lib;imm32.lib;Dbghelp.lib;Rpcrt4.lib;Mpr.lib;netapi32.lib;Winhttp.lib;gdiplus.lib;%(AdditionalDependencies);Nafxcwd.lib</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>nafxcwd.lib;libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX64</TargetMachine>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <OptimizeReferences>false</OptimizeReferences>
+      <EnableCOMDATFolding>false</EnableCOMDATFolding>
+      <StackReserveSize>67108864</StackReserveSize>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Static Analysis|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>BOOST_ALL_NO_LIB;WIN64;RUNTIME;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;_WIN32_WINNT=_WIN32_WINNT_WIN10;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>false</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <BrowseInformation>false</BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4503;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <CompileAsManaged>false</CompileAsManaged>
+      <OmitFramePointers>false</OmitFramePointers>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <UseUnicodeForAssemblerListing>false</UseUnicodeForAssemblerListing>
+      <ShowIncludes>false</ShowIncludes>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsWinRT>
+      </CompileAsWinRT>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <OpenMPSupport>false</OpenMPSupport>
+      <DiagnosticsFormat>Caret</DiagnosticsFormat>
+      <SupportJustMyCode>true</SupportJustMyCode>
+      <UseFullPaths>true</UseFullPaths>
+      <ConformanceMode>true</ConformanceMode>
+      <ErrorReporting>Prompt</ErrorReporting>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <IntelJCCErratum>true</IntelJCCErratum>
+      <EnableModules>false</EnableModules>
+      <BuildStlModules>false</BuildStlModules>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>nafxcwd.lib;Libcmtd.lib;version.lib;imm32.lib;Dbghelp.lib;Rpcrt4.lib;Mpr.lib;netapi32.lib;Winhttp.lib;gdiplus.lib;%(AdditionalDependencies);Nafxcwd.lib</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>nafxcw.lib;libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX64</TargetMachine>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <OptimizeReferences>false</OptimizeReferences>
+      <EnableCOMDATFolding>false</EnableCOMDATFolding>
+      <StackReserveSize>67108864</StackReserveSize>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Address Sanitizer|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>BOOST_ALL_NO_LIB;WIN64;RUNTIME;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING;_WIN32_WINNT=_WIN32_WINNT_WIN10;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>false</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <BrowseInformation>false</BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4503;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <CompileAsManaged>false</CompileAsManaged>
+      <OmitFramePointers>false</OmitFramePointers>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <UseUnicodeForAssemblerListing>false</UseUnicodeForAssemblerListing>
+      <ShowIncludes>false</ShowIncludes>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsWinRT>
+      </CompileAsWinRT>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <OpenMPSupport>false</OpenMPSupport>
+      <DiagnosticsFormat>Caret</DiagnosticsFormat>
+      <SupportJustMyCode>true</SupportJustMyCode>
+      <UseFullPaths>true</UseFullPaths>
+      <ConformanceMode>true</ConformanceMode>
+      <ErrorReporting>Prompt</ErrorReporting>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <IntelJCCErratum>true</IntelJCCErratum>
+      <AdditionalOptions>/MP /favor:INTEL64 %(AdditionalOptions)</AdditionalOptions>
+      <EnableModules>false</EnableModules>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <BuildStlModules>false</BuildStlModules>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>nafxcwd.lib;Libcmtd.lib;version.lib;imm32.lib;Dbghelp.lib;Rpcrt4.lib;Mpr.lib;netapi32.lib;Winhttp.lib;gdiplus.lib;%(AdditionalDependencies);Nafxcwd.lib</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>nafxcw.lib;libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX64</TargetMachine>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <OptimizeReferences>false</OptimizeReferences>
+      <EnableCOMDATFolding>false</EnableCOMDATFolding>
+      <StackReserveSize>67108864</StackReserveSize>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>BOOST_ALL_NO_LIB;WIN64;NDEBUG;_CONSOLE;RUNTIME;_WIN32_WINNT=_WIN32_WINNT_WIN10;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <BrowseInformation>false</BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4503;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <UseUnicodeForAssemblerListing>false</UseUnicodeForAssemblerListing>
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <CompileAsManaged>false</CompileAsManaged>
+      <OpenMPSupport>false</OpenMPSupport>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <DiagnosticsFormat>Caret</DiagnosticsFormat>
+      <UseFullPaths>true</UseFullPaths>
+      <ErrorReporting>Prompt</ErrorReporting>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <IntelJCCErratum>true</IntelJCCErratum>
+      <AdditionalOptions>/MP /favor:INTEL64 /cgthreads8 /Zo %(AdditionalOptions)</AdditionalOptions>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <SupportJustMyCode>true</SupportJustMyCode>
+      <EnableModules>false</EnableModules>
+      <BuildStlModules>false</BuildStlModules>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>Ws2_32.lib;Mswsock.lib;Nafxcw.lib;Libcmt.lib;version.lib;imm32.lib;Dbghelp.lib;Rpcrt4.lib;Mpr.lib;netapi32.lib;Winhttp.lib;gdiplus.lib;comsuppwd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>Nafxcw.lib;Libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX64</TargetMachine>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <StackReserveSize>67108864</StackReserveSize>
+      <SetChecksum>true</SetChecksum>
+      <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_No_Inline|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>BOOST_ALL_NO_LIB;WIN64;NDEBUG;_CONSOLE;RUNTIME;_WIN32_WINNT=_WIN32_WINNT_WIN10;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <BrowseInformation>false</BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4503;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <UseUnicodeForAssemblerListing>false</UseUnicodeForAssemblerListing>
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <CompileAsManaged>false</CompileAsManaged>
+      <OpenMPSupport>false</OpenMPSupport>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <DiagnosticsFormat>Caret</DiagnosticsFormat>
+      <UseFullPaths>true</UseFullPaths>
+      <ErrorReporting>Prompt</ErrorReporting>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <IntelJCCErratum>true</IntelJCCErratum>
+      <AdditionalOptions>/MP /favor:INTEL64 /cgthreads8 /Zo %(AdditionalOptions)</AdditionalOptions>
+      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <SupportJustMyCode>true</SupportJustMyCode>
+      <EnableModules>true</EnableModules>
+      <BuildStlModules>true</BuildStlModules>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>Nafxcw.lib;Libcmt.lib;kernel32.lib;ws2_32.lib;gdi32.lib;gdiplus.lib;nafxcw.lib;comctl32.lib;dnsapi.lib;version.lib;imm32.lib;Dbghelp.lib;Rpcrt4.lib;Mpr.lib;netapi32.lib;Winhttp.lib;winspool.lib;comdlg32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>Nafxcw.lib;Libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX64</TargetMachine>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <StackReserveSize>67108864</StackReserveSize>
+      <SetChecksum>true</SetChecksum>
+      <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
+      <Profile>true</Profile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\avl tree\avl tree.vcxproj">
+      <Project>{d32916ce-6162-4771-a623-000db02bb4cf}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\bcDebugger\bcDebugger.vcxproj">
+      <Project>{c8774c31-f1a6-423e-94e8-8545a3fb5784}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\bcInterpreter\bcInterpreter.vcxproj">
+      <Project>{469a4666-2b67-4c30-9e4d-8877a5284097}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\bcVM\bcVM.vcxproj">
+      <Project>{072bdca5-4b34-4402-9ac1-7691ee92850f}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\builtinDatabase\builtinDatabase.vcxproj">
+      <Project>{769eda05-c33f-4200-834c-70f8fdfe5bc6}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\builtinDOM\builtinDOM.vcxproj">
+      <Project>{21bdaa02-ca42-497a-a039-a3fac212d7e4}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\compilerAST\compilerAST.vcxproj">
+      <Project>{259f9e65-c3b7-421e-a911-6ce2c404c68e}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\compilerBCGenerator\compilerBCGenerator.vcxproj">
+      <Project>{4eb04ee9-46d6-471d-98c6-bf66aa978a68}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\compilerParser\compilerParser.vcxproj">
+      <Project>{a726afac-eeca-40c6-9b87-afc4726e87c0}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\compilerPreprocessor\compilerPreprocessor.vcxproj">
+      <Project>{f8e9fc51-ac03-4cf5-a5ce-b4584799faaf}</Project>
+      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <Private>true</Private>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+    </ProjectReference>
+    <ProjectReference Include="..\debugAdapter\debugAdapter.vcxproj">
+      <Project>{b94cfc23-8076-4347-b076-398d6a0ddfa0}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\ResizableLib\ResizableLib.vcxproj">
+      <Project>{3582cbfe-b0b5-4d5e-86f3-c450d86373c6}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Target\Target.vcxproj">
+      <Project>{174a3191-3b35-4eaf-9e82-0ccf19c190e0}</Project>
+      <Private>true</Private>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+    </ProjectReference>
+    <ProjectReference Include="..\Utility\Utility.vcxproj">
+      <Project>{215d9ed3-426b-4c73-9149-16c758f3b618}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\webServer\webServer.vcxproj">
+      <Project>{f5ebaa36-4df2-4e1c-87a3-8779e161be9a}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\engine\applink.c" />
+    <ClCompile Include="compilerTest.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release_No_Inline|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ShowIncludes Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ShowIncludes>
+      <ShowIncludes Condition="'$(Configuration)|$(Platform)'=='Debug-Linux|x64'">false</ShowIncludes>
+      <ShowIncludes Condition="'$(Configuration)|$(Platform)'=='Static Analysis|x64'">false</ShowIncludes>
+      <ShowIncludes Condition="'$(Configuration)|$(Platform)'=='Address Sanitizer|x64'">false</ShowIncludes>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="compilerTest.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="compilerTest.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="res\vmTest.ico" />
+    <None Include="Tests\anonymous_type.sl" />
+    <None Include="Tests\array.sl" />
+    <None Include="Tests\array2.sl" />
+    <None Include="Tests\array_aadd_size.sl" />
+    <None Include="Tests\array_name_value.sl" />
+    <None Include="Tests\array_name_value2.sl" />
+    <None Include="Tests\array_name_value3.sl" />
+    <None Include="Tests\array_pseudo_func.sl" />
+    <None Include="Tests\bg_binaryTrees.sl" />
+    <None Include="Tests\bg_binaryTrees2.sl" />
+    <None Include="Tests\expression_operator_continuation.sl" />
+    <None Include="Tests\lambda_self_capture_static.sl" />
+    <None Include="Tests\zbig.sl" />
+    <None Include="Tests\blockLocals.sl" />
+    <None Include="Tests\braces_basic.sl" />
+    <None Include="Tests\cb.sl" />
+    <None Include="Tests\cClass.sl" />
+    <None Include="Tests\cFunc.sl" />
+    <None Include="Tests\circular_parameter_dependency.sl" />
+    <None Include="Tests\class_assign_access.sl" />
+    <None Include="Tests\class_base_class_initialization.sl" />
+    <None Include="Tests\class_basic_functionality.sl" />
+    <None Include="Tests\class_constructor_destructor_order.sl" />
+    <None Include="Tests\class_default_methods_properties.sl" />
+    <None Include="Tests\class_destructor_base.sl" />
+    <None Include="Tests\class_destructor_virtual.sl" />
+    <None Include="Tests\class_global_initializer.sl" />
+    <None Include="Tests\class_ivar_access.sl" />
+    <None Include="Tests\class_ivar_lambda_dispatch.sl" />
+    <None Include="Tests\class_looped_instantiation.sl" />
+    <None Include="Tests\class_member_reference.sl" />
+    <None Include="Tests\class_message_in.sl" />
+    <None Include="Tests\class_method_parameter_default_function.sl" />
+    <None Include="Tests\class_new_function_class_string.sl" />
+    <None Include="Tests\class_operator_array.sl" />
+    <None Include="Tests\class_operator_less_construction.sl" />
+    <None Include="Tests\class_operator_virtual.sl" />
+    <None Include="Tests\class_polymophism.sl" />
+    <None Include="Tests\class_property_assign_operator.sl" />
+    <None Include="Tests\class_reference_op.sl" />
+    <None Include="Tests\class_subclassed_ivar_access.sl" />
+    <None Include="Tests\class_subclassed_method_dispatch.sl" />
+    <None Include="Tests\class_typed_method_recursion.sl" />
+    <None Include="Tests\class_virtual_inheritance.sl" />
+    <None Include="Tests\class_virtual_method_subclassing.sl" />
+    <None Include="Tests\class_method_variant_call.sl" />
+    <None Include="Tests\conditional.sl" />
+    <None Include="Tests\constant_combining.sl" />
+    <None Include="Tests\container_functor_predicate.sl" />
+    <None Include="Tests\container_functor_predicate_variant.sl" />
+    <None Include="Tests\container_map.sl" />
+    <None Include="Tests\container_multimap.sl" />
+    <None Include="Tests\container_multiset.sl" />
+    <None Include="Tests\container_set.sl" />
+    <None Include="Tests\container_unordered_map.sl" />
+    <None Include="Tests\container_unordered_multimap.sl" />
+    <None Include="Tests\container_unordered_multiset.sl" />
+    <None Include="Tests\container_unordered_set.sl" />
+    <None Include="Tests\coroutine.sl" />
+    <None Include="Tests\coRoutine2.sl" />
+    <None Include="Tests\coRoutine3.sl" />
+    <None Include="Tests\coRoutine_foreach.sl" />
+    <None Include="Tests\csvReader.sl" />
+    <None Include="Tests\database.fg" />
+    <None Include="Tests\deadcode.sl" />
+    <None Include="Tests\deadcode_switch.sl" />
+    <None Include="Tests\debugger.sl" />
+    <None Include="Tests\debugger2.sl" />
+    <None Include="Tests\destructuredAssignment.sl" />
+    <None Include="Tests\destructuredAssignment2.sl" />
+    <None Include="Tests\destructuredAssignment3.sl" />
+    <None Include="Tests\destructuredAssignment4.sl" />
+    <None Include="Tests\dopt.bat" />
+    <None Include="Tests\error.sl" />
+    <None Include="Tests\fib.sl" />
+    <None Include="Tests\fib2.sl" />
+    <None Include="Tests\fib3.sl" />
+    <None Include="Tests\fib4.sl" />
+    <None Include="Tests\fib5.sl" />
+    <None Include="Tests\fib6.sl" />
+    <None Include="Tests\fib7.sl" />
+    <None Include="Tests\firstclass.sl" />
+    <None Include="Tests\firstclass2.sl" />
+    <None Include="Tests\firstclass3.sl" />
+    <None Include="Tests\for.sl" />
+    <None Include="Tests\for_local_variable_scope.sl" />
+    <None Include="Tests\function.sl" />
+    <None Include="Tests\function_high_order.sl" />
+    <None Include="Tests\function_high_order2.sl" />
+    <None Include="Tests\function_native_test.sl" />
+    <None Include="Tests\function_overload.sl" />
+    <None Include="Tests\function_pass_by_reference.sl" />
+    <None Include="Tests\function_variant_call.sl" />
+    <None Include="Tests\function_variant_param.sl" />
+    <None Include="Tests\global.sl" />
+    <None Include="Tests\goto_block_cleanup.sl" />
+    <None Include="Tests\goto_block_local_cleanup.sl" />
+    <None Include="Tests\if.sl" />
+    <None Include="Tests\if_dead_code.sl" />
+    <None Include="Tests\inline.sl" />
+    <None Include="Tests\inline10.sl" />
+    <None Include="Tests\inline11.sl" />
+    <None Include="Tests\inline13.sl" />
+    <None Include="Tests\inline2.sl" />
+    <None Include="Tests\inline3.sl" />
+    <None Include="Tests\inline4.sl" />
+    <None Include="Tests\inline5.sl" />
+    <None Include="Tests\inline6.sl" />
+    <None Include="Tests\inline7.sl" />
+    <None Include="Tests\inline8.sl" />
+    <None Include="Tests\inline9.sl" />
+    <None Include="Tests\inline_accessor_optimize.sl" />
+    <None Include="Tests\inline_multiple_assign_access.sl" />
+    <None Include="Tests\iterator_aarray.sl" />
+    <None Include="Tests\iterator_fixedArray.sl" />
+    <None Include="Tests\iterator_foreach.sl" />
+    <None Include="Tests\iterator_iterator.sl" />
+    <None Include="Tests\iterator_iterator_method.sl" />
+    <None Include="Tests\iterator_lambda_pred.sl" />
+    <None Include="Tests\iterator_map.sl" />
+    <None Include="Tests\iterator_name_value.sl" />
+    <None Include="Tests\iterator_queryable.sl" />
+    <None Include="Tests\iterator_queryable2.sl" />
+    <None Include="Tests\iterator_range.sl" />
+    <None Include="Tests\iterator_raw.sl" />
+    <None Include="Tests\iterator_simple.sl" />
+    <None Include="Tests\iterator_sparseArray.sl" />
+    <None Include="Tests\json.sl" />
+    <None Include="Tests\lambda.sl" />
+    <None Include="Tests\lambda2.sl" />
+    <None Include="Tests\lambda3.sl" />
+    <None Include="Tests\lambda_raw_functor.sl" />
+    <None Include="Tests\lambda_self_capture.sl" />
+    <None Include="Tests\library_test.sl" />
+    <None Include="Tests\link_test_1_1.fg" />
+    <None Include="Tests\link_test_1_2.fg" />
+    <None Include="Tests\linq_from_expression.sl" />
+    <None Include="Tests\linq_from_from_select.sl" />
+    <None Include="Tests\linq_from_from_where_select.sl" />
+    <None Include="Tests\linq_from_group.sl" />
+    <None Include="Tests\linq_from_join.sl" />
+    <None Include="Tests\linq_from_join_into.sl" />
+    <None Include="Tests\linq_from_let_select.sl" />
+    <None Include="Tests\linq_from_select.sl" />
+    <None Include="Tests\linq_orderby.sl" />
+    <None Include="Tests\linq_orderby_descending.sl" />
+    <None Include="Tests\linq_orderby_thenby.sl" />
+    <None Include="Tests\mandel.sl" />
+    <None Include="Tests\multiline_string.sl" />
+    <None Include="Tests\namespace.sl" />
+    <None Include="Tests\opt.bat" />
+    <None Include="Tests\pack-array.sl" />
+    <None Include="Tests\pack-object.sl" />
+    <None Include="Tests\page1.ap" />
+    <None Include="Tests\function-default-parameters.sl" />
+    <None Include="Tests\pseudoObjCall.sl" />
+    <None Include="Tests\range.sl" />
+    <None Include="Tests\seq.sl" />
+    <None Include="Tests\shortcircuitbool.sl" />
+    <None Include="Tests\strings.sl" />
+    <None Include="Tests\Switch.sl" />
+    <None Include="Tests\tailCall.sl" />
+    <None Include="Tests\test.sl" />
+    <None Include="Tests\trinary.sl" />
+    <None Include="Tests\trycatchfinally.sl" />
+    <None Include="Tests\typeInference.sl" />
+    <None Include="Tests\union.sl" />
+    <None Include="Tests\use_uninitialized.sl" />
+    <None Include="Tests\warn.sl" />
+    <None Include="Tests\webDecodeEncode.sl" />
+    <None Include="Tests\while.sl" />
+    <None Include="Tests\xmlDom.sl" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="vsCode">
+      <UniqueIdentifier>{1bc56561-2d1a-43dc-a99f-1fecb9bd7995}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vsCode\src">
+      <UniqueIdentifier>{73fd46e9-c0f3-4455-a092-b0cb341e763c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vsCode\src\Debugger">
+      <UniqueIdentifier>{7314e9cd-989f-4ade-ad01-f73913903634}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vsCode\syntaxes">
+      <UniqueIdentifier>{49845b7f-8ada-4115-acdf-400545800d13}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="rpcServer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="languageServer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="consoleServer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="languageServer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="NatvisFile.natvis" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="vscode\src\extension.ts">
+      <Filter>vsCode\src</Filter>
+    </None>
+    <None Include="vscode\.eslintignore">
+      <Filter>vsCode</Filter>
+    </None>
+    <None Include="vscode\.eslintrc.js">
+      <Filter>vsCode</Filter>
+    </None>
+    <None Include="vscode\.eslintrc.json">
+      <Filter>vsCode</Filter>
+    </None>
+    <None Include="vscode\.gitignore">
+      <Filter>vsCode</Filter>
+    </None>
+    <None Include="vscode\.vscodeignore">
+      <Filter>vsCode</Filter>
+    </None>
+    <None Include="vscode\package.json">
+      <Filter>vsCode</Filter>
+    </None>
+    <None Include="vscode\tsconfig.json">
+      <Filter>vsCode</Filter>
+    </None>
+    <None Include="vscode\webpack.config.js">
+      <Filter>vsCode</Filter>
+    </None>
+    <None Include="vscode\src\Debugger\activateSlangDebug.ts">
+      <Filter>vsCode\src\Debugger</Filter>
+    </None>
+    <None Include="vscode\src\Debugger\debugAdapter.ts">
+      <Filter>vsCode\src\Debugger</Filter>
+    </None>
+    <None Include="vscode\src\Debugger\extension.ts">
+      <Filter>vsCode\src\Debugger</Filter>
+    </None>
+    <None Include="vscode\src\Debugger\slangDebug.ts">
+      <Filter>vsCode\src\Debugger</Filter>
+    </None>
+    <None Include="vscode\src\Debugger\slangRuntime.ts">
+      <Filter>vsCode\src\Debugger</Filter>
+    </None>
+    <None Include="vscode\syntaxes\slang.tmGrammer">
+      <Filter>vsCode\syntaxes</Filter>
+    </None>
+    <None Include="vscode\ap.language-configuration.json">
+      <Filter>vsCode</Filter>
+    </None>
+    <None Include="vscode\fgl.language-configuration.json">
+      <Filter>vsCode</Filter>
+    </None>
+    <None Include="vscode\slang.language-configuration.json">
+      <Filter>vsCode</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Text.txt">
+      <Filter>vsCode</Filter>
+    </Text>
+  </ItemGroup>
+</Project>
