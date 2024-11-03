@@ -419,9 +419,9 @@ static void CreateConsole ( char const *appName )
 
 		/* give it a title */
 #if _DEBUG
-		sprintf_s ( titleString, sizeof ( titleString ), "Slang MultiServer - v%u.%u.%u %s %s - DEBUG", HIWORD ( VerFixedFileInfo->dwFileVersionMS ), LOWORD ( VerFixedFileInfo->dwFileVersionLS ), SVN_REVISION, __TIME__, SVN_LOCAL_MODIFICATIONS ? " - NON-COMMITTED" : "" );
+		sprintf_s ( titleString, sizeof ( titleString ), "Slang MultiServer - v%u.%u.%s %s %s - DEBUG", HIWORD ( VerFixedFileInfo->dwFileVersionMS ), LOWORD ( VerFixedFileInfo->dwFileVersionLS ),	VCS_SHORT_HASH, __TIME__, VCS_WC_MODIFIED ? " - NON-COMMITTED" : "" );
 #else
-		sprintf_s ( titleString, sizeof ( titleString ), "Slang MultiServer - v%u.%u.%u %s %s", HIWORD ( VerFixedFileInfo->dwFileVersionMS ), LOWORD ( VerFixedFileInfo->dwFileVersionLS ), SVN_REVISION, __TIME__, SVN_LOCAL_MODIFICATIONS ? " - NON-COMMITTED" : "" );
+		sprintf_s ( titleString, sizeof ( titleString ), "Slang MultiServer - v%u.%u.%u %s %s", HIWORD (VerFixedFileInfo->dwFileVersionMS), LOWORD (VerFixedFileInfo->dwFileVersionLS), VCS_SHORT_HASH, __TIME__, VCS_WC_MODIFIED ? " - NON-COMMITTED" : "");
 #endif
 
 		SetConsoleTitle ( titleString );

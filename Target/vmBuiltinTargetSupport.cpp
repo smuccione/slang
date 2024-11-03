@@ -59,16 +59,16 @@ static VAR_STR engineVersion ( vmInstance *instance )
 	char version[512];
 
 #if _DEBUG
-	sprintf_s ( version, sizeof ( version ), "v%u.%u.%u %s %s - DEBUG", HIWORD ( VerFixedFileInfo->dwFileVersionMS ), LOWORD ( VerFixedFileInfo->dwFileVersionLS ), SVN_REVISION, __TIME__, SVN_LOCAL_MODIFICATIONS ? " - NON-COMMITTED" : "" );
+	sprintf_s (version, sizeof (version), "Slang MultiServer - v%u.%u.%s %s %s - DEBUG", HIWORD (VerFixedFileInfo->dwFileVersionMS), LOWORD (VerFixedFileInfo->dwFileVersionLS), VCS_SHORT_HASH, __TIME__, VCS_WC_MODIFIED ? " - NON-COMMITTED" : "");
 #else
-	sprintf_s ( version, sizeof ( version ), "v%u.%u.%u %s %s", HIWORD ( VerFixedFileInfo->dwFileVersionMS ), LOWORD ( VerFixedFileInfo->dwFileVersionLS ), SVN_REVISION, __TIME__, SVN_LOCAL_MODIFICATIONS ? " - NON-COMMITTED" : "" );
+	sprintf_s (version, sizeof (titleString), "Slang MultiServer - v%u.%u.%u %s %s", HIWORD (VerFixedFileInfo->dwFileVersionMS), LOWORD (VerFixedFileInfo->dwFileVersionLS), VCS_SHORT_HASH, __TIME__, VCS_WC_MODIFIED ? " - NON-COMMITTED" : "");
 #endif
 	return VAR_STR ( instance, version, strlen ( version ) );
 }
 
 static VAR engineVersionNumber ( vmInstance *instance )
 {
-	return VAR ( SVN_REVISION );
+	return VAR_STR ( VCS_SHORT_HASH );
 }
 
 static VAR_STR vmRunAndCapture ( class vmInstance *instance, char const *directory, char const *fName, char const *parameters, char const *stdIn )

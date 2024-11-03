@@ -1,1 +1,1 @@
-#include "svnVersion.svnInc"
+#include "version.h"

@@ -51,11 +51,15 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="svnVersionTemplate.h" />
     <ClInclude Include="version.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="doNothing.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="autorevision.sh" />
+    <None Include="makeVersion.bat" />
+    <None Include="makeVersion.sh" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -192,7 +196,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ExtensionsToDeleteOnClean>$(ExtensionsToDeleteOnClean)</ExtensionsToDeleteOnClean>
+    <ExtensionsToDeleteOnClean>*.cdf;*.cache;*.obj;*.obj.enc;*.ilk;*.ipdb;*.iobj;*.resources;*.tlb;*.tli;*.tlh;*.tmp;*.rsp;*.pgc;*.pgd;*.meta;*.tlog;*.manifest;*.res;*.pch;*.exp;*.idb;*.rep;*.xdc;*.pdb;*_manifest.rc;*.bsc;*.sbr;*.xml;*.metagen;*.bi</ExtensionsToDeleteOnClean>
     <IncludePath>$(SolutionDir);$(SolutionDir)packages\boost.1.86.0\lib\native\include;$(SolutionDir)packages\openssl-vc140-static-32_64.1.1.1.1\lib\native\include;$(SolutionDir)packages\zlib_static.1.2.11.12\build\native\include;$(SolutionDir)packages\zlib-msvc-x64.1.2.11.8900\build\native\include;$(IncludePath)</IncludePath>
     <CustomBuildBeforeTargets>ClCompile</CustomBuildBeforeTargets>
     <IntDir>$(Configuration)\$(Platform)\$(RootNamespace)\</IntDir>
@@ -202,7 +206,7 @@
     <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Linux|x64'">
-    <ExtensionsToDeleteOnClean>$(ExtensionsToDeleteOnClean)</ExtensionsToDeleteOnClean>
+    <ExtensionsToDeleteOnClean>*.cdf;*.cache;*.obj;*.obj.enc;*.ilk;*.ipdb;*.iobj;*.resources;*.tlb;*.tli;*.tlh;*.tmp;*.rsp;*.pgc;*.pgd;*.meta;*.tlog;*.manifest;*.res;*.pch;*.exp;*.idb;*.rep;*.xdc;*.pdb;*_manifest.rc;*.bsc;*.sbr;*.xml;*.metagen;*.bi</ExtensionsToDeleteOnClean>
     <IncludePath>$(SolutionDir);$(SolutionDir)packages\boost.1.86.0\lib\native\include;$(SolutionDir)packages\openssl-vc140-static-32_64.1.1.1.1\lib\native\include;$(SolutionDir)packages\zlib_static.1.2.11.12\build\native\include;$(SolutionDir)packages\zlib-msvc-x64.1.2.11.8900\build\native\include;$(IncludePath)</IncludePath>
     <CustomBuildBeforeTargets>ClCompile</CustomBuildBeforeTargets>
     <IntDir>$(Configuration)\$(Platform)\$(RootNamespace)\</IntDir>
@@ -212,7 +216,7 @@
     <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Static Analysis|x64'">
-    <ExtensionsToDeleteOnClean>$(ExtensionsToDeleteOnClean)</ExtensionsToDeleteOnClean>
+    <ExtensionsToDeleteOnClean>*.cdf;*.cache;*.obj;*.obj.enc;*.ilk;*.ipdb;*.iobj;*.resources;*.tlb;*.tli;*.tlh;*.tmp;*.rsp;*.pgc;*.pgd;*.meta;*.tlog;*.manifest;*.res;*.pch;*.exp;*.idb;*.rep;*.xdc;*.pdb;*_manifest.rc;*.bsc;*.sbr;*.xml;*.metagen;*.bi</ExtensionsToDeleteOnClean>
     <IncludePath>$(SolutionDir);$(SolutionDir)packages\boost.1.86.0\lib\native\include;$(SolutionDir)packages\openssl-vc140-static-32_64.1.1.1.1\lib\native\include;$(SolutionDir)packages\zlib_static.1.2.11.12\build\native\include;$(SolutionDir)packages\zlib-msvc-x64.1.2.11.8900\build\native\include;$(IncludePath)</IncludePath>
     <CustomBuildBeforeTargets>ClCompile</CustomBuildBeforeTargets>
     <IntDir>$(Configuration)\$(Platform)\$(RootNamespace)\</IntDir>
@@ -222,7 +226,7 @@
     <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Address Sanitizer|x64'">
-    <ExtensionsToDeleteOnClean>$(ExtensionsToDeleteOnClean)</ExtensionsToDeleteOnClean>
+    <ExtensionsToDeleteOnClean>*.cdf;*.cache;*.obj;*.obj.enc;*.ilk;*.ipdb;*.iobj;*.resources;*.tlb;*.tli;*.tlh;*.tmp;*.rsp;*.pgc;*.pgd;*.meta;*.tlog;*.manifest;*.res;*.pch;*.exp;*.idb;*.rep;*.xdc;*.pdb;*_manifest.rc;*.bsc;*.sbr;*.xml;*.metagen;*.bi</ExtensionsToDeleteOnClean>
     <IncludePath>$(SolutionDir);$(SolutionDir)packages\boost.1.86.0\lib\native\include;$(SolutionDir)packages\openssl-vc140-static-32_64.1.1.1.1\lib\native\include;$(SolutionDir)packages\zlib_static.1.2.11.12\build\native\include;$(SolutionDir)packages\zlib-msvc-x64.1.2.11.8900\build\native\include;$(IncludePath)</IncludePath>
     <CustomBuildBeforeTargets>ClCompile</CustomBuildBeforeTargets>
     <IntDir>$(Configuration)\$(Platform)\$(RootNamespace)\</IntDir>
@@ -283,22 +287,23 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PreBuildEvent>
-      <Command>
-      </Command>
-    </PreBuildEvent>
-    <CustomBuildStep>
-      <Command>erase  $(ProjectDir)svnVersion.svnInc.tmp
-SubWcRev $(SolutionDir) $(ProjectDir)svnVersionTemplate.h $(ProjectDir)svnVersion.svnInc.tmp -d &gt;nul
-if not exist $(ProjectDir)svnVersion.svnInc goto copy &gt;nul
-fc  $(ProjectDir)svnVersion.svnInc $(ProjectDir)svnVersion.svnInc.tmp &gt;nul
-if %ERRORLEVEL% equ 0 goto noCopy &gt;nul
+      <Command>echo on
+erase  versionLib.h.tmp
+call makeVersion.bat $(ProjectDir)
+if not exist versionLib.h goto copy
+fc  versionLib.h versionLib.h.tmp
+if %ERRORLEVEL% equ 0 goto noCopy 
 :copy
-copy $(ProjectDir)svnVersion.svnInc.tmp $(ProjectDir)svnVersion.svnInc /y &gt;nul
+copy versionLib.h.tmp versionLib.h /y
 :noCopy
 Exit 0</Command>
+    </PreBuildEvent>
+    <CustomBuildStep>
+      <Command>
+      </Command>
     </CustomBuildStep>
     <CustomBuildStep>
-      <Outputs>svnVersion.svnInc, svnVersion.svnInc.tmp</Outputs>
+      <Outputs>versionLib.h</Outputs>
       <Inputs>
       </Inputs>
       <TreatOutputAsContent>false</TreatOutputAsContent>
@@ -341,22 +346,23 @@ Exit 0</Command>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PreBuildEvent>
-      <Command>
-      </Command>
-    </PreBuildEvent>
-    <CustomBuildStep>
-      <Command>erase  $(ProjectDir)svnVersion.svnInc.tmp
-SubWcRev $(SolutionDir) $(ProjectDir)svnVersionTemplate.h $(ProjectDir)svnVersion.svnInc.tmp -d &gt;nul
-if not exist $(ProjectDir)svnVersion.svnInc goto copy &gt;nul
-fc  $(ProjectDir)svnVersion.svnInc $(ProjectDir)svnVersion.svnInc.tmp &gt;nul
-if %ERRORLEVEL% equ 0 goto noCopy &gt;nul
+      <Command>echo on
+erase  versionLib.h.tmp
+call makeVersion.bat $(ProjectDir)
+if not exist versionLib.h goto copy
+fc  versionLib.h versionLib.h.tmp
+if %ERRORLEVEL% equ 0 goto noCopy 
 :copy
-copy $(ProjectDir)svnVersion.svnInc.tmp $(ProjectDir)svnVersion.svnInc /y &gt;nul
+copy versionLib.h.tmp versionLib.h /y
 :noCopy
 Exit 0</Command>
+    </PreBuildEvent>
+    <CustomBuildStep>
+      <Command>
+      </Command>
     </CustomBuildStep>
     <CustomBuildStep>
-      <Outputs>svnVersion.svnInc, svnVersion.svnInc.tmp</Outputs>
+      <Outputs>versionLib.h</Outputs>
       <Inputs>
       </Inputs>
       <TreatOutputAsContent>false</TreatOutputAsContent>
@@ -441,22 +447,23 @@ Exit 0</Command>
       <SubSystem>Console</SubSystem>
     </Link>
     <PreBuildEvent>
-      <Command>
-      </Command>
-    </PreBuildEvent>
-    <CustomBuildStep>
-      <Command>erase  $(ProjectDir)svnVersion.svnInc.tmp
-SubWcRev $(SolutionDir) $(ProjectDir)svnVersionTemplate.h $(ProjectDir)svnVersion.svnInc.tmp -d &gt;nul
-if not exist $(ProjectDir)svnVersion.svnInc goto copy &gt;nul
-fc  $(ProjectDir)svnVersion.svnInc $(ProjectDir)svnVersion.svnInc.tmp &gt;nul
-if %ERRORLEVEL% equ 0 goto noCopy &gt;nul
+      <Command>echo on
+erase  versionLib.h.tmp
+call makeVersion.bat $(ProjectDir)
+if not exist versionLib.h goto copy
+fc  versionLib.h versionLib.h.tmp
+if %ERRORLEVEL% equ 0 goto noCopy 
 :copy
-copy $(ProjectDir)svnVersion.svnInc.tmp $(ProjectDir)svnVersion.svnInc /y &gt;nul
+copy versionLib.h.tmp versionLib.h /y
 :noCopy
 Exit 0</Command>
+    </PreBuildEvent>
+    <CustomBuildStep>
+      <Command>
+      </Command>
     </CustomBuildStep>
     <CustomBuildStep>
-      <Outputs>svnVersion.svnInc, svnVersion.svnInc.tmp</Outputs>
+      <Outputs>versionLib.h</Outputs>
       <Inputs>
       </Inputs>
       <TreatOutputAsContent>false</TreatOutputAsContent>
@@ -501,22 +508,23 @@ Exit 0</Command>
       <SubSystem>Console</SubSystem>
     </Link>
     <PreBuildEvent>
-      <Command>
-      </Command>
-    </PreBuildEvent>
-    <CustomBuildStep>
-      <Command>erase  $(ProjectDir)svnVersion.svnInc.tmp
-SubWcRev $(SolutionDir) $(ProjectDir)svnVersionTemplate.h $(ProjectDir)svnVersion.svnInc.tmp -d &gt;nul
-if not exist $(ProjectDir)svnVersion.svnInc goto copy &gt;nul
-fc  $(ProjectDir)svnVersion.svnInc $(ProjectDir)svnVersion.svnInc.tmp &gt;nul
-if %ERRORLEVEL% equ 0 goto noCopy &gt;nul
+      <Command>echo on
+erase  versionLib.h.tmp
+call makeVersion.bat $(ProjectDir)
+if not exist versionLib.h goto copy
+fc  versionLib.h versionLib.h.tmp
+if %ERRORLEVEL% equ 0 goto noCopy 
 :copy
-copy $(ProjectDir)svnVersion.svnInc.tmp $(ProjectDir)svnVersion.svnInc /y &gt;nul
+copy versionLib.h.tmp versionLib.h /y
 :noCopy
 Exit 0</Command>
+    </PreBuildEvent>
+    <CustomBuildStep>
+      <Command>
+      </Command>
     </CustomBuildStep>
     <CustomBuildStep>
-      <Outputs>svnVersion.svnInc, svnVersion.svnInc.tmp</Outputs>
+      <Outputs>versionLib.h</Outputs>
       <Inputs>
       </Inputs>
       <TreatOutputAsContent>false</TreatOutputAsContent>
@@ -559,22 +567,23 @@ Exit 0</Command>
       <SubSystem>Console</SubSystem>
     </Link>
     <PreBuildEvent>
-      <Command>
-      </Command>
-    </PreBuildEvent>
-    <CustomBuildStep>
-      <Command>erase  $(ProjectDir)svnVersion.svnInc.tmp
-SubWcRev $(SolutionDir) $(ProjectDir)svnVersionTemplate.h $(ProjectDir)svnVersion.svnInc.tmp -d &gt;nul
-if not exist $(ProjectDir)svnVersion.svnInc goto copy &gt;nul
-fc  $(ProjectDir)svnVersion.svnInc $(ProjectDir)svnVersion.svnInc.tmp &gt;nul
-if %ERRORLEVEL% equ 0 goto noCopy &gt;nul
+      <Command>echo on
+erase  versionLib.h.tmp
+call makeVersion.bat $(ProjectDir)
+if not exist versionLib.h goto copy
+fc  versionLib.h versionLib.h.tmp
+if %ERRORLEVEL% equ 0 goto noCopy 
 :copy
-copy $(ProjectDir)svnVersion.svnInc.tmp $(ProjectDir)svnVersion.svnInc /y &gt;nul
+copy versionLib.h.tmp versionLib.h /y
 :noCopy
 Exit 0</Command>
+    </PreBuildEvent>
+    <CustomBuildStep>
+      <Command>
+      </Command>
     </CustomBuildStep>
     <CustomBuildStep>
-      <Outputs>svnVersion.svnInc, svnVersion.svnInc.tmp</Outputs>
+      <Outputs>versionLib.h</Outputs>
       <Inputs>
       </Inputs>
       <TreatOutputAsContent>false</TreatOutputAsContent>
@@ -618,22 +627,23 @@ Exit 0</Command>
       <SubSystem>Console</SubSystem>
     </Link>
     <PreBuildEvent>
-      <Command>
-      </Command>
-    </PreBuildEvent>
-    <CustomBuildStep>
-      <Command>erase  $(ProjectDir)svnVersion.svnInc.tmp
-SubWcRev $(SolutionDir) $(ProjectDir)svnVersionTemplate.h $(ProjectDir)svnVersion.svnInc.tmp -d &gt;nul
-if not exist $(ProjectDir)svnVersion.svnInc goto copy &gt;nul
-fc  $(ProjectDir)svnVersion.svnInc $(ProjectDir)svnVersion.svnInc.tmp &gt;nul
-if %ERRORLEVEL% equ 0 goto noCopy &gt;nul
+      <Command>echo on
+erase  versionLib.h.tmp
+call makeVersion.bat $(ProjectDir)
+if not exist versionLib.h goto copy
+fc  versionLib.h versionLib.h.tmp
+if %ERRORLEVEL% equ 0 goto noCopy 
 :copy
-copy $(ProjectDir)svnVersion.svnInc.tmp $(ProjectDir)svnVersion.svnInc /y &gt;nul
+copy versionLib.h.tmp versionLib.h /y
 :noCopy
 Exit 0</Command>
+    </PreBuildEvent>
+    <CustomBuildStep>
+      <Command>
+      </Command>
     </CustomBuildStep>
     <CustomBuildStep>
-      <Outputs>svnVersion.svnInc, svnVersion.svnInc.tmp</Outputs>
+      <Outputs>versionLib.h</Outputs>
       <Inputs>
       </Inputs>
       <TreatOutputAsContent>false</TreatOutputAsContent>

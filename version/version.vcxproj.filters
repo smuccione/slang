@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="svnVersionTemplate.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="version.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -26,5 +23,14 @@
     <ClCompile Include="doNothing.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="autorevision.sh">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="makeVersion.bat">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="makeVersion.sh" />
   </ItemGroup>
 </Project>

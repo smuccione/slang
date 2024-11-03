@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include "svnVersion.svnInc"
+#include "versionLib.h"
 
 inline static char BuildYear[] = { __DATE__[7], __DATE__[8], __DATE__[9], __DATE__[10], 0 };
 
