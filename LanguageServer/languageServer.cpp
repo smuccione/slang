@@ -78,6 +78,7 @@ void getDependencies ( languageServer *ls, stringi const &rootPath )
 	stringi cmdToRun = "smake.exe -C ";
 	cmdToRun += maker.generic_string ();
 	cmdToRun += " new gendep -s -j8";
+	cmdToRun += " 2>&1";// redirect stderr to stdout
 
 	BUFFER buff;
 	buff.write ( "{" );
