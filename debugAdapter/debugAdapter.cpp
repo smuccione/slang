@@ -8,6 +8,7 @@
 # define NOMINMAX
 #endif
 #include <winsock2.h>
+#include <windef.h>
 #else
 #include <sys/socket.h>
 #endif
@@ -16,9 +17,14 @@
 #include <io.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <share.h>
 #include <filesystem>
 #include <vector>
+#include <mutex>
+#include <atomic>
+#include <memory>
+#include <thread>
+#include <type_traits>
+#include <algorithm>
 
 #include "compilerParser/fileParser.h"
 #include "compilerBCGenerator/compilerBCGenerator.h"
@@ -50,9 +56,9 @@ static std::atomic<bool>				 debuggerRunning = false;
 
 static  stringi							 targetDebugFile;
 static  bool							 breakOnEntry;
-static	winDebugger						*activeDebugger = nullptr;
-static	dbgJsonRPCServerBase			*activeDebugServer = nullptr;
-static	vmInstance						*lastInstance = nullptr;
+static	winDebugger *activeDebugger = nullptr;
+static	dbgJsonRPCServerBase *activeDebugServer = nullptr;
+static	vmInstance *lastInstance = nullptr;
 static	debuggerFileStore				 fileStore;
 int										 writePipeDesc;
 int										 readPipeDesc;
@@ -60,7 +66,7 @@ BUFFER									 outputBuffer;
 
 // this data must be cleared at each stop
 static  std::vector<variableReference>	 varReferences;
-static  vmInspectorList					*inspectors = nullptr;
+static  vmInspectorList *inspectors = nullptr;
 std::vector<vmInspectList *>			 inspectorList;
 
 #define NOTES \
@@ -94,151 +100,151 @@ static void standaloneRunner ( std::unique_ptr<vmTaskInstance> instance, bool do
 {
 	try
 	{
-		instance->run( "main", true);
+		instance->run ( "main", true );
 	} catch ( ... )
 	{
-		instance->log( logger::level::INFO, logger::modules::SYSTEM, "****** error during execution" );
+		instance->log ( logger::level::INFO, logger::modules::SYSTEM, "****** error during execution" );
 	}
 
 	if ( doOutputString )
 	{
-		printf( "%.*s\r\n", (int) classIVarAccess( instance->getGlobal( "userCode", "__outputString" ), "size" )->dat.l, classIVarAccess( instance->getGlobal( "userCode", "__outputString" ), "buff" )->dat.str.c );
+		printf ( "%.*s\r\n", (int)classIVarAccess ( instance->getGlobal ( "userCode", "__outputString" ), "size" )->dat.l, classIVarAccess ( instance->getGlobal ( "userCode", "__outputString" ), "buff" )->dat.str.c );
 	}
 
 	if ( printOmStats )
 	{
-		instance->om->printStats();
+		instance->om->printStats ();
 	}
 
-	instance->om->processDestructors();
-	instance->reset();
+	instance->om->processDestructors ();
+	instance->reset ();
 }
 
 
 static bool standaloneLaunch ( std::vector<stringi> const &fList, bool noInline, bool doListing, bool doProfiling, bool doBraces )
 {
-	BUFFER				 buff( 1024ull * 1024 * 4 );
-	BUFFER				 objBuff( 1024ull * 1024 * 4 );
-	char				*code = nullptr;
+	BUFFER				 buff ( 1024ull * 1024 * 4 );
+	BUFFER				 objBuff ( 1024ull * 1024 * 4 );
+	char *code = nullptr;
 	bool				 isAP = false;
 	bool				 doOutputString = false;
 	bool				 printOmStats = false;
 	bool				 doTest = false;
 	bool				 noRun = false;
 
-	std::unique_ptr<vmTaskInstance> instance = std::make_unique<vmTaskInstance>( fList[0].c_str() );
+	std::unique_ptr<vmTaskInstance> instance = std::make_unique<vmTaskInstance> ( fList[0].c_str () );
 
-	debugServerInit( instance.get() );
+	debugServerInit ( instance.get () );
 
 	// compile the built-in code
-	auto [builtIn, builtInSize] = builtinInit( instance.get(), builtinFlags::builtIn_MakeCompiler );			// this is the INTERFACE
+	auto [builtIn, builtInSize] = builtinInit ( instance.get (), builtinFlags::builtIn_MakeCompiler );			// this is the INTERFACE
 
 	opFile oCombined;
 
 	isAP = false;
 
-	for ( size_t loop = 0; loop < fList.size(); loop++ )
+	for ( size_t loop = 0; loop < fList.size (); loop++ )
 	{
-		stringi file = std::filesystem::absolute( fList[loop].c_str() ).string();
+		stringi file = std::filesystem::absolute ( fList[loop].c_str () ).string ();
 
-		instance->log( logger::level::INFO, logger::modules::SYSTEM, "file: %s", file.c_str() );
+		instance->log ( logger::level::INFO, logger::modules::SYSTEM, "file: %s", file.c_str () );
 		{
 			if ( isAP )
 			{
-				code = compAPPreprocessor( file.c_str(), doBraces, true );
+				code = compAPPreprocessor ( file.c_str (), doBraces, true );
 			} else
 			{
-				auto entry = globalFileCache.read( file.c_str() );
+				auto entry = globalFileCache.read ( file.c_str () );
 
 				if ( !entry )
 				{
-					instance->log( logger::level::ERROR, logger::modules::SYSTEM, "reading file: %s", file.c_str() );
+					instance->log ( logger::level::ERROR, logger::modules::SYSTEM, "reading file: %s", file.c_str () );
 					return 0;
 				}
 				BUFFER b;
 
-				b.write( entry->getData(), entry->getDataLen() );
-				b.put( 0 );	// need to do this to ensure null termination
-				entry->free();
+				b.write ( entry->getData (), entry->getDataLen () );
+				b.put ( 0 );	// need to do this to ensure null termination
+				entry->free ();
 
-				code = compPreprocessor( file.c_str(), b.data<char *>(), doBraces );
+				code = compPreprocessor ( file.c_str (), b.data<char *> (), doBraces );
 			}
 		}
 
 		opFile	oFile;
 
-		oFile.parseFile( file.c_str(), code, doBraces, false );
-		if ( oFile.errHandler.isFatal() )
+		oFile.parseFile ( file.c_str (), code, doBraces, false );
+		if ( oFile.errHandler.isFatal () )
 		{
 			return false;
 		}
 
-		free( code );
+		free ( code );
 
-		objBuff.reset();
-		oFile.addBuildSource( file );
-		oFile.serialize( &objBuff, false );
+		objBuff.reset ();
+		oFile.addBuildSource ( file );
+		oFile.serialize ( &objBuff, false );
 
-		if ( !doTest ) instance->log( logger::level::INFO, logger::modules::SYSTEM, "object file size = %zu", bufferSize( &objBuff ) );
+		if ( !doTest ) instance->log ( logger::level::INFO, logger::modules::SYSTEM, "object file size = %zu", bufferSize ( &objBuff ) );
 
 		// code being built
-		auto obj = (uint8_t const *) bufferBuff( &objBuff );
-		oCombined.addStream( (const char **) &obj, false, false );
+		auto obj = (uint8_t const *)bufferBuff ( &objBuff );
+		oCombined.addStream ( (const char **)&obj, false, false );
 	}
 
-	char const *obj = (char const *) builtIn;
-	oCombined.addStream( &obj, false, false );
+	char const *obj = (char const *)builtIn;
+	oCombined.addStream ( &obj, false, false );
 
-	if ( oCombined.errHandler.isFatal() )
+	if ( oCombined.errHandler.isFatal () )
 	{
 		return false;
 	}
 
 	try
 	{
-		oCombined.loadLibraries( false, false );
+		oCombined.loadLibraries ( false, false );
 	} catch ( ... )
 	{
-		printf( "****** error loading libraries\r\n" );
+		printf ( "****** error loading libraries\r\n" );
 		return false;
 	}
 
-	compExecutable comp( &oCombined );
+	compExecutable comp ( &oCombined );
 	if ( doListing )
 	{
 		comp.listing.level = compLister::listLevel::LIGHT;
 	}
-	if ( doProfiling ) comp.enableProfiling();
-	comp.enableDebugging();
+	if ( doProfiling ) comp.enableProfiling ();
+	comp.enableDebugging ();
 	try
 	{
 		comp.opt.setInlining ( false );
-		comp.genCode( noRun ? 0 : "main" );
+		comp.genCode ( noRun ? 0 : "main" );
 	} catch ( errorNum err )
 	{
-		oCombined.errHandler.throwFatalError( false, err );
+		oCombined.errHandler.throwFatalError ( false, err );
 	}
 
-	if ( oCombined.errHandler.isFatal() )
+	if ( oCombined.errHandler.isFatal () )
 	{
 		return 0;
 	}
 
-	comp.serialize( &buff, false );
+	comp.serialize ( &buff, false );
 
-	if ( !doTest ) instance->log( logger::level::INFO, logger::modules::SYSTEM, "compiled file size = %zu", bufferSize( &buff ) );
-	if ( !doTest ) instance->log( logger::level::INFO, logger::modules::SYSTEM, "optimization time = %I64u ms", comp.tOptimizer );
-	if ( !doTest ) instance->log( logger::level::INFO, logger::modules::SYSTEM, "back end time     = %I64u ms", comp.tBackEnd );
+	if ( !doTest ) instance->log ( logger::level::INFO, logger::modules::SYSTEM, "compiled file size = %zu", bufferSize ( &buff ) );
+	if ( !doTest ) instance->log ( logger::level::INFO, logger::modules::SYSTEM, "optimization time = %I64u ms", comp.tOptimizer );
+	if ( !doTest ) instance->log ( logger::level::INFO, logger::modules::SYSTEM, "back end time     = %I64u ms", comp.tBackEnd );
 
-	if ( !doTest ) comp.listing.printOutput();
+	if ( !doTest ) comp.listing.printOutput ();
 
 	{
-		std::shared_ptr<uint8_t> dup2( (uint8_t *) bufferDetach( &buff ), [=] ( auto p ) { free( p ); } );
-		instance->load( dup2, "usercode", false, false );
+		std::shared_ptr<uint8_t> dup2 ( (uint8_t *)bufferDetach ( &buff ), [=]( auto p ) { free ( p ); } );
+		instance->load ( dup2, "usercode", false, false );
 	}
 
-	std::thread task( standaloneRunner, std::move( instance) , doOutputString, printOmStats);
-	task.detach();
+	std::thread task ( standaloneRunner, std::move ( instance ), doOutputString, printOmStats );
+	task.detach ();
 	return 1;
 }
 
@@ -255,7 +261,7 @@ static LRESULT CALLBACK debuggerWindowProc ( HWND hWnd, UINT uMsg, WPARAM wParam
 			{
 				if ( targetDebugFile.size () )
 				{
-					if ( targetDebugFile != msg->location.fName && targetDebugFile != "<any>")
+					if ( targetDebugFile != msg->location.fName && targetDebugFile != "<any>" )
 					{
 						debugContinue ( msg );
 						break;
@@ -263,7 +269,7 @@ static LRESULT CALLBACK debuggerWindowProc ( HWND hWnd, UINT uMsg, WPARAM wParam
 				}
 				lastInstance = msg->instance;
 				lastInstance->outputDesc = writePipeDesc;
-				activeDebugger = static_cast<winDebugger *>(lastInstance->debug.get());
+				activeDebugger = static_cast<winDebugger *>(lastInstance->debug.get ());
 
 				activeDebugger->lastMsg = *msg;
 
@@ -285,7 +291,7 @@ static LRESULT CALLBACK debuggerWindowProc ( HWND hWnd, UINT uMsg, WPARAM wParam
 						inspectorList.clear ();
 						varReferences.clear ();
 
-						activeDebugServer->sendNotification( (size_t) notifications::stopped );
+						activeDebugServer->sendNotification ( (size_t)notifications::stopped );
 						break;
 					case vmStateType::vmThreadEnd:
 						activeDebugServer->sendNotification ( (size_t)notifications::terminated );
@@ -304,7 +310,7 @@ static LRESULT CALLBACK debuggerWindowProc ( HWND hWnd, UINT uMsg, WPARAM wParam
 						break;
 					case vmStateType::vmThreadStart:
 						activeDebugServer->sendNotification ( (size_t)notifications::process );
-						activeDebugServer->sendNotification ( (size_t) notifications::thread );
+						activeDebugServer->sendNotification ( (size_t)notifications::thread );
 						if ( breakOnEntry )
 						{
 							debugHalt ( lastInstance );
@@ -411,7 +417,7 @@ static jsonElement initialize ( jsonElement const &req, dbgJsonRPCServerBase &se
 {
 	jsonElement capabilities;
 
-	printf ( "Debug client %s connected\r\n", req["clientName"].operator const stringi &().c_str () );
+	printf ( "Debug client %s connected\r\n", req["clientName"].operator const stringi & ().c_str () );
 
 	activeDebugServer = &server;
 
@@ -460,27 +466,27 @@ static jsonElement initialize ( jsonElement const &req, dbgJsonRPCServerBase &se
 static jsonElement launch ( jsonElement const &req, dbgJsonRPCServerBase &server, HWND handle )
 {
 	stringi const origName = req["program"];
-	bool	stopOnEntry = req.has( "stopOnEntry" ) ? (bool) req["stopOnEntry"] : false;
-	bool	noInline = req.has( "noInline" ) ? (bool) req["noInline"] : false;
+	bool	stopOnEntry = req.has ( "stopOnEntry" ) ? (bool)req["stopOnEntry"] : false;
+	bool	noInline = req.has ( "noInline" ) ? (bool)req["noInline"] : false;
 	bool	doList = req.has ( "list" ) ? (bool)req["list"] : false;
-	bool	doProfile = req.has( "profile" ) ? (bool) req["profile"] : false;
+	bool	doProfile = req.has ( "profile" ) ? (bool)req["profile"] : false;
 
-	std::filesystem::path fName = origName.c_str();
-	if ( stringi( ".sl" ) == fName.extension().string() )
+	std::filesystem::path fName = origName.c_str ();
+	if ( stringi ( ".sl" ) == fName.extension ().string () )
 	{
-		standaloneLaunch( {origName.c_str()}, noInline, doList, doProfile, true );
-	} else if ( stringi( ".fgl" ) == fName.extension().string() )
+		standaloneLaunch ( {origName.c_str ()}, noInline, doList, doProfile, true );
+	} else if ( stringi ( ".fgl" ) == fName.extension ().string () )
 	{
-		standaloneLaunch( {origName.c_str()}, noInline, doList, doProfile, false );
+		standaloneLaunch ( {origName.c_str ()}, noInline, doList, doProfile, false );
 	} else
 	{
-		if ( origName.size() )
+		if ( origName.size () )
 		{
-			stringi const fixedName = std::filesystem::path( origName.c_str() ).generic_string();
+			stringi const fixedName = std::filesystem::path ( origName.c_str () ).generic_string ();
 			targetDebugFile = fixedName;
 		} else
 		{
-			targetDebugFile.clear();
+			targetDebugFile.clear ();
 		}
 	}
 
@@ -499,7 +505,7 @@ static jsonElement attach ( jsonElement const &req, dbgJsonRPCServerBase &server
 
 static jsonElement disconnect ( jsonElement const &req, dbgJsonRPCServerBase &server, HWND handle )
 {
-	server.terminate();
+	server.terminate ();
 	return jsonElement ();
 }
 
@@ -507,15 +513,15 @@ static jsonElement setFunctionBreakpoints ( jsonElement const &req, dbgJsonRPCSe
 {
 	auto &bp = req["breakpoints"];
 
-	fileStore.functionBreakpoints.clear();
+	fileStore.functionBreakpoints.clear ();
 
 	for ( auto it = bp.cbeginArray (); it != bp.cendArray (); it++ )
 	{
 		int64_t const id = (*it)["id"];
 		int64_t const funcName = (*it)["name"];
-		stringi count = (*it).conditionalGet ( "hitCount", stringi{} );
-		stringi condition = (*it).conditionalGet ( "hitCondition", stringi{} );
-		stringi logMessage = (*it).conditionalGet ( "logMessage", stringi{} );
+		stringi count = (*it).conditionalGet ( "hitCount", stringi {} );
+		stringi condition = (*it).conditionalGet ( "hitCondition", stringi {} );
+		stringi logMessage = (*it).conditionalGet ( "logMessage", stringi {} );
 
 		fileStore.functionBreakpoints[id] = dbAdapaterBP ( funcName, condition, count, logMessage );
 	}
@@ -548,15 +554,15 @@ static jsonElement setBreakpoints ( jsonElement const &req, dbgJsonRPCServerBase
 {
 	auto &bp = req["breakpoints"];
 	stringi const origName = req["source"]["path"];
-	stringi const fixedName = std::filesystem::path ( origName.c_str() ).generic_string ();
+	stringi const fixedName = std::filesystem::path ( origName.c_str () ).generic_string ();
 
 	auto &file = fileStore.getFile ( fixedName );
 
-	for ( auto it = file.bpList.begin(); it != file.bpList.end(); )
+	for ( auto it = file.bpList.begin (); it != file.bpList.end (); )
 	{
 		if ( it->fileName == fixedName )
 		{
-			it = file.bpList.erase( it );
+			it = file.bpList.erase ( it );
 		} else
 		{
 			it++;
@@ -570,7 +576,7 @@ static jsonElement setBreakpoints ( jsonElement const &req, dbgJsonRPCServerBase
 		stringi condition;
 		stringi logMessage;
 
-		if ( (*it).has("hitCondition") )
+		if ( (*it).has ( "hitCondition" ) )
 		{
 			count = (*it)["hitCondition"];
 		}
@@ -578,7 +584,7 @@ static jsonElement setBreakpoints ( jsonElement const &req, dbgJsonRPCServerBase
 		{
 			condition = (*it)["condition"];
 		}
-		if ( (*it).has( "logMessage" ) )
+		if ( (*it).has ( "logMessage" ) )
 		{
 			logMessage = (*it)["logMessage"];
 		}
@@ -590,7 +596,7 @@ static jsonElement setBreakpoints ( jsonElement const &req, dbgJsonRPCServerBase
 	{
 		for ( auto &it : file.bpList )
 		{
-			it.location = (int64_t) activeDebugger->AdjustBreakpoint ( lastInstance, fixedName, (size_t) std::get<int64_t>(it.location) );
+			it.location = (int64_t)activeDebugger->AdjustBreakpoint ( lastInstance, fixedName, (size_t)std::get<int64_t> ( it.location ) );
 			it.verified = true;
 		}
 		debugClearAllBreakpoints ( lastInstance, fixedName );
@@ -621,24 +627,24 @@ static jsonElement stackTrace ( jsonElement const &req, dbgJsonRPCServerBase &se
 	jsonElement		rsp;
 	int64_t			nFramesReturned = 0;
 
-	if ( req.has("startFrame") )
+	if ( req.has ( "startFrame" ) )
 	{
 		startFrame = req["startFrame"];
 	}
-	if ( req.has("levels") )
+	if ( req.has ( "levels" ) )
 	{
 		levels = req["levels"];
 	}
 
 	auto callStack = debugGetCallstack ( lastInstance );
 
-	rsp["stackFrames"].makeArray();
+	rsp["stackFrames"].makeArray ();
 
 	for ( size_t loop = startFrame; loop < callStack->entry.size () && loop < (size_t)levels; loop++ )
 	{
 		jsonElement stackFrame;
 
-		stackFrame["id"] = (int64_t) loop;
+		stackFrame["id"] = (int64_t)loop;
 		stackFrame["name"] = callStack->entry[loop].funcName;
 		stackFrame["source"]["name"] = callStack->entry[loop].fileName;
 		stackFrame["source"]["path"] = fileNameToUri ( callStack->entry[loop].fileName );
@@ -647,7 +653,7 @@ static jsonElement stackTrace ( jsonElement const &req, dbgJsonRPCServerBase &se
 
 		rsp["stackFrames"][nFramesReturned++] = stackFrame;
 	}
-	
+
 	rsp["totalFrames"] = callStack->entry.size ();
 
 	return rsp;
@@ -706,7 +712,7 @@ static jsonElement setExceptionBreakpoints ( jsonElement const &req, dbgJsonRPCS
 
 		for ( auto it = bp.cbeginArray (); it != bp.cendArray (); it++ )
 		{
-			if ( (*it).operator const stringi &() == "caught" )
+			if ( (*it).operator const stringi & () == "caught" )
 			{
 				if ( breakMode == errorLocation::exceptionBreakType::unhandled )
 				{
@@ -819,7 +825,7 @@ static jsonElement scopes ( jsonElement const &req, dbgJsonRPCServerBase &server
 
 	if ( !lastInstance )
 	{
-		return jsonElement ().makeArray();
+		return jsonElement ().makeArray ();
 	}
 
 	jsonElement rsp;
@@ -830,8 +836,8 @@ static jsonElement scopes ( jsonElement const &req, dbgJsonRPCServerBase &server
 	for ( auto &it : inspectors->entry )
 	{
 		rsp["scopes"][index]["name"] = it;
-		rsp["scopes"][index]["variablesReference"] = varReferences.size() + 1;
-		varReferences.push_back ( variableReference{ true, index, (size_t)frameId, nullptr } );		// dummy to indicate that this is a base, unexpanded inspector
+		rsp["scopes"][index]["variablesReference"] = varReferences.size () + 1;
+		varReferences.push_back ( variableReference {true, index, (size_t)frameId, nullptr} );		// dummy to indicate that this is a base, unexpanded inspector
 		index++;
 	}
 
@@ -849,11 +855,11 @@ static jsonElement variables ( jsonElement const &req, dbgJsonRPCServerBase &ser
 	}
 
 	ref--;
-	if ( req.has("start") )
+	if ( req.has ( "start" ) )
 	{
 		start = req["start"];
 	}
-	if ( req.has ( "count") )
+	if ( req.has ( "count" ) )
 	{
 		count = req["count"];
 		if ( !count ) count = MAXINT64;
@@ -872,7 +878,7 @@ static jsonElement variables ( jsonElement const &req, dbgJsonRPCServerBase &ser
 	jsonElement	rsp;
 
 	// we use size_t cast here ase a negative value will be huge and no match and we'll protect against that as well
-	if ( !varReferences.size() || (size_t)ref > varReferences.size () )
+	if ( !varReferences.size () || (size_t)ref > varReferences.size () )
 	{
 		rsp["variables"] = jsonElement ().makeArray ();
 	} else
@@ -895,7 +901,7 @@ static jsonElement variables ( jsonElement const &req, dbgJsonRPCServerBase &ser
 				if ( iList->entry[loop2]->hasChildren () )
 				{
 					rsp["variables"][index]["variablesReference"] = varReferences.size () + 1;
-					varReferences.push_back ( variableReference{ false, (size_t)ref, varReferences[ref].stackFrame, iList->entry[loop2] } );
+					varReferences.push_back ( variableReference {false, (size_t)ref, varReferences[ref].stackFrame, iList->entry[loop2]} );
 				}
 				index++;
 			}
@@ -907,14 +913,14 @@ static jsonElement variables ( jsonElement const &req, dbgJsonRPCServerBase &ser
 			size_t index = 0;
 			for ( size_t loop2 = start; loop2 < (iList->entry.size () > ( size_t )count ? (size_t)count : iList->entry.size ()); loop2++ )
 			{
-				rsp["variables"][index]["name"] = stringi ( iList->entry[loop2]->getName (), iList->entry[loop2]->getNameLen() );
+				rsp["variables"][index]["name"] = stringi ( iList->entry[loop2]->getName (), iList->entry[loop2]->getNameLen () );
 				rsp["variables"][index]["value"] = stringi ( iList->entry[loop2]->getValue (), iList->entry[loop2]->getValueLen () );
 				rsp["variables"][index]["type"] = iList->entry[loop2]->getType ();
 				rsp["variables"][index]["variablesReference"] = 0;
 				if ( iList->entry[loop2]->hasChildren () )
 				{
 					rsp["variables"][index]["variablesReference"] = varReferences.size () + 1;
-					varReferences.push_back ( variableReference{ false, (size_t)ref, varReferences[ref].stackFrame, iList->entry[loop2] } );
+					varReferences.push_back ( variableReference {false, (size_t)ref, varReferences[ref].stackFrame, iList->entry[loop2]} );
 				}
 				index++;
 			}
@@ -933,7 +939,7 @@ static jsonElement setVariable ( jsonElement const &req, dbgJsonRPCServerBase &s
 
 	ref--;
 	// we use size_t cast here ase a negative value will be huge and no match and we'll protect against that as well
-	if ( (size_t)ref <= varReferences.size() && varReferences[ref].isInspector )
+	if ( (size_t)ref <= varReferences.size () && varReferences[ref].isInspector )
 	{
 		auto iList = debugInspect ( lastInstance, varReferences[ref].inspector, varReferences[ref].stackFrame );
 
@@ -964,6 +970,63 @@ static jsonElement setVariable ( jsonElement const &req, dbgJsonRPCServerBase &s
 					case slangType::eLONG:
 						var->dat.l = _atoi64 ( value.c_str () );
 						break;
+					case slangType::eNULL:
+						break;
+					default:
+						rsp["name"] = dbgVar->getName ();
+						rsp["value"] = dbgVar->getValue ();
+						rsp["variablesReference"] = ref;
+						break;
+				}
+				dbgVar->rebuildData ( lastInstance );
+				rsp["name"] = dbgVar->getName ();
+				rsp["value"] = dbgVar->getValue ();
+				rsp["variablesReference"] = 0;
+			} else
+			{
+				rsp["name"] = dbgVar->getName ();
+				rsp["value"] = dbgVar->getValue ();
+				rsp["variablesReference"] = 0;
+			}
+		} else
+		{
+			rsp["name"] = name;
+			rsp["value"] = "<error>";
+			rsp["variablesReference"] = 0;
+		}
+	} else if ( (size_t)ref <= varReferences.size () && !varReferences[ref].isInspector )
+	{
+		auto iList = varReferences[ref].debugVar->getChildren ( lastInstance, nullptr, 0, 0 );
+
+		vmDebugVar *dbgVar = nullptr;
+
+		for ( auto &it : iList->entry )
+		{
+			if ( name == it->getName () )
+			{
+				dbgVar = it;
+				break;
+			}
+		}
+		if ( dbgVar )
+		{
+			auto var = dbgVar->getRawVar ();
+
+			if ( var )
+			{
+				switch ( var->type )
+				{
+					case slangType::eSTRING:
+						*var = VAR_STR ( lastInstance, value );
+						break;
+					case slangType::eDOUBLE:
+						var->dat.d = atof ( value.c_str () );
+						break;
+					case slangType::eLONG:
+						var->dat.l = _atoi64 ( value.c_str () );
+						break;
+					case slangType::eNULL:
+						break;
 					default:
 						rsp["name"] = dbgVar->getName ();
 						rsp["value"] = dbgVar->getValue ();
@@ -987,13 +1050,14 @@ static jsonElement setVariable ( jsonElement const &req, dbgJsonRPCServerBase &s
 			rsp["variablesReference"] = 0;
 		}
 	}
+
 	return rsp;
 }
 
 static jsonElement eval ( jsonElement const &req, dbgJsonRPCServerBase &server, HWND handle )
 {
-	int64_t frameId = req.conditionalGet ( "frameId", (int64_t) 0 );
-	stringi context = req.conditionalGet ( "context", stringi() );
+	int64_t frameId = req.conditionalGet ( "frameId", (int64_t)0 );
+	stringi context = req.conditionalGet ( "context", stringi () );
 	stringi expression = req["expression"];
 
 	jsonElement  rsp;
@@ -1026,10 +1090,10 @@ static jsonElement eval ( jsonElement const &req, dbgJsonRPCServerBase &server, 
 			}
 		} catch ( errorNum err )
 		{
-			*res = VAR_STR( lastInstance, stringi ( "(" ) + scCompErrorAsText( size_t ( err ) ) + ")" );
+			*res = VAR_STR ( lastInstance, stringi ( "(" ) + scCompErrorAsText ( size_t ( err ) ) + ")" );
 		} catch ( ... )
 		{
-			*res = VAR_STR( lastInstance, "(evaluation error)" );
+			*res = VAR_STR ( lastInstance, "(evaluation error)" );
 		}
 		lastInstance->debug->enabled = stateSave;
 		lastInstance->debug->IP = opSave;
@@ -1045,7 +1109,7 @@ static jsonElement eval ( jsonElement const &req, dbgJsonRPCServerBase &server, 
 		if ( iList->entry[0]->hasChildren () )
 		{
 			rsp["variablesReference"] = varReferences.size () + 1;
-			varReferences.push_back ( variableReference{ false, 0, (size_t)frameId, iList->entry[0] } );
+			varReferences.push_back ( variableReference {false, 0, (size_t)frameId, iList->entry[0]} );
 		}
 	}
 
@@ -1070,7 +1134,7 @@ static jsonElement gotoTargets ( jsonElement const &req, dbgJsonRPCServerBase &s
 	{
 		rsp["targets"][index]["id"] = it;
 		rsp["targets"][index]["line"] = it;
-		rsp["targets"][index]["label"] = stringi() + it;
+		rsp["targets"][index]["label"] = stringi () + it;
 		index++;
 	}
 
@@ -1092,67 +1156,67 @@ static jsonElement gotoIp ( jsonElement const &req, dbgJsonRPCServerBase &server
 	return jsonElement ();
 }
 
-static jsonElement modules( jsonElement const &req, dbgJsonRPCServerBase &server, HWND handle )
+static jsonElement modules ( jsonElement const &req, dbgJsonRPCServerBase &server, HWND handle )
 {
 	jsonElement ret;
 
 	ret["modules"].makeArray ();
 	if ( lastInstance )
 	{
-		lastInstance->atomTable->typeMap ( atom::atomType::aLOADIMAGE, [&] ( uint32_t atomIndex )
-			{
-				auto name = lastInstance->atomTable->atomGetName ( atomIndex );
-				bcLoadImage *image = lastInstance->atomTable->atomGetLoadImage ( atomIndex );
+		lastInstance->atomTable->typeMap ( atom::atomType::aLOADIMAGE, [&]( uint32_t atomIndex )
+										   {
+											   auto name = lastInstance->atomTable->atomGetName ( atomIndex );
+											   bcLoadImage *image = lastInstance->atomTable->atomGetLoadImage ( atomIndex );
 
-				jsonElement sourceModule;
-				sourceModule["id"] = (int64_t) image;
-				sourceModule["name"] = image->name;
-				sourceModule["path"] = name;
-				sourceModule["isOptimized"] = true;
-				sourceModule["isUserCode"] = image->nDebugEntries;
-				sourceModule["symbolStatus"] = image->nDebugEntries ? "Symbols Loaded" : "Symbols Not Found";
+											   jsonElement sourceModule;
+											   sourceModule["id"] = (int64_t)image;
+											   sourceModule["name"] = image->name;
+											   sourceModule["path"] = name;
+											   sourceModule["isOptimized"] = true;
+											   sourceModule["isUserCode"] = image->nDebugEntries;
+											   sourceModule["symbolStatus"] = image->nDebugEntries ? "Symbols Loaded" : "Symbols Not Found";
 
-				ret["modules"].push_back ( sourceModule );
-				return false;
-			}
+											   ret["modules"].push_back ( sourceModule );
+											   return false;
+										   }
 		);
 	}
 	return ret;
 }
 
-static jsonElement loadedSources( jsonElement const &req, dbgJsonRPCServerBase &server, HWND handle )
+static jsonElement loadedSources ( jsonElement const &req, dbgJsonRPCServerBase &server, HWND handle )
 {
 	jsonElement ret;
 
-	ret["sources"].makeArray();
+	ret["sources"].makeArray ();
 	if ( lastInstance )
 	{
-		lastInstance->atomTable->typeMap ( atom::atomType::aLOADIMAGE, [&] ( uint32_t atomIndex )
-			{
+		lastInstance->atomTable->typeMap ( atom::atomType::aLOADIMAGE, [&]( uint32_t atomIndex )
+										   {
 
-				auto name = lastInstance->atomTable->atomGetName ( atomIndex );
-				bcLoadImage *image = lastInstance->atomTable->atomGetLoadImage ( atomIndex );
+											   auto name = lastInstance->atomTable->atomGetName ( atomIndex );
+											   bcLoadImage *image = lastInstance->atomTable->atomGetLoadImage ( atomIndex );
 
-				jsonElement sourceModule;
-				sourceModule["name"] = image->name;
-				sourceModule["path"] = name;
+											   jsonElement sourceModule;
+											   sourceModule["name"] = image->name;
+											   sourceModule["path"] = name;
 
-				jsonElement sourceFiles;
+											   jsonElement sourceFiles;
 
-				for ( int32_t index = 0; index < image->srcFiles.getNumSources (); index++ )
-				{
-					auto name = image->srcFiles.getName ( index );
-					if ( strccmp ( name, "(internal)" ) )
-					{
-						sourceFiles.push_back ( {{ "name", image->srcFiles.getName ( index ) }, { "path", image->srcFiles.getName ( index ) }} );
-					}
-				}
+											   for ( int32_t index = 0; index < image->srcFiles.getNumSources (); index++ )
+											   {
+												   auto name = image->srcFiles.getName ( index );
+												   if ( strccmp ( name, "(internal)" ) )
+												   {
+													   sourceFiles.push_back ( {{ "name", image->srcFiles.getName ( index ) }, { "path", image->srcFiles.getName ( index ) }} );
+												   }
+											   }
 
-				sourceModule["sources"] = sourceFiles;
+											   sourceModule["sources"] = sourceFiles;
 
-				ret["sources"].push_back ( sourceModule );
-				return false;
-			}
+											   ret["sources"].push_back ( sourceModule );
+											   return false;
+										   }
 		);
 	}
 
@@ -1161,30 +1225,30 @@ static jsonElement loadedSources( jsonElement const &req, dbgJsonRPCServerBase &
 //  ********************** EVENT HANDLERS *************************** */
 static std::pair<stringi, jsonElement> initialized ( dbgJsonRPCServerBase &server, HWND handle )
 {
-	return { "initialized", jsonElement () };
+	return {"initialized", jsonElement ()};
 }
 static std::pair<stringi, jsonElement> breakpoint ( dbgJsonRPCServerBase &server, HWND handle )
 {
-	return { "breakpoint", jsonElement () };
+	return {"breakpoint", jsonElement ()};
 }
 static std::pair<stringi, jsonElement> continued ( dbgJsonRPCServerBase &server, HWND handle )
 {
-	return { "continued", jsonElement () };
+	return {"continued", jsonElement ()};
 }
 static std::pair<stringi, jsonElement> exited ( dbgJsonRPCServerBase &server, HWND handle )
 {
 	jsonElement	rsp;
 	rsp["exited"] = 0;
 	rsp["exitCode"] = lastInstance->error.errorNum;
-	return { "exited", rsp };
+	return {"exited", rsp};
 }
 static std::pair<stringi, jsonElement> invalidated ( dbgJsonRPCServerBase &server, HWND handle )
 {
-	return { "invalidated", jsonElement () };
+	return {"invalidated", jsonElement ()};
 }
 static std::pair<stringi, jsonElement> loadedSource ( dbgJsonRPCServerBase &server, HWND handle )
 {
-	return { "loadedSource", jsonElement () };
+	return {"loadedSource", jsonElement ()};
 }
 static std::pair<stringi, jsonElement> output ( dbgJsonRPCServerBase &server, HWND handle )
 {
@@ -1192,9 +1256,9 @@ static std::pair<stringi, jsonElement> output ( dbgJsonRPCServerBase &server, HW
 
 	jsonElement rsp;
 	rsp["category"] = "stdout";
-	rsp["output"] = stringi ( outputBuffer.data<char *>(), outputBuffer.size() );
+	rsp["output"] = stringi ( outputBuffer.data<char *> (), outputBuffer.size () );
 	outputBuffer.reset ();
-	return { "output", rsp };
+	return {"output", rsp};
 }
 static std::pair<stringi, jsonElement> process ( dbgJsonRPCServerBase &server, HWND handle )
 {
@@ -1202,9 +1266,9 @@ static std::pair<stringi, jsonElement> process ( dbgJsonRPCServerBase &server, H
 
 	rsp["name"] = activeDebugger->lastMsg.location.fName;
 	rsp["startMethod"] = "launch";
-	return { "process", rsp };
+	return {"process", rsp};
 }
-static std::pair<stringi, jsonElement> thread( dbgJsonRPCServerBase &server, HWND handle )
+static std::pair<stringi, jsonElement> thread ( dbgJsonRPCServerBase &server, HWND handle )
 {
 	jsonElement rsp;
 
@@ -1222,7 +1286,7 @@ static std::pair<stringi, jsonElement> stopped ( dbgJsonRPCServerBase &server, H
 			{
 				char				 msgBuff[256];
 
-				_snprintf_s ( msgBuff, sizeof ( msgBuff ), _TRUNCATE, "%s    %s:%s(%I64u): error E%x: %s", activeDebugger->lastMsg.instance->getName (), activeDebugger->lastMsg.location.fName, activeDebugger->lastMsg.location.functionName, activeDebugger->lastMsg.location.line, uint32_t(activeDebugger->lastMsg.location.err), scCompErrorAsText ( int(activeDebugger->lastMsg.location.err) ).c_str () );
+				_snprintf_s ( msgBuff, sizeof ( msgBuff ), _TRUNCATE, "%s    %s:%s(%I64u): error E%x: %s", activeDebugger->lastMsg.instance->getName (), activeDebugger->lastMsg.location.fName, activeDebugger->lastMsg.location.functionName, activeDebugger->lastMsg.location.line, uint32_t ( activeDebugger->lastMsg.location.err ), scCompErrorAsText ( int ( activeDebugger->lastMsg.location.err ) ).c_str () );
 				rsp["reason"] = "exception";		// uncaught exception
 				rsp["description"] = "uncaught exception";
 				rsp["text"] = stringi ( msgBuff );
@@ -1237,27 +1301,27 @@ static std::pair<stringi, jsonElement> stopped ( dbgJsonRPCServerBase &server, H
 			break;
 		case vmStateType::vmDebugBreak:
 			rsp["reason"] = "breakpoint";
-			rsp["hitBreakpointIds"].makeArray();
+			rsp["hitBreakpointIds"].makeArray ();
 			break;
 		case vmStateType::vmThreadStart:
 			rsp["reason"] = "entry";
 			rsp["description"] = "start of execution";
 			break;
 		default:
-			return { "", rsp };
+			return {"", rsp};
 			break;
 	}
 
 	rsp["allThreadsStopped"] = true;
 
-	stringi const fixedName = std::filesystem::path( activeDebugger->lastMsg.location.fName ).generic_string();
+	stringi const fixedName = std::filesystem::path ( activeDebugger->lastMsg.location.fName ).generic_string ();
 
-	auto &file = fileStore.getFile( fixedName );
+	auto &file = fileStore.getFile ( fixedName );
 	int64_t num = 0;
 	int64_t index = 0;
 	for ( auto &it : file.bpList )
 	{
-		if ( it.fileName == activeDebugger->lastMsg.location.fName && std::get<int64_t>( it.location ) == activeDebugger->lastMsg.location.line )
+		if ( it.fileName == activeDebugger->lastMsg.location.fName && std::get<int64_t> ( it.location ) == activeDebugger->lastMsg.location.line )
 		{
 			rsp["hitBreakpointIds"][index] = num + 1;
 			index++;
@@ -1268,11 +1332,11 @@ static std::pair<stringi, jsonElement> stopped ( dbgJsonRPCServerBase &server, H
 
 	rsp["threadId"] = reinterpret_cast<int64_t>(lastInstance);
 
-	return { "stopped", rsp };
+	return {"stopped", rsp};
 }
 static std::pair<stringi, jsonElement> terminated ( dbgJsonRPCServerBase &server, HWND handle )
 {
-	return { "terminated", jsonElement () };
+	return {"terminated", jsonElement ()};
 }
 
 taskControl *debugAdapterInit ( uint16_t port )
@@ -1299,47 +1363,47 @@ taskControl *debugAdapterInit ( uint16_t port )
 		Sleep ( 10 );
 	}
 
-	auto svr = new socketServer<dbgJsonRpcServer < socketServer, decltype (debuggerWindowHandle)>,HWND> ( port, std::move ( debuggerWindowHandle ) );		// NOLINT(performance-move-const-arg)  - this is an incorrect warning, we MUST do the move as were doing an lvalue to forwarding ref so need the move
+	auto svr = new socketServer<dbgJsonRpcServer < socketServer, decltype (debuggerWindowHandle)>, HWND> ( port, std::move ( debuggerWindowHandle ) );		// NOLINT(performance-move-const-arg)  - this is an incorrect warning, we MUST do the move as were doing an lvalue to forwarding ref so need the move
 
 	svr->setMethods (
-						{
-							{ "initialize", initialize },
-							{ "disconnect", disconnect },
-							{ "loadedSources", loadedSources },
-							{ "launch", launch },
-							{ "attach", attach },
-							{ "setBreakpoints", setBreakpoints },
-							{ "setFunctionBreakpoints", setFunctionBreakpoints },
-							{ "setExceptionBreakpoints", setExceptionBreakpoints },
-							{ "stacktrace", stackTrace },
-							{ "threads", threads },
-							{ "continue", cont },
-							{ "scopes", scopes },
-							{ "variables", variables },
-							{ "next", next },
-							{ "stepIn", stepIn },
-							{ "stepOut", stepOut },
-							{ "setVariable", setVariable },
-							{ "evaluate", eval },
-							{ "pause", pause },
-							{ "terminate", terminate },
-							{ "gotoTargets", gotoTargets },
-							{ "goto", gotoIp },
-							{ "exceptionInfo", exceptionInfo },
-							{ "modules", modules },
-							{ "loadedSources", loadedSources },
+		{
+			{ "initialize", initialize },
+			{ "disconnect", disconnect },
+			{ "loadedSources", loadedSources },
+			{ "launch", launch },
+			{ "attach", attach },
+			{ "setBreakpoints", setBreakpoints },
+			{ "setFunctionBreakpoints", setFunctionBreakpoints },
+			{ "setExceptionBreakpoints", setExceptionBreakpoints },
+			{ "stacktrace", stackTrace },
+			{ "threads", threads },
+			{ "continue", cont },
+			{ "scopes", scopes },
+			{ "variables", variables },
+			{ "next", next },
+			{ "stepIn", stepIn },
+			{ "stepOut", stepOut },
+			{ "setVariable", setVariable },
+			{ "evaluate", eval },
+			{ "pause", pause },
+			{ "terminate", terminate },
+			{ "gotoTargets", gotoTargets },
+			{ "goto", gotoIp },
+			{ "exceptionInfo", exceptionInfo },
+			{ "modules", modules },
+			{ "loadedSources", loadedSources },
 //							{ "initialize", initialize },
 //							{ "initialize", initialize },
-						}
-					);
+		}
+		);
 
 	svr->setNotificationHandler (
-									{
+		{
 #undef DEF
 #define DEF(a) a,
 									NOTES
-									}
-								);
+		}
+	);
 
 	auto tc = new socketServerTaskControl<HWND> ( HWND ( 0 ) );
 	svr->startServer ( tc );

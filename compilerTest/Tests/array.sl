@@ -1,5 +1,5 @@
 local a
-
+local x2 = 1
 local b = { "am", "working" }
 
 //println ( b[1], ' ', b[2], " - should be am working" )

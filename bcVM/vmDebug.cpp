@@ -140,7 +140,7 @@ void vmDebug::reset ()
 	breakPoints.clear ();
 
 }
-vmBPType vmDebug::getTracePointType ( fglOp *op )
+vmBPType vmDebug::getTracePointType ( fglOp *op ) const
 {
 	dbTmpBP *bp;
 
@@ -350,7 +350,7 @@ void vmDebug::StepLine ( vmInstance *instance, bcFuncDef *funcDef, fglOp *op, VA
 	}
 }
 
-VAR *getBasePtr ( bcFuncDef *funcDef, VAR *stack )
+static VAR *getBasePtr ( bcFuncDef *funcDef, VAR *stack )
 {
 	while ( stack->type != slangType::ePCALL ) stack--;
 	return stack - funcDef->nParams;
@@ -1389,6 +1389,7 @@ vmInspectList *vmDebugLocalVar::getChildren ( vmInstance *instance, bcFuncDef *f
 			case slangType::eDOUBLE:
 			case slangType::eNULL:
 			case slangType::eATOM:
+				case slangType::eSTRING:
 				return 0;
 			case slangType::eCODEBLOCK:
 				{
@@ -2034,7 +2035,7 @@ void vmDebug::MakeBreakpoints ( vmInstance *instance, fglOp *op )
 	}
 }
 
-vmDebug::exceptionInfo vmDebug::GetExceptionInfo ( vmInstance *instance )
+vmDebug::exceptionInfo vmDebug::GetExceptionInfo ( vmInstance *instance ) const
 {
 	vmDebug::exceptionInfo res;
 
@@ -2092,7 +2093,7 @@ void vmDebug::SetExceptionBreakType ( errorNum err, errorLocation::exceptionBrea
 	exceptionFilters[size_t ( err ) - size_t ( errorNum::ERROR_BASE_ERROR )] = type;
 }
 
-errorLocation::exceptionBreakType vmDebug::GetExceptionGlobalBreakType ()
+errorLocation::exceptionBreakType vmDebug::GetExceptionGlobalBreakType () const 
 {
 	return globalBreakMode;
 }
@@ -2613,7 +2614,7 @@ size_t debugAdjustBreakpoint ( vmInstance *instance, stringi const &fName, size_
 	return instance->debug->AdjustBreakpoint ( instance, fName, lineNum );
 }
 
-vmDebug::exceptionInfo debugExceptionInfo ( vmInstance *instance )
+static vmDebug::exceptionInfo debugExceptionInfo ( vmInstance *instance )
 {
 	return instance->debug->GetExceptionInfo ( instance );
 }

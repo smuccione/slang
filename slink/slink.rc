@@ -72,7 +72,7 @@ BEGIN
             VALUE "FileDescription", "Slang Linker"
             VALUE "FileVersion", "3.0.0.1"
             VALUE "InternalName", "slink.exe"
-            VALUE "LegalCopyright", "Copyright (C) 2010-2020"
+            VALUE "LegalCopyright", "Copyright (C) 2010-2024"
             VALUE "OriginalFilename", "slink.exe"
             VALUE "ProductName", "Slang Multiserver"
             VALUE "ProductVersion", "3.0.0.1"

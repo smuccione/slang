@@ -24,7 +24,7 @@
 #include "bcVM/bcVMBuiltin.h"
 #include "bcVM/vmDebug.h"
 #include "bcVM/bcVMObject.h"
-#include "version/version.h"
+#include "version/versionLib.h"
 #include "bcVM/bcVMBuiltin.h"
 #include "LanguageServer/languageServer.h"
 #include "debugAdapter/debugAdapter.h"
@@ -126,7 +126,7 @@ static void CreateConsole ( char const *appName )
 	free ( VerInfoData );
 }
 
-uint8_t const *getExeResource ( size_t &size )
+static uint8_t const *getExeResource ( size_t &size )
 {
 	HGLOBAL     res_handle = NULL;
 	HRSRC       res;
@@ -146,7 +146,7 @@ uint8_t const *getExeResource ( size_t &size )
 	return (uint8_t const *) LockResource ( res_handle );
 }
 
-BOOL __cdecl slangVM( std::vector<char const *> const &fList )
+static BOOL __cdecl slangVM( std::vector<char const *> const &fList )
 {
 	vmTaskInstance instance ( "slangVM" );
 

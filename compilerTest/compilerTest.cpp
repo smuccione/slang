@@ -31,7 +31,7 @@
 #include "Target/vmTask.h"
 #include "Target/fileCache.h"
 
-#include "version/version.h"
+#include "version/versionLib.h"
 
 #include "bcDebugger\bcDebugger.h"
 #include "../debugAdapter/debugAdapter.h"
@@ -129,7 +129,7 @@ static void CreateConsole ( char const *appName )
 	free ( VerInfoData );
 }
 
-UINT __cdecl testCompile( std::vector<char const *> const &fList )
+static UINT __cdecl testCompile( std::vector<char const *> const &fList )
 {
 	LARGE_INTEGER		 start;
 	LARGE_INTEGER		 end;
@@ -484,6 +484,8 @@ BOOL CvmTestApp::InitInstance()
 
 	if ( !numInputFiles )
 	{
+		std::string Copyright = std::string ("Copyright 2010-") + std::string ( VCS_DATE, 4 ) + " Stephen Muccione Jr.";
+		
 		printf ( "slang compiler test utility\r\n" );
 		printf ( "%s\r\n", Copyright.c_str () );
 		printf ( "usage: %s <inputFiles...> --debug --list\r\n", __argv[0] );

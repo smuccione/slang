@@ -14,7 +14,7 @@
 #include "Target/vmTask.h"
 #include "Target/fileCache.h"
 
-#include "version/version.h"
+#include "version/versionLib.h"
 
 #include "bcDebugger\bcDebugger.h"
 #include "compilerPreprocessor\compilerPreprocessor.h"
@@ -224,7 +224,7 @@ static uint32_t waUsed ( vmInstance *instance )
 	return (uint32_t) instance->workareaTable->inUse ( instance->workareaTable->getDefault ( ) );
 }
 
-#define MAX_LINE_LEN 2048
+constexpr size_t MAX_LINE_LEN = 2048;
 
 static size_t display ( int outputDesc, char const *s )
 {
@@ -1101,7 +1101,7 @@ static bool vmEngineIsDebug ( void )
 #endif
 }
 
-void vmBuildSystemError ( vmInstance *instance, errorNum err )
+static void vmBuildSystemError ( vmInstance *instance, errorNum err )
 {
 	VAR		*arr;
 	VAR		*stack;
@@ -1555,7 +1555,7 @@ static VAR vmParam ( vmInstance *instance, uint32_t nParam )
 	throw errorNum::scINTERNAL;
 }
 
-VAR_STR vmClassName ( vmInstance *instance, VAR *obj )
+static VAR_STR vmClassName ( vmInstance *instance, VAR *obj )
 {
 	if ( TYPE ( obj ) != slangType::eOBJECT_ROOT ) throw errorNum::scINVALID_PARAMETER;
 	VAR_STR ret ( instance, obj->dat.ref.v->dat.obj.classDef->name, obj->dat.ref.v->dat.obj.classDef->nameLen - 1 ); // nameLen includes trailing 0 to allow us to do quick memcmp

@@ -457,12 +457,12 @@ public:
 private:
 	void					 RemoveTracePoint ( struct fglOp *op, vmBreakpoint const *bp );
 	void					 RemoveTracePoint ( void );
-	vmBPType				 getTracePointType ( fglOp *op );
+	vmBPType				 getTracePointType (fglOp* op) const;
 	void					 MakeBreakpoints ( class vmInstance *instance, fglOp *op );
 
 public:
 	errorLocation::exceptionBreakType	 GetExceptionBreakType ( errorNum errNum );
-	errorLocation::exceptionBreakType	 GetExceptionGlobalBreakType ();
+	errorLocation::exceptionBreakType	 GetExceptionGlobalBreakType () const;
 	void								 SetExceptionBreakType ( errorNum errNum, errorLocation::exceptionBreakType breakType );
 	void								 SetExceptionGlobalBreakType ( errorLocation::exceptionBreakType breakType );
 
@@ -489,7 +489,7 @@ public:
 	void					 ClearBreakpoint ( class vmInstance *instance, stringi const &fileName, size_t lineNum );
 	void					 ClearAllBreakpoints ( class vmInstance *instance, stringi const &fileName );
 	size_t					 AdjustBreakpoint ( class vmInstance *instance, stringi const &fileName, size_t line );
-	exceptionInfo			 GetExceptionInfo ( class vmInstance *instance );
+	exceptionInfo			 GetExceptionInfo ( class vmInstance *instance ) const;
 
 	friend fglOp			*debugSignal ( class vmInstance *instance, vmStateType state, fglOp *op, bcFuncDef *funcDef, VAR *stackPtr );
 

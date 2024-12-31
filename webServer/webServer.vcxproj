@@ -90,7 +90,7 @@
     <CharacterSet>NotSet</CharacterSet>
     <UseOfAtl>false</UseOfAtl>
     <UseOfMfc>Static</UseOfMfc>
-    <PlatformToolset>ClangCL</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>false</WholeProgramOptimization>
     <EnableASAN>false</EnableASAN>
   </PropertyGroup>

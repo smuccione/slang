@@ -49,7 +49,7 @@
     <CharacterSet>NotSet</CharacterSet>
     <UseOfMfc>Static</UseOfMfc>
     <UseOfAtl>Static</UseOfAtl>
-    <PlatformToolset>ClangCL</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>false</WholeProgramOptimization>
     <EnableASAN>false</EnableASAN>
   </PropertyGroup>

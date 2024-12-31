@@ -23,7 +23,7 @@
 #include "bcVM/bcVMBuiltin.h"
 #include "bcVM/vmDebug.h"
 #include "bcVM/bcVMObject.h"
-#include "version/version.h"
+#include "version/versionLib.h"
 #include "bcVM/bcVMBuiltin.h"
 #include "LanguageServer/languageServer.h"
 #include "debugAdapter/debugAdapter.h"
@@ -90,7 +90,7 @@ class handleTaskControl : public taskControl
 	}
 };
 
-UINT __cdecl fileWatchChangeThread ( LPVOID param )
+static UINT __cdecl fileWatchChangeThread ( LPVOID param )
 {
 	HANDLE						 handle = (HANDLE) param;
 	BOOL						 result;
@@ -201,7 +201,7 @@ UINT __cdecl fileWatchChangeThread ( LPVOID param )
 	}
 }
 
-UINT __cdecl testCompile ( LPVOID param )
+static UINT __cdecl testCompile ( LPVOID param )
 {
 	LARGE_INTEGER		 start;
 	LARGE_INTEGER		 end;
@@ -421,7 +421,7 @@ static void CreateConsole ( char const *appName )
 #if _DEBUG
 		sprintf_s ( titleString, sizeof ( titleString ), "Slang MultiServer - v%u.%u.%s %s %s - DEBUG", HIWORD ( VerFixedFileInfo->dwFileVersionMS ), LOWORD ( VerFixedFileInfo->dwFileVersionLS ),	VCS_SHORT_HASH, __TIME__, VCS_WC_MODIFIED ? " - NON-COMMITTED" : "" );
 #else
-		sprintf_s ( titleString, sizeof ( titleString ), "Slang MultiServer - v%u.%u.%u %s %s", HIWORD (VerFixedFileInfo->dwFileVersionMS), LOWORD (VerFixedFileInfo->dwFileVersionLS), VCS_SHORT_HASH, __TIME__, VCS_WC_MODIFIED ? " - NON-COMMITTED" : "");
+		sprintf_s ( titleString, sizeof ( titleString ), "Slang MultiServer - v%u.%u.%s %s %s", HIWORD (VerFixedFileInfo->dwFileVersionMS), LOWORD (VerFixedFileInfo->dwFileVersionLS), VCS_SHORT_HASH, __TIME__, VCS_WC_MODIFIED ? " - NON-COMMITTED" : "");
 #endif
 
 		SetConsoleTitle ( titleString );
@@ -456,7 +456,7 @@ static void CreateConsole ( char const *appName )
 	free ( VerInfoData );
 }
 
-BOOL CtrlHandler ( DWORD fdwCtrlType )
+BOOL static CtrlHandler ( DWORD fdwCtrlType )
 {
 	switch ( fdwCtrlType )
 	{
@@ -647,7 +647,7 @@ void CSlangServer::testServerStart ( void )
 #endif
 	}
 
-	auto builtIn = builtinInit ( &instance, builtinFlags::builtIn_MakeCompiler );			// this is the INTERFACE
+	auto [builtIn, builtInSize] = builtinInit ( &instance, builtinFlags::builtIn_MakeCompiler );			// this is the INTERFACE
 
 	auto obj = builtIn;
 	opFile oFile ( (char const **) &obj );

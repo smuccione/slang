@@ -45,7 +45,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Linux|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>ClangCL</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>NotSet</CharacterSet>
     <UseOfMfc>Static</UseOfMfc>
     <WholeProgramOptimization>false</WholeProgramOptimization>
@@ -619,9 +619,6 @@
     </ProjectReference>
     <ProjectReference Include="..\Utility\Utility.vcxproj">
       <Project>{215d9ed3-426b-4c73-9149-16c758f3b618}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\version\version.vcxproj">
-      <Project>{14a64c6d-8fbc-4c73-b932-bc328fe687e9}</Project>
     </ProjectReference>
     <ProjectReference Include="..\webServer\webServer.vcxproj">
       <Project>{f5ebaa36-4df2-4e1c-87a3-8779e161be9a}</Project>

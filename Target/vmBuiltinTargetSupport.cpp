@@ -10,7 +10,7 @@
 #include "bcVM/bcVMBuiltin.h"
 #include "bcVM/vmNativeInterface.h"
 #include "bcVM/vmAllocator.h"
-#include "version/version.h"
+#include "version/versionLib.h"
 #include "runAndCapture.h"
 #include "vmConf.h"
 
@@ -61,7 +61,7 @@ static VAR_STR engineVersion ( vmInstance *instance )
 #if _DEBUG
 	sprintf_s (version, sizeof (version), "Slang MultiServer - v%u.%u.%s %s %s - DEBUG", HIWORD (VerFixedFileInfo->dwFileVersionMS), LOWORD (VerFixedFileInfo->dwFileVersionLS), VCS_SHORT_HASH, __TIME__, VCS_WC_MODIFIED ? " - NON-COMMITTED" : "");
 #else
-	sprintf_s (version, sizeof (titleString), "Slang MultiServer - v%u.%u.%u %s %s", HIWORD (VerFixedFileInfo->dwFileVersionMS), LOWORD (VerFixedFileInfo->dwFileVersionLS), VCS_SHORT_HASH, __TIME__, VCS_WC_MODIFIED ? " - NON-COMMITTED" : "");
+	sprintf_s (version, sizeof (version), "Slang MultiServer - v%u.%u.%s %s %s", HIWORD (VerFixedFileInfo->dwFileVersionMS), LOWORD (VerFixedFileInfo->dwFileVersionLS), VCS_SHORT_HASH, __TIME__, VCS_WC_MODIFIED ? " - NON-COMMITTED" : "");
 #endif
 	return VAR_STR ( instance, version, strlen ( version ) );
 }
@@ -170,17 +170,17 @@ static VAR_STR vmIniGetKeys ( vmInstance *instance, char const *file, char const
 	return VAR_STR ( instance, bufferBuff ( &buff ), bufferSize ( &buff ) );
 }
 
-auto vmIniDeleteKey ( char *file, char const *section, char const *key )
+auto static vmIniDeleteKey ( char *file, char const *section, char const *key )
 {
 	return WritePrivateProfileString ( section, key, NULL, file );
 }
 
-auto vmIniCommit ( char *file )
+auto static vmIniCommit ( char *file )
 {
 	return WritePrivateProfileString ( NULL, NULL, NULL, file );
 }
 
-bool vmRegistryWrite ( vmInstance *instance, char const *key, char const *subKey, char const *value, VAR *val )
+bool static vmRegistryWrite ( vmInstance *instance, char const *key, char const *subKey, char const *value, VAR *val )
 {
 	HKEY			hKey;
 	unsigned long	disposition;
@@ -259,7 +259,7 @@ bool vmRegistryWrite ( vmInstance *instance, char const *key, char const *subKey
 	return true;
 }
 
-VAR vmRegistryRead ( vmInstance *instance, char const *key, char const *subKey, char const *value )
+VAR static vmRegistryRead ( vmInstance *instance, char const *key, char const *subKey, char const *value )
 {
 	HKEY			hKey;
 	unsigned long	disposition;
@@ -357,7 +357,7 @@ static bool vmIsSameFile ( VAR_STR file1, VAR_STR file2 )
 	return isSameFile ( ( char const*) file1, ( char const*) file2 );
 }
 
-BOOL CALLBACK SmartRunWindowEnumerator ( HWND hwnd, LPARAM lParam )
+static BOOL CALLBACK SmartRunWindowEnumerator ( HWND hwnd, LPARAM lParam )
 {
 	DWORD	pId;
 	char	tmp[256];
@@ -406,7 +406,7 @@ BOOL CALLBACK SmartRunWindowEnumerator ( HWND hwnd, LPARAM lParam )
 	return (TRUE);
 }
 
-auto vmSmartRun ( vmInstance *instance, char const *fName, int flags, nParamType params )
+auto static vmSmartRun ( vmInstance *instance, char const *fName, int flags, nParamType params )
 {
 	VAR						*var;
 	BUFFER					 buffer;
