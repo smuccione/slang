@@ -224,6 +224,7 @@ class astLSInfo {
 		symbolTypeClass			 compType;
 		astNode					*node = nullptr;			// used for selection provider
 		bool					 isInFunctionCall = false;
+		bool					 noDisplayReturnType = false;
 
 		bool operator == ( symbolRange const &right ) const noexcept
 		{

@@ -11,7 +11,7 @@
 
 opClass::opClass()
 {
-	opOverload.resize ( int(fgxOvOp::ovMaxOverload) + 1, (opClassElement *)0 );
+	opOverload.resize ( size_t(fgxOvOp::ovMaxOverload) + 1, (opClassElement *)0 );
 	cClass = 0;
 	isInterface = false;
 }
@@ -864,7 +864,6 @@ bool opFile::parseInnerClass ( source &src, bool doBraces, opClass *classDef, bo
 								func->isStatic = isStatic;
 								func->isIterator = true;
 								if ( documentation.size () ) func->documentation = documentation;
-								if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::methodIterator, nameLocation ) );
 								auto error = classDef->addMethod ( tmpName, fgxClassElementType::fgxClassType_method, scope, isVirtual, isStatic, isExtension, func, this, symUnknownType, true, documentation );
 								if ( error != errorNum::ERROR_OK )
 								{
@@ -951,7 +950,6 @@ bool opFile::parseInnerClass ( source &src, bool doBraces, opClass *classDef, bo
 									func->location.setEnd ( func->codeBlock->location );
 								}
 								if ( documentation.size() ) func->documentation = documentation;
-								if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::method, nameLocation ) );
 								if ( !strccmp ( tmpName, "default" ) )
 								{
 									if ( func->params.size () < 2 )
@@ -1334,6 +1332,7 @@ process_local:
 
 								func = parseMethod ( src, classDef, buildString ( (char *)classDef->name.c_str (), tmpName, "operator" ).c_str (), doBraces, isLS, statementLocation );
 
+								func->nameLocation = nameLocation;
 								func->location = statementLocation;
 								func->extendedSelection = statementLocation;
 								if ( func->codeBlock )

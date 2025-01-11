@@ -83,7 +83,7 @@ OP_DEF ( "]",			opUnary,			endParse,		  0,	  0,	0, 0, 0, ovNone )	\
 OP_DEF ( ";",			opUnary,			endParse,		  0,	  0,	0, 0, 0, ovNone )	\
 OP_DEF ( ";",			opPeren,			errorValue,		300,	300,	0, 0, 1, ovNone )
 
-#define OP_DEF( token, type, op, stackPriority, infixPriority, isLeaf, isOverloadable, nParams, overloadOp ) {token, astOpCat::type, sizeof ( token ) - 1, astOp::op, stackPriority, infixPriority, isLeaf, isOverloadable, nParams, fgxOvOp::overloadOp},
+#define OP_DEF( token, type, op, stackPriority, infixPriority, isLeaf, isOverloadable, nParams, overloadOp ) {token, astOpCat::type, token ? strlen ( token ) : 0, astOp::op, stackPriority, infixPriority, isLeaf, isOverloadable, nParams, fgxOvOp::overloadOp},
 opListDef opList[] = {
 	OPERATORS
 	OP_DEF ( 0,			opUnary,			endParse,		  0,	  0,	0, 0, 0, ovNone )								// mark end of table

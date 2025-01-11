@@ -11,13 +11,13 @@
 struct opListDef {
 	char const	*c;
 	astOpCat	 opCat;
-	int			 cLen;
+	size_t		 cLen;
 	astOp		 op;
-	int			 stackPriority;
-	int			 infixPriority;
+	size_t		 stackPriority;
+	size_t		 infixPriority;
 	bool		 isLeft;
 	bool		 isOverloadable;
-	int			 nParams;
+	size_t		 nParams;
 	fgxOvOp		 overloadOp;
 };
 

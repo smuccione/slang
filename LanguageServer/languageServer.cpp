@@ -13,12 +13,9 @@
 #include <sstream>
 #include <fstream>
 #include <filesystem>
-#include <unordered_map>
 #include <vector>
 #include <set>
-#include <mutex>
 #include <variant>
-#include <memory.h>
 #include <tuple>
 
 #include "Utility\jsonParser.h"
@@ -41,7 +38,7 @@
 
 //static	lsJsonRPCServerBase *activeLanguageServer = nullptr;
 
-stringi getElementSignature ( compClassElementSearch *elem )
+static stringi getElementSignature ( compClassElementSearch *elem )
 {
 	stringi signature;
 	stringi type = elem->elem->symType;
@@ -64,7 +61,7 @@ stringi getElementSignature ( compClassElementSearch *elem )
 	return signature;
 }
 
-void getDependencies ( languageServer *ls, stringi const &rootPath )
+static void getDependencies ( languageServer *ls, stringi const &rootPath )
 {
 	int			retCode = 0;
 
@@ -150,7 +147,7 @@ static stringi uriToFileName ( stringi const &uri )
 	return result;
 }
 
-stringi unescapeJsonString ( char const *str )
+static stringi unescapeJsonString ( char const *str )
 {
 	stringi v;
 
@@ -617,7 +614,7 @@ static languageServerFile *getFile ( lsJsonRPCServerBase &server, languageServer
 	return lsFile;
 }
 
-void workspaceConfigCB ( int64_t id, jsonElement const &rsp, lsJsonRPCServerBase &server, languageServer *ls )
+static void workspaceConfigCB ( int64_t id, jsonElement const &rsp, lsJsonRPCServerBase &server, languageServer *ls )
 {
 	if ( rsp.isArray () )
 	{
@@ -670,7 +667,7 @@ void workspaceConfigCB ( int64_t id, jsonElement const &rsp, lsJsonRPCServerBase
 	}
 }
 
-jsonElement initialized ( jsonElement const &req, int64_t id, lsJsonRPCServerBase &server, languageServer *ls )
+static jsonElement initialized ( jsonElement const &req, int64_t id, lsJsonRPCServerBase &server, languageServer *ls )
 {
 
 	jsonElement confReq;
@@ -976,18 +973,20 @@ static jsonElement textDocumentInlayHint ( jsonElement const &req, int64_t id, l
 
 				auto it = lsFile->info.signatureHelp.lower_bound ( sym );
 
-				while ( (it != lsFile->info.signatureHelp.end ()) && loc.encloses ( it->location ) )
+				if ( !lsFile->info.signatureHelp.empty () )
 				{
-					if ( !lsFile->info.signatureHelp.empty () )
+					while ( (it != lsFile->info.signatureHelp.end ()) && loc.encloses ( it->location ) )
 					{
 						size_t paramNum = 0;
+						auto pSigs = it->func->getSlimParameterHelp ();
 
-						for ( auto &pIt : it->node->pList ().paramRegion )
+						// we start at 0.  There are no hidden parameters as this is removed by the getSlipParameterHelp call
+						for ( auto index = 0; index < it->node->pList().paramRegion.size(); index++ )
 						{
+							auto const &pIt = it->node->pList ().paramRegion[index];
+
 							if ( loc.encloses ( pIt ) )
 							{
-								auto pSigs = it->func->getSlimParameterHelp ();
-
 								if ( paramNum < pSigs.size () )
 								{
 									auto const &[label, documentation, location] = pSigs[paramNum];
@@ -1014,8 +1013,8 @@ static jsonElement textDocumentInlayHint ( jsonElement const &req, int64_t id, l
 							}
 							paramNum++;
 						}
+						it++;
 					}
-					it++;
 				}
 			}
 		}
@@ -1223,7 +1222,7 @@ static jsonElement textDocumentInlayHint ( jsonElement const &req, int64_t id, l
 						case astLSInfo::semanticSymbolType::iterator:
 						case astLSInfo::semanticSymbolType::method:
 						case astLSInfo::semanticSymbolType::methodIterator:
-							if ( std::get<bool> ( ls->configFlags.inlayHintsFunctionReturnType) )
+							if ( std::get<bool> ( ls->configFlags.inlayHintsFunctionReturnType) && !it->noDisplayReturnType )
 							{
 								if ( !it->location.empty () && std::holds_alternative<opFunction *> ( it->data ) && !std::get<opFunction *> ( it->data )->isAutoMain )
 								{
@@ -1240,7 +1239,7 @@ static jsonElement textDocumentInlayHint ( jsonElement const &req, int64_t id, l
 										{
 											inlayHint["label"] = stringi ( ":" ) + it->compType.operator stringi();
 										}
-										inlayHint["label"] = (stringi) it->compType.operator stringi() + ":";
+										inlayHint["label"] = (stringi)it->compType.operator stringi() + ":";
 									} else
 									{
 										jsonElement tmp;
@@ -1252,7 +1251,7 @@ static jsonElement textDocumentInlayHint ( jsonElement const &req, int64_t id, l
 										tmp["range"] = range ( getSymbolSourceLocation ( it->data, std::get<opFunction *> ( it->data )->name ) );
 										if ( it->isInFunctionCall )
 										{
-											tmp["value"] = (stringi) it->compType.operator stringi() + ":";
+											tmp["value"] = (stringi)it->compType.operator stringi() + ":";
 										} else
 										{
 											tmp["value"] = stringi ( ":" ) + it->compType.operator stringi();

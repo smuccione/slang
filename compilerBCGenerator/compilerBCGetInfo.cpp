@@ -6,7 +6,7 @@ astNode
 #include "compilerBCGenerator.h"
 #include "compilerAST/astNodeWalk.h"
 
-bool isInRegion ( opFile const *file, astNode const *node )
+static bool isInRegion ( opFile const *file, astNode const *node )
 {
 	return file->isInRegion ( node->location );
 }
@@ -22,7 +22,7 @@ static void getElemInfo ( opFile *file, compClassElementSearch *elem, astNode *n
 				{
 					if ( func->isIterator )
 					{
-						info.semanticTokens.insert ( astLSInfo::symbolRange{ acc, astLSInfo::semanticSymbolType::methodIterator, node->right->location, func, isAccess } );
+						info.semanticTokens.insert ( astLSInfo::symbolRange {acc, astLSInfo::semanticSymbolType::methodIterator, node->right->location, func, isAccess} );
 					} else
 					{
 						info.semanticTokens.insert ( astLSInfo::symbolRange{ acc, astLSInfo::semanticSymbolType::method, node->right->location, func, isAccess } );
@@ -75,44 +75,58 @@ static astNode *getInfoCB( astNode *node, astNode *parent, symbolStack *sym, boo
 			case astOp::funcCall:
 				if ( !refOnly )
 				{
-					if ( node->left->getOp() == astOp::atomValue )
+					compClass *classDef = nullptr;
+					if ( node->left->getOp () == astOp::atomValue )
 					{
-						auto func = sym->file->functionList.find( sym->getFuncName( node->left->symbolValue(), true ) )->second;
+						auto func = sym->file->functionList.find ( sym->getFuncName ( node->left->symbolValue (), true ) )->second;
 
 						if ( node->location.sourceIndex )
 						{
 							if ( isInRegion ( sym->file, node ) )
 							{
-								info.semanticTokens.insert ( astLSInfo::symbolRange{ acc, astLSInfo::semanticSymbolType::keywordOperator, node->location, node, isAccess, func->retType, node, false } );
+								info.semanticTokens.insert ( astLSInfo::symbolRange {acc, astLSInfo::semanticSymbolType::keywordOperator, node->location, node, isAccess, func->retType, node, false} );
 							}
 						}
 
-						if ( node->pList().paramRegion.size() )
+						if ( node->pList ().paramRegion.size () )
 						{
-							srcLocation	callLoc = node->pList().paramRegion.front();
-							callLoc.setEnd( node->pList().paramRegion.back() );
-							info.signatureHelp.insert( astLSInfo::signatureHelpDef{ callLoc, func, node } );
+							srcLocation	callLoc = node->pList ().paramRegion.front ();
+							callLoc.setEnd ( node->pList ().paramRegion.back () );
+							info.signatureHelp.insert ( astLSInfo::signatureHelpDef {callLoc, func, node} );
 						}
-						if ( node->left->symbolValue() == sym->file->newValue )
+						if ( node->left->symbolValue () == sym->file->newValue )
 						{
-							if ( !node->pList().param.empty() )
+							if ( !node->pList ().param.empty () )
 							{
-								if ( node->pList().param[0]->getOp() == astOp::nameValue )
+								if ( node->pList ().param[0]->getOp () == astOp::nameValue )
 								{
-									auto cls = sym->findClass( node->pList().param[0]->nameValue() );
+									auto cls = sym->findClass ( node->pList ().param[0]->nameValue () );
 									if ( cls )
 									{
 										auto elem = cls->getElement ( sym->file->newValue );
 										if ( elem )
 										{
-											info.symbolReferences.insert ( astLSInfo::symbolReference{ elem->elem->location, node->pList ().param[0]->nameValue (), node->pList ().param[0], cls->oClass } );
+											info.symbolReferences.insert ( astLSInfo::symbolReference {elem->elem->location, node->pList ().param[0]->nameValue (), node->pList ().param[0], cls->oClass} );
 											if ( elem && isInRegion ( sym->file, node->pList ().param[0] ) )
 											{
-												info.semanticTokens.insert ( astLSInfo::symbolRange{ acc, astLSInfo::semanticSymbolType::method, node->pList ().param[0]->location, elem->elem, isAccess } );
+												info.semanticTokens.insert ( astLSInfo::symbolRange {acc, astLSInfo::semanticSymbolType::method, node->pList ().param[0]->location, elem->elem, isAccess} );
 											}
 										}
 									}
 								}
+							}
+						}
+					} else if ( node->left->getType ( sym ).hasClass () && (classDef = sym->findClass ( node->left->getType ( sym ).getClass () )) )
+					{
+						if ( classDef->overload[int ( fgxOvOp::ovFuncCall )] )
+						{
+							auto elem = &classDef->elements[static_cast<size_t>(classDef->overload[int ( fgxOvOp::ovFuncCall )]) - 1];
+							auto func = elem->methodAccess.func;
+							if ( node->pList ().paramRegion.size () )
+							{
+								srcLocation	callLoc = node->pList ().paramRegion.front ();
+								callLoc.setEnd ( node->pList ().paramRegion.back () );
+								info.signatureHelp.insert ( astLSInfo::signatureHelpDef {callLoc, func, node} );
 							}
 						}
 					} else if ( node->left->getOp() == astOp::sendMsg && node->left->right->getOp() == astOp::nameValue )
@@ -125,6 +139,31 @@ static astNode *getInfoCB( astNode *node, astNode *parent, symbolStack *sym, boo
 							if ( cls )
 							{
 								auto elem = cls->getElement( node->left->right->nameValue() );
+
+								if ( node->pList ().paramRegion.size () )
+								{
+									srcLocation	callLoc = node->pList ().paramRegion.front ();
+									callLoc.setEnd ( node->pList ().paramRegion.back () );
+									switch ( elem->type )
+									{
+										case fgxClassElementType::fgxClassType_method:
+											info.signatureHelp.insert ( astLSInfo::signatureHelpDef {callLoc, elem->methodAccess.func, node} );
+											break;
+										case fgxClassElementType::fgxClassType_prop:
+											if ( isAccess )
+											{
+												info.signatureHelp.insert ( astLSInfo::signatureHelpDef {callLoc, elem->methodAccess.func, node} );
+											} else
+											{
+												info.signatureHelp.insert ( astLSInfo::signatureHelpDef {callLoc, elem->assign.func, node} );
+											}
+											break;
+										default:
+											// shouldn't get here...  but this is just a language server query so don't do anything, errors are generated elsewhere
+											break;
+									}
+								}
+
 								if ( elem && elem->type == fgxClassElementType::fgxClassType_method )
 								{
 									if ( node->location.sourceIndex )
@@ -740,8 +779,15 @@ void compExecutable::getInfo ( astLSInfo &info, uint32_t sourceIndex )
 							auto func = file->functionList.find ( elem->data.method.func )->second;
 							if ( func->nameLocation.sourceIndex == sourceIndex && !func->lsIgnore )
 							{
-								// need to do an additional check here for system consturcted new methods
-								info.semanticTokens.insert ( astLSInfo::symbolRange{ elem, astLSInfo::semanticSymbolType::method, func->nameLocation, func, true, func->retType } );
+								if ( func->isIterator )
+								{
+									// need to do an additional check here for system consturcted new methods
+									info.semanticTokens.insert ( astLSInfo::symbolRange {elem, astLSInfo::semanticSymbolType::methodIterator, func->nameLocation, func, true, func->retType, nullptr, false, true } );
+								} else
+								{
+									// need to do an additional check here for system consturcted new methods
+									info.semanticTokens.insert ( astLSInfo::symbolRange {elem, astLSInfo::semanticSymbolType::method, func->nameLocation, func, true, func->retType, nullptr, false, true } );
+								}
 								info.symbolReferences.insert ( astLSInfo::symbolReference{ func->nameLocation, file->sCache.get ( func->getSimpleName () ), nullptr, elem } );
 							}
 						}
@@ -753,7 +799,7 @@ void compExecutable::getInfo ( astLSInfo &info, uint32_t sourceIndex )
 
 							file->statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::property, func->nameLocation ) );
 
-							info.semanticTokens.insert ( astLSInfo::symbolRange{ elem, astLSInfo::semanticSymbolType::property, func->nameLocation, func, true, func->retType } );
+							info.semanticTokens.insert ( astLSInfo::symbolRange{ elem, astLSInfo::semanticSymbolType::property, func->nameLocation, func, true, func->retType, nullptr, false, true} );
 							info.symbolReferences.insert ( astLSInfo::symbolReference { func->nameLocation, file->sCache.get ( func->getSimpleName () ), nullptr, elem } );
 						}
 						if ( elem->data.prop.assign )
@@ -762,7 +808,7 @@ void compExecutable::getInfo ( astLSInfo &info, uint32_t sourceIndex )
 
 							file->statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::property, func->nameLocation ) );
 
-							info.semanticTokens.insert ( astLSInfo::symbolRange{ elem, astLSInfo::semanticSymbolType::property, func->nameLocation, func, false } );
+							info.semanticTokens.insert ( astLSInfo::symbolRange{ elem, astLSInfo::semanticSymbolType::property, func->nameLocation, func, false, symbolTypeClass(), nullptr, false, true } );
 							info.symbolReferences.insert ( astLSInfo::symbolReference { func->nameLocation, file->sCache.get ( func->getSimpleName () ), nullptr, elem } );
 						}
 						break;
@@ -794,6 +840,36 @@ void compExecutable::getInfo ( astLSInfo &info, uint32_t sourceIndex )
 						info.semanticTokens.insert ( astLSInfo::symbolRange{ elem, astLSInfo::semanticSymbolType::customLiteral, elem->location, elem, true } );
 						info.symbolReferences.insert ( astLSInfo::symbolReference { elem->location, elem->name, nullptr, elem } );
 						break;
+				}
+			}
+			for ( auto &elem : cls->opOverload )
+			{
+				if ( elem )
+				{
+					switch ( elem->type )
+					{
+						case fgxClassElementType::fgxClassType_method:
+							{
+								auto func = file->functionList.find ( elem->data.method.func )->second;
+								if ( func->nameLocation.sourceIndex == sourceIndex && !func->lsIgnore )
+								{
+									if ( func->isIterator )
+									{
+										// need to do an additional check here for system consturcted new methods
+										info.semanticTokens.insert ( astLSInfo::symbolRange {elem, astLSInfo::semanticSymbolType::methodIterator, func->nameLocation, func, true, func->retType, nullptr, false, true} );
+									} else
+									{
+										// need to do an additional check here for system consturcted new methods
+										info.semanticTokens.insert ( astLSInfo::symbolRange {elem, astLSInfo::semanticSymbolType::method, func->nameLocation, func, true, func->retType, nullptr, false, true} );
+									}
+									info.symbolReferences.insert ( astLSInfo::symbolReference {func->nameLocation, file->sCache.get ( func->getSimpleName () ), nullptr, elem} );
+								}
+							}
+							break;
+						default:
+							assert ( 0 );
+							break;
+					}
 				}
 			}
 		} else
@@ -848,7 +924,7 @@ void compExecutable::getInfo ( astLSInfo &info, uint32_t sourceIndex )
 					paramFunc.usingList = func->usingList;
 					symbolStack paramSym( file, &paramFunc );
 
-					for ( int32_t it = (int32_t)func->params.size(); it; it-- )
+					for ( int32_t it = (int32_t)func->params.size(); it > (func->classDef ? 1 : 0); it-- )
 					{
 						auto init = func->params[(size_t)(it - 1)]->initializer;
 						if ( init )
@@ -871,7 +947,7 @@ void compExecutable::getInfo ( astLSInfo &info, uint32_t sourceIndex )
 				if ( func->nameLocation.sourceIndex == sourceIndex && !func->classDef )
 				{
 					// semantic sugar generated lambda's will not match 
-					info.semanticTokens.insert( astLSInfo::symbolRange{ func, astLSInfo::semanticSymbolType::function, func->nameLocation, func, true, func->retType } );
+					info.semanticTokens.insert ( astLSInfo::symbolRange {func, astLSInfo::semanticSymbolType::function, func->nameLocation, func, true, func->retType, nullptr, false, true } );
 				}
 			} else
 			{

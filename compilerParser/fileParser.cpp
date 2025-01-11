@@ -779,7 +779,6 @@ void opFile::_parseFile ( source &src, bool doBraces, bool isLS )
 							{
 								name = sCache.get ( getSymbol ( src ) );
 								nameLocation.setEnd ( src );
-								if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::function, nameLocation ) );
 							} catch ( errorNum e )
 							{
 								if ( !isLS ) throw;
@@ -839,7 +838,6 @@ void opFile::_parseFile ( source &src, bool doBraces, bool isLS )
 							{
 								name = sCache.get ( getSymbol ( src ) );
 								nameLocation.setEnd ( src );
-								if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::iterator, nameLocation ) );
 							} catch ( errorNum e )
 							{
 								if ( !isLS ) throw;
@@ -883,7 +881,6 @@ void opFile::_parseFile ( source &src, bool doBraces, bool isLS )
 							{
 								name = sCache.get ( getSymbol ( src ) );
 								nameLocation.setEnd ( src );
-								if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::function, nameLocation ) );
 							} catch ( errorNum e )
 							{
 								if ( !isLS ) throw;
