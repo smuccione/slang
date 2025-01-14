@@ -24,8 +24,8 @@ astNode *astNodeWalk_ ( astNode *block, astNode *parent, class symbolStack *sym,
 		case astOp::bwXorAssign:
 		case astOp::shLeftAssign:
 		case astOp::shRightAssign:
-			block->left = astNodeWalk_ ( block->left, block, sym, cb, false, trailing, isInFunctionCall, std::forward<T> ( t )... );			// false because this is an LHS operand
-			block->right = astNodeWalk_ ( block->right, block, sym, cb, true, trailing, isInFunctionCall, std::forward<T> ( t )... );
+			block->left = astNodeWalk_ ( block->left, block, sym, cb, false, trailing, false, std::forward<T> ( t )... );			// false because this is an LHS operand
+			block->right = astNodeWalk_ ( block->right, block, sym, cb, true, trailing, true, std::forward<T> ( t )... );
 			return block;
 		case astOp::symbolDef:
 			switch ( block->symbolDef()->symType )
@@ -190,7 +190,7 @@ astNode *astNodeWalk_ ( astNode *block, astNode *parent, class symbolStack *sym,
 			break;
 	}
 	if ( block->left ) block->left = astNodeWalk_ ( block->left, block, sym, cb, true, trailing, isInFunctionCall, std::forward<T> ( t )... );
-	if ( block->right ) block->right = astNodeWalk_ ( block->right, block, sym, cb, true, trailing, isInFunctionCall, std::forward<T> ( t )... );
+	if ( block->right ) block->right = astNodeWalk_ ( block->right, block, sym, cb, true, trailing, true, std::forward<T> ( t )... );
 
 	if ( trailing ) block = cb ( block, parent, sym, isAccess, isInFunctionCall, std::forward<T> ( t )... );
 

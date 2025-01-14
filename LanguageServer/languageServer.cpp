@@ -1234,7 +1234,7 @@ static jsonElement textDocumentInlayHint ( jsonElement const &req, int64_t id, l
 									{
 										if ( it->isInFunctionCall )
 										{
-											inlayHint["label"] = stringi ( ":" ) + it->compType.operator stringi();
+											inlayHint["label"] = it->compType.operator stringi() + ":";
 										} else
 										{
 											inlayHint["label"] = stringi ( ":" ) + it->compType.operator stringi();
