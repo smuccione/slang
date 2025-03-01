@@ -364,3 +364,7 @@ FodyWeavers.xsd
 /version/versionLib.h
 /new engine.zip
 /slang-1.1.0.vsix
+/LanguageServer/vscode/slang-1.1.0.vsix
+/LanguageServer/vscode/dist/slangd.exe
+/LanguageServer/vscode/dist/extension.js.map
+/LanguageServer/vscode/dist/extension.js
