@@ -638,14 +638,6 @@
     <None Include="Test\root\formTest.ap" />
     <None Include="Test\root\http404.ap" />
     <None Include="Test\root\redact.apf" />
-    <None Include="Test\root\saml\leep_saml.ap" />
-    <None Include="Test\root\saml\linx_saml.ap" />
-    <None Include="Test\root\saml\private.key" />
-    <None Include="Test\root\saml\public.crt" />
-    <None Include="Test\root\saml\saml.template" />
-    <None Include="Test\root\saml\signature.template" />
-    <None Include="Test\root\saml\signedInfo.template" />
-    <None Include="Test\root\saml\x509.cert" />
     <None Include="Test\root\sendFile.ap" />
     <None Include="Test\root\sendFileTus.ap" />
     <None Include="Test\root\sendZip2.ap" />

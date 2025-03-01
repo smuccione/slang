@@ -9,7 +9,7 @@
 
 #include "Target/common.h"
 
-constexpr size_t sxFileVersion = 0x600;
+constexpr size_t sxFileVersion = 0x601;
 constexpr char const *sxSig = "SLangExecutable\r\n\0";
 
 enum class fgxOvOp {

@@ -30,9 +30,6 @@
     <Filter Include="test\libs">
       <UniqueIdentifier>{4ff01357-ac1b-47ad-877f-bd6ba9215da5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="test\root\saml">
-      <UniqueIdentifier>{182e1ad3-e65c-490a-b401-efce30af3b7e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
@@ -128,30 +125,6 @@
     </None>
     <None Include="Test\libs\webclient.fgl">
       <Filter>test\libs</Filter>
-    </None>
-    <None Include="Test\root\saml\leep_saml.ap">
-      <Filter>test\root\saml</Filter>
-    </None>
-    <None Include="Test\root\saml\linx_saml.ap">
-      <Filter>test\root\saml</Filter>
-    </None>
-    <None Include="Test\root\saml\private.key">
-      <Filter>test\root\saml</Filter>
-    </None>
-    <None Include="Test\root\saml\public.crt">
-      <Filter>test\root\saml</Filter>
-    </None>
-    <None Include="Test\root\saml\saml.template">
-      <Filter>test\root\saml</Filter>
-    </None>
-    <None Include="Test\root\saml\signature.template">
-      <Filter>test\root\saml</Filter>
-    </None>
-    <None Include="Test\root\saml\signedInfo.template">
-      <Filter>test\root\saml</Filter>
-    </None>
-    <None Include="Test\root\saml\x509.cert">
-      <Filter>test\root\saml</Filter>
     </None>
     <None Include="Test\root\http404.ap">
       <Filter>test\root</Filter>
