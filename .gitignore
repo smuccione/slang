@@ -362,3 +362,5 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /version/versionLib.h
+/new engine.zip
+/slang-1.1.0.vsix
