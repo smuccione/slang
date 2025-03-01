@@ -1,0 +1,107 @@
+{
+    "comments": {
+        "lineComment": "//",
+        "blockComment": [
+            "/*",
+            "*/"
+        ]
+    },
+    "brackets": [
+        [
+            "{",
+            "}"
+        ],
+        [
+            "[",
+            "]"
+        ],
+        [
+            "(",
+            ")"
+        ]
+    ],
+    "autoClosingPairs": [
+        
+        {
+            "open": "[",
+            "close": "]"
+        },
+        {
+            "open": "(",
+            "close": ")"
+        },
+        {
+            "open": "'",
+            "close": "'",
+            "notIn": [
+                "string",
+                "comment"
+            ]
+        },
+        {
+            "open": "\"",
+            "close": "\"",
+            "notIn": [
+                "string",
+                "comment"
+            ]
+        },
+        {
+            "open": "`",
+            "close": "`",
+            "notIn": [
+                "string",
+                "comment"
+            ]
+        },
+        {
+            "open": "/**",
+            "close": " */",
+            "notIn": [
+                "string"
+            ]
+        }
+    ],
+    "autoCloseBefore": ";:.,=}])>` \n\t",
+    "surroundingPairs": [
+        [
+            "{",
+            "}"
+        ],
+        [
+            "[",
+            "]"
+        ],
+        [
+            "(",
+            ")"
+        ],
+        [
+            "'",
+            "'"
+        ],
+        [
+            "\"",
+            "\""
+        ],
+        [
+            "`",
+            "`"
+        ]
+    ],
+    "wordPattern": "(-?\\d*\\.\\d\\w*)|([^\\`\\~\\!\\@\\#\\%\\^\\&\\*\\(\\)\\-\\=\\+\\[\\{\\]\\}\\\\\\|\\;\\:\\'\\\"\\,\\.\\<\\>\\/\\?\\s]+)",
+    "indentationRules": {
+        "increaseIndentPattern": "^\\s*((function|class|property|namespace|while|foreach|for|if|assign|access|operator|try|catch|finally|switch|case|default|do))\\b*$",
+        "decreaseIndentPattern": "^\\s*([}\\]]([,)]?\\s*(#_|$)|\\.[a-zA-Z_]\\w*\\b)|(end|else)\\b)"
+    },
+    "onEnterRules": [
+    {
+      "beforeText": "^\\s*(?:function|class|namespace|property|while|foreach|for|if|assign|access|operator|try|catch|finally|switch|case|default|do)\\b.*$",
+      "action": { "indent": "indent" }
+    },
+    {
+      "beforeText": "^\\s*(?:else|end)\\b.*$",
+      "action": { "indent": "outdent" }
+    }
+  ]
+}

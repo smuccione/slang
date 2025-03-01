@@ -1,0 +1,82 @@
+// A launch configuration that compiles the extension and then opens it inside a new window
+{
+	"version": "0.1.0",
+	"configurations": [
+		{
+			"name": "Launch Extension (development)",
+			"type": "extensionHost",
+			"request": "launch",
+			"runtimeExecutable": "${execPath}",
+			"args": [
+				"--extensionDevelopmentPath=${workspaceFolder}"
+			],
+			"stopOnEntry": true,
+			"sourceMaps": true,
+			"outFiles": [
+				"${workspaceFolder}/dist/**/*.js"
+			],
+			"preLaunchTask": "compile-dev",
+		},
+		{
+			"name": "Launch Extension (production)",
+			"type": "extensionHost",
+			"request": "launch",
+			"runtimeExecutable": "${execPath}",
+			"args": [
+				"--extensionDevelopmentPath=${workspaceFolder}"
+			],
+			"sourceMaps": true,
+			"outFiles": [
+				"${workspaceFolder}/dist/**/*.js"
+			],
+			"preLaunchTask": "compile",
+		},
+		{
+			"name": "Launch Extension (do not build)",
+			"type": "extensionHost",
+			"request": "launch",
+			"runtimeExecutable": "${execPath}",
+			"args": [
+				"--extensionDevelopmentPath=${workspaceFolder}"
+			],
+			"sourceMaps": true,
+			"outFiles": [
+				"${workspaceFolder}/dist/**/*.js"
+			]
+		},
+		{
+			"name": "Launch Extension (watch, development)",
+			"type": "extensionHost",
+			"request": "launch",
+			"runtimeExecutable": "${execPath}",
+			"args": [
+				"--extensionDevelopmentPath=${workspaceFolder}"
+			],
+			"sourceMaps": true,
+			"outFiles": [
+				"${workspaceFolder}/dist/**/*.js"
+			],
+			"preLaunchTask": "compile-dev-watch",
+		},
+		{
+			"name": "Launch Extension (watch, production)",
+			"type": "extensionHost",
+			"request": "launch",
+			"runtimeExecutable": "${execPath}",
+			"args": [
+				"--extensionDevelopmentPath=${workspaceFolder}"
+			],
+			"sourceMaps": true,
+			"outFiles": [
+				"${workspaceFolder}/dist/**/*.js"
+			],
+			"preLaunchTask": "compile-dev",
+		},
+		{
+			"name": "Node Attach",
+			"type": "node",
+			"request": "attach",
+			"port": 5858
+		},
+	]
+}

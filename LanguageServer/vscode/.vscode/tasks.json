@@ -1,0 +1,38 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+	{
+		"type": "npm",
+		"script": "compile-dev",
+		"group": {
+			"kind": "build",
+			"isDefault": true
+		},
+		"problemMatcher": [],
+		"label": "npm: compile-dev",
+		"detail": "webpack --mode development"
+	},
+	{
+		"type": "npm",
+		"script": "compile-dev-watch",
+		"group": "build",
+		"problemMatcher": [],
+		"label": "npm: compile-dev-watch",
+		"detail": "webpack --mode development --watch --progress"
+	},
+	{
+		"type": "npm",
+		"script": "compile",
+		"group": "build",
+		"problemMatcher": [],
+		"label": "npm: compile",
+		"detail": "webpack --mode production --env vscode_nls"
+	},
+	{
+		"type": "Live Preview",
+		"workspacePath": "c:\\slang\\LanguageServer\\vscode",
+		"problemMatcher": [],
+		"label": "Live Preview: Run Server"
+	}
+]
+}

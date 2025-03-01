@@ -1,0 +1,905 @@
+{
+  "name": "slang",
+  "displayName": "slang",
+  "description": "Slang IntelliSense, debugging, and code browsing.",
+  "version": "1.1.0",
+  "publisher": "smuccione",
+  "readme": "README.md",
+  "author": {
+    "name": "smuccione"
+  },
+  "engines": {
+    "vscode": "^1.55.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/smuccione/slangd.git"
+  },
+  "keywords": [
+    "slang",
+    "fgl",
+    "ap",
+    "ap",
+    "IntelliSense",
+    "multi-root ready"
+  ],
+  "categories": [
+    "Programming Languages",
+    "Debuggers",
+    "Formatters",
+    "Linters",
+    "Snippets"
+  ],
+  "activationEvents": [
+    "onDebugResolve:slang",
+    "onDebugResolve:ap",
+    "onDebugResolve:fgl"
+  ],
+  "main": "./dist/extension",
+  "contributes": {
+    "breakpoints": [
+      {
+        "language": "fgl"
+      },
+      {
+        "language": "slang"
+      },
+      {
+        "language": "ap"
+      }
+    ],
+    "languages": [
+      {
+        "id": "fgl",
+        "aliases": [
+          "fgl"
+        ],
+        "extensions": [
+          ".fgl"
+        ],
+        "configuration": "./fgl.language-configuration.json"
+      },
+      {
+        "id": "ap",
+        "aliases": [
+          "ap"
+        ],
+        "extensions": [
+          ".ap",
+          ".aps",
+          ".apf"
+        ],
+        "configuration": "./ap.language-configuration.json"
+      },
+      {
+        "id": "slang",
+        "aliases": [
+          "slang"
+        ],
+        "extensions": [
+          ".sl",
+          ".slh"
+        ],
+        "configuration": "./slang.language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "slang",
+        "scopeName": "source.fgl",
+        "path": "./syntaxes/slang.tmGrammer"
+      },
+      {
+        "language": "fgl",
+        "scopeName": "source.fgl",
+        "path": "./syntaxes/fgl.tmGrammer"
+      },
+      {
+        "language": "ap",
+        "scopeName": "source.ap",
+        "path": "./syntaxes/ap.tmGrammer"
+      }
+    ],
+    "semanticTokenScopes": [
+      {
+        "scopes": {
+          "variable": [
+            "variable.local"
+          ],
+          "parameter": [
+            "variable.parameter"
+          ],
+          "label": [
+            "entity.name.label"
+          ],
+          "methodIterator": [
+            "entity.name.function"
+          ],
+          "property": [
+            "entity.name.function"
+          ],
+          "ivar": [
+            "variable"
+          ],
+          "ns": [
+            "entity.name.namespace"
+          ],
+          "field": [
+            "variable.other.global"
+          ],
+          "cls": [
+            "entity.name.type"
+          ],
+          "inherit": [
+            "entity.other.inherited-class"
+          ],
+          "self": [
+            "variable.language"
+          ],
+          "macro": [
+            "entity.name.function.preprocessor"
+          ],
+          "valueType": [
+            "entity.name.type.class.value"
+          ],
+          "operatorOverload": [
+            "entity.name.function.operator"
+          ],
+          "memberOperatorOverload": [
+            "entity.name.function.operator.member"
+          ],
+          "newOperator": [
+            "keyword.operator.new"
+          ],
+          "numberLiteral": [
+            "entity.name.operator.custom-literal.number"
+          ],
+          "customLiteral": [
+            "entity.name.operator.custom-literal"
+          ],
+          "super": [
+            "variable.language"
+          ],
+          "stringLiteral": [
+            "string.quoted"
+          ],
+          "punctuation": [
+            "keyword.operator"
+          ],
+          "keywordFlow": [
+            "keyword.control.flow"
+          ],
+          "keywordOperator": [
+            "keyword.operator"
+          ],
+          "keywordOther": [
+            "keyword.other"
+          ]
+        }
+      }
+    ],
+    "debuggers": [
+      {
+        "type": "slang",
+        "languages": [
+          "slang"
+        ],
+        "label": "Slang Debug",
+        "program": "./out/debugAdapter.js",
+        "runtime": "node",
+        "configurationAttributes": {
+          "launch": {
+            "required": [
+              "program"
+            ],
+            "properties": {
+              "program": {
+                "type": "string",
+                "description": "Absolute path to a text file.",
+                "default": "${workspaceFolder}/${command:AskForProgramName}"
+              },
+              "stopOnEntry": {
+                "type": "boolean",
+                "description": "Automatically stop after launch.",
+                "default": true
+              },
+              "noInline": {
+                "type": "boolean",
+                "description": "disable code inlining",
+                "default": true
+              },
+              "profile": {
+                "type": "boolean",
+                "description": "enable profiling",
+                "default": false
+              },
+              "list": {
+                "type": "boolean",
+                "description": "write bytecodes to output",
+                "default": false
+              },
+              "trace": {
+                "type": "boolean",
+                "description": "Enable logging of the Debug Adapter Protocol.",
+                "default": true
+              }
+            }
+          }
+        },
+        "initialConfigurations": [
+          {
+            "type": "slang",
+            "request": "launch",
+            "name": "Run current file",
+            "program": "${file}",
+            "stopOnEntry": true,
+            "noInline": true,
+            "profile": false,
+            "list": false
+          }
+        ],
+        "configurationSnippets": [
+          {
+            "label": "Slang Debug: Launch",
+            "description": "A new configuration for 'debugging' a user selected markdown file.",
+            "body": {
+              "type": "slang",
+              "request": "launch",
+              "name": "Ask for file name",
+              "program": "^\"\\${workspaceFolder}/\\${command:AskForProgramName}\"",
+              "stopOnEntry": true,
+              "noInline": true
+            }
+          }
+        ],
+        "variables": {
+          "AskForProgramName": "extension.Slang-debug.getProgramName"
+        }
+      },
+      {
+        "type": "fgl",
+        "languages": [
+          "fgl"
+        ],
+        "label": "FGL Debug",
+        "program": "./out/debugAdapter.js",
+        "runtime": "node",
+        "configurationAttributes": {
+          "launch": {
+            "required": [
+              "program"
+            ],
+            "properties": {
+              "program": {
+                "type": "string",
+                "description": "Absolute path to a text file.",
+                "default": "${workspaceFolder}/${command:AskForProgramName}"
+              },
+              "stopOnEntry": {
+                "type": "boolean",
+                "description": "Automatically stop after launch.",
+                "default": true
+              },
+              "noInline": {
+                "type": "boolean",
+                "description": "disable code inlining",
+                "default": true
+              },
+              "profile": {
+                "type": "boolean",
+                "description": "enable profiling",
+                "default": false
+              },
+              "list": {
+                "type": "boolean",
+                "description": "write bytecodes to output",
+                "default": false
+              },
+              "trace": {
+                "type": "boolean",
+                "description": "Enable logging of the Debug Adapter Protocol.",
+                "default": true
+              }
+            }
+          }
+        },
+        "initialConfigurations": [
+          {
+            "type": "fgl",
+            "request": "launch",
+            "name": "Run current file",
+            "program": "${file}",
+            "stopOnEntry": true,
+            "noInline": true,
+            "profile": false,
+            "list": false
+          }
+        ],
+        "configurationSnippets": [
+          {
+            "label": "Slang Debug: Launch",
+            "description": "A new configuration for 'debugging' a user selected markdown file.",
+            "body": {
+              "type": "slang",
+              "request": "launch",
+              "name": "Run current File",
+              "program": "${file}",
+              "stopOnEntry": true,
+              "noInline": true,
+              "profile": false,
+              "list": false
+            }
+          },
+          {
+            "label": "Slang Debug: Launch",
+            "description": "A new configuration for 'debugging' a user selected markdown file.",
+            "body": {
+              "type": "slang",
+              "request": "launch",
+              "name": "Run File",
+              "program": "^\"\\${workspaceFolder}/\\${command:AskForProgramName}\"",
+              "stopOnEntry": true,
+              "noInline": true,
+              "profile": false,
+              "list": false
+            }
+          }
+        ],
+        "variables": {
+          "AskForProgramName": "extension.Slang-debug.getProgramName"
+        }
+      },
+      {
+        "type": "ap",
+        "languages": [
+          "ap"
+        ],
+        "label": "AP Debug",
+        "program": "./out/debugAdapter.js",
+        "runtime": "node",
+        "configurationAttributes": {
+          "attach": {
+            "required": [
+              "program"
+            ],
+            "properties": {
+              "program": {
+                "type": "string",
+                "description": "Absolute path to an ap file to debug",
+                "default": "${workspaceFolder}/${command:AskForProgramName}"
+              },
+              "stopOnEntry": {
+                "type": "boolean",
+                "description": "Automatically stop after launch.",
+                "default": true
+              },
+              "noInline": {
+                "type": "boolean",
+                "description": "disable code inlining",
+                "default": true
+              },
+              "profile": {
+                "type": "boolean",
+                "description": "enable profiling",
+                "default": false
+              },
+              "list": {
+                "type": "boolean",
+                "description": "write bytecodes to output",
+                "default": false
+              },
+              "trace": {
+                "type": "boolean",
+                "description": "Enable logging of the Debug Adapter Protocol.",
+                "default": true
+              }
+            }
+          }
+        },
+        "initialConfigurations": [
+          {
+            "type": "ap",
+            "request": "launch",
+            "name": "Launch and halt for current AP page",
+            "program": "${file}",
+            "stopOnEntry": true,
+            "noInline": true,
+            "profile": false,
+            "list": false
+          },
+          {
+            "type": "ap",
+            "request": "launch",
+            "name": "Launch and halt for ANY ap page",
+            "program": "<any>",
+            "stopOnEntry": true,
+            "noInline": true,
+            "profile": false,
+            "list": false
+          },
+          {
+            "type": "ap",
+            "request": "attach",
+            "name": "Attach to the debugger and await a break point or exception",
+            "program": "",
+            "stopOnEntry": false,
+            "noInline": true,
+            "profile": false,
+            "list": false
+          }
+        ],
+        "configurationSnippets": [
+          {
+            "label": "Launch and BREAK AP",
+            "description": "A new configuration for debugging the current AP file.",
+            "body": {
+              "type": "ap",
+              "request": "launch",
+              "name": "Launch and halt for current AP page",
+              "program": "${file}",
+              "stopOnEntry": true,
+              "noInline": true,
+              "profile": false,
+              "list": false
+            }
+          },
+          {
+            "label": "Launch and Break ANY",
+            "description": "A new configuration for debugging any AP page",
+            "body": {
+              "type": "ap",
+              "request": "launch",
+              "name": "Launch and halt for ALL ap page",
+              "program": "",
+              "stopOnEntry": true,
+              "noInline": true,
+              "profile": false,
+              "list": false
+            }
+          },
+          {
+            "label": "Attach to the debugger",
+            "description": "Attach to the debugger and await a breakpoint or exception",
+            "body": {
+              "type": "ap",
+              "request": "attach",
+              "name": "",
+              "program": "",
+              "stopOnEntry": false,
+              "noInline": true,
+              "profile": false,
+              "list": false
+            }
+          }
+        ],
+        "variables": {
+          "AskForProgramName": "extension.Slang-debug.getProgramName"
+        }
+      }
+    ],
+    "configuration": [
+      {
+        "title": "formatter",
+        "properties": {
+          "slang.format.indentMulilineExpressions": {
+            "type": "boolean",
+            "default": true,
+            "description": "indent multi-line expressions"
+          },
+          "slang.format.indentCaseContents": {
+            "type": "boolean",
+            "default": true,
+            "description": "indent case contents"
+          },
+          "slang.format.indentCaseLabels": {
+            "type": "boolean",
+            "default": true,
+            "description": "indent case labels"
+          },
+          "slang.format.indentNamespaceContents": {
+            "type": "boolean",
+            "default": true,
+            "description": "indent namespace contents"
+          },
+          "slang.format.indentClassContents": {
+            "type": "boolean",
+            "default": true,
+            "description": "indent class contents"
+          },
+          "slang.format.indentBracesFollowingCase": {
+            "type": "boolean",
+            "default": true,
+            "description": "indent open brace follwing a case statement"
+          },
+          "slang.format.indentBracesOfLambdaBody": {
+            "type": "boolean",
+            "default": true,
+            "description": "indent braces of lambda body"
+          },
+          "slang.format.labelIndented": {
+            "type": "boolean",
+            "default": false,
+            "description": "indent label statement"
+          },
+          "slang.format.indentBracesHalf": {
+            "type": "boolean",
+            "default": false,
+            "description": "indent case & case body one half tab-width"
+          },
+          "slang.format.indentAccessSpecifiers": {
+            "type": "boolean",
+            "default": true,
+            "description": "indent access specifieers"
+          },
+          "slang.format.indentAccessSpecifiersHalf": {
+            "type": "boolean",
+            "default": true,
+            "description": "indent access specfifiers one-half tab width"
+          },
+          "slang.format.preserveCommentIndentation": {
+            "type": "boolean",
+            "default": false,
+            "description": "preserve comment indentation"
+          },
+          "slang.format.newLineNamespaceBrace": {
+            "type": "boolean",
+            "default": true,
+            "description": "open brace for a namespace should be on a new line"
+          },
+          "slang.format.newLineControlBrace": {
+            "type": "boolean",
+            "default": true,
+            "description": "open brace for a control statement should be on a new line"
+          },
+          "slang.format.newLineClassBrace": {
+            "type": "boolean",
+            "default": true,
+            "description": "open brace for a class should be on a new line"
+          },
+          "slang.format.newLineFunctionBrace": {
+            "type": "boolean",
+            "default": false,
+            "description": "open brace for a function should be on a new line"
+          },
+          "slang.format.newLineBlockBrace": {
+            "type": "boolean",
+            "default": true,
+            "description": "open brace for a block should be on a new line"
+          },
+          "slang.format.newLineLambdaBrace": {
+            "type": "boolean",
+            "default": true,
+            "description": "open brace for a lambda should be on a new line"
+          },
+          "slang.format.newLineAfterScope": {
+            "type": "boolean",
+            "default": true,
+            "description": "closing brace should be on a new line"
+          },
+          "slang.format.newLineCloseBrace": {
+            "type": "boolean",
+            "default": true,
+            "description": "open brace for a namespace should be on a new line"
+          },
+          "slang.format.newLineEmptyBodyBrace": {
+            "type": "boolean",
+            "default": false,
+            "description": "closing brace of an empty block should be on a new line"
+          },
+          "slang.format.newLineCatch": {
+            "type": "boolean",
+            "default": false,
+            "description": "catch statement should be on a new line"
+          },
+          "slang.format.newLineFinally": {
+            "type": "boolean",
+            "default": false,
+            "description": "finally statment should be on a new line"
+          },
+          "slang.format.newLineElse": {
+            "type": "boolean",
+            "default": false,
+            "description": "else statement should be on a new line"
+          },
+          "slang.format.newLineWhile": {
+            "type": "boolean",
+            "default": false,
+            "description": "while statement should be on a new line"
+          },
+          "slang.format.alignPerenthesis": {
+            "type": "boolean",
+            "default": true,
+            "description": "align perentheses"
+          },
+          "slang.format.alignCurlyBraces": {
+            "type": "boolean",
+            "default": true,
+            "description": "align curly braces"
+          },
+          "slang.format.alignMessageSend": {
+            "type": "boolean",
+            "default": false,
+            "description": "align message send operators"
+          },
+          "slang.format.spaceBetweenFunctionNamePerenthesis": {
+            "type": "boolean",
+            "default": true,
+            "description": "insert space between function name and open perentheses"
+          },
+          "slang.format.spaceWithinArgumentList": {
+            "type": "boolean",
+            "default": true,
+            "description": "insert space between elements in an argument list"
+          },
+          "slang.format.spaceWithingEmptyArgumentList": {
+            "type": "boolean",
+            "default": false,
+            "description": "insert space within an empty argument list"
+          },
+          "slang.format.spaceBetweenKeywordAndCondition": {
+            "type": "boolean",
+            "default": true,
+            "description": "insert space between keyword and open brace of a condition"
+          },
+          "slang.format.spaceWithinCondition": {
+            "type": "boolean",
+            "default": true,
+            "description": "insert space within condtion"
+          },
+          "slang.format.spaceWithinPerenthesizedExpression": {
+            "type": "boolean",
+            "default": false,
+            "description": "insert space wthin a perenthesized expression"
+          },
+          "slang.format.spaceBeforeOpeningBlock": {
+            "type": "boolean",
+            "default": true,
+            "description": "insert space before an opening block"
+          },
+          "slang.format.spaceWithinEmptyBlock": {
+            "type": "boolean",
+            "default": false,
+            "description": "insert space within an empty block"
+          },
+          "slang.format.spacebeforeArrayContentsAccess": {
+            "type": "boolean",
+            "default": false,
+            "description": "insert space before an array dereference"
+          },
+          "slang.format.spaceWithinArrayAccess": {
+            "type": "boolean",
+            "default": false,
+            "description": "insert space within an array dereference"
+          },
+          "slang.format.spaceWithinArray": {
+            "type": "boolean",
+            "default": true,
+            "description": "insert space within an array definition"
+          },
+          "slang.format.spaceWithinJSONObject": {
+            "type": "boolean",
+            "default": true,
+            "description": "insert space within a json definition"
+          },
+          "slang.format.groupMultiDimensionalArraysTogether": {
+            "type": "boolean",
+            "default": true,
+            "description": "group multi-dimensional arrays together"
+          },
+          "slang.format.spaceBeforeCommas": {
+            "type": "boolean",
+            "default": false,
+            "description": "insert space before commas"
+          },
+          "slang.format.spaceAftereCommas": {
+            "type": "boolean",
+            "default": true,
+            "description": "insert space after commas"
+          },
+          "slang.format.spaceBeforeMemberOperator": {
+            "type": "boolean",
+            "default": false,
+            "description": "insert space before member operator"
+          },
+          "slang.format.spaceAfterMemberOperator": {
+            "type": "boolean",
+            "default": false,
+            "description": "insert space after member operator"
+          },
+          "slang.format.spaceAfterSemicolons": {
+            "type": "boolean",
+            "default": false,
+            "description": "insert space after semicolons"
+          },
+          "slang.format.spaceBetweenUnaryOperatorAndOperand": {
+            "type": "boolean",
+            "default": false,
+            "description": "insert space between unary operator and operand"
+          },
+          "slang.format.spaceAroundOperators": {
+            "type": "boolean",
+            "default": true,
+            "description": "insert space around binary operators"
+          },
+          "slang.format.spaceAroundRangeOperator": {
+            "type": "boolean",
+            "default": false,
+            "description": "insert space around range operator"
+          },
+          "slang.format.spaceAroundAssignmentOperators": {
+            "type": "boolean",
+            "default": true,
+            "description": "insert space around assignment operators"
+          },
+          "slang.format.spaceAroundConditionalOperators": {
+            "type": "boolean",
+            "default": true,
+            "description": "insert space around conditional operators"
+          },
+          "slang.format.spaceBetweenAdjoiningCommas": {
+            "type": "boolean",
+            "default": false,
+            "description": "insert space between adjoining commas"
+          },
+          "slang.format.spaceAroundPairOperator": {
+            "type": "boolean",
+            "default": true,
+            "description": "insert space around pair operator"
+          },
+          "slang.format.capitalizeDeclarators": {
+            "type": "boolean",
+            "default": true,
+            "description": "capitilize declaration statements"
+          }
+        }
+      },
+      {
+        "title": "Inlay Hints",
+        "properties": {
+          "slang.inlay.inlayHints": {
+            "type": "boolean",
+            "default": true,
+            "description": "enable inlayHints"
+          },
+          "slang.inlay.inlayHintsParameterNames": {
+            "type": "boolean",
+            "default": true,
+            "description": "hint parameter names"
+          },
+          "slang.inlay.inlayHintsVariableTypes": {
+            "type": "boolean",
+            "default": true,
+            "description": "hint variable types"
+          },
+          "slang.inlay.inlayHintsFunctionReturnType": {
+            "type": "boolean",
+            "default": true,
+            "description": "hint function return types"
+          },
+          "slang.inlay.inlayHintsTrailingTypes": {
+            "type": "boolean",
+            "default": true,
+            "description": "use trailing types"
+          }
+        }
+      },
+      {
+        "title": "Debug",
+        "properties": {
+          "slang.trace.server": {
+            "scope": "window",
+            "type": "string",
+            "enum": [
+              "off",
+              "messages",
+              "verbose"
+            ],
+            "default": "verbose",
+            "license": "SEE LICENSE IN LICENSE.txt"
+          }
+        }
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run esbuild-base -- --minify",
+    "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=out/main.js --external:vscode --format=cjs --platform=node",
+    "esbuild": "npm run esbuild-base -- --sourcemap",
+    "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
+    "test-compile": "tsc -p ./",
+    "compile": "webpack --mode production --env vscode_nls",
+    "compile-dev": "webpack --mode development",
+    "compile-watch": "webpack --mode production --env vscode_nls --watch --progress",
+    "compile-dev-watch": "webpack --mode development --watch --progress"
+  },
+  "devDependencies": {
+    "@octokit/rest": "^21.0.2",
+    "@types/glob": "^7.1.3",
+    "@types/minimatch": "^3.0.3",
+    "@types/mkdirp": "^0.5.2",
+    "@types/mocha": "^8.2.2",
+    "@types/node": "^14.14.37",
+    "@types/plist": "^3.0.2",
+    "@types/semver": "^7.1.0",
+    "@types/tmp": "^0.1.0",
+    "@types/vscode": "1.55.0",
+    "@types/which": "^1.3.2",
+    "@types/yauzl": "^2.9.1",
+    "@typescript-eslint/eslint-plugin": "^4.22.0",
+    "@typescript-eslint/eslint-plugin-tslint": "^4.22.0",
+    "@typescript-eslint/parser": "^4.22.0",
+    "async-child-process": "^1.1.1",
+    "esbuild": "^0.13.15",
+    "eslint": "^7.24.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-jsdoc": "^32.3.0",
+    "event-stream": "^4.0.1",
+    "fs-extra": "^8.1.0",
+    "glob": "^7.1.6",
+    "gulp": "^5.0.0",
+    "gulp-env": "^0.4.0",
+    "gulp-eslint": "^6.0.0",
+    "gulp-filter": "^6.0.0",
+    "gulp-mocha": "^10.0.1",
+    "gulp-sourcemaps": "^2.6.5",
+    "gulp-typescript": "^5.0.1",
+    "http-proxy-agent": "^2.1.0",
+    "minimist": "^1.2.5",
+    "mocha": "^10.8.2",
+    "parse5": "^5.1.0",
+    "parse5-traverse": "^1.0.3",
+    "ts-loader": "^8.1.0",
+    "tslint": "^5.19.0",
+    "typescript": "^4.2.3",
+    "vsce": "^1.97.0",
+    "vscode-debugadapter": "^1.46.0",
+    "vscode-debugadapter-testsupport": "^1.46.0",
+    "vscode-debugprotocol": "^1.35.0",
+    "vscode-extension-telemetry": "^0.1.2",
+    "vscode-languageclient": "^8.2.0-next.2",
+    "vscode-languageserver": "^8.2.0-next.2",
+    "vscode-nls": "^4.1.1",
+    "vscode-nls-dev": "^4.0.4",
+    "vscode-test": "^1.3.0",
+    "webpack": "^5.50.0",
+    "webpack-cli": "^4.8.0",
+    "xml2js": "^0.6.2"
+  },
+  "dependencies": {
+    "await-notify": "^1.0.1",
+    "comment-json": "^3.0.3",
+    "editorconfig": "^0.15.3",
+    "escape-string-regexp": "^2.0.0",
+    "eslint": "^7.24.0",
+    "https-proxy-agent": "^2.2.4",
+    "minimatch": "^3.0.4",
+    "mkdirp": "^0.5.1",
+    "plist": "^3.0.2",
+    "ruby": "^0.6.1",
+    "tmp": "^0.1.0",
+    "which": "^2.0.2",
+    "yarn": "^1.22.19",
+    "yauzl": "^2.10.0"
+  },
+  "resolutions": {
+    "**/mkdirp/minimist": "^0.2.1",
+    "yargs-parser": "^15.0.1",
+    "y18n": "^5.0.5"
+  },
+  "runtimeDependencies": [
+    {
+      "description": "Slang language components (Windows)",
+      "url": "https://www.fgl.org",
+      "platforms": [
+        "win32"
+      ],
+      "architectures": [
+        "x64",
+        "x86"
+      ],
+      "binaries": [
+        "./bin/slangd.exe"
+      ]
+    }
+  ]
+}
