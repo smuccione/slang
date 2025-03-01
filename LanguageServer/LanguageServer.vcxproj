@@ -674,6 +674,9 @@
     <None Include="vscode\.eslintrc.json" />
     <None Include="vscode\.gitignore" />
     <None Include="vscode\.vscodeignore" />
+    <None Include="vscode\.vscode\extensions.json" />
+    <None Include="vscode\.vscode\launch.json" />
+    <None Include="vscode\.vscode\tasks.json" />
     <None Include="vscode\ap.language-configuration.json" />
     <None Include="vscode\fgl.language-configuration.json" />
     <None Include="vscode\package.json" />
@@ -684,7 +687,12 @@
     <None Include="vscode\src\Debugger\slangDebug.ts" />
     <None Include="vscode\src\Debugger\slangRuntime.ts" />
     <None Include="vscode\src\extension.ts" />
+    <None Include="vscode\syntaxes\ap.tmGrammer" />
+    <None Include="vscode\syntaxes\fgl.tmGrammer" />
+    <None Include="vscode\syntaxes\fgl.tmGrammer.json" />
     <None Include="vscode\syntaxes\slang.tmGrammer" />
+    <None Include="vscode\syntaxes\slang.tmGrammer.tmLanguage" />
+    <None Include="vscode\syntaxes\slang.tmGrammer.yaml" />
     <None Include="vscode\tsconfig.json" />
     <None Include="vscode\webpack.config.js" />
   </ItemGroup>

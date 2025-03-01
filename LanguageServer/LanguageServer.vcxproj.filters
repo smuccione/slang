@@ -90,6 +90,15 @@
     <None Include="vscode\syntaxes\slang.tmGrammer">
       <Filter>vsCode\syntaxes</Filter>
     </None>
+    <None Include="vscode\.vscode\extensions.json">
+      <Filter>vsCode</Filter>
+    </None>
+    <None Include="vscode\.vscode\launch.json">
+      <Filter>vsCode</Filter>
+    </None>
+    <None Include="vscode\.vscode\tasks.json">
+      <Filter>vsCode</Filter>
+    </None>
     <None Include="vscode\ap.language-configuration.json">
       <Filter>vsCode</Filter>
     </None>
@@ -98,6 +107,21 @@
     </None>
     <None Include="vscode\slang.language-configuration.json">
       <Filter>vsCode</Filter>
+    </None>
+    <None Include="vscode\syntaxes\ap.tmGrammer">
+      <Filter>vsCode\syntaxes</Filter>
+    </None>
+    <None Include="vscode\syntaxes\fgl.tmGrammer">
+      <Filter>vsCode\syntaxes</Filter>
+    </None>
+    <None Include="vscode\syntaxes\fgl.tmGrammer.json">
+      <Filter>vsCode\syntaxes</Filter>
+    </None>
+    <None Include="vscode\syntaxes\slang.tmGrammer.tmLanguage">
+      <Filter>vsCode\syntaxes</Filter>
+    </None>
+    <None Include="vscode\syntaxes\slang.tmGrammer.yaml">
+      <Filter>vsCode\syntaxes</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
