@@ -19,7 +19,7 @@
 
 
 #define NODE_DEF(name) name,
-enum class astOp
+enum class astOp : size_t
 {
 	NODE_OPS
 };
@@ -1206,8 +1206,8 @@ class astNode final
 
 	class symbolLocal *addSymbol ( cacheString const &name, symbolTypeClass const &type, srcLocation const &loc, astNode *init = 0 );
 	class symbolLocal *addSymbolFront ( cacheString const &name, symbolTypeClass const &type, srcLocation const &loc, astNode *init = 0 );
-	int infixPriority ();
-	int stackPriority ();
+	size_t infixPriority ();
+	size_t stackPriority ();
 	bool isLeft ();
 	bool isUnaryOp ();
 	bool isBinaryOp ();

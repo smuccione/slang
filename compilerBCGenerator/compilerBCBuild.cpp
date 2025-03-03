@@ -527,7 +527,7 @@ void compExecutable::serialize ( BUFFER *buff, bool isLibrary )
 	header = (fgxFileHeader *) bufferBuff ( buff );
 	memset ( header, 0, sizeof ( *header ) );
 
-	memcpy ( header->sig, sxSig, sizeof ( sxSig ) );
+	memcpy ( header->sig, sxSig, sizeof ( header->sig ) );
 	header->version = sxFileVersion;
 
 	header->offsetBSSGlobals = bssSize;

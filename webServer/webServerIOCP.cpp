@@ -148,7 +148,7 @@ void __cdecl webServerWorkerThread ( void *params )
 			sock = *asyncOp;
 			sock->doTimeoutCheck = false;		// ignore timeouts when WE are doing processing
 
-			printf ( "%8p     socket: %4d   type: %5s    state: %19s    nBytes: %9li\r\n", sock, (uint32_t)sock->socket, sock->protoChild && sock->protoChild->protoChild ? iocpProtocolTypes[sock->protoChild->protoChild->type] : "", iocpStateNames[sock->state], nBytesTransferred );
+//			printf ( "%8p     socket: %4d   type: %5s    state: %19s    nBytes: %9li\r\n", sock, (uint32_t)sock->socket, sock->protoChild && sock->protoChild->protoChild ? iocpProtocolTypes[sock->protoChild->protoChild->type] : "", iocpStateNames[sock->state], nBytesTransferred );
 	
 			switch ( sock->state )
 			{

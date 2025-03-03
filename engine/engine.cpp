@@ -496,7 +496,7 @@ void CSlangServer::appServerStart ( void )
 
 	instance.preLoadedSource.push_back ( std::make_tuple ( builtInSize, builtInShared ) );
 
-	instance.load ( builtInShared, "builtIn", false, false );
+//	instance.load ( builtInShared, "builtIn", false, false );
 
 	// construct the instance for the database... this instance has the builtin functions compiled and loaded, as opposed to the worker thread instance which has the compiled portion
 	// built into the individual ap pages to allow inlining, speed, and pruning

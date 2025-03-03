@@ -17,6 +17,7 @@ namespace logger {
 template<typename ...P>
 void logger( logger::formatLocation const &fmtLoc, P&& ...p )
 {
+#if 0
 	if ( fmtLoc.loc.function_name()[0] )
 	{
 		printf( "%s:%s(%u): ", fmtLoc.loc.file_name(), fmtLoc.loc.function_name(), fmtLoc.loc.line() );
@@ -24,5 +25,6 @@ void logger( logger::formatLocation const &fmtLoc, P&& ...p )
 	{
 		printf( "%s(%u): ", fmtLoc.loc.file_name(), fmtLoc.loc.line() );
 	}
+#endif
 	printf( fmtLoc.fmt, std::forward<P>( p ) ... );
 }

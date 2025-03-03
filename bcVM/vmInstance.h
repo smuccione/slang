@@ -1107,7 +1107,7 @@ class vmInstance
 	{
 		char	logString[4096]{};
 		size_t	len = 0;
-
+#if 0
 		switch ( level )
 		{
 			case logger::level::ERROR:
@@ -1128,6 +1128,7 @@ class vmInstance
 		{
 			len += (size_t) sprintf_s( logString + len, sizeof( logString ) - len - 1, "%s(%lu): ", fmtLoc.loc.file_name(), fmtLoc.loc.line() );
 		}
+#endif
 		len += sprintf_s( logString + len, sizeof( logString ) - len - 1, fmtLoc.fmt, std::forward<P>( p ) ... );
 		logString[len++] = '\n';
 		logString[len] = 0;

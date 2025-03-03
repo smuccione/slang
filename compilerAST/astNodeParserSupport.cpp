@@ -6,7 +6,7 @@
 
 #include "compilerParser/fileParser.h"
 
-int astNode::infixPriority()
+size_t astNode::infixPriority()
 {
 	if ( opToOpDef[(size_t)op] )
 	{
@@ -14,7 +14,7 @@ int astNode::infixPriority()
 	} else return 1;
 }
 
-int astNode::stackPriority()
+size_t astNode::stackPriority()
 {
 	if ( opToOpDef[(size_t)op] )
 	{

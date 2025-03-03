@@ -5951,8 +5951,12 @@ symbolTypeClass compExecutable::compEmitNode ( opFunction *funcDef, astNode *blo
 			break;
 		case astOp::errorValue:
 		case astOp::warnValue:
-		default:
 			throw errorNum::scINTERNAL;
+			break;
+		default:
+			__assume (false);
+			throw errorNum::scINTERNAL;
+			break;
 	}
 	if ( needValue )
 	{

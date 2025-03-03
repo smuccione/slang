@@ -528,7 +528,7 @@ static jsonElement setFunctionBreakpoints ( jsonElement const &req, dbgJsonRPCSe
 
 	jsonElement rsp;
 	size_t index = 0;
-	if ( activeDebugger )
+	if ( activeDebugger && lastInstance )
 	{
 		for ( auto &it : fileStore.functionBreakpoints )
 		{
@@ -592,7 +592,7 @@ static jsonElement setBreakpoints ( jsonElement const &req, dbgJsonRPCServerBase
 		file.bpList.push_back ( dbAdapaterBP ( fixedName, line, condition, count, logMessage ) );
 	}
 
-	if ( activeDebugger )
+	if ( activeDebugger && lastInstance )
 	{
 		for ( auto &it : file.bpList )
 		{

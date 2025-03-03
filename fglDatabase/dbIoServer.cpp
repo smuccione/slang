@@ -81,7 +81,7 @@ void dbServerResetFD ( DB_SERVER *server, DB_SERVER_FD *fd )
 	{
 		if ( closesocket ( fd->socket ) )
 		{
-			printf ( "=================  CloseSocket: %u     res: %i	fd: %8p\r\n", (uint32_t) fd->socket, WSAGetLastError ( ), fd );
+//			printf ( "=================  CloseSocket: %u     res: %i	fd: %8p\r\n", (uint32_t) fd->socket, WSAGetLastError ( ), fd );
 		}
 		fd->socket = 0;
 	}
