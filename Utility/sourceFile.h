@@ -30,6 +30,7 @@ class source
 	cacheString			 currentFileName;
 	uint32_t			 currentSourceIndex = 0;
 	bool				 lineStart = true;
+	bool				 needDebugEmit = false;
 	stringCache			&sCache;
 
 public:
@@ -72,6 +73,13 @@ public:
 		std::swap ( prevLineEnd, old.prevLineEnd );
 		std::swap( sCache, old.sCache );
 		return *this;
+	}
+
+	bool emitDebug ()
+	{
+		bool ret = needDebugEmit;
+		needDebugEmit = false;
+		return ret;
 	}
 
 	bool isLineStart ()

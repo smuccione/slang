@@ -784,6 +784,16 @@
         }
       },
       {
+        "title": "General Settings",
+        "properties": {
+          "slang.general.apAreSLANG": {
+            "type": "boolean",
+            "default": true,
+            "description": "process .ap files as .aps"
+          }
+        }
+      },
+      {
         "title": "Debug",
         "properties": {
           "slang.trace.server": {

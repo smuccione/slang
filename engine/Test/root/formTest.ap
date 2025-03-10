@@ -3,23 +3,23 @@
 <[
 	sObj = new webSession()
 
-	debugBreak()
-	inPath = webDecodeURL( sObj.var( "inPath" ) )
+	debugBreak ( )
+	inPath = webDecodeURL ( sObj.var ( "inPath" ) )
 
-	ct = sObj.data('content_type')
-	if ( ct && lower(left(ct, 10)) == 'multipart/' )
+	ct = sObj.data ( 'content_type' )
+	if (ct && lower ( left ( ct, 10 ) ) == 'multipart/')
 	{
-		! "your command is: " + sObj.postData(1) + "<br/>"
-		! "your first name is: " + sObj.postData(2) + "<br/>"
-		! "your last name is: " + sObj.postData(3) + "<br/>"
-	} else
-	{
-		! "your command is: " + sObj.var( "cmd" ) + "<br/>"
-		! "your first name is: " + sObj.var( "fName" ) + "<br/>"			// name is case insensitive (sent as all lowercase)
-		! "your last name is: " + sObj.var( "lname" ) + "<br/>"
-	}
+		! "your command is: " + sObj.postData ( 1 ) + "<br/>"
+		! "your first name is: " + sObj.postData ( 2 ) + "<br/>"
+		! "your last name is: " + sObj.postData ( 3 ) + "<br/>"
+	} else 
+   	{
+		! "your command is: " + sObj.var ( "cmd" ) + "<br/>"
+		! "your first name is: " + sObj.var ( "fName" ) + "<br/>"								  // name is case insensitive (sent as all lowercase)
+   		! "your last name is: " + sObj.var ( "lname" ) + "<br/>"
+	} 
 	x = 0 + sObj.cookieGet ( "counter" )
-	sObj.cookieSet( "counter", x + 1 );
+	sObj.cookieSet ( "counter", (x + 1) );
 ]>
 counter: <[! x ]><br>
 <form name="input1" action="formtest.ap" method="POST">

@@ -1882,6 +1882,11 @@ astNode *opFile::_parseExpr ( source &src, bool sValid, bool onlySimpleExpressio
 
 			node = getNode ( src, lastOp, func, doSlang, isLS );
 
+			if ( src.emitDebug() )
+			{
+				node->forceEmitDebug = true;
+			}
+
 			if ( !node )
 			{
 				if ( !perenCount )

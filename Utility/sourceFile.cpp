@@ -26,6 +26,7 @@ source::operator char const *() noexcept
 	auto tmpExpr = expr;
 	while ( (tmpExpr[0] == '[') && !memcmp( tmpExpr, "[[pos:", 6 ) )
 	{
+		needDebugEmit = true;
 		while ( *tmpExpr && !(tmpExpr[0] == ']' && tmpExpr[1] == ']') )
 		{
 			tmpExpr++;
@@ -44,6 +45,7 @@ void source::bsAdvance ()
 	{
 		if ( (expr[0] == '[') && !memcmp ( expr, "[[pos:", 6 ) )
 		{
+			needDebugEmit = true;
 			expr += 6;
 			while ( _isspace ( expr ) ) expr++;
 			columnNumber = atoi ( expr );  // - 1 because we'll increment it again the moment we process OUR eol... the line number in the #line statement is for the line below us
@@ -113,6 +115,7 @@ void source::bsAdvanceEol ( bool noSemi )
 			}
 		} else if ( (expr[0] == '[') && !memcmp( expr, "[[pos:", 6 ) )
 		{
+			needDebugEmit = true;
 			expr += 6;
 			while ( _isspace ( expr ) ) expr++;
 			columnNumber= atoi ( expr );  // - 1 because we'll increment it again the moment we process OUR eol... the line number in the #line statement is for the line below us

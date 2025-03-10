@@ -3549,14 +3549,20 @@ symbolTypeClass compExecutable::compEmitNode ( opFunction *funcDef, astNode *blo
 	symbolTypeClass				 condType;
 	cacheString symbolName;
 	errorLocality				 e ( &file->errHandler, block );
+
 	// for debug purposes only
 	// auto codeArr = codeSegment.getOps();
-	//listing.annotate ( sym, "[%x] ", block);
-//		resType = block->getType ( sym).compType();		// why do we do this at all?   each element should have the proper res type
+	// listing.annotate ( sym, "[%x] ", block);
+	// resType = block->getType ( sym).compType();		// why do we do this at all?   each element should have the proper res type
 
 	if ( !needValue )
 	{
 		resType = symVariantType;
+	}
+
+	if ( block->forceEmitDebug )
+	{
+		debug.addEntry ( block->location, codeSegment.getNumOps (), sym->getStackSize () );
 	}
 
 	switch ( block->getOp() )
@@ -4009,7 +4015,7 @@ symbolTypeClass compExecutable::compEmitNode ( opFunction *funcDef, astNode *blo
 			break;
 
 		case astOp::add:
-			if ( needType == symbolType::symString || block->left->getType ( sym ) == symbolType::symString )
+			if ( needType == symbolType::symString && block->left->getType ( sym ) == symbolType::symString )
 			{
 				uint32_t cnt = compEmitConcat( funcDef, block, sym, symStringType, retType, safeCalls,  needValue );
 				if ( needValue )
@@ -4027,6 +4033,7 @@ symbolTypeClass compExecutable::compEmitNode ( opFunction *funcDef, astNode *blo
 			} else
 			{
 				resType = compEmitBinaryOp( funcDef, block, sym, needType, retType, safeCalls,  needValue, fglOpcodes::addi, fglOpcodes::addd, fglOpcodes::adds, safeCalls ? fglOpcodes::addSafev : fglOpcodes::addv, fglOpcodes::addiImm, fglOpcodes::adddImm );
+				resType = compEmitCast ( resType, needType );
 			}
 			break;
 		case astOp::subtract:
@@ -5443,6 +5450,11 @@ symbolTypeClass compExecutable::compEmitNode ( opFunction *funcDef, astNode *blo
 			{
 				char						 ifLabel[256];
 				char						 ifEndLabel[256];
+
+				if ( funcDef && funcDef->location.sourceIndex == 4 )
+				{
+					printf ( "" );
+				}
 
 				listing.emitContSource ( block->location );
 

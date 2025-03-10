@@ -632,6 +632,8 @@ astNode::astNode ( class opFile *file, class sourceFile *srcFile, char const **e
 	(*expr)++;
 
 	location = srcLocation ( srcFile, expr );
+	forceEmitDebug = *(bool *)*expr;
+	(*expr) += sizeof ( bool );	
 
 	switch ( op )
 	{
@@ -742,6 +744,7 @@ astNode::astNode ( const astNode &old )
 	op = old.op;
 	location = old.location;
 	extendedSelection = old.extendedSelection;
+	forceEmitDebug = old.forceEmitDebug;
 
 	nodeData = old.nodeData;
 
@@ -806,6 +809,7 @@ astNode &astNode::operator = ( astNode &&old ) noexcept
 	std::swap ( nodeData, old.nodeData );
 	std::swap ( location, old.location );
 	std::swap ( extendedSelection, old.extendedSelection );
+	std::swap ( forceEmitDebug, old.forceEmitDebug );
 	std::swap ( left, old.left );
 	std::swap ( right, old.right );
 
@@ -825,6 +829,7 @@ void astNode::serialize ( BUFFER *buff )
 	bufferPut8 ( buff, static_cast<uint8_t>(op) );
 
 	location.serialize ( buff );
+	bufferPut8 ( buff, forceEmitDebug );
 
 	switch ( op )
 	{

@@ -609,16 +609,13 @@ static struct BUFFER *apTranslatePage ( char const *fName, char const *inBuffer,
 				switch ( inBuffer[loop] )
 				{
 					case '\r':	// NOLINT (bugprone-branch-clone)
-						// normal windows case... \r\n
-						loop--;
-						colNum--;
 						POP_STATE ();
+						loop--;
 						break;
 
 					case '\n':
 						// \n with no preceeding \r
 						loop--;
-						colNum--;
 						POP_STATE ();
 						break;
 					default:
@@ -627,6 +624,7 @@ static struct BUFFER *apTranslatePage ( char const *fName, char const *inBuffer,
 				}
 				break;
 			case apSLANGCodeQuoteState:
+				// TODO: handle R( raw strings )
 				switch ( inBuffer[loop] )
 				{
 					case '\\':
@@ -773,7 +771,9 @@ char *compAPPreprocessBuffer ( char const *fName, char const *src, bool isSlang,
 
 	apBuff = apTranslatePage ( fName, src, strlen ( src ), encapsulate, isSlang );
 
-	ret = compPreprocessor ( fName, bufferBuff ( apBuff ), isSlang );
+	ret = static_cast<char *>(apBuff->detach ());
+
+//	ret = compPreprocessor ( fName, bufferBuff ( apBuff ), isSlang );
 
 	delete apBuff;
 

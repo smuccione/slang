@@ -241,6 +241,9 @@ struct languageServer
 	DEF ( inlayHintsFunctionReturnType, true, "hint function return types" ) \
 	DEF ( inlayHintsTrailingTypes, true, "use trailing types" ) \
 
+#define LS_GENERAL_SETTINGS \
+	DEF ( apAreSLANG, true, "process .ap files as .aps" ) \
+
 	struct formatingFlags
 	{
 #undef DEF
@@ -254,6 +257,7 @@ struct languageServer
 #undef DEF
 #define DEF( name, state, description ) std::variant<bool, stringi> name = state;
 		LS_CONFIGURATION_SETTINGS
+		LS_GENERAL_SETTINGS
 #undef DEF
 	} configFlags;
 
@@ -293,6 +297,24 @@ struct languageServer
 		buff.printf ( "		\"description\": %s\r\n", description.c_str () );
 		buff.printf ( "},\r\n" );
 	}
+	static void makeJGeneralSettings ( BUFFER &buff, stringi const &name, bool state, stringi const &description )
+	{
+		// generate the below
+		/**
+			"slang.format.indentCaseContents": {
+				"type": "boolean",
+					"default" : "true",
+					"description" : "Indents a case statement on format."
+			},
+		*/
+
+		buff.printf ( "\"slang.general.%s\": {\r\n", name.c_str () );
+		buff.printf ( "	\"type\": \"boolean\",\r\n" );
+		buff.printf ( "		\"default\": %s,\r\n", state ? "true" : "false" );
+		buff.printf ( "		\"description\": %s\r\n", description.c_str () );
+		buff.printf ( "},\r\n" );
+	}
+
 	static void makeJsonSettings ()
 	{
 		BUFFER buff;
@@ -313,8 +335,6 @@ struct languageServer
 		}
 )" );
 		// Inlay Hints
-
-		// formatting settings
 		buff.printf ( R"(
       {
         "title": "Inlay Hints",
@@ -328,10 +348,22 @@ struct languageServer
 			}
 		}
 )" );
-
+		// General Settingss
+		buff.printf ( R"(
+      {
+        "title": "General Settings",
+        "properties": {
+)" );
+#undef DEF
+#define DEF( name, state, description ) makeJGeneralSettings ( buff, #name, state, #description );
+		LS_GENERAL_SETTINGS;
+#undef DEF
+		buff.printf ( R"(
+			}
+		}
+)" );
 
 		//  done
-
 		buff.printf ( R"(
 		],
 )" );

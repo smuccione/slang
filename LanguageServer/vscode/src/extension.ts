@@ -34,7 +34,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	let serverOptions: any = null;
 
-	if ( 0 ) {
+	if ( 1 ) {
 		const connectionInfo = {
 			port: 6996,
 			host: "127.0.0.1"

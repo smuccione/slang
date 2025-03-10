@@ -551,8 +551,8 @@ class astNode final
 	class astNode *right = nullptr;
 
 	srcLocation				 location;
-	astExtendedSelection	 extendedSelection;		// used for language server
-
+	astExtendedSelection	 extendedSelection;				// used for language server
+	bool					 forceEmitDebug = false;		// used to trigger debug.add () emission in the compiler when the node has a [[pos]] change
 
 	astOp getOp () const noexcept
 	{
@@ -1027,45 +1027,6 @@ class astNode final
 		op = oper;
 		nodeData = str;
 	}
-
-#if 0
-	astNode ( stringCache &sCache, astOp oper, astNode *left, char const *format, ... )
-	{
-		va_list		marker;
-
-		op = oper;
-		this->left = left;
-
-		va_start ( marker, format );
-		nodeData = sCache.get ( format, marker );
-	}
-#endif
-
-#if 0
-	astNode ( file->sCache, astOp oper, char const *format, ... )
-	{
-		char		tmpBuff[512];
-		va_list		marker;
-
-		va_start ( marker, format );
-		vsprintf_s ( tmpBuff, sizeof ( tmpBuff ), format, marker );
-
-		op = oper;
-		nodeData = tmpBuff;
-}
-	astNode ( file->sCache, astOp oper, astNode *left, char const *format, ... )
-	{
-		char		tmpBuff[512];
-		va_list		marker;
-
-		va_start ( marker, format );
-		vsprintf_s ( tmpBuff, sizeof ( tmpBuff ), format, marker );
-
-		op = oper;
-		nodeData = tmpBuff;
-		this->left = left;
-	}
-#endif
 
 	astNode ( errorNum err, srcLocation const &src ) noexcept;
 	astNode ( errorNum err, srcLocation const &src, size_t len ) noexcept;

@@ -1,0 +1,18 @@
+<html>
+<body>
+<[
+	sObj = new webSession()
+
+	if (1)
+	{
+		! "your command is: " + sObj.postData ( 1 ) + "<br/>"
+		! "your first name is: " + sObj.postData ( 2 ) + "<br/>"
+	} else
+	{
+		! "your command is: " + sObj.var ( "cmd" ) + "<br/>"
+		! "your first name is: " + sObj.var ( "fName" ) + "<br/>"							   // name is case insensitive (sent as all lowercase)
+	}
+
+   x = 0 + sObj.cookieGet ( "counter" )
+   sObj.cookieSet ( "counter", (x + 1) );
+]>

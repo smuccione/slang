@@ -524,7 +524,16 @@ static languageServerFile *getFile ( lsJsonRPCServerBase &server, languageServer
 						} else if ( !strccmp ( p.extension ().generic_string ().c_str (), ".sl" ) )
 						{
 							langId = languageServerFileData::languageType::slang;
-						} else if ( !strccmp ( p.extension ().generic_string ().c_str (), ".ap" ) || !strccmp ( p.extension ().generic_string ().c_str (), ".apf" ) )
+						} else if ( !strccmp ( p.extension ().generic_string ().c_str (), ".ap" ) )
+						{
+							if ( std::get<bool> ( ls->configFlags.apAreSLANG ) )
+							{
+								langId = languageServerFileData::languageType::ap_slang;
+							} else
+							{
+								langId = languageServerFileData::languageType::ap_fgl;
+							}
+						} else if ( !strccmp ( p.extension ().generic_string ().c_str (), ".apf" ) )
 						{
 							langId = languageServerFileData::languageType::ap_fgl;
 						} else if ( !strccmp ( p.extension ().generic_string ().c_str (), ".aps" ) )
@@ -578,7 +587,16 @@ static languageServerFile *getFile ( lsJsonRPCServerBase &server, languageServer
 		} else if ( !strccmp ( p.extension ().generic_string ().c_str (), ".sl" ) )
 		{
 			langId = languageServerFileData::languageType::slang;
-		} else if ( !strccmp ( p.extension ().generic_string ().c_str (), ".ap" ) || !strccmp ( p.extension ().generic_string ().c_str (), ".apf" ) )
+		} else if ( !strccmp ( p.extension ().generic_string ().c_str (), ".ap" ) )
+		{
+			if ( std::get<bool> ( ls->configFlags.apAreSLANG ) )
+			{
+				langId = languageServerFileData::languageType::ap_slang;
+			} else
+			{
+				langId = languageServerFileData::languageType::ap_fgl;
+			}
+		} else if ( !strccmp ( p.extension ().generic_string ().c_str (), ".apf" ) )
 		{
 			langId = languageServerFileData::languageType::ap_fgl;
 		} else if ( !strccmp ( p.extension ().generic_string ().c_str (), ".aps" ) )
@@ -1035,7 +1053,7 @@ static jsonElement textDocumentInlayHint ( jsonElement const &req, int64_t id, l
 			{
 				jsonElement inlayHint;
 
-//				if ( !it->isInFunctionCall )
+				if ( !it->isInFunctionCall )
 				{
 					auto doc = getDocumentation ( &lsFile->file, it->data, it->isAccess );
 
@@ -2602,7 +2620,7 @@ taskControl *startLanguageServer ( uint16_t port )
 	// we need to rerun this and copy the output to the file anytime we add something new to the configuration file.
 	// currently everything is a boolean, and there are default values as well as a description written out
 
-	//	languageServer::makeJsonSettings ();
+		languageServer::makeJsonSettings ();
 
 	languageServer *ls = new languageServer ();
 	vmTaskInstance instance ( "test" );

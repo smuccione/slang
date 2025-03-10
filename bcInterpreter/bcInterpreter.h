@@ -6,6 +6,8 @@
 
 #include <memory>
 #include <set>
+#include <algorithm>
+
 
 #include "bcVM/fglTypes.h"
 #include "bcVM/Opcodes.h"
@@ -386,9 +388,13 @@ struct bcLoadImage
 		{
 			for ( size_t loop = 0; loop < nDebugEntries; loop++ )
 			{
-				debugByLine.insert ( fgxDebugInfo { debugLineInfo[loop].sourceIndex, debugLineInfo[loop].lineNum, &csBase[debugLineInfo[loop].opOffset], debugLineInfo[loop].stackHeight } );
-				debugByOp.push_back ( fgxDebugInfo { debugLineInfo[loop].sourceIndex, debugLineInfo[loop].lineNum, &csBase[debugLineInfo[loop].opOffset], debugLineInfo[loop].stackHeight } );
+				if ( debugLineInfo[loop].sourceIndex )
+				{
+					debugByLine.insert ( fgxDebugInfo {debugLineInfo[loop].sourceIndex, debugLineInfo[loop].lineNum, &csBase[debugLineInfo[loop].opOffset], debugLineInfo[loop].stackHeight} );
+					debugByOp.push_back ( fgxDebugInfo {debugLineInfo[loop].sourceIndex, debugLineInfo[loop].lineNum, &csBase[debugLineInfo[loop].opOffset], debugLineInfo[loop].stackHeight} );
+				}
 			}
+//			std::sort ( debugByOp.begin (), debugByOp.end (), bcDebugEntryCompareByOp {} );
 		}
 	}
 

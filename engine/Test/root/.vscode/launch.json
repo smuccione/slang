@@ -1,0 +1,38 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "ap",
+            "request": "launch",
+            "name": "Launch and halt for current AP page",
+            "program": "${file}",
+            "stopOnEntry": true,
+            "noInline": true,
+            "profile": false,
+            "list": false
+        },
+        {
+            "type": "ap",
+            "request": "launch",
+            "name": "Launch and halt for ANY ap page",
+            "program": "<any>",
+            "stopOnEntry": true,
+            "noInline": true,
+            "profile": false,
+            "list": false
+        },
+        {
+            "type": "ap",
+            "request": "attach",
+            "name": "Attach to the debugger and await a break point or exception",
+            "program": "",
+            "stopOnEntry": false,
+            "noInline": true,
+            "profile": false,
+            "list": false
+        }
+    ]
+}
