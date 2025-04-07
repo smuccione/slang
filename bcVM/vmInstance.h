@@ -98,10 +98,10 @@ namespace logger
 	};
 }
 
-#define TASK_EVAL_STACK_SIZE	65536
-#define MAX_ATOMS				(65536 * 4)
-#define MAX_PROFILE_DEPTH		 1024
-#define CPU_STACK_SIZE			(1024 * 1024 * 64)
+constexpr size_t TASK_EVAL_STACK_SIZE	= 65536;
+constexpr size_t MAX_ATOMS = (65536 * 4);
+constexpr size_t MAX_PROFILE_DEPTH = 1024;
+constexpr size_t CPU_STACK_SIZE = (1024 * 1024 * 64);
 
 struct taskResource
 {
@@ -253,15 +253,15 @@ class vmInstance
 			VAR *val = *pVal;
 			(*nParams)--;
 			(*pVal)--;
-			while ( val->type == slangType::eREFERENCE ) val = val->dat.ref.v;
+			while ( val->type == slangType::eREFERENCE ) val = static_cast<VAR *>(val->dat.ref.v);
 			switch ( val->type )
 			{
 				case slangType::eLONG:
-					return (bool) (val->dat.l ? 1 : 0);
+					return (bool) (val->dat.l ? true : false);
 				case slangType::eDOUBLE:
-					return (bool) (val->dat.d != 0 ? 1 : 0);
+					return (bool) (val->dat.d != 0 ? true : false);
 				case slangType::eSTRING:
-					return (bool) (_atoi64( val->dat.str.c ) ? 1 : 0);
+					return (bool) (_atoi64( val->dat.str.c ) ? true : false);
 				default:
 					throw errorNum::scINVALID_PARAMETER;
 			}
@@ -279,7 +279,7 @@ class vmInstance
 			int32_t sgn;
 
 			(*pVal)--;
-			while ( val->type == slangType::eREFERENCE ) val = val->dat.ref.v;
+			while ( val->type == slangType::eREFERENCE ) val = static_cast<VAR *>(val->dat.ref.v);
 			switch ( val->type )
 			{
 				case slangType::eLONG:
@@ -309,7 +309,7 @@ class vmInstance
 			int32_t sgn;
 
 			(*pVal)--;
-			while ( val->type == slangType::eREFERENCE ) val = val->dat.ref.v;
+			while ( val->type == slangType::eREFERENCE ) val = static_cast<VAR *>(val->dat.ref.v);
 			switch ( val->type )
 			{
 				case slangType::eLONG:
@@ -339,7 +339,7 @@ class vmInstance
 			int32_t sgn;
 
 			(*pVal)--;
-			while ( val->type == slangType::eREFERENCE ) val = val->dat.ref.v;
+			while ( val->type == slangType::eREFERENCE ) val = static_cast<VAR *>(val->dat.ref.v);
 			switch ( val->type )
 			{
 				case slangType::eLONG:
@@ -369,7 +369,7 @@ class vmInstance
 			int32_t sgn;
 
 			(*pVal)--;
-			while ( val->type == slangType::eREFERENCE ) val = val->dat.ref.v;
+			while ( val->type == slangType::eREFERENCE ) val = static_cast<VAR *>(val->dat.ref.v);
 			switch ( val->type )
 			{
 				case slangType::eLONG:
@@ -475,7 +475,7 @@ class vmInstance
 
 			VAR_STR retVal;
 
-			while ( val->type == slangType::eREFERENCE ) val = val->dat.ref.v;
+			while ( val->type == slangType::eREFERENCE ) val = static_cast<VAR *>(val->dat.ref.v);
 			switch ( val->type )
 			{
 				case slangType::eLONG:
@@ -513,7 +513,7 @@ class vmInstance
 			(*nParams)--;
 			(*pVal)--;
 
-			while ( val->type == slangType::eREFERENCE ) val = val->dat.ref.v;
+			while ( val->type == slangType::eREFERENCE ) val = static_cast<VAR *>(val->dat.ref.v);
 			switch ( val->type )
 			{
 				case slangType::eLONG:
@@ -556,7 +556,7 @@ class vmInstance
 			(*nParams)--;
 			(*pVal)--;
 
-			while ( val->type == slangType::eREFERENCE ) val = val->dat.ref.v;
+			while ( val->type == slangType::eREFERENCE ) val = static_cast<VAR *>(val->dat.ref.v);
 			switch ( val->type )
 			{
 				case slangType::eLONG:
@@ -636,7 +636,7 @@ class vmInstance
 			VAR *val = *pVal;
 			while ( val->type == slangType::eREFERENCE )
 			{
-				val = val->dat.ref.v;
+				val = static_cast<VAR *>(val->dat.ref.v);
 			}
 			(*nParams)--;
 			(*pVal)--;
@@ -737,7 +737,7 @@ class vmInstance
 	{
 		static inline VAR convert( vmInstance *instance, VAR *value )
 		{
-			while ( value->type == slangType::eREFERENCE ) value = value->dat.ref.v;
+			while ( value->type == slangType::eREFERENCE ) value = static_cast<VAR *>(value->dat.ref.v);
 			return *value;
 		}
 	};
@@ -748,7 +748,7 @@ class vmInstance
 		static inline VAR convert( vmInstance *instance, VAR const &&value )
 		{
 			auto ret = &value;
-			while ( ret->type == slangType::eREFERENCE ) ret = ret->dat.ref.v;
+			while ( ret->type == slangType::eREFERENCE ) ret = static_cast<VAR *>(ret->dat.ref.v);
 			return *ret;
 		}
 	};
@@ -759,7 +759,7 @@ class vmInstance
 		static inline VAR convert( vmInstance *instance, VAR_STR const &&value )
 		{
 			auto ret = (VAR *) &value;
-			while ( ret->type == slangType::eREFERENCE ) ret = ret->dat.ref.v;
+			while ( ret->type == slangType::eREFERENCE ) ret = static_cast<VAR *>(ret->dat.ref.v);
 			return *ret;
 		}
 	};
@@ -770,7 +770,7 @@ class vmInstance
 		static inline VAR convert( vmInstance *instance, VAR_STR *value )
 		{
 			auto ret = (VAR *) value;
-			while ( ret->type == slangType::eREFERENCE ) ret = ret->dat.ref.v;
+			while ( ret->type == slangType::eREFERENCE )  ret = static_cast<VAR *>(ret->dat.ref.v);
 			return *ret;
 		}
 	};

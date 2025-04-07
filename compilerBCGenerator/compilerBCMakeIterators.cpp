@@ -580,7 +580,7 @@ end
 */
 
 //TODO: make namespace compatible
-bool compExecutable::compMakeIterator ( opFile *file, opFunction *func, bool generic, accessorType const &acc, unique_queue<accessorType> *scanQueue, bool isLS  )
+bool compExecutable::compMakeIterator ( opFile *file, opFunction *func, bool generic, accessorType const &acc, unique_queue<accessorType> *scanQueue, bool isLS )
 {
 	if ( !func->isIterator ) return false;
 	if ( func->isInterface ) return false;
@@ -732,7 +732,7 @@ bool compExecutable::compMakeIterator ( opFile *file, opFunction *func, bool gen
 		item->left	= (new astNode ( file->sCache, astOp::symbolValue, file->sCache.get ( "$state" )))->setLocation ( src );
 		item->right	= (new astNode ( file->sCache, astOp::intValue, (int64_t)0 ))->setLocation ( src );
 
-		newFunc = file->parseMethod ( src, itClass, buildString ( itClass->name.c_str ( ), elem->name, "method" ).c_str ( ), true, false, srcLocation () );
+		newFunc = file->parseMethod ( src, itClass, buildString ( itClass->name.c_str ( ), elem->name, "method" ).c_str ( ), true, false, false, srcLocation () );
 	}
 	file->functionList.insert( { newFunc->name, newFunc } );
 	elem->data.method.func = newFunc->name;
@@ -756,7 +756,7 @@ bool compExecutable::compMakeIterator ( opFile *file, opFunction *func, bool gen
 	sprintf ( tmp, "(){\r\nexcept ( new systemError ( %u ) ); \r\nreturn\r\n}", uint32_t(errorNum::scRESET_NOT_APPLICABLE) );
 	{
 		source src ( &file->srcFiles, file->sCache, "(INTERNAL)", expr, func->location.lineNumberStart );
-		newFunc = file->parseMethod ( src, itClass, buildString ( itClass->name.c_str ( ), elem->name, "method" ).c_str ( ), true, false, srcLocation () );
+		newFunc = file->parseMethod ( src, itClass, buildString ( itClass->name.c_str ( ), elem->name, "method" ).c_str ( ), true, false, false, srcLocation () );
 	}
 	file->functionList.insert( { newFunc->name, newFunc } );
 	elem->data.method.func = newFunc->name;
@@ -778,7 +778,7 @@ bool compExecutable::compMakeIterator ( opFile *file, opFunction *func, bool gen
 	expr = "(){\r\nreturn self\r\n}";
 	{
 		source src ( &file->srcFiles, file->sCache, "(INTERNAL)", expr, func->location.lineNumberStart );
-		newFunc = file->parseMethod ( src, itClass, buildString ( itClass->name.c_str ( ), elem->name, "method" ).c_str ( ), true, false, srcLocation () );
+		newFunc = file->parseMethod ( src, itClass, buildString ( itClass->name.c_str ( ), elem->name, "method" ).c_str ( ), true, false, false, srcLocation () );
 	}
 	file->functionList.insert( { newFunc->name, newFunc } );
 	elem->data.method.func	= newFunc->name;
@@ -800,7 +800,7 @@ bool compExecutable::compMakeIterator ( opFile *file, opFunction *func, bool gen
 	expr = "(){\r\nreturn\r\n}";
 	{
 		source src ( &file->srcFiles, file->sCache, "(INTERNAL)", expr, func->location.lineNumberStart );
-		newFunc = file->parseMethod ( src, itClass, buildString ( itClass->name.c_str ( ), elem->name, "access" ).c_str ( ), true, false, srcLocation () );
+		newFunc = file->parseMethod ( src, itClass, buildString ( itClass->name.c_str ( ), elem->name, "access" ).c_str ( ), true, false, false, srcLocation () );
 	}
 	file->functionList.insert( { newFunc->name, newFunc } );
 	elem->data.prop.access = newFunc->name;
@@ -824,7 +824,7 @@ bool compExecutable::compMakeIterator ( opFile *file, opFunction *func, bool gen
 		expr = "(){\r\nreturn\r\n}";
 		{
 			source src ( &file->srcFiles, file->sCache, "(INTERNAL)", expr, func->location.lineNumberStart );
-			newFunc = file->parseMethod ( src, itClass, buildString ( itClass->name.c_str ( ), elem->name, "access" ).c_str ( ), true, false, srcLocation () );
+			newFunc = file->parseMethod ( src, itClass, buildString ( itClass->name.c_str (), elem->name, "access" ).c_str (), true, false, false, srcLocation () );
 		}
 		file->functionList.insert( { newFunc->name,newFunc } );
 		elem->data.prop.access = newFunc->name;
@@ -848,7 +848,7 @@ bool compExecutable::compMakeIterator ( opFile *file, opFunction *func, bool gen
 	expr = "(){\r\nreturn\r\n}";
 	{
 		source src ( &file->srcFiles, file->sCache, file->srcFiles.getName ( func->location.sourceIndex ), expr, func->location.lineNumberStart );
-		newFunc = file->parseMethod ( src, itClass, buildString ( itClass->name.c_str ( ), elem->name, "method" ).c_str ( ), true, false, srcLocation () );
+		newFunc = file->parseMethod ( src, itClass, buildString ( itClass->name.c_str ( ), elem->name, "method" ).c_str ( ), true, false, false, srcLocation () );
 	}
 	file->functionList.insert( { newFunc->name, newFunc } );
 	elem->data.method.func = newFunc->name;
@@ -935,7 +935,7 @@ bool compExecutable::compMakeIterator ( opFile *file, opFunction *func, bool gen
 	expr = bufferBuff ( &buff );
 	{
 		source src ( &file->srcFiles, file->sCache, "(INTERNAL)", expr, func->location.lineNumberStart );
-		func->codeBlock = file->parseBlock ( src, func, false, true, isLS, src );
+		func->codeBlock = file->parseBlock ( src, func, false, true, isLS, false, src );
 	}
 	
 	func->isIterator = false;

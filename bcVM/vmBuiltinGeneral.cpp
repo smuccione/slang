@@ -12,7 +12,6 @@
 #include "Target/common.h"
 #include "Target/vmConf.h"
 #include "Target/vmTask.h"
-#include "Target/fileCache.h"
 
 #include "version/versionLib.h"
 
@@ -1778,7 +1777,7 @@ static VAR_STR vmCompile ( vmInstance *instance, VAR_STR *src, bool isSlang, boo
 	{
 		opFile	oFile;
 
-		oFile.parseFile ( "(internal)", src->dat.str.c, isSlang, false );
+		oFile.parseFile ( "(internal)", src->dat.str.c, isSlang, false, isAP );
 		if ( oFile.errHandler.isFatal () )
 		{
 			return VAR_STR ( "" );
@@ -1904,7 +1903,7 @@ static VAR *varCopy ( vmInstance *instance, VAR *dst, VAR *src, std::vector<std:
 				// handle objects' that point to the middle of an object
 				if ( src != src[1].dat.ref.v )
 				{
-					size_t offset = src - src[1].dat.ref.v;
+					size_t offset = src - static_cast<VAR *>(src[1].dat.ref.v);
 					auto newsrc = varCopy ( instance, 0, src[1].dat.ref.v, xRef );
 					return  &newsrc[offset];
 				}
@@ -1948,7 +1947,7 @@ static VAR *varCopy ( vmInstance *instance, VAR *dst, VAR *src, std::vector<std:
 		case slangType::eOBJECT_ROOT:
 		case slangType::eCODEBLOCK_ROOT:
 			dst->dat.ref.v = varCopy ( instance, 0, src->dat.ref.v, xRef );
-			dst->dat.ref.obj = dst->dat.ref.v - (src->dat.ref.obj - src->dat.ref.v);
+			dst->dat.ref.obj = static_cast<VAR *>(dst->dat.ref.v) - (static_cast<VAR *>(src->dat.ref.obj) - static_cast<VAR *>(src->dat.ref.v));
 			break;
 		case slangType::eARRAY_ELEM:
 			dst->dat.aElem.var = varCopy ( instance, 0, src->dat.aElem.var, xRef );
@@ -2132,7 +2131,7 @@ void builtinGeneralInit ( vmInstance *instance, opFile *file )
 		FUNC ( "waUsed", waUsed );
 
 		FUNC ( "apTranslate", vmApTranslate, DEF ( 3, "false" ) ) CONST PURE;
-		FUNC ( "compile", vmCompile, DEF ( 2, "false" ), DEF ( 3, "false" ) ) CONST PURE;
+		FUNC ( "compile", vmCompile, DEF ( 2, "false" ), DEF ( 3, "false" ), DEF ( 3, "false" ) ) CONST PURE;
 		FUNC ( "isLibraryLoaded", vmIsLibraryLoaded ) CONST;
 		FUNC ( "loadLibrary", vmLoadLibrary );
 

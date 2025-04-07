@@ -513,7 +513,7 @@ errorNum opClass::addOp ( cacheString const &name, fgxOvOp op, fgxClassElementTy
 	return file->addElem ( func, symType, true );
 }
 
-void opFile::parseProperty (source &src, opClass *classDef, bool isStatic, bool isVirtual, fgxClassElementScope scope, bool isLS, stringi const &topDocumentation, srcLocation const &formatLocation )
+void opFile::parseProperty (source &src, opClass *classDef, bool isStatic, bool isVirtual, fgxClassElementScope scope, bool isLS, bool isAP,  stringi const &topDocumentation, srcLocation const &formatLocation )
 {
 	opFunction		*func = nullptr;
 	srcLocation		 nameLocation = src;
@@ -603,11 +603,11 @@ void opFile::parseProperty (source &src, opClass *classDef, bool isStatic, bool 
 							}
 							if ( isStatic )
 							{
-								func = parseFunc ( src, buildString ( (char *)classDef->name.c_str (), name.c_str (), "assign" ).c_str (), true, isLS, statementLocation );
+								func = parseFunc ( src, buildString ( (char *)classDef->name.c_str (), name.c_str (), "assign" ).c_str (), true, isLS, isAP, statementLocation);
 								func->isStatic = true;
 							} else
 							{
-								func = parseMethod ( src, classDef, buildString ( (char *)classDef->name.c_str (), name.c_str (), "assign" ).c_str (), true, isLS, statementLocation );
+								func = parseMethod ( src, classDef, buildString ( (char *)classDef->name.c_str (), name.c_str (), "assign" ).c_str (), true, isLS, isAP, statementLocation);
 							}
 							func->nameLocation = statementLocation;
 							func->location = statementLocation;
@@ -641,11 +641,11 @@ void opFile::parseProperty (source &src, opClass *classDef, bool isStatic, bool 
 						case statementType::stGet:
 							if ( isStatic )
 							{
-								func = parseFunc ( src, buildString ( (char *)classDef->name.c_str (), name.c_str (), "access" ).c_str (), true, isLS, statementLocation );
+								func = parseFunc ( src, buildString ( (char *)classDef->name.c_str (), name.c_str (), "access" ).c_str (), true, isLS, isAP, statementLocation);
 								func->isStatic = true;
 							} else
 							{
-								func = parseMethod ( src, classDef, buildString ( (char *)classDef->name.c_str (), name.c_str (), "access" ).c_str (), true, isLS, statementLocation );
+								func = parseMethod ( src, classDef, buildString ( (char *)classDef->name.c_str (), name.c_str (), "access" ).c_str (), true, isLS, isAP, statementLocation);
 							}
 							func->nameLocation = statementLocation;
 							func->location = statementLocation;
@@ -745,7 +745,7 @@ void opFile::parseProperty (source &src, opClass *classDef, bool isStatic, bool 
 	}
 }
 
-bool opFile::parseInnerClass ( source &src, bool doBraces, opClass *classDef, bool isLS, srcLocation const &formatLocation )
+bool opFile::parseInnerClass ( source &src, bool doBraces, opClass *classDef, bool isLS, bool isAP, srcLocation const &formatLocation )
 {
 	cacheString				 name;
 	cacheString				 className;
@@ -848,10 +848,10 @@ bool opFile::parseInnerClass ( source &src, bool doBraces, opClass *classDef, bo
 								}
 								if ( isStatic || isExtension )
 								{
-									func = parseFunc ( src, buildString ( (char *)classDef->name.c_str (), tmpName, "iterator" ).c_str (), doBraces, isLS, statementLocation );
+									func = parseFunc ( src, buildString ( (char *)classDef->name.c_str (), tmpName, "iterator" ).c_str (), doBraces, isLS, isAP, statementLocation);
 								} else
 								{
-									func = parseMethod ( src, classDef, buildString ( (char *)classDef->name.c_str (), tmpName, "iterator" ).c_str (), doBraces, isLS, statementLocation );
+									func = parseMethod ( src, classDef, buildString ( (char *)classDef->name.c_str (), tmpName, "iterator" ).c_str (), doBraces, isLS, isAP, statementLocation);
 								}
 								func->nameLocation = nameLocation;
 								func->location = statementLocation;
@@ -935,10 +935,10 @@ bool opFile::parseInnerClass ( source &src, bool doBraces, opClass *classDef, bo
 								{
 									// for language server in FGL mode, insert implied blocks for formatting
 									// the difference is that parse method adds a self parameter (and handling for new)... we don't want to do that here
-									func = parseFunc ( src, buildString ( (char *)classDef->name.c_str (), sCache.get ( tmpName ), "method" ).c_str (), doBraces, isLS, statementLocation );
+									func = parseFunc ( src, buildString ( (char *)classDef->name.c_str (), sCache.get ( tmpName ), "method" ).c_str (), doBraces, isLS, isAP, statementLocation);
 								} else
 								{
-									func = parseMethod ( src, classDef, buildString ( (char *)classDef->name.c_str (), sCache.get ( tmpName ), "method" ).c_str (), doBraces, isLS, statementLocation );
+									func = parseMethod ( src, classDef, buildString ( (char *)classDef->name.c_str (), sCache.get ( tmpName ), "method" ).c_str (), doBraces, isLS, isAP, statementLocation);
 								}
 								func->isStatic = isStatic;
 								func->nameLocation = nameLocation;
@@ -1015,10 +1015,10 @@ bool opFile::parseInnerClass ( source &src, bool doBraces, opClass *classDef, bo
 
 								if ( isStatic )
 								{
-									func = parseFunc ( src, buildString ( (char *)classDef->name.c_str (), tmpName, "method" ).c_str (), doBraces, isLS, statementLocation );
+									func = parseFunc ( src, buildString ( (char *)classDef->name.c_str (), tmpName, "method" ).c_str (), doBraces, isLS, isAP, statementLocation);
 								} else
 								{
-									func = parseMethod ( src, classDef, buildString ( (char *)classDef->name.c_str (), tmpName, "method" ).c_str (), doBraces, isLS, statementLocation );
+									func = parseMethod ( src, classDef, buildString ( (char *)classDef->name.c_str (), tmpName, "method" ).c_str (), doBraces, isLS, isAP, statementLocation);
 								}
 
 								func->isStatic = isStatic;
@@ -1098,7 +1098,7 @@ bool opFile::parseInnerClass ( source &src, bool doBraces, opClass *classDef, bo
 								errors.push_back ( std::make_unique<astNode> ( errorNum::scILLEGAL_STATIC_PROP, statementLocation ) );
 								isStatic = false;
 							}
-							parseProperty ( src, classDef, isStatic, isVirtual, scope, isLS, documentation, statementLocation );
+							parseProperty ( src, classDef, isStatic, isVirtual, scope, isLS, isAP, documentation, statementLocation );
 							BS_ADVANCE_EOL ( this, isLS, src );
 							break;
 						case statementType::stAssign:
@@ -1128,11 +1128,11 @@ bool opFile::parseInnerClass ( source &src, bool doBraces, opClass *classDef, bo
 								}
 								if ( isStatic )
 								{
-									func = parseFunc ( src, buildString ( (char *)classDef->name.c_str (), tmpName, "assign" ).c_str (), doBraces, isLS, statementLocation );
+									func = parseFunc ( src, buildString ( (char *)classDef->name.c_str (), tmpName, "assign" ).c_str (), doBraces, isLS, isAP, statementLocation);
 									func->isStatic = true;
 								} else
 								{
-									func = parseMethod ( src, classDef, buildString ( (char *)classDef->name.c_str (), tmpName, "assign" ).c_str (), doBraces, isLS, statementLocation );
+									func = parseMethod ( src, classDef, buildString ( (char *)classDef->name.c_str (), tmpName, "assign" ).c_str (), doBraces, isLS, isAP, statementLocation);
 								}
 
 								func->nameLocation = nameLocation;
@@ -1201,11 +1201,11 @@ bool opFile::parseInnerClass ( source &src, bool doBraces, opClass *classDef, bo
 								}
 								if ( isStatic )
 								{
-									func = parseFunc ( src, buildString ( (char *)classDef->name.c_str (), tmpName, "access" ).c_str (), doBraces, isLS, statementLocation );
+									func = parseFunc ( src, buildString ( (char *)classDef->name.c_str (), tmpName, "access" ).c_str (), doBraces, isLS, isAP, statementLocation);
 									func->isStatic = true;
 								} else
 								{
-									func = parseMethod ( src, classDef, buildString ( (char *)classDef->name.c_str (), tmpName, "access" ).c_str (), doBraces, isLS, statementLocation );
+									func = parseMethod ( src, classDef, buildString ( (char *)classDef->name.c_str (), tmpName, "access" ).c_str (), doBraces, isLS, isAP, statementLocation);
 								}
 
 								func->nameLocation = nameLocation;
@@ -1261,7 +1261,7 @@ process_local:
 
 								srcLocation exprLocation = src;
 
-								auto expr = parseExpr ( src, false, false, 0, doBraces, isLS );
+								auto expr = parseExpr ( src, false, false, 0, doBraces, isLS, isAP );
 
 								exprLocation.setEnd ( src );
 
@@ -1330,7 +1330,7 @@ process_local:
 								auto tmpName = sCache.get ( parseOperator ( src ) );
 								nameLocation.setEnd ( src );
 
-								func = parseMethod ( src, classDef, buildString ( (char *)classDef->name.c_str (), tmpName, "operator" ).c_str (), doBraces, isLS, statementLocation );
+								func = parseMethod ( src, classDef, buildString ( (char *)classDef->name.c_str (), tmpName, "operator" ).c_str (), doBraces, isLS, isAP, statementLocation);
 
 								func->nameLocation = nameLocation;
 								func->location = statementLocation;
@@ -1454,7 +1454,7 @@ process_local:
 							{
 								srcLocation exprLocation = src;
 
-								auto expr = parseExpr ( src, false, false, 0, doBraces, isLS );
+								auto expr = parseExpr ( src, false, false, 0, doBraces, isLS, isAP );
 								exprLocation.setEnd ( src );
 
 								auto [doc2, commentStatement2] = getDocumentation ( src );
@@ -1667,7 +1667,7 @@ process_local:
 	return false;
 }
 
-opClass *opFile::parseClass ( source &src, bool doBraces, bool isLS, srcLocation const &formatLocation )
+opClass *opFile::parseClass ( source &src, bool doBraces, bool isLS, bool isAP, srcLocation const &formatLocation )
 {
 	opClass		*classDef;
 
@@ -1713,7 +1713,7 @@ opClass *opFile::parseClass ( source &src, bool doBraces, bool isLS, srcLocation
 		if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::info, astLSInfo::semanticLineBreakType::beforeImpliedBlock, src ) );
 	}
 
-	if ( !parseInnerClass ( src, doBraces, classDef, isLS, formatLocation ) )
+	if ( !parseInnerClass ( src, doBraces, classDef, isLS, isAP, formatLocation ) )
 	{
 		if ( !isLS ) throw errorNum::scNOT_LEGAL_INSIDE_CLASS;
 		errors.push_back ( std::make_unique<astNode> ( errorNum::scNOT_LEGAL_INSIDE_CLASS, src ) );

@@ -44,7 +44,7 @@ static void _popState ( BUFFER *buffer, stateStack &stateStack, size_t colNum, s
 {
 	if ( stateStack.size() )
 	{
-		auto [oldState, oldFileName] = stateStack.top ();
+		auto & [oldState, oldFileName] = stateStack.top ();
 		stateStack.pop ();
 		auto &[newState, newFileName] = stateStack.top ();
 
@@ -442,12 +442,14 @@ static struct BUFFER *apTranslatePage ( char const *fName, char const *inBuffer,
 							buffer->put ( inBuffer[loop] ); 
 						}
 						break;
+#if 0
 					case '!':
 						semanticTokens.push_back ( { srcLocation ( 0, (uint32_t)colNum, (uint32_t)lineNum, (uint32_t)colNum + 1, (uint32_t)lineNum ), semanticValues[(size_t)astLSInfo::semanticSymbolType::punctuation] } );
 						buffer->printf ( "[[pos: 0 0 (INTERNAL)]];__outputString += [[pos: %zu %zu %s]]", colNum + 1, lineNum, fileName.generic_string ().c_str () );
 						stringLen = 0;
 						PUSH_STATE ( std::pair ( apSLANGCodeState, fileName.generic_string () ) );
 						break;
+#endif
 					case '\t':
 					case ' ':
 						/* this is leading crap.. we don't really need to emit this but do just for readability*/

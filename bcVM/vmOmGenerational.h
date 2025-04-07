@@ -265,7 +265,7 @@ struct omGenGcVarPage
 				return nextVar - cardTables[page] + 1;
 			} else
 			{
-				return cardVarCount + 1;
+				return size_t {cardVarCount} + size_t {1};
 			}
 		}
 	}

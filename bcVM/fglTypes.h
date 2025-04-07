@@ -9,6 +9,7 @@
 #include <new>
 #include <stdint.h>
 #include "compilerParser/fglErrors.h"
+#include <cinttypes>
 #include "Utility/stringi.h"
 #include <string.h>                    // for size_t, strlen
 #include "type_traits"                 // for forward
@@ -62,43 +63,43 @@ struct vmCodeBlock {
 
 #if 0
 
-	Object Model
+Object Model
 
-	<derived object>
-		<most-derived-self>
-		<ivars>
-	<base object 1>
-		<most - derived - self>
-		<ivars>
-		<base object 2>
-			<most - derived - self>
-			<ivars>
-	<base object 3>
-		<most - derived - self>
-		<ivars>
-	<virtual base object 1>
-		<ivars>
-			<base object 1>
-				<most - derived - self>
-				<ivars> 
-				<base object 2>
-					<most - derived - self>
-					<ivars>
-	<virtual base object 1>
-		<most - derived - self>
-		<ivars>
+<derived object>
+<most - derived - self>
+<ivars>
+<base object 1>
+<most - derived - self>
+<ivars>
+<base object 2>
+<most - derived - self>
+<ivars>
+<base object 3>
+<most - derived - self>
+<ivars>
+<virtual base object 1>
+<ivars>
+<base object 1>
+<most - derived - self>
+<ivars>
+<base object 2>
+<most - derived - self>
+<ivars>
+<virtual base object 1>
+<most - derived - self>
+<ivars>
 
-	each regular base object is just emitted in the order in which it's inherit appears
-	virtual bases's are noted, but not emitted until a second pass.   any virtual bases inheritted in a virtual base are noted but not emitted.
-		they are emitted as any other virtual base class
-	when emitting a virtual base, they are emitted as if they were their own most-derivced class.
+each regular base object is just emitted in the order in which it's inherit appears
+virtual bases's are noted, but not emitted until a second pass.   any virtual bases inheritted in a virtual base are noted but not emitted.
+they are emitted as any other virtual base class
+when emitting a virtual base, they are emitted as if they were their own most - derivced class.
 
-	durign execution, virtual base classes use the pushContextVirt while non-base classes use pushContext
-		then a dispatch occurs as with any other method call 
+durign execution, virtual base classes use the pushContextVirt while non - base classes use pushContext
+then a dispatch occurs as with any other method call
 
-	in the vtable the objoffset entry is used to offset the self for the virtual base class.  during construction a fixup list into the vtable is generated
-		and when a virtual base is emitted location for that virtual base vtable and ivar offset are stored
-		after all virtual bases are emitted, the fixup list is traversed and all fixups are done.
+in the vtable the objoffset entry is used to offset the self for the virtual base class.during construction a fixup list into the vtable is generated
+and when a virtual base is emitted location for that virtual base vtable and ivar offset are stored
+after all virtual bases are emitted, the fixup list is traversed and all fixups are done.
 
 
 #endif
@@ -110,6 +111,69 @@ struct vmCodeBlock {
 // DIRECT (non-virtual) INHERITED CLASSES[]
 // VIRTUALLY inherited classes
 
+struct VAR;
+
+// Read-Write guard.   This allows us to create a card table without having access to windows virtual memory 
+
+class RW_GUARD
+{
+	VAR *ptr;
+
+	public:
+
+	operator VAR *()
+	{
+		return ptr;
+	}
+
+	operator VAR * () const
+	{
+		return ptr;
+	}
+	
+	VAR *& operator () ()
+	{
+		return this->ptr;
+	}
+
+	VAR * const &operator () () const
+	{
+		return ptr;
+	}
+
+	VAR *operator = ( VAR *val )
+	{
+		this->ptr = val;
+		return this->ptr;
+	}
+
+	VAR * operator -> ( void )
+	{
+		return ptr;
+	}
+	operator bool ( void ) const
+	{
+		return this->ptr != nullptr;
+	}
+	bool operator == ( VAR *value ) const
+	{
+		return this->ptr == value;
+	}
+	bool operator != ( VAR *value ) const
+	{
+		return this->ptr != value;
+	}
+	ptrdiff_t operator - ( VAR *value ) const
+	{
+		return (ptrdiff_t)ptr - (ptrdiff_t)value;
+	}
+	ptrdiff_t operator + ( VAR *value ) const
+	{
+		return (ptrdiff_t) ptr + (ptrdiff_t)value;
+	}
+};
+
+struct VAR;
 
 struct VAR {
 	struct {
@@ -118,16 +182,18 @@ struct VAR {
 		uint32_t				packIndex;
 	};
 
-	union {
+	union
+	{
 		int64_t					  l;
 		double					  d;
 		uint32_t				  atom;
 
 		// object members come directly after the slangType::eOBJECT var
-		struct {
-			struct bcClass				*classDef;
-			struct bcClassVTableEntry	*vPtr;
-			void						*cargo;
+		struct
+		{
+			struct bcClass *classDef;
+			struct bcClassVTableEntry *vPtr;
+			void *cargo;
 		}						  obj;
 
 		// union members come directly after the slangType::eUNIONN var
@@ -139,31 +205,37 @@ struct VAR {
 
 		struct
 		{
-			struct VAR			 *v;
-			struct VAR			 *obj;				// enclosing object for garbage collection;
+			RW_GUARD			  v;
+			RW_GUARD			  obj;				// enclosing object for garbage collection;
 		}						  ref;
-		struct	{
-			vmCodeBlock			 *cb;
+		struct
+		{
+			vmCodeBlock *cb;
 		}                         cb;
-		struct	{
+		struct
+		{
 			size_t		          len;
-			char const			 *c;
+			char const *c;
 		}                         str;
-		struct	{
-			struct VAR			 *v;				// points to an slangType::eARRAY_ELEM element
-			struct VAR			 *lastAccess;		// speed up sequential array accesses - points to last slangType::eARRAY_ELEM element accessed - cheap global iterator
+		struct
+		{
+			RW_GUARD			  v;				// points to an slangType::eARRAY_ELEM element
+			RW_GUARD			  lastAccess;		// speed up sequential array accesses - points to last slangType::eARRAY_ELEM element accessed - cheap global iterator
 			int64_t				  maxI;				// maximum indicie
 		}						  aSparse;
-		struct	{
-			struct   VAR		 *var;
-			struct   VAR		 *next;
+		struct
+		{
+			RW_GUARD			  var;
+			RW_GUARD			  next;
 			int64_t				  elemNum;
 		}                         aElem;
-		struct	{
+		struct
+		{
 			int64_t				  startIndex;
 			int64_t				  endIndex;
 		}                         arrayFixed;
-		struct	{
+		struct
+		{
 			struct	fglOp		 *op;				// the next instruction after return
 			struct	bcFuncDef	 *func;				// pointer to function definition
 			uint32_t			  nParams;			// number of parameter passed into function (may be more than is required)
@@ -301,7 +373,7 @@ struct VAR {
 	inline bool isTrue()
 	{
 		auto varTmp = this;
-		while ( varTmp->type == slangType::eREFERENCE ) varTmp = varTmp->dat.ref.v;
+		while ( varTmp->type == slangType::eREFERENCE ) varTmp = static_cast<VAR *>(varTmp->dat.ref.v);
 		switch ( varTmp->type )
 		{
 			case slangType::eLONG:

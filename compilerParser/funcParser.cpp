@@ -449,7 +449,7 @@ symbolTypeClass const &opFunction::getParamType ( uint32_t paramNum, accessorTyp
 	return params[paramNum]->getType ();
 }
 
-opFunction *opFile::_parseFunc ( source &src, char const *name, bool parseInitializers, bool autoMain, bool doBraces, bool cbParams, bool isLS, srcLocation const &formatStart, opClass *classDef )
+opFunction *opFile::_parseFunc ( source &src, char const *name, bool parseInitializers, bool autoMain, bool doBraces, bool cbParams, bool isLS, bool isAP, srcLocation const &formatStart, opClass *classDef )
 {
 	opFunction		*func;
 	errorLocality	 e ( &errHandler, src );
@@ -562,62 +562,62 @@ opFunction *opFile::_parseFunc ( source &src, char const *name, bool parseInitia
 									if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::type, src, 7 ) );
 									(src) += 7;
 									BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
-									func->params.add ( parseExpr ( src, false, false, func, doBraces, isLS ), symIntType, documentation );
+									func->params.add ( parseExpr ( src, false, false, func, doBraces, isLS, isAP ), symIntType, documentation );
 								} else if ( cmpTerminated ( src, "float", 5 ) )
 								{
 									if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::type, src, 5 ) );
 									(src) += 5;
 									BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
-									func->params.add ( parseExpr ( src, false, false, func, doBraces, isLS ), symDoubleType, documentation );
+									func->params.add ( parseExpr ( src, false, false, func, doBraces, isLS, isAP ), symDoubleType, documentation );
 								} else if ( cmpTerminated ( src, "double", 6 ) )
 								{
 									if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::type, src, 6 ) );
 									(src) += 6;
 									BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
-									func->params.add ( parseExpr ( src, false, false, func, doBraces, isLS ), symDoubleType, documentation );
+									func->params.add ( parseExpr ( src, false, false, func, doBraces, isLS, isAP ), symDoubleType, documentation );
 								} else if ( cmpTerminated ( src, "string", 6 ) )
 								{
 									if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::type, src, 6 ) );
 									(src) += 6;
 									BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
-									func->params.add ( parseExpr ( src, false, false, func, doBraces, isLS ), symStringType, documentation );
+									func->params.add ( parseExpr ( src, false, false, func, doBraces, isLS, isAP ), symStringType, documentation );
 								} else if ( cmpTerminated ( src, "array", 5 ) )
 								{
 									if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::type, src, 5 ) );
 									(src) += 5;
 									BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
-									func->params.add ( parseExpr ( src, false, false, func, doBraces, isLS ), symArrayType, documentation );
+									func->params.add ( parseExpr ( src, false, false, func, doBraces, isLS, isAP ), symArrayType, documentation );
 								} else if ( cmpTerminated ( src, "codeblock", 9 ) )
 								{
 									if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::type, src, 9 ) );
 									(src) += 9;
 									BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
-									func->params.add ( parseExpr ( src, false, false, func, doBraces, isLS ), symCodeblockType, documentation );
+									func->params.add ( parseExpr ( src, false, false, func, doBraces, isLS, isAP ), symCodeblockType, documentation );
 								} else if ( cmpTerminated ( src, "object", 6 ) )
 								{
 									if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::type, src, 6 ) );
 									(src) += 6;
 									BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
-									func->params.add ( parseExpr ( src, false, false, func, doBraces, isLS ), symObjectType, documentation );
+									func->params.add ( parseExpr ( src, false, false, func, doBraces, isLS, isAP ), symObjectType, documentation );
 								} else if ( cmpTerminated ( src, "variant", 7 ) || (doBraces && cmpTerminated ( src, "var", 3 )) )
 								{
 									if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::type, src, 7 ) );
 									(src) += 7;
 									BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
-									func->params.add ( parseExpr ( src, false, false, func, doBraces, isLS ), symVariantType, documentation );
+									func->params.add ( parseExpr ( src, false, false, func, doBraces, isLS, isAP ), symVariantType, documentation );
 								} else if ( cmpTerminated ( src, "function", 8 ) )
 								{
 									if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::type, src, 8 ) );
 									(src) += 8;
 									BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
-									func->params.add ( parseExpr ( src, false, false, func, doBraces, isLS ), symFuncType, documentation );
+									func->params.add ( parseExpr ( src, false, false, func, doBraces, isLS, isAP ), symFuncType, documentation );
 								} else
 								{
-									func->params.add ( parseExpr ( src, false, false, func, doBraces, isLS ), symUnknownType, documentation );
+									func->params.add ( parseExpr ( src, false, false, func, doBraces, isLS, isAP ), symUnknownType, documentation );
 								}
 							} else
 							{
-								func->params.add ( parseExpr ( src, false, false, func, doBraces, isLS ), symUnknownType, documentation );
+								func->params.add ( parseExpr ( src, false, false, func, doBraces, isLS, isAP ), symUnknownType, documentation );
 							}
 						} catch ( errorNum err )
 						{
@@ -673,7 +673,7 @@ opFunction *opFile::_parseFunc ( source &src, char const *name, bool parseInitia
 						{
 							errorLocality e ( &errHandler, src );
 
-							astNode *initializer = parseExpr ( src, false, false, func, doBraces, isLS );
+							astNode *initializer = parseExpr ( src, false, false, func, doBraces, isLS, isAP );
 
 							if ( initializer )
 							{
@@ -744,14 +744,14 @@ opFunction *opFile::_parseFunc ( source &src, char const *name, bool parseInitia
 			func->isProcedure = false;
 			auto ret = (new astNode ( sCache, astOp::btReturn, srcLocation ( src ) ))->setLocation ( src );
 			ret->returnData ().isYield = false;
-			ret->returnData ().node = parseExpr ( src, true, false, func, doBraces, isLS );
+			ret->returnData ().node = parseExpr ( src, true, false, func, doBraces, isLS, isAP );
 			func->codeBlock->pushNode ( ret );
 			return func;
 		}
 
 		//		if ( isLS && !doBraces ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::startImpliedBlock, src, 1 ) );
 
-		func->codeBlock = parseBlock ( src, func, doBraces, autoMain, isLS, formatStart );
+		func->codeBlock = parseBlock ( src, func, doBraces, autoMain, isLS, isAP, formatStart );
 		func->location.setEnd ( func->codeBlock->location );
 		//		if ( isLS && !doBraces ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::endImpliedBlock, src, 1 ) );
 
@@ -797,29 +797,29 @@ opFunction *opFile::_parseFunc ( source &src, char const *name, bool parseInitia
 	return (func);
 }
 
-opFunction *opFile::parseFunc ( source &src, char const *name, bool doBraces, bool isLS, srcLocation const &formatStart )
+opFunction *opFile::parseFunc ( source &src, char const *name, bool doBraces, bool isLS, bool isAP, srcLocation const &formatStart )
 {
-	return (_parseFunc ( src, name, false, false, doBraces, false, isLS, formatStart ));
+	return (_parseFunc ( src, name, false, false, doBraces, false, isLS, isAP, formatStart ));
 }
 
-opFunction *opFile::parseCBFunc ( source &src, char const *name, bool doBraces, bool isLS )
+opFunction *opFile::parseCBFunc ( source &src, char const *name, bool doBraces, bool isLS, bool isAP )
 {
-	return (_parseFunc ( src, name, false, false, doBraces, true, isLS, srcLocation () ));
+	return (_parseFunc ( src, name, false, false, doBraces, true, isLS, isAP, srcLocation () ));
 }
 
-opFunction *opFile::parseAnonymousFunc ( source &src, char const *name, bool doBraces, bool isLS, srcLocation const &formatStart )
+opFunction *opFile::parseAnonymousFunc ( source &src, char const *name, bool doBraces, bool isLS, bool isAP, srcLocation const &formatStart )
 {
 	opFunction *func;
-	func = _parseFunc ( src, name, false, false, doBraces, false, isLS, formatStart );
+	func = _parseFunc ( src, name, false, false, doBraces, false, isLS, isAP, formatStart );
 	return func;
 }
 
-opFunction *opFile::parseFuncAutoMain ( source &src, char const *name, bool doBraces, bool isLS, srcLocation const &formatStart )
+opFunction *opFile::parseFuncAutoMain ( source &src, char const *name, bool doBraces, bool isLS, bool isAP, srcLocation const &formatStart )
 {
-	return (_parseFunc ( src, name, false, true, doBraces, false, isLS, formatStart ));
+	return (_parseFunc ( src, name, false, true, doBraces, false, isLS, isAP, formatStart ));
 }
 
-opFunction *opFile::parseMethod ( source &src, opClass *classDef, char const *name, bool doBraces, bool isLS, srcLocation const &formatStart )
+opFunction *opFile::parseMethod ( source &src, opClass *classDef, char const *name, bool doBraces, bool isLS, bool isAP, srcLocation const &formatStart )
 {
 	opFunction *func;
 	char		 methodName[64];
@@ -828,10 +828,10 @@ opFunction *opFile::parseMethod ( source &src, opClass *classDef, char const *na
 
 	if ( !strccmp ( methodName, "new" ) )
 	{
-		func = _parseFunc ( src, name, true, false, doBraces, false, isLS, formatStart, classDef );
+		func = _parseFunc ( src, name, true, false, doBraces, false, isLS, isAP, formatStart, classDef );
 	} else
 	{
-		func = _parseFunc ( src, name, false, false, doBraces, false, isLS, formatStart, classDef );
+		func = _parseFunc ( src, name, false, false, doBraces, false, isLS, isAP, formatStart, classDef );
 	}
 	func->params.add ( sCache.get ( "self" ), symbolTypeClass ( symbolType::symObject, classDef->name ), srcLocation ( srcSave ), (new astNode ( sCache, astOp::symbolValue, "self" ))->setLocation ( srcLocation ( srcSave ) ), true, "self" );
 	return func;

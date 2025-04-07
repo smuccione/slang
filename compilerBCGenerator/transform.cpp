@@ -83,8 +83,8 @@ phPattern::phPattern ( char const * match, char const *tran )
 
 	if ( tran )
 	{
-		pat = file.parseExpr ( src, false, true, nullptr, false, false );
-		res = file.parseExpr ( src2, false, true, nullptr, false, false );
+		pat = file.parseExpr ( src, false, true, nullptr, false, false, false );
+		res = file.parseExpr ( src2, false, true, nullptr, false, false, false );
 	} else
 	{
 		res = 0;

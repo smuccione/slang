@@ -68,7 +68,7 @@ struct vmContainerCompare
 					break;
 				case slangType::eOBJECT_ROOT:
 					{
-						auto cbFuncClass = cbFunc.dat.ref.v->dat.obj.classDef;
+						auto cbFuncClass = cbFunc.dat.ref.v()->dat.obj.classDef;
 
 						if ( !cbFuncClass->ops[int(fgxOvOp::ovFuncCall)] )
 						{
@@ -78,7 +78,7 @@ struct vmContainerCompare
 
 						if ( cEntry->isVirtual )
 						{
-							func = instance->atomTable->atomGetFunc ( cbFunc.dat.ref.v->dat.obj.vPtr[cEntry->methodAccess.vTableEntry].atom ); \
+							func = instance->atomTable->atomGetFunc ( cbFunc.dat.ref.v()->dat.obj.vPtr[cEntry->methodAccess.vTableEntry].atom ); \
 						} else
 						{
 							func = instance->atomTable->atomGetFunc ( cEntry->methodAccess.atom );
@@ -91,7 +91,7 @@ struct vmContainerCompare
 						if ( cEntry->isVirtual )
 						{
 							// fixup object to point to the virtual context
-							*(instance->stack++) = std::move ( VAR_OBJ ( const_cast<VAR *>(&cbFunc), &cbFunc.dat.ref.v[cbFunc.dat.ref.v->dat.obj.vPtr[cEntry->methodAccess.vTableEntry].delta] ) );
+							*(instance->stack++) = std::move ( VAR_OBJ ( const_cast<VAR *>(&cbFunc), &cbFunc.dat.ref.v[cbFunc.dat.ref.v()->dat.obj.vPtr[cEntry->methodAccess.vTableEntry].delta] ) );
 						} else
 						{
 							*(instance->stack++) = std::move ( VAR_OBJ ( const_cast<VAR *>(&cbFunc), &cbFunc.dat.ref.v[cEntry->methodAccess.objectStart] ) );
@@ -110,6 +110,10 @@ struct vmContainerCompare
 				case fgxFuncCallConvention::opFuncType_cDecl:
 					instance->funcCall ( func->atom, 3 );
 					break;
+				default:
+					// this should never happen, but just in case
+					__assume (false);
+					throw errorNum::scILLEGAL_OPERAND;
 			}
 
 			instance->stack = stackSave;
@@ -181,8 +185,6 @@ struct vmContainerCompare
 					switch ( TYPE ( rName ) )
 					{
 						case slangType::eLONG:
-							r = 1;
-							break;
 						case slangType::eDOUBLE:
 							r = 1;
 							break;

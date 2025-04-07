@@ -228,7 +228,7 @@ cacheString compExecutable::compMakeLambda ( opFile *file, opFunction *func, std
 		{
 //			source src ( &file->srcFiles, file->sCache, file->srcFiles.getName ( func->location.sourceIndex ), expr, func->location.lineNumberStart );
 			source src ( &file->srcFiles, file->sCache, "(INTERNAL)", expr, 1 );
-			newFunc = file->parseMethod ( src, itClass, buildString ( itClass->name.c_str (), elem->name, "method" ).c_str (), true, false, srcLocation() );
+			newFunc = file->parseMethod ( src, itClass, buildString ( itClass->name.c_str (), elem->name, "method" ).c_str (), true, false, false, srcLocation() );
 		}
 		elem->data.method.func = newFunc->name;
 		elem->data.method.virtOverrides.insert ( newFunc );

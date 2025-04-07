@@ -87,7 +87,7 @@ static bool isArray ( char const *expr )
 	return false;
 }
 
-astNode *opFile::parseBlockFGL ( source &src, opFunction *func, bool noImplied, bool isLS, srcLocation const &formatStart )
+astNode *opFile::parseBlockFGL ( source &src, opFunction *func, bool noImplied, bool isLS, bool isAP, srcLocation const &formatStart )
 {
 	astNode						*nodeChild;
 	int							 defaultPresent;
@@ -130,13 +130,26 @@ astNode *opFile::parseBlockFGL ( source &src, opFunction *func, bool noImplied, 
 
 			auto it = statementMapFGL.find ( statementString ( src ) );
 
-			if ( (it != statementMapFGL.end ()) && cmpTerminated ( src, it->second.name, it->second.len ) )
+			if ( ((it != statementMapFGL.end ()) && cmpTerminated ( src, it->second.name, it->second.len )) &&
+				 (it->second.type != statementType::stOutput || (it->second.type == statementType::stOutput && isAP)) )
 			{
 				nodeChild = 0;
 				try
 				{
 					switch ( it->second.type )
 					{
+						case statementType::stOutput:
+							{
+								if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::method, src, it->second.len ) );
+								src += it->second.len;
+
+								BS_ADVANCE_EOL ( this, isLS, src );
+
+								srcLocation srcSave = src;
+								astNode *output = parseExpr ( src, false, false, func, false, isLS, isAP );
+								basicNode->pushNode ( new astNode ( sCache, astOp::add, new astNode ( astOp::symbolValue, sCache.get ( "__outputString" ) ), output ) );
+							}
+							break;
 						case statementType::stLocal:
 						case statementType::stVariant:
 						case statementType::stString:
@@ -162,7 +175,7 @@ astNode *opFile::parseBlockFGL ( source &src, opFunction *func, bool noImplied, 
 								}
 
 								srcLocation srcSave = src;
-								astNode *init = parseExpr ( src, false, false, func, false, isLS );
+								astNode *init = parseExpr ( src, false, false, func, false, isLS, isAP );
 
 								// verification of the initializer is done in symbolLocal constructor
 								if ( init && init->getOp () != astOp::errorValue )
@@ -290,7 +303,7 @@ astNode *opFile::parseBlockFGL ( source &src, opFunction *func, bool noImplied, 
 									continue;
 								}
 
-								auto init = parseExpr ( src, false, false, func, false, isLS );
+								auto init = parseExpr ( src, false, false, func, false, isLS, isAP );
 								if ( init->getOp () == astOp::symbolValue )
 								{
 									basicNode->pushNode ( new astNode ( new symbolField ( init, documentation ), src ) );
@@ -361,7 +374,7 @@ astNode *opFile::parseBlockFGL ( source &src, opFunction *func, bool noImplied, 
 								char qualPrefix[512];
 
 								sprintf_s ( qualPrefix, sizeof ( qualPrefix ), "%s@%s@%u:", srcFiles.getName ( src.getSourceIndex () ).c_str (), func->name.c_str (), src.getLine () );
-								auto init = parseExpr ( src, false, false, func, false, isLS );
+								auto init = parseExpr ( src, false, false, func, false, isLS, isAP );
 								if ( init )
 								{
 									switch ( init->getOp () )
@@ -526,7 +539,7 @@ astNode *opFile::parseBlockFGL ( source &src, opFunction *func, bool noImplied, 
 							src += it->second.len;
 							BS_ADVANCE_COMMENT ( this, isLS, src );
 							nodeChild->returnData ().isYield = false;
-							nodeChild->returnData ().node = parseExpr ( src, true, false, func, false, isLS );
+							nodeChild->returnData ().node = parseExpr ( src, true, false, func, false, isLS, isAP );
 							if ( nodeChild->returnData ().node )
 							{
 								func->isProcedure = false;
@@ -544,7 +557,7 @@ astNode *opFile::parseBlockFGL ( source &src, opFunction *func, bool noImplied, 
 							src += it->second.len;
 							BS_ADVANCE_COMMENT ( this, isLS, src );
 							nodeChild->returnData ().isYield = true;
-							nodeChild->returnData ().node = parseExpr ( src, true, false, func, false, isLS );
+							nodeChild->returnData ().node = parseExpr ( src, true, false, func, false, isLS, isAP );
 							nodeChild->setLocation ( nodeChild->returnData ().node );
 							if ( isLS ) nodeChild->getExtendedSelection ().setEnd ( src );
 							basicNode->pushNode ( nodeChild );
@@ -554,7 +567,7 @@ astNode *opFile::parseBlockFGL ( source &src, opFunction *func, bool noImplied, 
 							{
 								try
 								{
-									nodeChild = parseExpr ( src, true, false, func, false, isLS );
+									nodeChild = parseExpr ( src, true, false, func, false, isLS, isAP );
 									if ( !nodeChild )
 									{
 										if ( !isLS ) throw errorNum::scILLEGAL_EXPRESSION;
@@ -665,7 +678,7 @@ startIf:
 
 													BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
 
-													condBlock->condition = parseExpr ( src, true, false, func, false, isLS );
+													condBlock->condition = parseExpr ( src, true, false, func, false, isLS, isAP );
 
 													if ( !condBlock->condition )
 													{
@@ -691,7 +704,7 @@ startIf:
 														src++;
 													}
 													if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::info, astLSInfo::semanticLineBreakType::afterCondition, src ) );
-													condBlock->block = parseBlockFGL ( src, func, false, isLS, statementStart );
+													condBlock->block = parseBlockFGL ( src, func, false, isLS, isAP, statementStart );
 
 													BS_ADVANCE_EOL ( this, isLS, src );
 
@@ -703,7 +716,7 @@ startIf:
 													src += 4;
 													if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::info, astLSInfo::semanticLineBreakType::withinCondition, src ) );
 													if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::info, astLSInfo::semanticLineBreakType::afterCondition, src ) );
-													nodeChild->ifData ().elseBlock = parseBlockFGL ( src, func, false, isLS, statementStart );
+													nodeChild->ifData ().elseBlock = parseBlockFGL ( src, func, false, isLS, isAP, statementStart );
 													break;
 												} else
 												{
@@ -741,7 +754,7 @@ startIf:
 											}
 											BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
 
-											nodeChild->forEachData ().var = parseExpr ( src, true, false, func, false, isLS );
+											nodeChild->forEachData ().var = parseExpr ( src, true, false, func, false, isLS, isAP );
 
 											switch ( nodeChild->forEachData ().var->getOp () )
 											{
@@ -769,7 +782,7 @@ startIf:
 											}
 											BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
 
-											nodeChild->forEachData ().in = parseExpr ( src, true, false, func, false, isLS );
+											nodeChild->forEachData ().in = parseExpr ( src, true, false, func, false, isLS, isAP );
 											if ( !nodeChild->forEachData ().in )
 											{
 												// no END, ELSE, or IFELSE
@@ -790,7 +803,7 @@ startIf:
 											}
 											if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::info, astLSInfo::semanticLineBreakType::afterCondition, src ) );
 
-											nodeChild->forEachData ().statement = parseBlockFGL ( src, func, false, isLS, statementStart );
+											nodeChild->forEachData ().statement = parseBlockFGL ( src, func, false, isLS, isAP, statementStart );
 
 											if ( cmpTerminated ( src, "END", 3 ) )
 											{
@@ -876,7 +889,7 @@ startIf:
 															break;
 													}
 												}
-												f->loopData ().initializers = parseExpr ( src, true, false, func, false, isLS );
+												f->loopData ().initializers = parseExpr ( src, true, false, func, false, isLS, isAP );
 
 												if ( it2 != statementMap.end () )
 												{
@@ -899,7 +912,7 @@ startIf:
 												}
 												BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
 
-												f->loopData ().condition = parseExpr ( src, true, false, func, false, isLS );
+												f->loopData ().condition = parseExpr ( src, true, false, func, false, isLS, isAP );
 												if ( f->loopData ().condition && f->loopData ().condition->getOp () == astOp::assign )
 												{
 													warnings.push_back ( std::make_unique<astNode> ( sCache, warnNum::scwPOSSIBLY_INCORRECT_ASSIGNMENT, errHandler.throwWarning ( isLS, warnNum::scwPOSSIBLY_INCORRECT_ASSIGNMENT ) ) );
@@ -919,7 +932,7 @@ startIf:
 
 												BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
 
-												f->loopData ().increase = parseExpr ( src, true, false, func, false, isLS );
+												f->loopData ().increase = parseExpr ( src, true, false, func, false, isLS, isAP );
 
 												BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
 												if ( *src != ')' )
@@ -934,7 +947,7 @@ startIf:
 												}
 												if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::info, astLSInfo::semanticLineBreakType::afterCondition, src ) );
 
-												f->loopData ().block = parseBlockFGL ( src, func, false, isLS, statementStart );
+												f->loopData ().block = parseBlockFGL ( src, func, false, isLS, isAP, statementStart );
 
 												if ( cmpTerminated ( src, "END", 3 ) )
 												{
@@ -970,7 +983,7 @@ startIf:
 											}
 											BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
 
-											nodeChild->loopData ().condition = parseExpr ( src, true, false, func, false, isLS );
+											nodeChild->loopData ().condition = parseExpr ( src, true, false, func, false, isLS, isAP );
 											if ( nodeChild->loopData ().condition && nodeChild->loopData ().condition->getOp () == astOp::assign )
 											{
 												warnings.push_back ( std::make_unique<astNode> ( sCache, warnNum::scwPOSSIBLY_INCORRECT_ASSIGNMENT, errHandler.throwWarning ( isLS, warnNum::scwPOSSIBLY_INCORRECT_ASSIGNMENT ) ) );
@@ -990,7 +1003,7 @@ startIf:
 											}
 
 											if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::info, astLSInfo::semanticLineBreakType::afterCondition, src ) );
-											nodeChild->loopData ().block = parseBlockFGL ( src, func, false, isLS, statementStart );
+											nodeChild->loopData ().block = parseBlockFGL ( src, func, false, isLS, isAP, statementStart );
 
 											if ( cmpTerminated ( src, "END", 3 ) )
 											{
@@ -1011,7 +1024,7 @@ startIf:
 										case statementType::stRepeat:
 											nodeChild = new astNode ( sCache, astOp::btRepeat, srcSave );
 
-											nodeChild->loopData ().block = parseBlockFGL ( src, func, false, isLS, statementStart );
+											nodeChild->loopData ().block = parseBlockFGL ( src, func, false, isLS, isAP, statementStart );
 
 											if ( cmpTerminated ( src, "UNTIL", 5 ) )
 											{
@@ -1031,7 +1044,7 @@ startIf:
 												}
 												BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
 
-												nodeChild->loopData ().condition = parseExpr ( src, true, false, func, false, isLS );
+												nodeChild->loopData ().condition = parseExpr ( src, true, false, func, false, isLS, isAP );
 												if ( nodeChild->loopData ().condition->getOp () == astOp::assign )
 												{
 													warnings.push_back ( std::make_unique<astNode> ( sCache, warnNum::scwPOSSIBLY_INCORRECT_ASSIGNMENT, errHandler.throwWarning ( isLS, warnNum::scwPOSSIBLY_INCORRECT_ASSIGNMENT ) ) );
@@ -1072,7 +1085,7 @@ startIf:
 											}
 											BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
 
-											nodeChild->switchData ().condition = parseExpr ( src, true, false, func, false, isLS );
+											nodeChild->switchData ().condition = parseExpr ( src, true, false, func, false, isLS, isAP );
 
 											BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
 											if ( *src != ')' )
@@ -1110,7 +1123,7 @@ startIf:
 														src++;
 													}
 													if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::info, astLSInfo::semanticLineBreakType::beforeCaseContents, src ) );
-													caseOp->block = parseBlockFGL ( src, func, true, isLS, statementStart );
+													caseOp->block = parseBlockFGL ( src, func, true, isLS, isAP, statementStart );
 													if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::info, astLSInfo::semanticLineBreakType::afterCaseContents, src ) );
 													nodeChild->switchData ().caseList.push_back ( caseOp.release () );
 													if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::info, astLSInfo::semanticLineBreakType::afterCase, src ) );
@@ -1134,7 +1147,7 @@ startIf:
 
 													caseOp->condition = 0;
 													if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::info, astLSInfo::semanticLineBreakType::beforeCaseContents, src ) );
-													caseOp->block = parseBlockFGL ( src, func, true, isLS, statementStart );
+													caseOp->block = parseBlockFGL ( src, func, true, isLS, isAP, statementStart );
 													if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::info, astLSInfo::semanticLineBreakType::afterCaseContents, src ) );
 													nodeChild->switchData ().caseList.push_back ( caseOp.release () );
 													if ( defaultPresent )
@@ -1213,7 +1226,7 @@ startIf:
 										case statementType::stTry:
 											nodeChild = new astNode ( sCache, astOp::btTry, srcSave );
 											BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
-											nodeChild->tryCatchData ().tryBlock = parseBlockFGL ( src, func, false, isLS, statementStart );
+											nodeChild->tryCatchData ().tryBlock = parseBlockFGL ( src, func, false, isLS, isAP, statementStart );
 
 											if ( cmpTerminated ( src, "CATCH", 5 ) )
 											{
@@ -1234,7 +1247,7 @@ startIf:
 												}
 												BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
 
-												nodeChild->tryCatchData ().errSymbol = parseExpr ( src, true, false, func, false, isLS );
+												nodeChild->tryCatchData ().errSymbol = parseExpr ( src, true, false, func, false, isLS, isAP );
 												if ( !nodeChild->tryCatchData ().errSymbol || (nodeChild->tryCatchData ().errSymbol && nodeChild->tryCatchData ().errSymbol->getOp () != astOp::symbolValue) )
 												{
 													if ( !isLS ) throw errorNum::scINVALID_CATCH_EXPR;
@@ -1262,7 +1275,7 @@ startIf:
 												}
 												if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::info, astLSInfo::semanticLineBreakType::afterCondition, src ) );
 
-												nodeChild->tryCatchData ().catchBlock = parseBlockFGL ( src, func, false, isLS, statementStart );
+												nodeChild->tryCatchData ().catchBlock = parseBlockFGL ( src, func, false, isLS, isAP, statementStart );
 
 												if ( cmpTerminated ( src, "FINALLY", 7 ) )
 												{
@@ -1273,7 +1286,7 @@ startIf:
 
 													BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
 
-													nodeChild->tryCatchData ().finallyBlock = parseBlockFGL ( src, func, false, isLS, statementStart );
+													nodeChild->tryCatchData ().finallyBlock = parseBlockFGL ( src, func, false, isLS, isAP, statementStart );
 												}
 
 												if ( cmpTerminated ( src, "END", 3 ) )
@@ -1300,7 +1313,7 @@ startIf:
 
 												nodeChild->tryCatchData ().errSymbol = (new astNode ( sCache, astOp::symbolValue, "$tmpCatchVariable" ))->setLocation ( nodeChild );
 												nodeChild->tryCatchData ().finallyBlock = (new astNode ( sCache, astOp::btBasic, srcLocation ( src ) ))->setLocation ( nodeChild );
-												nodeChild->tryCatchData ().finallyBlock->pushNode ( parseBlockFGL ( src, func, false, isLS, statementStart ) );
+												nodeChild->tryCatchData ().finallyBlock->pushNode ( parseBlockFGL ( src, func, false, isLS, isAP, statementStart ) );
 
 												if ( cmpTerminated ( src, "END", 3 ) )
 												{
@@ -1349,7 +1362,7 @@ startIf:
 			{
 				try
 				{
-					nodeChild = parseExpr ( src, true, false, func, false, isLS );
+					nodeChild = parseExpr ( src, true, false, func, false, isLS, isAP );
 					if ( !nodeChild )
 					{
 						if ( !isLS )  throw errorNum::scILLEGAL_EXPRESSION;
@@ -1384,7 +1397,7 @@ startIf:
 	}
 }
 
-astNode *opFile::parseBlockSlang ( source &src, opFunction *func, bool virtualBrace, bool isLS, srcLocation const &formatStart )
+astNode *opFile::parseBlockSlang ( source &src, opFunction *func, bool virtualBrace, bool isLS, bool isAP, srcLocation const &formatStart )
 {
 	astNode						*nodeChild;
 	int							 defaultPresent;
@@ -1409,7 +1422,7 @@ astNode *opFile::parseBlockSlang ( source &src, opFunction *func, bool virtualBr
 			try
 			{
 				if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::info, astLSInfo::semanticLineBreakType::beforeImpliedBlock, src ) );	// indent point
-				nodeChild = parseExpr ( src, true, false, func, true, isLS );
+				nodeChild = parseExpr ( src, true, false, func, true, isLS, isAP );
 				if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::info, astLSInfo::semanticLineBreakType::afterImpliedBlock, src ) );	// indent point
 				if ( !nodeChild )
 				{
@@ -1474,13 +1487,25 @@ astNode *opFile::parseBlockSlang ( source &src, opFunction *func, bool virtualBr
 
 			auto it = statementMap.find ( statementString ( src ) );
 
-			if ( it != statementMap.end () )
+			if ( it != statementMap.end() &&  (it->second.type != statementType::stOutput || (it->second.type == statementType::stOutput && isAP)) )
 			{
 				nodeChild = 0;
 				try
 				{
 					switch ( it->second.type )
 					{
+						case statementType::stOutput:
+							{
+								if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::method, src, it->second.len ) );
+								src += it->second.len;
+
+								BS_ADVANCE_EOL ( this, isLS, src );
+
+								srcLocation srcSave = src;
+								astNode *output = parseExpr ( src, false, false, func, false, isLS, isAP );
+								basicNode->pushNode ( new astNode ( sCache, astOp::add, new astNode ( astOp::symbolValue, sCache.get ( "__outputString" ) ), output ) );
+							}
+							break;
 						case statementType::stLocal:
 						case statementType::stVariant:
 						case statementType::stString:
@@ -1506,7 +1531,7 @@ astNode *opFile::parseBlockSlang ( source &src, opFunction *func, bool virtualBr
 								}
 
 								srcSave = src;
-								astNode *init = parseExpr ( src, false, false, func, true, isLS );
+								astNode *init = parseExpr ( src, false, false, func, true, isLS, isAP );
 
 								if ( init && init->getOp () != astOp::errorValue )
 								{
@@ -1638,7 +1663,7 @@ astNode *opFile::parseBlockSlang ( source &src, opFunction *func, bool virtualBr
 									continue;
 								}
 
-								basicNode->pushNode ( new astNode ( new symbolField ( parseExpr ( src, false, false, func, true, isLS ), documentation ), src ) );
+								basicNode->pushNode ( new astNode ( new symbolField ( parseExpr ( src, false, false, func, true, isLS, isAP ), documentation ), src ) );
 
 								BS_ADVANCE ( src );
 
@@ -1699,7 +1724,7 @@ astNode *opFile::parseBlockSlang ( source &src, opFunction *func, bool virtualBr
 								char qualPrefix[512];
 
 								sprintf_s ( qualPrefix, sizeof ( qualPrefix ), "%s@%s@%u:", srcFiles.getName ( src.getSourceIndex () ).c_str (), func->name.c_str (), src.getLine () );
-								auto init = parseExpr ( src, false, false, func, false, isLS );
+								auto init = parseExpr ( src, false, false, func, false, isLS, isAP );
 								if ( init )
 								{
 									switch ( init->getOp () )
@@ -1874,7 +1899,7 @@ astNode *opFile::parseBlockSlang ( source &src, opFunction *func, bool virtualBr
 							{
 								try
 								{
-									nodeChild = parseExpr ( src, true, false, func, true, isLS );
+									nodeChild = parseExpr ( src, true, false, func, true, isLS, isAP );
 									if ( !nodeChild )
 									{
 										if ( !isLS ) throw errorNum::scILLEGAL_EXPRESSION;
@@ -1891,7 +1916,7 @@ astNode *opFile::parseBlockSlang ( source &src, opFunction *func, bool virtualBr
 							} else
 							{
 								nodeChild = new astNode ( sCache, astOp::btBasic, srcLocation ( src ) );
-								nodeChild->basicData ().blocks.push_back ( parseBlockSlang ( src, func, false, isLS, statementStart ) );
+								nodeChild->basicData ().blocks.push_back ( parseBlockSlang ( src, func, false, isLS, isAP, statementStart ) );
 								basicNode->pushNode ( nodeChild );
 							}
 							break;
@@ -1977,7 +2002,7 @@ astNode *opFile::parseBlockSlang ( source &src, opFunction *func, bool virtualBr
 
 													if ( !cmpTerminated ( src, "if", 2 ) )
 													{
-														nodeChild->ifData ().elseBlock = parseBlockSlang ( src, func, false, isLS, statementStart );
+														nodeChild->ifData ().elseBlock = parseBlockSlang ( src, func, false, isLS, isAP, statementStart );
 														break;
 													}
 
@@ -2000,7 +2025,7 @@ startIf:
 
 													auto condBlock = std::make_unique<astCondBlock> ();
 
-													condBlock->condition = parseExpr ( src, true, false, func, true, isLS );
+													condBlock->condition = parseExpr ( src, true, false, func, true, isLS, isAP );
 													if ( !condBlock->condition )
 													{
 														if ( !isLS ) throw errorNum::scILLEGAL_EXPRESSION;
@@ -2027,7 +2052,7 @@ startIf:
 
 													BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
 
-													condBlock->block = parseBlockSlang ( src, func, false, isLS, statementStart );
+													condBlock->block = parseBlockSlang ( src, func, false, isLS, isAP, statementStart );
 
 													nodeChild->ifData ().ifList.push_back ( condBlock.release () );
 													BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
@@ -2054,7 +2079,7 @@ startIf:
 											}
 											BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
 
-											nodeChild->forEachData ().var = parseExpr ( src, true, false, func, false, isLS );
+											nodeChild->forEachData ().var = parseExpr ( src, true, false, func, false, isLS, isAP );
 
 											if ( nodeChild->forEachData ().var )
 											{
@@ -2084,7 +2109,7 @@ startIf:
 
 												BS_ADVANCE_EOL ( this, isLS, src );
 
-												nodeChild->forEachData ().in = parseExpr ( src, true, false, func, true, isLS );
+												nodeChild->forEachData ().in = parseExpr ( src, true, false, func, true, isLS, isAP );
 												if ( !nodeChild->forEachData ().in )
 												{
 													if ( !isLS ) throw errorNum::scILLEGAL_EXPRESSION;
@@ -2113,7 +2138,7 @@ startIf:
 
 											BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
 
-											nodeChild->forEachData ().statement = parseBlockSlang ( src, func, false, isLS, statementStart );
+											nodeChild->forEachData ().statement = parseBlockSlang ( src, func, false, isLS, isAP, statementStart );
 
 											basicNode->pushNode ( nodeChild );
 											break;
@@ -2185,7 +2210,7 @@ startIf:
 															break;
 													}
 												}
-												f->loopData ().initializers = parseExpr ( src, true, false, func, true, isLS );
+												f->loopData ().initializers = parseExpr ( src, true, false, func, true, isLS, isAP );
 
 												if ( it2 != statementMap.end () )
 												{
@@ -2208,7 +2233,7 @@ startIf:
 												}
 												BS_ADVANCE_EOL_NO_SEMI ( this, isLS, src );
 
-												f->loopData ().condition = parseExpr ( src, true, false, func, true, isLS );
+												f->loopData ().condition = parseExpr ( src, true, false, func, true, isLS, isAP );
 												if ( f->loopData ().condition )
 												{
 													if ( f->loopData ().condition->getOp () == astOp::assign )
@@ -2229,7 +2254,7 @@ startIf:
 												}
 												BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
 
-												f->loopData ().increase = parseExpr ( src, true, false, func, true, isLS );
+												f->loopData ().increase = parseExpr ( src, true, false, func, true, isLS, isAP );
 
 												BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
 												if ( *src != ')' )
@@ -2246,7 +2271,7 @@ startIf:
 
 												BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
 
-												f->loopData ().block = parseBlockSlang ( src, func, false, isLS, statementStart );
+												f->loopData ().block = parseBlockSlang ( src, func, false, isLS, isAP, statementStart );
 												f->setEnd ( src );
 												nodeChild->setEnd ( src );
 												nodeChild->pushNode ( f.release () );
@@ -2267,7 +2292,7 @@ startIf:
 												src++;
 											}
 											BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
-											nodeChild->loopData ().condition = parseExpr ( src, true, false, func, true, isLS );
+											nodeChild->loopData ().condition = parseExpr ( src, true, false, func, true, isLS, isAP );
 											if ( !nodeChild->loopData ().condition )
 											{
 												if ( !isLS ) throw errorNum::scILLEGAL_EXPRESSION;
@@ -2293,7 +2318,7 @@ startIf:
 												src++;
 											}
 											if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::info, astLSInfo::semanticLineBreakType::afterCondition, src ) );
-											nodeChild->loopData ().block = parseBlockSlang ( src, func, false, isLS, statementStart );
+											nodeChild->loopData ().block = parseBlockSlang ( src, func, false, isLS, isAP, statementStart );
 											nodeChild->setEnd ( src );
 											basicNode->pushNode ( nodeChild );
 											break;
@@ -2303,7 +2328,7 @@ startIf:
 											break;
 										case statementType::stDo:
 											nodeChild = new astNode ( sCache, astOp::btRepeat, srcSave );
-											nodeChild->loopData ().block = parseBlockSlang ( src, func, false, isLS, statementStart );
+											nodeChild->loopData ().block = parseBlockSlang ( src, func, false, isLS, isAP, statementStart );
 											if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::info, astLSInfo::semanticLineBreakType::beforeWhile, src ) );
 
 											if ( cmpTerminated ( src, "while", 5 ) )
@@ -2325,7 +2350,7 @@ startIf:
 												}
 												BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
 
-												nodeChild->loopData ().condition = parseExpr ( src, true, false, func, true, isLS );
+												nodeChild->loopData ().condition = parseExpr ( src, true, false, func, true, isLS, isAP );
 
 												if ( !nodeChild->loopData ().condition )
 												{
@@ -2377,7 +2402,7 @@ startIf:
 												BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
 
 
-												nodeChild->switchData ().condition = parseExpr ( src, true, false, func, true, isLS );
+												nodeChild->switchData ().condition = parseExpr ( src, true, false, func, true, isLS, isAP );
 												BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
 
 												if ( !nodeChild->switchData ().condition )
@@ -2439,7 +2464,7 @@ startIf:
 															src++;
 														}
 														if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::info, astLSInfo::semanticLineBreakType::beforeCaseContents, src ) );
-														caseOp->block = parseBlockSlang ( src, func, true, isLS, statementStart );
+														caseOp->block = parseBlockSlang ( src, func, true, isLS, isAP, statementStart );
 														if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::info, astLSInfo::semanticLineBreakType::afterCaseContents, src ) );
 														nodeChild->switchData ().caseList.push_back ( caseOp.release () );
 														if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::info, astLSInfo::semanticLineBreakType::afterCase, src ) );
@@ -2462,7 +2487,7 @@ startIf:
 														caseOp->condition = nullptr;
 
 														if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::info, astLSInfo::semanticLineBreakType::beforeCaseContents, src ) );
-														caseOp->block = parseBlockSlang ( src, func, true, isLS, statementStart );
+														caseOp->block = parseBlockSlang ( src, func, true, isLS, isAP, statementStart );
 														if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::info, astLSInfo::semanticLineBreakType::afterCaseContents, src ) );
 														nodeChild->switchData ().caseList.push_back ( caseOp.release () );
 														if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::info, astLSInfo::semanticLineBreakType::afterCase, src ) );
@@ -2532,7 +2557,7 @@ startIf:
 										case statementType::stReturn:
 											nodeChild = new astNode ( sCache, astOp::btReturn, srcSave );
 											nodeChild->returnData ().isYield = false;
-											nodeChild->returnData ().node = parseExpr ( src, true, false, func, true, isLS );
+											nodeChild->returnData ().node = parseExpr ( src, true, false, func, true, isLS, isAP );
 											if ( nodeChild->returnData ().node )
 											{
 												func->isProcedure = false;
@@ -2542,13 +2567,13 @@ startIf:
 										case statementType::stYield:
 											nodeChild = new astNode ( sCache, astOp::btReturn, srcSave );
 											nodeChild->returnData ().isYield = true;
-											nodeChild->returnData ().node = parseExpr ( src, true, false, func, true, isLS );
+											nodeChild->returnData ().node = parseExpr ( src, true, false, func, true, isLS, isAP );
 											basicNode->pushNode ( nodeChild );
 											func->isProcedure = false;
 											break;
 										case statementType::stTry:
 											nodeChild = new astNode ( sCache, astOp::btTry, srcSave );
-											nodeChild->tryCatchData ().tryBlock = parseBlockSlang ( src, func, false, isLS, statementStart );
+											nodeChild->tryCatchData ().tryBlock = parseBlockSlang ( src, func, false, isLS, isAP, statementStart );
 											BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
 											if ( cmpTerminated ( src, "CATCH", 5 ) )
 											{
@@ -2568,7 +2593,7 @@ startIf:
 												}
 												BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
 
-												nodeChild->tryCatchData ().errSymbol = parseExpr ( src, true, false, func, true, isLS );
+												nodeChild->tryCatchData ().errSymbol = parseExpr ( src, true, false, func, true, isLS, isAP );
 												if ( !nodeChild->tryCatchData ().errSymbol || (nodeChild->tryCatchData ().errSymbol && nodeChild->tryCatchData ().errSymbol->getOp () != astOp::symbolValue) )
 												{
 													if ( !isLS ) throw errorNum::scINVALID_CATCH_EXPR;
@@ -2594,7 +2619,7 @@ startIf:
 													if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::closePeren, src ) );
 													src++;
 												}
-												nodeChild->tryCatchData ().catchBlock = parseBlockSlang ( src, func, false, isLS, statementStart );
+												nodeChild->tryCatchData ().catchBlock = parseBlockSlang ( src, func, false, isLS, isAP, statementStart );
 
 												BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
 
@@ -2605,7 +2630,7 @@ startIf:
 
 													BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
 
-													nodeChild->tryCatchData ().finallyBlock = parseBlockSlang ( src, func, false, isLS, statementStart );
+													nodeChild->tryCatchData ().finallyBlock = parseBlockSlang ( src, func, false, isLS, isAP, statementStart );
 												}
 												basicNode->pushNode ( nodeChild );
 											} else if ( cmpTerminated ( src, "FINALLY", 7 ) )
@@ -2617,7 +2642,7 @@ startIf:
 
 												nodeChild->tryCatchData ().errSymbol = (new astNode ( sCache, astOp::symbolValue, "$tmpCatchVariable" ))->setLocation ( nodeChild );
 												nodeChild->tryCatchData ().finallyBlock = (new astNode ( sCache, astOp::btBasic, srcLocation ( src ) ))->setLocation ( nodeChild );
-												nodeChild->tryCatchData ().finallyBlock->pushNode ( parseBlockSlang ( src, func, false, isLS, statementStart ) );
+												nodeChild->tryCatchData ().finallyBlock->pushNode ( parseBlockSlang ( src, func, false, isLS, isAP, statementStart ) );
 												basicNode->pushNode ( nodeChild );
 											} else
 											{
@@ -2653,7 +2678,7 @@ startIf:
 			{
 				try
 				{
-					nodeChild = parseExpr ( src, true, false, func, true, isLS );
+					nodeChild = parseExpr ( src, true, false, func, true, isLS, isAP );
 					if ( !nodeChild && *src )
 					{
 						srcLocation extraLocation = src;
@@ -2718,14 +2743,14 @@ startIf:
 	}
 }
 
-astNode *opFile::parseBlock ( source &src, opFunction *func, bool doBrace, bool virtualBrace, bool isLS, srcLocation const &formatStart )
+astNode *opFile::parseBlock ( source &src, opFunction *func, bool doBrace, bool virtualBrace, bool isLS, bool isAP, srcLocation const &formatStart )
 {
 	if ( doBrace )
 	{
-		return parseBlockSlang ( src, func, virtualBrace, isLS, formatStart );
+		return parseBlockSlang ( src, func, virtualBrace, isLS, isAP, formatStart );
 	} else
 	{
-		return parseBlockFGL ( src, func, virtualBrace, isLS, formatStart );
+		return parseBlockFGL ( src, func, virtualBrace, isLS, isAP, formatStart );
 	}
 }
 

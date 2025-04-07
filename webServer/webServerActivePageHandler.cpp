@@ -62,7 +62,7 @@ void webServer::compileAp ( char const *inName, char const *outName, bool isSlan
 		}
 
 		// parse the file
-		oFile.parseFile ( inName, code, isSlang, false );
+		oFile.parseFile ( inName, code, isSlang, true, false );
 
 		free ( code );
 

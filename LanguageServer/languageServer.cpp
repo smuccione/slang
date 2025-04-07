@@ -417,7 +417,7 @@ void languageServerFile::updateSource ()
 			}
 
 			file.setSourceListing ( fileName, code );
-			file.parseFile ( fileName, code, isSlang, true );
+			file.parseFile ( fileName, code, isSlang, isAP, true );
 			QueryPerformanceCounter ( &parse );
 			free ( code );
 
@@ -2620,7 +2620,7 @@ taskControl *startLanguageServer ( uint16_t port )
 	// we need to rerun this and copy the output to the file anytime we add something new to the configuration file.
 	// currently everything is a boolean, and there are default values as well as a description written out
 
-		languageServer::makeJsonSettings ();
+//		languageServer::makeJsonSettings ();
 
 	languageServer *ls = new languageServer ();
 	vmTaskInstance instance ( "test" );

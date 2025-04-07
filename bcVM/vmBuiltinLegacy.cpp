@@ -8,7 +8,7 @@ IO Support functions
 #include "vmNativeInterface.h"
 #include "vmAllocator.h"
 
-int vmIsEqual ( VAR *v1, VAR *v2, int isCaseSensitive )
+static int vmIsEqual ( VAR *v1, VAR *v2, int isCaseSensitive )
 {
 	switch ( v1->type )
 	{
@@ -67,7 +67,7 @@ int vmIsEqual ( VAR *v1, VAR *v2, int isCaseSensitive )
 	return 0;
 }
 
-int vmIsLessThan ( VAR *v1, VAR *v2, int isCaseSensitive )
+static int vmIsLessThan ( VAR *v1, VAR *v2, int isCaseSensitive )
 {
 	switch ( v1->type )
 	{
@@ -126,7 +126,7 @@ int vmIsLessThan ( VAR *v1, VAR *v2, int isCaseSensitive )
 	return 0;
 }
 
-int vmIsLessThanOrEqual ( VAR *v1, VAR *v2, int isCaseSensitive )
+static int vmIsLessThanOrEqual ( VAR *v1, VAR *v2, int isCaseSensitive )
 {
 	switch ( v1->type )
 	{
@@ -185,7 +185,7 @@ int vmIsLessThanOrEqual ( VAR *v1, VAR *v2, int isCaseSensitive )
 	return 0;
 }
 
-int vmIsGreaterThan ( VAR *v1, VAR *v2, int isCaseSensitive )
+static int vmIsGreaterThan ( VAR *v1, VAR *v2, int isCaseSensitive )
 {
 	switch ( v1->type )
 	{
@@ -244,7 +244,7 @@ int vmIsGreaterThan ( VAR *v1, VAR *v2, int isCaseSensitive )
 	return 0;
 }
 
-int vmIsGreaterThanOrEqual ( VAR *v1, VAR *v2, int isCaseSensitive )
+static int vmIsGreaterThanOrEqual ( VAR *v1, VAR *v2, int isCaseSensitive )
 {
 	switch ( v1->type )
 	{

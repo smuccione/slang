@@ -39,7 +39,7 @@ static astNode *compileCodeBlockCB ( astNode *node, astNode *parent, symbolStack
 
 				while ( *src && (*src != '|') )
 				{
-					auto param = parentSym->file->getNode ( src, opFile::lastOpType::binary, &oFunc, true, false );
+					auto param = parentSym->file->getNode ( src, opFile::lastOpType::binary, &oFunc, true, false, false );
 					if ( param->getOp() != astOp::symbolValue )
 					{
 						delete param;
@@ -68,7 +68,7 @@ static astNode *compileCodeBlockCB ( astNode *node, astNode *parent, symbolStack
 
 				auto nParams = (uint32_t) symbols->size ( );
 
-				auto cbNode = parentSym->file->_parseExpr ( src, true, false, false, false, false, 0, false, false );
+				auto cbNode = parentSym->file->_parseExpr ( src, true, false, false, false, false, 0, false, false, false );
 
 				if ( *src != '}' )
 				{

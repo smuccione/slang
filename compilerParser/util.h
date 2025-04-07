@@ -10,8 +10,9 @@
 #include "Utility/staticString.h"
 #include "Utility/stringCache.h"
 
-enum class statementType {
-	stLine				= 1,
+enum class statementType
+{
+	stLine = 1,
 	stIf,
 	stElseIf,
 	stElse,
@@ -74,6 +75,7 @@ enum class statementType {
 	stFinal,
 	stUsing,
 	stPragma,
+	stOutput,
 	stPPdefine,
 	stPPinclude,
 	stPPif,

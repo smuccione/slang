@@ -305,7 +305,7 @@ static int64_t domClassAddToCollectionOfType ( class vmInstance *instance, VAR_O
 		start = static_cast<VAR_OBJ *>((*start)["PARENT"]);
 		while ( TYPE ( start ) == slangType::eREFERENCE )
 		{
-			start = static_cast<VAR_OBJ *>(start->dat.ref.v);
+            start = static_cast<VAR_OBJ *>(static_cast<VAR *>(start->dat.ref.v));
 		}
 	}
 	return 0;
@@ -324,7 +324,7 @@ static void domClassSetMemberOfType ( class vmInstance *instance, VAR_OBJ *start
 		start = static_cast<VAR_OBJ *>((*start)["PARENT"]);
 		while ( TYPE ( start ) == slangType::eREFERENCE )
 		{
-			start = static_cast<VAR_OBJ *>(start->dat.ref.v);
+			start = static_cast<VAR_OBJ *>(static_cast<VAR *>(start->dat.ref.v));
 		}
 	}
 }
@@ -419,7 +419,7 @@ static void domParsePage ( class vmInstance *instance, VAR_OBJ *owner, VAR_OBJ *
 										{
 											while ( TYPE (caller) == slangType::eREFERENCE )
 											{
-												caller = static_cast<VAR_OBJ *>(caller->dat.ref.v);
+												caller = static_cast<VAR_OBJ *>(static_cast<VAR *>(caller->dat.ref.v));
 											}
 										}
 									}

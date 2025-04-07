@@ -674,7 +674,7 @@ astNode *findFirstInScopeCB ( astNode *node, astNode *parent, symbolStack *sym, 
 	return node;
 };
 
-void opFile::_parseFile ( source &src, bool doBraces, bool isLS )
+void opFile::_parseFile ( source &src, bool doBraces, bool isLS, bool isAP )
 {
 	opFunction		*func;
 	cacheString		 nsName;
@@ -785,7 +785,7 @@ void opFile::_parseFile ( source &src, bool doBraces, bool isLS )
 								errors.push_back ( std::make_unique<astNode> ( e, nameLocation ) );
 								name = sCache.get ( stringi ( "errorName" ) + nameLocation.columnNumber + ":" + nameLocation.lineNumberStart );
 							}
-							func = parseFunc ( src, name, doBraces, isLS, statementLocation );
+							func = parseFunc ( src, name, doBraces, isLS, isAP, statementLocation );
 							func->location = statementLocation;
 							if ( func->codeBlock ) func->location.setEnd ( func->codeBlock->location );
 							func->nameLocation = nameLocation;
@@ -845,7 +845,7 @@ void opFile::_parseFile ( source &src, bool doBraces, bool isLS )
 								name = sCache.get ( stringi ( "errorName" ) + nameLocation.columnNumber + ":" + nameLocation.lineNumberStart );
 							}
 							nameLocation.setEnd ( src );
-							func = parseFunc ( src, name, doBraces, isLS, statementLocation );
+							func = parseFunc ( src, name, doBraces, isLS, isAP, statementLocation );
 							func->isIterator = true;
 							func->nameLocation = nameLocation;
 							func->retType = symUnknownType;
@@ -888,7 +888,7 @@ void opFile::_parseFile ( source &src, bool doBraces, bool isLS )
 								name = sCache.get ( stringi ( "errorName" ) + nameLocation.columnNumber + ":" + nameLocation.lineNumberStart );
 							}
 							nameLocation.setEnd ( src );
-							func = parseFunc ( src, name, doBraces, isLS, statementLocation );
+							func = parseFunc ( src, name, doBraces, isLS, isAP, statementLocation );
 							func->nameLocation = nameLocation;
 							func->retType = it->second.type == statementType::stIterator ? symVariantType : symUnknownType;
 							func->location = statementLocation;
@@ -937,7 +937,7 @@ void opFile::_parseFile ( source &src, bool doBraces, bool isLS )
 								}
 								final = true;
 							}
-							auto cls = parseClass ( src, doBraces, isLS, statementLocation );
+							auto cls = parseClass ( src, doBraces, isLS, isAP, statementLocation );
 							srcLocation newLoc = statementLocation;
 							newLoc.setEnd ( cls->location );
 							cls->location = newLoc;
@@ -985,7 +985,7 @@ void opFile::_parseFile ( source &src, bool doBraces, bool isLS )
 								}
 							}
 							if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::info, astLSInfo::semanticLineBreakType::beforeNamespace, src ) );
-							_parseFile ( src, doBraces, isLS );
+							_parseFile ( src, doBraces, isLS, isAP );
 							if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::info, astLSInfo::semanticLineBreakType::afterNamespace, statements.back()->location ) );
 							ns.popNamespace ();
 						}
@@ -1015,7 +1015,7 @@ void opFile::_parseFile ( source &src, bool doBraces, bool isLS )
 						// TODO: add post-comment documentation
 						while ( *src )
 						{
-							auto expr = parseExpr ( src, false, false, 0, doBraces, isLS );
+							auto expr = parseExpr ( src, false, false, 0, doBraces, isLS, isAP );
 							if ( !expr )
 							{
 								errors.push_back ( std::make_unique<astNode> ( errorNum::scILLEGAL_EXPRESSION, src ) );
@@ -1058,7 +1058,7 @@ void opFile::_parseFile ( source &src, bool doBraces, bool isLS )
 
 						while ( 1 )
 						{
-							auto expr = parseExpr ( src, false, false, 0, doBraces, isLS );
+							auto expr = parseExpr ( src, false, false, 0, doBraces, isLS, isAP );
 							if ( !expr )
 							{
 								errors.push_back ( std::make_unique<astNode> ( errorNum::scILLEGAL_EXPRESSION, src ) );
@@ -1230,7 +1230,7 @@ void opFile::_parseFile ( source &src, bool doBraces, bool isLS )
 								name = sCache.get( stringi( "errorName" ) + nameLocation.columnNumber + ":" + nameLocation.lineNumberStart );
 							}
 							nameLocation.setEnd( src );
-							func = parseFunc( src, name, doBraces, isLS, statementLocation );
+							func = parseFunc( src, name, doBraces, isLS, isAP, statementLocation );
 							func->nameLocation = nameLocation;
 							func->retType = it->second.type == statementType::stIterator ? symVariantType : symUnknownType;
 							func->location = statementLocation;
@@ -1310,7 +1310,7 @@ autoMain:
 			// auto-main?
 
 			if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::info, astLSInfo::semanticLineBreakType::beforeFunction, src ) );
-			func = parseFuncAutoMain ( src, "main", doBraces, isLS, statementLocation );
+			func = parseFuncAutoMain ( src, "main", doBraces, isLS, isAP, statementLocation );
 			func->location = statementLocation;
 			astNodeWalk ( func->codeBlock, nullptr, findFirstInScopeCB, sourceIndex, func->location );
 			func->nameLocation = func->location;
@@ -1335,12 +1335,12 @@ autoMain:
 	}
 }
 
-void opFile::parseFile ( char const *fileName, char const *expr, bool doBraces, bool isLS )
+void opFile::parseFile ( char const *fileName, char const *expr, bool doBraces, bool isLS, bool isAP )
 {
 	source src ( &srcFiles, sCache, fileName, expr );
 	addBuildSource ( fileName );
 	srcLocation entireRegion ( src );
-	parseFile ( src, doBraces, isLS );
+	parseFile ( src, doBraces, isLS, isAP );
 	entireRegion.setEnd ( src );
 	if ( languageRegions.empty () )
 	{
@@ -1354,14 +1354,14 @@ void opFile::parseFile ( char const *fileName, char const *expr, bool doBraces, 
 	}
 }
 
-void opFile::parseFile ( source &src, bool doBraces, bool isLS )
+void opFile::parseFile ( source &src, bool doBraces, bool isLS, bool isAP )
 {
 	srcLocation entireRegion ( src );
 	try
 	{
 		errorLocality e ( &errHandler, src );
 
-		_parseFile ( src, doBraces, isLS );
+		_parseFile ( src, doBraces, isLS, isAP );
 		if ( *src )
 		{
 			if ( !isLS ) throw errorNum::scEXTRA_END;

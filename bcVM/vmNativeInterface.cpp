@@ -367,7 +367,7 @@ void vmNativeInterface::nativeClass::property ( char const *propName, fgxClassEl
 
 			auto name = new astNode ( astOp::symbolValue, native->file->sCache.get ( propName ) );
 
-			init = new astNode ( native->file->sCache, astOp::assign, name, native->file->parseExpr ( src, false, false, 0, true, false ) );
+			init = new astNode ( native->file->sCache, astOp::assign, name, native->file->parseExpr ( src, false, false, 0, true, false, false ) );
 		} else
 		{
 			init = new astNode ( astOp::symbolValue, native->file->sCache.get ( propName ) );
@@ -447,7 +447,7 @@ opFunction *vmNativeInterface::nativeClass::method ( char const *methodName, vmD
 
 			newMeth = "(){}";
 			source src ( &native->file->srcFiles, native->file->sCache, "(INTERNAL)", newMeth );
-			newFunc = native->file->parseMethod ( src, cls, buildString ( nativeClassName, "new", "method" ).c_str (), true, false, srcLocation () );
+			newFunc = native->file->parseMethod ( src, cls, buildString ( nativeClassName, "new", "method" ).c_str (), true, false, false, srcLocation () );
 			newFunc->isInterface = true;
 			cls->addMethod ( native->file->newValue, fgxClassElementType::fgxClassType_method, fgxClassElementScope::fgxClassScope_private, false, false, false, newFunc, native->file, symVariantType, true, stringi () );
 		}
@@ -459,7 +459,7 @@ opFunction *vmNativeInterface::nativeClass::method ( char const *methodName, vmD
 			methodName = "$release";
 			newMeth = "(){}";
 			source src ( &native->file->srcFiles, native->file->sCache, "(INTERNAL)", newMeth );
-			releaseFunc = native->file->parseMethod ( src, cls, buildString ( nativeClassName, "release", "method" ).c_str (), true, false, srcLocation () );
+			releaseFunc = native->file->parseMethod ( src, cls, buildString ( nativeClassName, "release", "method" ).c_str (), true, false, false, srcLocation () );
 			releaseFunc->isInterface = true;
 			cls->addMethod ( native->file->sCache.get ( "release" ), fgxClassElementType::fgxClassType_method, fgxClassElementScope::fgxClassScope_public, false, false, false, releaseFunc, native->file, symVariantType, true, stringi () );
 		}
@@ -548,7 +548,7 @@ opFunction *vmNativeInterface::nativeClass::method ( char const *methodName, vmD
 			if ( nParam <= (int) funcDef->params.size () )
 			{
 				source src ( &native->file->srcFiles, native->file->sCache, "(INTERNAL)", param );
-				astNode *ini = native->file->parseExpr ( src, false, true, 0, true, false );
+				astNode *ini = native->file->parseExpr ( src, false, true, 0, true, false, false );
 
 				if ( newFunc )
 				{
@@ -722,7 +722,7 @@ opFunction *vmNativeInterface::nativeClass::methodProp ( char const *methodName,
 			if ( nParam <= (int) funcDef->params.size () )
 			{
 				source src ( &native->file->srcFiles, native->file->sCache, "(INTERNAL)", param );
-				astNode *ini = native->file->parseExpr ( src, false, true, 0, true, false );
+				astNode *ini = native->file->parseExpr ( src, false, true, 0, true, false, false );
 
 				if ( newFunc )
 				{
@@ -981,7 +981,7 @@ opFunction *vmNativeInterface::function ( char const *funcName, bool makeFunc, v
 				if ( nParam <= (int32_t) funcDef->params.size () )
 				{
 					source src ( &file->srcFiles, file->sCache, "(INTERNAL)", param );
-					auto ini = file->parseExpr ( src, false, true, 0, true, false );
+					auto ini = file->parseExpr ( src, false, true, 0, true, false, false );
 					funcDef->params[nParam - 1]->initializer = new astNode ( file->sCache, astOp::assign, funcDef->params[nParam - 1]->initializer, ini );
 				}
 			}
@@ -1040,7 +1040,7 @@ void vmNativeInterface::compile ( int cls, char const *code, std::source_locatio
 	if ( file )
 	{
 		source src ( &file->srcFiles, file->sCache, loc.file_name (), code, (uint32_t) loc.line () );
-		file->parseFile ( src, true, false );
+		file->parseFile ( src, true, false, false );
 	}
 }
 
@@ -1050,7 +1050,7 @@ void vmNativeInterface::compile ( vmNativeInterface::nativeClass &cls, char cons
 	{
 		auto c = file->findClass ( cls.nativeClassName );
 		source src ( &file->srcFiles, file->sCache, loc.file_name (), code, (uint32_t) loc.line () );
-		if ( file->parseInnerClass ( src, true, c, false, srcLocation () ) )
+		if ( file->parseInnerClass ( src, true, c, false, false, srcLocation () ) )
 		{
 			throw errorNum::scINTERNAL;
 		}

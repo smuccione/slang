@@ -225,7 +225,7 @@ struct sCONDITIONAL
 	opStack *falsePtr;
 };
 
-astNode *opFile::getNode ( source &src, lastOpType lastOp, opFunction *func, bool doSlang, bool isLS )
+astNode *opFile::getNode ( source &src, lastOpType lastOp, opFunction *func, bool doSlang, bool isLS, bool isAP )
 {
 	if (!*src)
 	{
@@ -422,7 +422,7 @@ astNode *opFile::getNode ( source &src, lastOpType lastOp, opFunction *func, boo
 
 								retNode->right->pList ().paramRegion.push_back ( src );
 								BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
-								retNode->right->pList().param.push_back ( _parseExpr ( src, false, false, false, true, false, func, doSlang, isLS ) );
+								retNode->right->pList().param.push_back ( _parseExpr ( src, false, false, false, true, false, func, doSlang, isLS, isAP ) );
 								BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
 								retNode->right->pList().paramRegion.back().setEnd ( src );
 
@@ -433,7 +433,7 @@ astNode *opFile::getNode ( source &src, lastOpType lastOp, opFunction *func, boo
 									src++;
 									retNode->right->pList ().paramRegion.push_back ( src );
 									BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
-									retNode->right->pList().param.push_back ( _parseExpr ( src, false, false, false, true, false, func, doSlang, isLS ) );
+									retNode->right->pList().param.push_back ( _parseExpr ( src, false, false, false, true, false, func, doSlang, isLS, isAP ) );
 									BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
 									retNode->right->pList ().paramRegion.back ().setEnd ( src );
 								} else
@@ -784,7 +784,7 @@ astNode *opFile::getNode ( source &src, lastOpType lastOp, opFunction *func, boo
 						while ( 1 )
 						{
 							BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
-							newNode = _parseExpr ( src, false, false, false, false, true, func, doSlang, isLS );
+							newNode = _parseExpr ( src, false, false, false, false, true, func, doSlang, isLS, isAP );
 							BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
 							if ( newNode->getOp () == astOp::assign || newNode->getOp () == astOp::pairValue )
 							{
@@ -906,7 +906,7 @@ astNode *opFile::getNode ( source &src, lastOpType lastOp, opFunction *func, boo
 						// now compile it
 						auto expr = buff.data<char *> ();
 						source fSrc ( &srcFiles, sCache, srcFiles.getName ( classDef->location.sourceIndex ), expr, classDef->location.lineNumberStart );
-						auto newFunc = parseMethod ( fSrc, classDef, buildString ( classDef->name.c_str (), elem->name, "method" ).c_str (), true, isLS, node->location );
+						auto newFunc = parseMethod ( fSrc, classDef, buildString ( classDef->name.c_str (), elem->name, "method" ).c_str (), true, isLS, isAP, node->location );
 						elem->data.method.func = newFunc->name;
 						elem->data.method.virtOverrides.insert ( newFunc );
 						functionList.insert( { newFunc->name, newFunc } );
@@ -932,7 +932,7 @@ astNode *opFile::getNode ( source &src, lastOpType lastOp, opFunction *func, boo
 
 //						node->pList ().paramRegion.push_back ( src );
 						BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
-						newNode = getNode ( src, lastOpType::binary, func, doSlang, isLS );
+						newNode = getNode ( src, lastOpType::binary, func, doSlang, isLS, isAP );
 
 						if ( !newNode || newNode->getOp () != astOp::symbolValue )
 						{
@@ -964,7 +964,7 @@ astNode *opFile::getNode ( source &src, lastOpType lastOp, opFunction *func, boo
 							{
 								node->pList ().paramRegion.push_back ( src );
 								BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
-								newNode = _parseExpr ( src, false, false, false, false, false, func, doSlang, isLS );
+								newNode = _parseExpr ( src, false, false, false, false, false, func, doSlang, isLS, isAP );
 								BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
 								node->pList ().paramRegion.back ().setEnd ( src );
 
@@ -1036,7 +1036,7 @@ astNode *opFile::getNode ( source &src, lastOpType lastOp, opFunction *func, boo
 
 					sprintf_s ( tmpName, sizeof ( tmpName ), LAMBDA_ID "%s@%i:%u", srcFiles.getName ( src.getSourceIndex () ).c_str (), src.getLine (), src.getColumn () );
 
-					auto bound = parseFunc ( src, tmpName, doSlang, isLS, node->location );
+					auto bound = parseFunc ( src, tmpName, doSlang, isLS, isAP, node->location );
 					bound->isLambda = true;
 					bound->nameLocation = node->location;
 					addElem ( bound, symVariantType, true );
@@ -1142,7 +1142,7 @@ astNode *opFile::getNode ( source &src, lastOpType lastOp, opFunction *func, boo
 					{
 						break;
 					}
-					newNode = _parseExpr ( src, false, false, false, false, false, func, doSlang, isLS );
+					newNode = _parseExpr ( src, false, false, false, false, false, func, doSlang, isLS, isAP );
 					BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
 					node->pList ().paramRegion.back ().setEnd ( src );
 
@@ -1217,7 +1217,7 @@ astNode *opFile::getNode ( source &src, lastOpType lastOp, opFunction *func, boo
 
 					node->pList ().paramRegion.push_back ( src );
 					BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
-					newNode = _parseExpr ( src, false, false, false, false, false, func, doSlang, isLS );
+					newNode = _parseExpr ( src, false, false, false, false, false, func, doSlang, isLS, isAP );
 					BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
 					node->pList().param.push_back ( newNode );
 					node->pList ().paramRegion.back ().setEnd ( src );
@@ -1265,7 +1265,7 @@ astNode *opFile::getNode ( source &src, lastOpType lastOp, opFunction *func, boo
 				astArray *arr;
 
 				node->setOp ( sCache, astOp::varrayValue );
-				arr = arrayJsonDef ( src, false, func, doSlang, isLS );
+				arr = arrayJsonDef ( src, false, func, doSlang, isLS, isAP );
 				node->arrayData() = *arr;
 				delete arr;
 			} else
@@ -1292,7 +1292,7 @@ astNode *opFile::getNode ( source &src, lastOpType lastOp, opFunction *func, boo
 				while ( *src && (*src != '|') && !_iseol ( src ) )
 				{
 					BS_ADVANCE_EOL_COMMENT ( this, isLS, src );
-					auto cbNode = getNode ( src, lastOpType::binary, func, doSlang, isLS );
+					auto cbNode = getNode ( src, lastOpType::binary, func, doSlang, isLS, isAP );
 					if ( cbNode && cbNode->getOp ( ) != astOp::symbolValue )
 					{
 						if ( !isLS ) throw errorNum::scILLEGAL_IDENTIFIER;
@@ -1324,7 +1324,7 @@ astNode *opFile::getNode ( source &src, lastOpType lastOp, opFunction *func, boo
 
 				try
 				{
-					delete _parseExpr ( src, true, false, false, false, false, 0, false, false );
+					delete _parseExpr ( src, true, false, false, false, false, 0, false, false, isAP );
 				} catch ( errorNum )
 				{
 				}
@@ -1343,7 +1343,7 @@ astNode *opFile::getNode ( source &src, lastOpType lastOp, opFunction *func, boo
 			{
 				src = srcSave;
 				node->setOp ( sCache, astOp::arrayValue );
-				auto arr = arrayDef ( src, false, func, doSlang, isLS );
+				auto arr = arrayDef ( src, false, func, doSlang, isLS, isAP );
 				node->arrayData() = std::move ( *arr );
 				delete arr;
 			}
@@ -1500,7 +1500,7 @@ char const *parseOperator ( source &src )
 	throw errorNum::scINTERNAL;
 }
 
-astArray *opFile::arrayJsonDef ( source &src, char onlySimpleExpressions, opFunction *func, bool doSlang, bool isLS )
+astArray *opFile::arrayJsonDef ( source &src, char onlySimpleExpressions, opFunction *func, bool doSlang, bool isLS, bool isAP )
 {
 	astArray	*array;
 	astNode		*node;
@@ -1547,7 +1547,7 @@ astArray *opFile::arrayJsonDef ( source &src, char onlySimpleExpressions, opFunc
 				array->nodes.push_back ( node );
 			} else
 			{
-				node = _parseExpr ( src, false, false, false, false, true, func, doSlang, isLS );
+				node = _parseExpr ( src, false, false, false, false, true, func, doSlang, isLS, isAP );
 				if ( !node )
 				{
 					if ( !isLS ) throw errorNum::scILLEGAL_EXPRESSION;
@@ -1622,7 +1622,7 @@ astArray *opFile::arrayJsonDef ( source &src, char onlySimpleExpressions, opFunc
 	}
 }
 
-astArray *opFile::arrayDef ( source &src, char onlySimpleExpressions, opFunction *func, bool doSlang, bool isLS )
+astArray *opFile::arrayDef ( source &src, char onlySimpleExpressions, opFunction *func, bool doSlang, bool isLS, bool isAP )
 
 {
 	astArray	*array;
@@ -1668,7 +1668,7 @@ astArray *opFile::arrayDef ( source &src, char onlySimpleExpressions, opFunction
 				array->nodes.push_back ( node );
 			} else
 			{
-				node = _parseExpr ( src, false, false, false, false, true, func, doSlang, isLS );
+				node = _parseExpr ( src, false, false, false, false, true, func, doSlang, isLS, isAP );
 				if ( !node )
 				{
 					if ( !isLS ) throw errorNum::scILLEGAL_EXPRESSION;
@@ -1799,7 +1799,7 @@ bool opFile::isContinuationSymbol ( source &src, opFile::lastOpType lastOp )
 	return false;
 }
 
-astNode *opFile::_parseExpr ( source &src, bool sValid, bool onlySimpleExpressions, bool linqExpr, bool eCondValid, bool pairValid, opFunction *func, bool doSlang, bool isLS )
+astNode *opFile::_parseExpr ( source &src, bool sValid, bool onlySimpleExpressions, bool linqExpr, bool eCondValid, bool pairValid, opFunction *func, bool doSlang, bool isLS, bool isAP )
 {
 	int32_t		 perenCount;
 	lastOpType	 lastOp;
@@ -1880,7 +1880,7 @@ astNode *opFile::_parseExpr ( source &src, bool sValid, bool onlySimpleExpressio
 
 			source srcSave = src;
 
-			node = getNode ( src, lastOp, func, doSlang, isLS );
+			node = getNode ( src, lastOp, func, doSlang, isLS, isAP );
 
 			if ( src.emitDebug() )
 			{
@@ -2196,7 +2196,7 @@ astNode *opFile::_parseExpr ( source &src, bool sValid, bool onlySimpleExpressio
 
 								try
 								{
-									node->conditionData().trueCond = _parseExpr ( src, false, onlySimpleExpressions, false, true, false, func, doSlang, isLS );
+									node->conditionData().trueCond = _parseExpr ( src, false, onlySimpleExpressions, false, true, false, func, doSlang, isLS, isAP );
 									BS_ADVANCE_EOL ( this, isLS, src );
 									if ( *src != ':' )
 									{
@@ -2210,7 +2210,7 @@ astNode *opFile::_parseExpr ( source &src, bool sValid, bool onlySimpleExpressio
 										if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::conditional, src ) );
 										src++;
 										BS_ADVANCE_EOL ( this, isLS, src );
-										node->conditionData ().falseCond = _parseExpr ( src, false, onlySimpleExpressions, false, false, false, func, doSlang, isLS );
+										node->conditionData ().falseCond = _parseExpr ( src, false, onlySimpleExpressions, false, false, false, func, doSlang, isLS, isAP );
 									}
 								} catch ( errorNum err )
 								{
@@ -2795,17 +2795,17 @@ astNode *opFile::_parseExpr ( source &src, bool sValid, bool onlySimpleExpressio
 	return node;
 }
 
-astNode *opFile::parseExpr ( source &src, bool sValid, bool onlySimpleExpressions, opFunction *func, bool doSlang, bool isLS )
+astNode *opFile::parseExpr ( source &src, bool sValid, bool onlySimpleExpressions, opFunction *func, bool doSlang, bool isLS, bool isAP )
 {
-	return _parseExpr ( src, sValid, onlySimpleExpressions, false, false, false, func, doSlang, isLS );
+	return _parseExpr ( src, sValid, onlySimpleExpressions, false, false, false, func, doSlang, isLS, isAP );
 }
 
 astNode *opFile::parseLinqExpr ( source &src, bool sValid, bool onlySimpleExpressions, opFunction *func, bool doSlang, bool isLS )
 {
-	return _parseExpr ( src, sValid, onlySimpleExpressions, true, false, false, func, doSlang, isLS );
+	return _parseExpr ( src, sValid, onlySimpleExpressions, true, false, false, func, doSlang, isLS, false );
 }
 
 astNode *opFile::parseCaseExpr ( source &src, bool sValid, bool onlySimpleExpressions, opFunction *func, bool doSlang, bool isLS )
 {
-	return _parseExpr ( src, sValid, onlySimpleExpressions, false, true, false, func, doSlang, isLS );
+	return _parseExpr ( src, sValid, onlySimpleExpressions, false, true, false, func, doSlang, isLS, false );
 }

@@ -12,9 +12,6 @@ aArrayNew is the problem... this is highly optimized for speed as we use this a 
 #include "Stdafx.h"
 #include "gdiplus.h"
 #include "comdef.h"
-#include "gdiplus.h"
-
-#include <set>
 
 #include "bcVM/bcVM.h"
 #include "bcVM/bcVMBuiltin.h"
@@ -180,7 +177,7 @@ static int cImageNew ( vmInstance *instance, VAR_OBJ *obj, nParamType nParams )
 //**********************************************************************************************************************
 //**********************************************************************************************************************
 
-DWORD cImageGetSize ( VAR *obj, char const *type )
+static DWORD cImageGetSize ( VAR *obj, char const *type )
 {
 	CFgl_image	*cImage = (CFgl_image *) classGetCargo ( obj );
 	CLSID			 pClsid;
@@ -204,13 +201,13 @@ DWORD cImageGetSize ( VAR *obj, char const *type )
 	return ( stg.cbSize.LowPart );
 }
 
-int cImageGetHeight ( VAR *obj )
+static int cImageGetHeight ( VAR *obj )
 {
 	CFgl_image	*cImage = (CFgl_image *) classGetCargo ( obj );
 	return ( static_cast<int>(cImage->m_bmp->GetHeight() ));
 }
 
-int cImageGetWidth ( VAR *obj )
+static int cImageGetWidth ( VAR *obj )
 {
 	CFgl_image	*cImage = (CFgl_image *) classGetCargo ( obj );
 	return (static_cast<int>(cImage->m_bmp->GetWidth()) );

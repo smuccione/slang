@@ -999,16 +999,16 @@ void  op_eqv1 ( class vmInstance *instance, fglOp *ops )
 			{
 				case slangType::eLONG:
 					_i64toa_s ( leftOperand->dat.l, tmpString, sizeof ( tmpString ), 10 );
-					(instance->stack - 1)->dat.l = strncmp ( tmpString, leftOperand->dat.str.c, leftOperand->dat.str.len + 1 ) ? 0 : 1;
+					(instance->stack - 1)->dat.l = strncmp ( tmpString, leftOperand->dat.str.c, leftOperand->dat.str.len + 1 ) ? int64_t {0} : int64_t {1};
 					break;
 				case slangType::eDOUBLE:
 					int sign;
 					int dec;
 					_fcvt_s ( tmpString, sizeof ( tmpString ), leftOperand->dat.d, 4, &dec, &sign );
-					(instance->stack - 1)->dat.l = strncmp ( tmpString, leftOperand->dat.str.c, leftOperand->dat.str.len + 1 ) ? 0 : 1;
+					(instance->stack - 1)->dat.l = strncmp ( tmpString, leftOperand->dat.str.c, leftOperand->dat.str.len + 1 ) ? int64_t {0} : int64_t {1};
 					break;
 				case slangType::eSTRING:
-					(instance->stack - 1)->dat.l = strncmp ( rightOperand->dat.str.c, leftOperand->dat.str.c, leftOperand->dat.str.len + 1 ) ? 0 : 1;
+					(instance->stack - 1)->dat.l = strncmp ( rightOperand->dat.str.c, leftOperand->dat.str.c, leftOperand->dat.str.len + 1 ) ? int64_t {0} : int64_t {1};
 					break;
 				default:
 					(instance->stack - 1)->dat.l = 0;
@@ -1034,7 +1034,7 @@ void  op_eqv1 ( class vmInstance *instance, fglOp *ops )
 				switch ( TYPE ( rightOperand ) )
 				{
 					case slangType::eOBJECT_ROOT:
-						if ( rightOperand->dat.ref.v == leftOperand->dat.ref.v )
+						if ( static_cast<VAR *>( rightOperand->dat.ref.v) == static_cast<VAR *>(leftOperand->dat.ref.v) )
 						{
 							(instance->stack - 1)->dat.l = 1;
 						} else
@@ -1082,7 +1082,7 @@ void  op_eqv1 ( class vmInstance *instance, fglOp *ops )
 			switch ( TYPE ( rightOperand ) )
 			{
 				case slangType::eARRAY_ROOT:
-					if ( rightOperand->dat.ref.v == leftOperand->dat.ref.v )
+					if ( static_cast<VAR *> (rightOperand->dat.ref.v) == static_cast<VAR *> (leftOperand->dat.ref.v) )
 					{
 						(instance->stack - 1)->dat.l = 1;
 					} else
@@ -1183,16 +1183,16 @@ void  op_eqv ( class vmInstance *instance, fglOp *ops, bool safeCall )
 			{
 				case slangType::eLONG:
 					_i64toa_s ( leftOperand->dat.l, tmpString, sizeof ( tmpString ), 10 );
-					(instance->stack - 2)->dat.l = strncmp ( tmpString, leftOperand->dat.str.c, leftOperand->dat.str.len + 1 ) ? 0 : 1;
+					(instance->stack - 2)->dat.l = strncmp ( tmpString, leftOperand->dat.str.c, leftOperand->dat.str.len + 1 ) ? int64_t {0} : int64_t {1};
 					break;
 				case slangType::eDOUBLE:
 					int sign;
 					int dec;
 					_fcvt_s ( tmpString, sizeof ( tmpString ), leftOperand->dat.d, 4, &dec, &sign );
-					(instance->stack - 2)->dat.l = strncmp ( tmpString, leftOperand->dat.str.c, leftOperand->dat.str.len + 1 ) ? 0 : 1;
+					(instance->stack - 2)->dat.l = strncmp ( tmpString, leftOperand->dat.str.c, leftOperand->dat.str.len + 1 ) ? int64_t {0} : int64_t {1};
 					break;
 				case slangType::eSTRING:
-					(instance->stack - 2)->dat.l = strncmp ( rightOperand->dat.str.c, leftOperand->dat.str.c, leftOperand->dat.str.len + 1 ) ? 0 : 1;
+					(instance->stack - 2)->dat.l = strncmp ( rightOperand->dat.str.c, leftOperand->dat.str.c, leftOperand->dat.str.len + 1 ) ? int64_t {0} : int64_t {1};
 					break;
 				default:
 					(instance->stack - 2)->dat.l = 0;
@@ -1218,7 +1218,7 @@ void  op_eqv ( class vmInstance *instance, fglOp *ops, bool safeCall )
 				switch ( TYPE ( rightOperand ) )
 				{
 					case slangType::eOBJECT_ROOT:
-						if ( rightOperand->dat.ref.v == leftOperand->dat.ref.v )
+						if ( static_cast<VAR *> (rightOperand->dat.ref.v) == static_cast<VAR *> ( leftOperand->dat.ref.v) )
 						{
 							(instance->stack - 2)->dat.l = 1;
 						} else
@@ -1267,7 +1267,7 @@ void  op_eqv ( class vmInstance *instance, fglOp *ops, bool safeCall )
 			switch ( TYPE ( rightOperand ) )
 			{
 				case slangType::eARRAY_ROOT:
-					if ( rightOperand->dat.ref.v == leftOperand->dat.ref.v )
+					if ( static_cast<VAR *>(rightOperand->dat.ref.v) == static_cast<VAR *> ( leftOperand->dat.ref.v) )
 					{
 						(instance->stack - 2)->dat.l = 1;
 					} else
@@ -1403,7 +1403,7 @@ void  op_aeqv ( class vmInstance *instance, fglOp *ops, bool safeCall )
 				switch ( TYPE ( rightOperand ) )
 				{
 					case slangType::eOBJECT_ROOT:
-						if ( rightOperand->dat.ref.v == leftOperand->dat.ref.v )
+						if ( static_cast<VAR *> (rightOperand->dat.ref.v) == static_cast<VAR *> (leftOperand->dat.ref.v) )
 						{
 							(instance->stack - 2)->dat.l = 1;
 						} else
@@ -1452,7 +1452,7 @@ void  op_aeqv ( class vmInstance *instance, fglOp *ops, bool safeCall )
 			switch ( TYPE ( rightOperand ) )
 			{
 				case slangType::eARRAY_ROOT:
-					if ( rightOperand->dat.ref.v == leftOperand->dat.ref.v )
+					if ( static_cast<VAR *> (rightOperand->dat.ref.v) == static_cast<VAR *> (leftOperand->dat.ref.v) )
 					{
 						(instance->stack - 2)->dat.l = 1;
 					} else
@@ -1560,16 +1560,16 @@ void  op_neqv ( class vmInstance *instance, fglOp *ops, bool safeCall )
 					break;
 				case slangType::eLONG:
 					_i64toa_s ( leftOperand->dat.l, tmpString, sizeof ( tmpString ), 10 );
-					(instance->stack - 2)->dat.l = strncmp ( tmpString, leftOperand->dat.str.c, leftOperand->dat.str.len + 1 ) ? 1 : 0;
+					(instance->stack - 2)->dat.l = strncmp ( tmpString, leftOperand->dat.str.c, leftOperand->dat.str.len + 1 ) ? int64_t {1} : int64_t {0};
 					break;
 				case slangType::eDOUBLE:
 					int sign;
 					int dec;
 					_fcvt_s ( tmpString, sizeof ( tmpString ), leftOperand->dat.d, 4, &dec, &sign );
-					(instance->stack - 2)->dat.l = strncmp ( tmpString, leftOperand->dat.str.c, leftOperand->dat.str.len + 1 ) ? 1 : 0;
+					(instance->stack - 2)->dat.l = strncmp ( tmpString, leftOperand->dat.str.c, leftOperand->dat.str.len + 1 ) ? int64_t {1} : int64_t {0};
 					break;
 				case slangType::eSTRING:
-					(instance->stack - 2)->dat.l = strncmp ( rightOperand->dat.str.c, leftOperand->dat.str.c, leftOperand->dat.str.len + 1 ) ? 1 : 0;
+					(instance->stack - 2)->dat.l = strncmp ( rightOperand->dat.str.c, leftOperand->dat.str.c, leftOperand->dat.str.len + 1 ) ? int64_t {1} : int64_t {0};
 					break;
 				default:
 					(instance->stack - 2)->dat.l = 1;
@@ -1594,7 +1594,7 @@ void  op_neqv ( class vmInstance *instance, fglOp *ops, bool safeCall )
 				switch ( TYPE ( rightOperand ) )
 				{
 					case slangType::eOBJECT_ROOT:
-						if ( rightOperand->dat.ref.v == leftOperand->dat.ref.v )
+						if ( static_cast<VAR *> (rightOperand->dat.ref.v) == static_cast<VAR *> (leftOperand->dat.ref.v) )
 						{
 							(instance->stack - 2)->dat.l = 1;
 						} else
@@ -1643,7 +1643,7 @@ void  op_neqv ( class vmInstance *instance, fglOp *ops, bool safeCall )
 			switch ( TYPE ( rightOperand ) )
 			{
 				case slangType::eARRAY_ROOT:
-					if ( rightOperand->dat.ref.v == leftOperand->dat.ref.v )
+					if ( static_cast<VAR *> (rightOperand->dat.ref.v) == static_cast<VAR *> (leftOperand->dat.ref.v) )
 					{
 						(instance->stack - 2)->dat.l = 0;
 					} else

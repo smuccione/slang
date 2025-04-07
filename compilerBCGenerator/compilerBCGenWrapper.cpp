@@ -107,7 +107,7 @@ void compExecutable::makeConstructorDestructors ( opClass *cls, bool isLS )
 	{
 		cacheString methName = file->sCache.get ( buildString ( cls->name.c_str (), "new", "method" ) );
 		source src ( &file->srcFiles, file->sCache, isLS ? stringi ( "(INTERNAL)" ) : file->srcFiles.getName ( cls->location.sourceIndex ), "(){}", isLS ? 0 : cls->location.lineNumberStart );
-		auto method = file->parseMethod ( src, cls, methName.c_str (), true, false, srcLocation () );
+		auto method = file->parseMethod ( src, cls, methName.c_str (), true, false, false, srcLocation () );
 		method->location = cls->location;
 		cls->addMethod ( file->newValue, fgxClassElementType::fgxClassType_method, fgxClassElementScope::fgxClassScope_public, false, false, false, method, file, symVariantType, true, stringi() );
 		method->isInterface = cls->isInterface;
@@ -121,7 +121,7 @@ void compExecutable::makeConstructorDestructors ( opClass *cls, bool isLS )
 				auto newFunc = file->functionList.find ( it->data.method.func )->second;
 				cacheString methName = file->sCache.get ( buildString ( cls->name.c_str (), "new_base", "method" ) );
 				source src ( &file->srcFiles, file->sCache, isLS ? stringi ( "(INTERNAL)" ) : file->srcFiles.getName ( newFunc->location.sourceIndex ), "(){}", isLS ? 0 : newFunc->location.lineNumberStart );
-				auto method = file->parseMethod ( src, cls, methName.c_str (), true, false, srcLocation () );
+				auto method = file->parseMethod ( src, cls, methName.c_str (), true, false, false, srcLocation () );
 				method->location = cls->location;
 				delete method->codeBlock;
 				method->codeBlock = new astNode ( *newFunc->codeBlock );
@@ -136,7 +136,7 @@ void compExecutable::makeConstructorDestructors ( opClass *cls, bool isLS )
 	{
 		cacheString methName = file->sCache.get ( buildString ( cls->name.c_str (), "release", "method" ) );
 		source src ( &file->srcFiles, file->sCache, isLS ? stringi ( "(INTERNAL)" ) : file->srcFiles.getName ( cls->location.sourceIndex ), "(){}", isLS ? 0 : cls->location.lineNumberStart );
-		auto method = file->parseMethod ( src, cls, methName.c_str (), true, false, srcLocation () );
+		auto method = file->parseMethod ( src, cls, methName.c_str (), true, false, false, srcLocation () );
 		method->location = cls->location;
 		cls->addMethod ( file->releaseValue, fgxClassElementType::fgxClassType_method, fgxClassElementScope::fgxClassScope_public, true, false, false, method, file, symVariantType, true, stringi () );
 		method->isInterface = cls->isInterface;
@@ -150,7 +150,7 @@ void compExecutable::makeConstructorDestructors ( opClass *cls, bool isLS )
 				auto releaseFunc = file->functionList.find ( it->data.method.func )->second;
 				cacheString methName = file->sCache.get ( buildString ( cls->name.c_str (), "release_base", "method" ) );
 				source src ( &file->srcFiles, file->sCache, isLS ? stringi ( "(INTERNAL)" ) : file->srcFiles.getName ( releaseFunc->location.sourceIndex ), "(){}", isLS ? 0 : releaseFunc->location.lineNumberStart );
-				auto method = file->parseMethod ( src, cls, methName.c_str (), true, false, srcLocation () );
+				auto method = file->parseMethod ( src, cls, methName.c_str (), true, false, false, srcLocation () );
 				method->location = cls->location;
 				delete method->codeBlock;
 				method->codeBlock = new astNode ( *releaseFunc->codeBlock );

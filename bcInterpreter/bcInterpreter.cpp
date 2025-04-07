@@ -23,9 +23,9 @@
 #define UNUSED(x) (void)(x)
 
 #if defined(__clang__) || defined(__GNUC__) || defined(__GNUG__)
-#define DO_THREADED 1
+constexpr bool DO_THREADED = true;
 #else
-#define DO_THREADED 0
+constexpr bool DO_THREADED = false;
 #endif
 
 bcFuncDef::bcFuncDef ()
@@ -35,7 +35,7 @@ bcFuncDef::bcFuncDef ()
 bcFuncDef::~bcFuncDef ()
 {
 }
-void createError ( class vmInstance *instance, bcFuncDef *funcDef, fglOp *op )
+static void createError ( class vmInstance *instance, bcFuncDef *funcDef, fglOp *op )
 {
 	VAR *stack;
 

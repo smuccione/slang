@@ -366,37 +366,37 @@ private:
 	};
 
 
-	astNode			*_parseExpr				( source &src, bool sValid, bool onlySimpleExpressions, bool linqExpr, bool eCondValid, bool pairValid, opFunction *func, bool doBraces, bool isLS );
+	astNode			*_parseExpr				( source &src, bool sValid, bool onlySimpleExpressions, bool linqExpr, bool eCondValid, bool pairValid, opFunction *func, bool doBraces, bool isLS, bool isAP );
 	astNode			*parseCaseExpr			( source &src, bool sValid, bool onlySimpleExpressions, opFunction *func, bool doBraces, bool isLS );
 	astNode			*parseLinqExpr			( source &src, bool sValid, bool onlySimpleExpressions, opFunction *func, bool doBraces, bool isLS );
 	astNode			*getLinq				( source &src, opFunction *func, bool isLS );
-	astNode			*getNode				( source &src, lastOpType lastOp, opFunction *func, bool doBraces, bool isLS );
-	astArray		*arrayDef				( source &src, char onlySimpleExpressions, opFunction *func, bool doBraces, bool isLS );
-	astArray		*arrayJsonDef			( source &src, char onlySimpleExpressions, opFunction *func, bool doBraces, bool isLS );
+	astNode			*getNode				( source &src, lastOpType lastOp, opFunction *func, bool doBraces, bool isLS, bool isAP );
+	astArray		*arrayDef				( source &src, char onlySimpleExpressions, opFunction *func, bool doBraces, bool isLS, bool isAP );
+	astArray		*arrayJsonDef			( source &src, char onlySimpleExpressions, opFunction *func, bool doBraces, bool isLS, bool isAP );
 	opListDef		*getOperator			( char const *name, uint32_t nParams );
 	bool			 isContinuationSymbol	( source &src, opFile::lastOpType lastOp );
-	opFunction		*_parseFunc				( source &src, char const *funcName, bool parseInitializers, bool autoMain, bool doBraces, bool cbParam, bool isLS, srcLocation const &formatStart, class opClass *classDef = 0 );
-	opFunction		*parseFunc				( source &src, char const *funcName, bool doBraces, bool isLS, srcLocation const &formatStart );
-	opFunction		*parseCBFunc			( source &src, char const *funcName, bool doBraces, bool isLS );
-	opFunction		*parseAnonymousFunc		( source &src, char const *funcName, bool doBraces, bool isLS, srcLocation const &formatStart );
-	opFunction		*parseFuncAutoMain		( source &src, char const *funcName, bool doBraces, bool isLS, srcLocation const &formatStart );
+	opFunction		*_parseFunc				( source &src, char const *funcName, bool parseInitializers, bool autoMain, bool doBraces, bool cbParam, bool isLS, bool isAP, srcLocation const &formatStart, class opClass *classDef = 0 );
+	opFunction		*parseFunc				( source &src, char const *funcName, bool doBraces, bool isLS, bool isAP, srcLocation const &formatStart );
+	opFunction		*parseCBFunc			( source &src, char const *funcName, bool doBraces, bool isLS, bool isAP );
+	opFunction		*parseAnonymousFunc		( source &src, char const *funcName, bool doBraces, bool isLS, bool isAP, srcLocation const &formatStart );
+	opFunction		*parseFuncAutoMain		( source &src, char const *funcName, bool doBraces, bool isLS, bool isAP, srcLocation const &formatStart );
 
-	opClass			*parseClass				( source &src, bool doBraces, bool isLS, srcLocation const &formatStart );
-	bool			 parseInnerClass		( source &src, bool doBraces, opClass *classDef, bool isLS, srcLocation const &formatStart );
-	void			 parseProperty			( source &src, opClass *oClass, bool isStatic, bool isVirtual, fgxClassElementScope scope, bool isLS, stringi const &documentation, srcLocation const &formatStart );
-	class astNode	*parseBlockFGL			( source &src, opFunction *func, bool noImplied, bool isLS, srcLocation const &formatStart );
-	class astNode	*parseBlockSlang		( source &src, opFunction *func, bool virtualBrace, bool isLS, srcLocation const &formatStart );
-	class astNode	*parseBlock				( source &src, opFunction *func, bool doBrace, bool virtualBrace, bool isLS, srcLocation const &formatStart );
+	opClass			*parseClass				( source &src, bool doBraces, bool isLS, bool isAP, srcLocation const &formatStart );
+	bool			 parseInnerClass		( source &src, bool doBraces, opClass *classDef, bool isLS, bool isAP, srcLocation const &formatStart );
+	void			 parseProperty			( source &src, opClass *oClass, bool isStatic, bool isVirtual, fgxClassElementScope scope, bool isLS, bool isAP, stringi const &documentation, srcLocation const &formatStart );
+	class astNode	*parseBlockFGL			( source &src, opFunction *func, bool noImplied, bool isLS, bool isAP, srcLocation const &formatStart );
+	class astNode	*parseBlockSlang		( source &src, opFunction *func, bool virtualBrace, bool isLS, bool isAP, srcLocation const &formatStart );
+	class astNode	*parseBlock				( source &src, opFunction *func, bool doBrace, bool virtualBrace, bool isLS, bool isAP, srcLocation const &formatStart );
 
-	void			 _parseFile				( source &src, bool doBraces, bool isLS );
+	void			 _parseFile				( source &src, bool doBraces, bool isLS, bool isAP );
 
 	astNode			*makeLambda				( srcLocation &src, opFunction *func, std::vector<linqProjectionVars> &projVars, astNode *expr, astNode *secondParam = 0 );
 
 public:
-	void			 parseFile				( char const *fileName, char const *expr, bool doBraces, bool isLS );
-	void			 parseFile				( source &src, bool doBraces, bool isLS );
-	class astNode	*parseExpr				( source &src, bool sValid, bool onlySimpleExpressions, opFunction *func, bool doBraces, bool isLS );
-	opFunction		*parseMethod			( source &src, class opClass *classDef, char const *name, bool doBraces, bool isLS, srcLocation const &formatStart );
+	void			 parseFile				( char const *fileName, char const *expr, bool doBraces, bool isLS, bool isAP );
+	void			 parseFile				( source &src, bool doBraces, bool isLS, bool isAP );
+	class astNode	*parseExpr				( source &src, bool sValid, bool onlySimpleExpressions, opFunction *func, bool doBraces, bool isLS, bool isAP );
+	opFunction		*parseMethod			( source &src, class opClass *classDef, char const *name, bool doBraces, bool isLS, bool isAP, srcLocation const &formatStart );
 	opFunction		*findFunc				( char const *name, char const *nSpace );
 	opFunction		*findFunc				( char const *name )
 	{

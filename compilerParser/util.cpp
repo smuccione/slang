@@ -152,6 +152,7 @@ DEF ("PROPERTY", stProperty) \
 DEF ("GET", stGet ) \
 DEF ("SET", stSet ) \
 DEF ("FINAL", stFinal) \
+DEF ("!", stOutput ) \
 DEF ("#PRAGMA", stPragma ) \
 DEF ("#INCLUDE", stPPinclude ) \
 DEF ("#IF", stPPif ) \
@@ -212,6 +213,7 @@ DEF ("VIRTUAL", stVirtual) \
 DEF ("STATIC", stStatic) \
 DEF ("EXTENSION", stStatic) \
 DEF ("FINAL", stFinal) \
+DEF ("!", stOutput ) \
 DEF ("#PRAGMA", stPragma ) \
 DEF ("#INCLUDE", stPPinclude ) \
 DEF ("#IF", stPPif ) \

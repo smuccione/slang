@@ -594,8 +594,8 @@ VAR *omGenGc::move( VAR **srcPtr, VAR *val, bool valRoot, bool doCopy, size_t de
 				if ( newVal->dat.ref.v && (getAge( newVal->dat.ref.v ) < destGen) )
 				{
 					// it exists in object memory so must be copied
-					newVal->dat.ref.obj = move( &newVal->dat.ref.obj, newVal->dat.ref.obj, false, true, destGen, destRound );
-					newVal->dat.ref.v = move( &newVal->dat.ref.v, newVal->dat.ref.v, false, true, destGen, destRound );
+					newVal->dat.ref.obj = move( &newVal->dat.ref.obj(), newVal->dat.ref.obj, false, true, destGen, destRound );
+					newVal->dat.ref.v = move( &newVal->dat.ref.v(), newVal->dat.ref.v, false, true, destGen, destRound );
 				}
 				break;
 			case slangType::eARRAY_SPARSE:
@@ -621,7 +621,7 @@ VAR *omGenGc::move( VAR **srcPtr, VAR *val, bool valRoot, bool doCopy, size_t de
 						// move the value in to our generation.
 						if ( newVal->dat.aSparse.v->dat.aElem.var && getAge ( newVal->dat.aSparse.v->dat.aElem.var ) < destGen )
 						{
-							newVal->dat.aSparse.v->dat.aElem.var = move ( &newVal->dat.aSparse.v->dat.aElem.var, newVal->dat.aSparse.v->dat.aElem.var, false, true, destGen, destRound );
+							newVal->dat.aSparse.v->dat.aElem.var = move ( &newVal->dat.aSparse.v->dat.aElem.var(), newVal->dat.aSparse.v->dat.aElem.var, false, true, destGen, destRound );
 						}
 
 						// ok we now have a new first element and it has been moved... we need to move any other sparse elements into our generation
@@ -654,7 +654,7 @@ VAR *omGenGc::move( VAR **srcPtr, VAR *val, bool valRoot, bool doCopy, size_t de
 							// the value(VAR)'s may be in a higher level, but not aELEM's... after collection they will be in the same level as the aSPARSE  no need to track pointers for updates for elem entries
 							if ( elemVal->dat.aElem.var )
 							{
-								elemVal->dat.aElem.var = move ( &elemVal->dat.aElem.var, elemVal->dat.aElem.var, false, false, destGen, destRound );
+								elemVal->dat.aElem.var = move ( &elemVal->dat.aElem.var(), elemVal->dat.aElem.var, false, false, destGen, destRound );
 							}
 
 							// point the prior on (in prevVal) to our new value, excange and continue
@@ -666,7 +666,7 @@ VAR *omGenGc::move( VAR **srcPtr, VAR *val, bool valRoot, bool doCopy, size_t de
 				}
 				if ( newVal->dat.aSparse.lastAccess && (getAge ( newVal->dat.aSparse.lastAccess) < destGen ) )
 				{
-					newVal->dat.aSparse.lastAccess = move( &newVal->dat.aSparse.lastAccess, newVal->dat.aSparse.lastAccess, false, false, destGen, destRound );		// this will have been moved, the result is just returned 
+					newVal->dat.aSparse.lastAccess = move( &newVal->dat.aSparse.lastAccess(), newVal->dat.aSparse.lastAccess, false, false, destGen, destRound );		// this will have been moved, the result is just returned 
 				}
 				assert ( !newVal->dat.aSparse.lastAccess || newVal->dat.aSparse.lastAccess->type != slangType::eMOVED );
 				break;
@@ -678,7 +678,7 @@ VAR *omGenGc::move( VAR **srcPtr, VAR *val, bool valRoot, bool doCopy, size_t de
 						// move our data int our age if it's younger
 						if ( getAge ( newVal->dat.aElem.var ) < destGen )
 						{
-							newVal->dat.aElem.var = move ( &newVal->dat.aElem.var, newVal->dat.aElem.var, false, false, destGen, destRound );
+							newVal->dat.aElem.var = move ( &newVal->dat.aElem.var(), newVal->dat.aElem.var, false, false, destGen, destRound );
 						}
 					}
 					// WE (the current) element are already in this age (this is a table walk)... but our NEXT may not be...
@@ -708,7 +708,7 @@ VAR *omGenGc::move( VAR **srcPtr, VAR *val, bool valRoot, bool doCopy, size_t de
 						// move the value in to our generation.
 						if ( elemVal->dat.aElem.var && getAge ( elemVal->dat.aElem.var ) < destGen )
 						{
-							elemVal->dat.aElem.var = move ( &elemVal->dat.aElem.var, elemVal->dat.aElem.var, false, false, destGen, destRound );
+							elemVal->dat.aElem.var = move ( &elemVal->dat.aElem.var(), elemVal->dat.aElem.var, false, false, destGen, destRound );
 						}
 
 						// point the prior on (in prevVal) to our new value, excange and continue
@@ -741,7 +741,7 @@ VAR *omGenGc::move( VAR **srcPtr, VAR *val, bool valRoot, bool doCopy, size_t de
 							// see if we have to move any cargo
 							if ( newVal[loop - 1].dat.obj.cargo && newVal[loop - 1].dat.obj.classDef->cGarbageCollectionCB )
 							{
-								VAR obj;
+								VAR obj = {};
 								obj.type = slangType::eOBJECT_ROOT;
 								obj.dat.ref.obj = &newVal[loop - 1];
 								obj.dat.ref.v = obj.dat.ref.obj;
@@ -848,8 +848,8 @@ VAR *omGenGc::move( VAR **srcPtr, VAR *val, bool valRoot, bool doCopy, size_t de
 				{
 					assert ( !isRoot ( newVal->dat.ref.v ) );
 					assert ( !isRoot ( newVal->dat.ref.obj ) );
-					newVal->dat.ref.obj = move ( &newVal->dat.ref.obj, newVal->dat.ref.obj, false, true, destGen, destRound );
-					newVal->dat.ref.v = move ( &newVal->dat.ref.v, newVal->dat.ref.v, false, true, destGen, destRound );
+					newVal->dat.ref.obj = move ( &newVal->dat.ref.obj(), newVal->dat.ref.obj, false, true, destGen, destRound );
+					newVal->dat.ref.v = move ( &newVal->dat.ref.v(), newVal->dat.ref.v, false, true, destGen, destRound );
 				}
 			}
 			break;
@@ -874,7 +874,7 @@ VAR *omGenGc::move( VAR **srcPtr, VAR *val, bool valRoot, bool doCopy, size_t de
 						// see if we have to move any cargo
 						if ( newVal[loop - 1].dat.obj.cargo && newVal[loop - 1].dat.obj.classDef->cGarbageCollectionCB )
 						{
-							VAR obj;
+							VAR obj = {};
 							obj.type = slangType::eOBJECT_ROOT;
 							obj.dat.ref.obj = &newVal[loop - 1];
 							obj.dat.ref.v = obj.dat.ref.obj;
@@ -902,18 +902,18 @@ VAR *omGenGc::move( VAR **srcPtr, VAR *val, bool valRoot, bool doCopy, size_t de
 		case slangType::eARRAY_SPARSE:
 			if ( newVal->dat.aSparse.v )
 			{
-				newVal->dat.aSparse.v = move( &newVal->dat.aSparse.v, newVal->dat.aSparse.v, false, false, destGen, destRound );
+				newVal->dat.aSparse.v = move( & newVal->dat.aSparse.v(), newVal->dat.aSparse.v, false, false, destGen, destRound );
 			}
 			if ( newVal->dat.aSparse.lastAccess )
 			{
-				newVal->dat.aSparse.lastAccess = move( &newVal->dat.aSparse.lastAccess, newVal->dat.aSparse.lastAccess, false, false, destGen, destRound );		// this will have been moved, the result is just returned 
+				newVal->dat.aSparse.lastAccess = move( &newVal->dat.aSparse.lastAccess(), newVal->dat.aSparse.lastAccess, false, false, destGen, destRound );		// this will have been moved, the result is just returned 
 			}
 			break;
 		case slangType::eARRAY_ELEM:
 			{
 				if ( newVal->dat.aElem.var )
 				{
-					newVal->dat.aElem.var = move ( &newVal->dat.aElem.var, newVal->dat.aElem.var, false, false, destGen, destRound );
+					newVal->dat.aElem.var = move ( &newVal->dat.aElem.var(), newVal->dat.aElem.var, false, false, destGen, destRound );
 				}
 
 				auto prevVal = newVal;
@@ -931,7 +931,7 @@ VAR *omGenGc::move( VAR **srcPtr, VAR *val, bool valRoot, bool doCopy, size_t de
 
 					if ( elemVal->dat.aElem.var )
 					{
-						elemVal->dat.aElem.var = move ( &elemVal->dat.aElem.var, elemVal->dat.aElem.var, false, false, destGen, destRound );
+						elemVal->dat.aElem.var = move ( &elemVal->dat.aElem.var(), elemVal->dat.aElem.var, false, false, destGen, destRound );
 					}
 
 					prevVal = elemVal;
@@ -979,7 +979,7 @@ bool omGenGc::walkCardTable( size_t gen )
 						case slangType::eOBJECT:
 							// update any references
 							move ( nullptr, &tableStart[var], true, false, gen, 0 );
-							var += tableStart[var].dat.obj.classDef->numVars - 1;
+							var += tableStart[var].dat.obj.classDef->numVars - size_t {1};
 							break;
 						case slangType::eOBJECT_ROOT:
 						case slangType::eARRAY_ROOT:
@@ -1217,8 +1217,8 @@ VAR *omGenGc::age( VAR **srcPtr, VAR *val, bool root, size_t destGen, size_t sto
 			{
 				assert ( !isRoot ( newVal->dat.ref.v ) );
 				assert ( !isRoot ( newVal->dat.ref.obj ) );
-				newVal->dat.ref.obj = age ( &newVal->dat.ref.obj, newVal->dat.ref.obj, false, destAge, stopGen );
-				newVal->dat.ref.v = age ( &newVal->dat.ref.v, newVal->dat.ref.v, false, destAge, stopGen );
+				newVal->dat.ref.obj = age ( &newVal->dat.ref.obj(), newVal->dat.ref.obj, false, destAge, stopGen );
+				newVal->dat.ref.v = age ( &newVal->dat.ref.v(), newVal->dat.ref.v, false, destAge, stopGen );
 			}
 			break;
 		case slangType::eOBJECT:
@@ -1242,7 +1242,7 @@ VAR *omGenGc::age( VAR **srcPtr, VAR *val, bool root, size_t destGen, size_t sto
 						// see if we have to age any cargo
 						if ( newVal[loop - 1].dat.obj.cargo && newVal[loop - 1].dat.obj.classDef->cGarbageCollectionCB )
 						{
-							VAR obj;
+							VAR obj = {};
 							obj.type = slangType::eOBJECT_ROOT;
 							obj.dat.ref.obj = &newVal[loop - 1];
 							obj.dat.ref.v = obj.dat.ref.obj;
@@ -1278,7 +1278,7 @@ VAR *omGenGc::age( VAR **srcPtr, VAR *val, bool root, size_t destGen, size_t sto
 			{
 				if ( newVal->dat.aElem.var )
 				{
-					newVal->dat.aElem.var = age ( &newVal->dat.aElem.var, newVal->dat.aElem.var, false, destAge, stopGen );
+					newVal->dat.aElem.var = age ( &newVal->dat.aElem.var(), newVal->dat.aElem.var, false, destAge, stopGen );
 				}
 
 				auto prevVal = newVal;
@@ -1296,7 +1296,7 @@ VAR *omGenGc::age( VAR **srcPtr, VAR *val, bool root, size_t destGen, size_t sto
 
 					if ( elemVal->dat.aElem.var )
 					{
-						elemVal->dat.aElem.var = age ( &elemVal->dat.aElem.var, elemVal->dat.aElem.var, false, destAge, stopGen );
+						elemVal->dat.aElem.var = age ( &elemVal->dat.aElem.var(), elemVal->dat.aElem.var, false, destAge, stopGen );
 					}
 
 				
