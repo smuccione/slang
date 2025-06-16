@@ -24,7 +24,7 @@
 	if ( ! fname ) {
 		! "No FNAME specified."
 		return
-	}
+	}  
 	try {
 		session.mimeType = "." + fParseFx( diskfile );
 	} catch ( e )

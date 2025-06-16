@@ -1817,6 +1817,8 @@ astNode *opFile::_parseExpr ( source &src, bool sValid, bool onlySimpleExpressio
 		return 0;
 	}
 
+	if ( src.getSourceIndex () == 4 )
+		printf ( "" );
 	try
 	{
 		BS_ADVANCE ( src );

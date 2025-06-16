@@ -693,7 +693,9 @@ static struct BUFFER *apTranslatePage ( char const *fName, char const *inBuffer,
 
 	regions.back ().end ( colNum, lineNum );
 
-	if ( encapsulate )
+//	buffer->printf ( "[[pos: 0 0 (INTERNAL)]]", colNum + 1, lineNum );
+
+	if ( encapsulate && 0)
 	{
 		buffer->write ( "\r\nreturn 1;\r\n", 13 );	// make sure we take in the NULL to terminate the string!
 	} else

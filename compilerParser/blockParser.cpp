@@ -140,6 +140,7 @@ astNode *opFile::parseBlockFGL ( source &src, opFunction *func, bool noImplied, 
 					{
 						case statementType::stOutput:
 							{
+								auto x = statements.size ();
 								if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::method, src, it->second.len ) );
 								src += it->second.len;
 
@@ -148,6 +149,7 @@ astNode *opFile::parseBlockFGL ( source &src, opFunction *func, bool noImplied, 
 								srcLocation srcSave = src;
 								astNode *output = parseExpr ( src, false, false, func, false, isLS, isAP );
 								basicNode->pushNode ( new astNode ( sCache, astOp::add, new astNode ( astOp::symbolValue, sCache.get ( "__outputString" ) ), output ) );
+								statements.resize ( x );
 							}
 							break;
 						case statementType::stLocal:
@@ -1496,6 +1498,7 @@ astNode *opFile::parseBlockSlang ( source &src, opFunction *func, bool virtualBr
 					{
 						case statementType::stOutput:
 							{
+								auto x = statements.size ();
 								if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::method, src, it->second.len ) );
 								src += it->second.len;
 
@@ -1504,6 +1507,7 @@ astNode *opFile::parseBlockSlang ( source &src, opFunction *func, bool virtualBr
 								srcLocation srcSave = src;
 								astNode *output = parseExpr ( src, false, false, func, false, isLS, isAP );
 								basicNode->pushNode ( new astNode ( sCache, astOp::add, new astNode ( astOp::symbolValue, sCache.get ( "__outputString" ) ), output ) );
+								statements.resize ( x );
 							}
 							break;
 						case statementType::stLocal:
