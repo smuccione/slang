@@ -1335,11 +1335,12 @@ autoMain:
 	}
 }
 
-void opFile::parseFile ( char const *fileName, char const *expr, bool doBraces, bool isLS, bool isAP )
+void opFile::parseFile ( char const *fileName, char const *expr, bool doBraces, bool isLS, bool isAP, sourceFile::sourceFileType type )
 {
-	source src ( &srcFiles, sCache, fileName, expr );
+	source src ( &srcFiles, sCache, fileName, expr, type );
 	addBuildSource ( fileName );
 	srcLocation entireRegion ( src );
+	srcFiles.getIndex ( fileName, type );
 	parseFile ( src, doBraces, isLS, isAP );
 	entireRegion.setEnd ( src );
 	if ( languageRegions.empty () )

@@ -19,7 +19,7 @@ vmCodeBlock  *_compileIndexCodeblock ( class vmInstance *instance, char const *e
 	astCodeblock		 exp;
 	opFile				 file;
 	vmTaskInstance		*task = static_cast<vmTaskInstance *>(instance);
-	source				 src ( &file.srcFiles, file.sCache, "(INTERNAL)", expr );
+	source				 src ( &file.srcFiles, file.sCache, "(INTERNAL)", expr, sourceFile::sourceFileType::none );
 
 	cbNode = file.parseExpr ( src, true, false, 0, false, false, false );
 
@@ -379,7 +379,7 @@ bool op_compile ( class vmInstance *instance, bcFuncDef *funcDef, bool allowSide
 
 	expr = leftOperand->dat.str.c;
 
-	source src ( &file.srcFiles, file.sCache, "(INTERNAL)", expr );
+	source src ( &file.srcFiles, file.sCache, "(INTERNAL)", expr, sourceFile::sourceFileType::none );
 	cbNode = file.parseExpr ( src, true, false, 0, true, false, false );
 
 	try {

@@ -88,7 +88,7 @@ static stringi getDocumentation ( source &src )
 static void commentParser ( opFile &file, char const *comment )
 {
 	sourceFile fileMap;
-	source src ( &fileMap, file.sCache, "internal", comment, 1 );
+	source src ( &fileMap, file.sCache, "internal", comment, sourceFile::sourceFileType::none, 1 );
 	stringi	currentClass;
 	opFunction *currentFunc = nullptr;
 
@@ -309,7 +309,7 @@ vmNativeInterface::nativeClass::nativeClass ( vmNativeInterface *native, char co
 
 		oClassDef->isInterface = true;
 		oClassDef->name = native->file->sCache.get ( className );
-		oClassDef->location.sourceIndex = native->file->srcFiles.getIndex ( "(INTERNAL)" );
+		oClassDef->location.sourceIndex = native->file->srcFiles.getIndex ( "(INTERNAL)", sourceFile::sourceFileType::none );
 		oClassDef->usingList = native->file->ns.getUseList ();
 
 		native->file->addElem ( oClassDef, false );
@@ -363,7 +363,7 @@ void vmNativeInterface::nativeClass::property ( char const *propName, fgxClassEl
 		{
 			char const *expr;
 			expr = initializer;
-			source	src ( &native->file->srcFiles, native->file->sCache, "(INTERNAL)", expr );
+			source	src ( &native->file->srcFiles, native->file->sCache, "(INTERNAL)", expr, sourceFile::sourceFileType::none );
 
 			auto name = new astNode ( astOp::symbolValue, native->file->sCache.get ( propName ) );
 
@@ -446,7 +446,7 @@ opFunction *vmNativeInterface::nativeClass::method ( char const *methodName, vmD
 			methodName = "$new";
 
 			newMeth = "(){}";
-			source src ( &native->file->srcFiles, native->file->sCache, "(INTERNAL)", newMeth );
+			source src ( &native->file->srcFiles, native->file->sCache, "(INTERNAL)", newMeth, sourceFile::sourceFileType::none );
 			newFunc = native->file->parseMethod ( src, cls, buildString ( nativeClassName, "new", "method" ).c_str (), true, false, false, srcLocation () );
 			newFunc->isInterface = true;
 			cls->addMethod ( native->file->newValue, fgxClassElementType::fgxClassType_method, fgxClassElementScope::fgxClassScope_private, false, false, false, newFunc, native->file, symVariantType, true, stringi () );
@@ -458,7 +458,7 @@ opFunction *vmNativeInterface::nativeClass::method ( char const *methodName, vmD
 
 			methodName = "$release";
 			newMeth = "(){}";
-			source src ( &native->file->srcFiles, native->file->sCache, "(INTERNAL)", newMeth );
+			source src ( &native->file->srcFiles, native->file->sCache, "(INTERNAL)", newMeth, sourceFile::sourceFileType::none );
 			releaseFunc = native->file->parseMethod ( src, cls, buildString ( nativeClassName, "release", "method" ).c_str (), true, false, false, srcLocation () );
 			releaseFunc->isInterface = true;
 			cls->addMethod ( native->file->sCache.get ( "release" ), fgxClassElementType::fgxClassType_method, fgxClassElementScope::fgxClassScope_public, false, false, false, releaseFunc, native->file, symVariantType, true, stringi () );
@@ -547,7 +547,7 @@ opFunction *vmNativeInterface::nativeClass::method ( char const *methodName, vmD
 
 			if ( nParam <= (int) funcDef->params.size () )
 			{
-				source src ( &native->file->srcFiles, native->file->sCache, "(INTERNAL)", param );
+				source src ( &native->file->srcFiles, native->file->sCache, "(INTERNAL)", param, sourceFile::sourceFileType::none );
 				astNode *ini = native->file->parseExpr ( src, false, true, 0, true, false, false );
 
 				if ( newFunc )
@@ -721,7 +721,7 @@ opFunction *vmNativeInterface::nativeClass::methodProp ( char const *methodName,
 
 			if ( nParam <= (int) funcDef->params.size () )
 			{
-				source src ( &native->file->srcFiles, native->file->sCache, "(INTERNAL)", param );
+				source src ( &native->file->srcFiles, native->file->sCache, "(INTERNAL)", param, sourceFile::sourceFileType::none );
 				astNode *ini = native->file->parseExpr ( src, false, true, 0, true, false, false );
 
 				if ( newFunc )
@@ -962,7 +962,7 @@ opFunction *vmNativeInterface::function ( char const *funcName, bool makeFunc, v
 			funcDef->isInterface = true;
 			funcDef->conv = fgxFuncCallConvention::opFuncType_cDecl;
 			funcDef->name = file->sCache.get ( bcFunc->name );
-			funcDef->location = srcLocation ( file->srcFiles.getIndex ( "(INTERNAL)" ), 0, 0, 0 );
+			funcDef->location = srcLocation ( file->srcFiles.getIndex ( "(INTERNAL)", sourceFile::sourceFileType::none ), 0, 0, 0 );
 			funcDef->isProcedure = false;
 
 			makeTypes ( file, funcDef, disp );
@@ -980,7 +980,7 @@ opFunction *vmNativeInterface::function ( char const *funcName, bool makeFunc, v
 
 				if ( nParam <= (int32_t) funcDef->params.size () )
 				{
-					source src ( &file->srcFiles, file->sCache, "(INTERNAL)", param );
+					source src ( &file->srcFiles, file->sCache, "(INTERNAL)", param, sourceFile::sourceFileType::none );
 					auto ini = file->parseExpr ( src, false, true, 0, true, false, false );
 					funcDef->params[nParam - 1]->initializer = new astNode ( file->sCache, astOp::assign, funcDef->params[nParam - 1]->initializer, ini );
 				}
@@ -1039,7 +1039,8 @@ void vmNativeInterface::compile ( int cls, char const *code, std::source_locatio
 {
 	if ( file )
 	{
-		source src ( &file->srcFiles, file->sCache, loc.file_name (), code, (uint32_t) loc.line () );
+		source src ( &file->srcFiles, file->sCache, loc.file_name (), code, sourceFile::sourceFileType::internal, (uint32_t) loc.line () );
+		file->srcFiles.getIndex ( loc.file_name (), sourceFile::sourceFileType::internal );
 		file->parseFile ( src, true, false, false );
 	}
 }
@@ -1049,7 +1050,8 @@ void vmNativeInterface::compile ( vmNativeInterface::nativeClass &cls, char cons
 	if ( file )
 	{
 		auto c = file->findClass ( cls.nativeClassName );
-		source src ( &file->srcFiles, file->sCache, loc.file_name (), code, (uint32_t) loc.line () );
+		source src ( &file->srcFiles, file->sCache, loc.file_name (), code, sourceFile::sourceFileType::internal, (uint32_t) loc.line () );
+		file->srcFiles.getIndex ( loc.file_name (), sourceFile::sourceFileType::internal );
 		if ( file->parseInnerClass ( src, true, c, false, false, srcLocation () ) )
 		{
 			throw errorNum::scINTERNAL;

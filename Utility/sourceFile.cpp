@@ -7,7 +7,7 @@
 #include "Utility/settings.h"
 #include "Utility/sourceFile.h"
 
-source::source ( sourceFile *srcFile, stringCache &sCache, char const *primaryFileName, char const *expr, uint32_t lineNumber ) : 
+source::source ( sourceFile *srcFile, stringCache &sCache, char const *primaryFileName, char const *expr, sourceFile::sourceFileType type, uint32_t lineNumber ) : 
 	srcFile ( srcFile ),
 	expr ( expr ), 
 	lineNumber ( lineNumber ), 
@@ -17,7 +17,7 @@ source::source ( sourceFile *srcFile, stringCache &sCache, char const *primaryFi
 	currentFileName ( sCache.get ( primaryFileName ) ),
 	sCache( sCache )
 {
-	currentSourceIndex = srcFile->getIndex ( primaryFileName );
+	currentSourceIndex = srcFile->getIndex ( primaryFileName, type );
 	currentFileName = sCache.get( primaryFileName );
 }
 
@@ -63,7 +63,7 @@ void source::bsAdvance ()
 			if ( name.size () )
 			{
 				currentFileName = sCache.get( name );
-				currentSourceIndex = srcFile->getIndex( currentFileName.c_str() );
+				currentSourceIndex = srcFile->getStaticIndex ( currentFileName.c_str() );
 			}
 			if ( *expr )
 			{
@@ -133,7 +133,7 @@ void source::bsAdvanceEol ( bool noSemi )
 			if ( name.size () )
 			{
 				currentFileName = sCache.get( name );
-				currentSourceIndex = srcFile->getIndex( currentFileName.c_str() );
+				currentSourceIndex = srcFile->getStaticIndex ( currentFileName.c_str() );
 			}
 			if ( *expr )
 			{

@@ -173,7 +173,7 @@ static bool standaloneLaunch ( std::vector<stringi> const &fList, bool noInline,
 
 		opFile	oFile;
 
-		oFile.parseFile ( file.c_str (), code, doBraces, false, false );
+		oFile.parseFile ( file.c_str (), code, doBraces, false, false, sourceFile::sourceFileType::external );
 		if ( oFile.errHandler.isFatal () )
 		{
 			return false;

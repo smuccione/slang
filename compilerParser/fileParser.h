@@ -393,7 +393,7 @@ private:
 	astNode			*makeLambda				( srcLocation &src, opFunction *func, std::vector<linqProjectionVars> &projVars, astNode *expr, astNode *secondParam = 0 );
 
 public:
-	void			 parseFile				( char const *fileName, char const *expr, bool doBraces, bool isLS, bool isAP );
+	void			 parseFile				( char const *fileName, char const *expr, bool doBraces, bool isLS, bool isAP, sourceFile::sourceFileType type );
 	void			 parseFile				( source &src, bool doBraces, bool isLS, bool isAP );
 	class astNode	*parseExpr				( source &src, bool sValid, bool onlySimpleExpressions, opFunction *func, bool doBraces, bool isLS, bool isAP );
 	opFunction		*parseMethod			( source &src, class opClass *classDef, char const *name, bool doBraces, bool isLS, bool isAP, srcLocation const &formatStart );

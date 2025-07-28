@@ -1777,7 +1777,7 @@ static VAR_STR vmCompile ( vmInstance *instance, VAR_STR *src, bool isSlang, boo
 	{
 		opFile	oFile;
 
-		oFile.parseFile ( "(internal)", src->dat.str.c, isSlang, false, isAP );
+		oFile.parseFile ( "(internal)", src->dat.str.c, isSlang, false, isAP, sourceFile::sourceFileType::none );
 		if ( oFile.errHandler.isFatal () )
 		{
 			return VAR_STR ( "" );

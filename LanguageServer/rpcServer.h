@@ -261,6 +261,16 @@ public:
 
 					rsp.serialize ( out, true );
 
+					auto x = out.size ();
+
+#if 0
+					out.put<char> ( 0 ); // null terminate the buffer
+					x = out.size ();
+					printf ( "%s\r\n", out.buff );
+					x = out.size ();
+					out.unPut ();
+					x = out.size ();
+#endif
 					send ( out );
 				}
 			}

@@ -20,7 +20,7 @@ static astNode *compileCodeBlockCB ( astNode *node, astNode *parent, symbolStack
 				symbolSpaceParams	*symbols = new symbolSpaceParams ( );
 				opFile				 file;
 
-				source src ( &file.srcFiles, file.sCache, parentSym->file->srcFiles.getName ( node->location.sourceIndex), node->stringValue(), node->location.lineNumberStart );
+				source src ( &file.srcFiles, file.sCache, parentSym->file->srcFiles.getName ( node->location.sourceIndex), node->stringValue(), sourceFile::sourceFileType::none, node->location.lineNumberStart );
 
 				if ( *src != '{' )
 				{

@@ -283,7 +283,7 @@ static UINT __cdecl testCompile( std::vector<char const *> const &fList )
 
 			QueryPerformanceCounter ( &start );
 			{
-				oFile.parseFile ( file.c_str ( ), code, doBraces, isAP, false );
+				oFile.parseFile ( file.c_str (), code, doBraces, false, isAP, sourceFile::sourceFileType::external );
 				if ( oFile.errHandler.isFatal() )
 				{
 					return 0;

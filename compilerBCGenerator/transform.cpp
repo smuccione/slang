@@ -78,8 +78,8 @@ std::vector<phPattern *>	patterns;
 phPattern::phPattern ( char const * match, char const *tran )
 {
 	opFile			file;
-	source src ( &file.srcFiles, file.sCache, "(INTERNAL)", match );
-	source src2 ( &file.srcFiles, file.sCache, "(INTERNAL)", tran );
+	source src ( &file.srcFiles, file.sCache, "(INTERNAL)", match, sourceFile::sourceFileType::none );
+	source src2 ( &file.srcFiles, file.sCache, "(INTERNAL)", tran, sourceFile::sourceFileType::none );
 
 	if ( tran )
 	{

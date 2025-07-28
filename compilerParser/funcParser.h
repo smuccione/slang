@@ -38,7 +38,7 @@ class opFunction
 
 	bool							 isBaseMethod = false;
 
-	bool							 isFGL = false;				// flag to signal FGL source code... this is important to implment fgl scoping rules
+	bool							 isFGL = false;					// flag to signal FGL source code... this is important to implment fgl scoping rules
 	opClass *classDef = nullptr;
 	opUsingList						 usingList;
 

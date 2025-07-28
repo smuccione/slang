@@ -399,7 +399,7 @@ void languageServerFile::updateSource ()
 		{
 			doBuild = true;
 
-			auto sourceIndex = file.srcFiles.getIndex ( fileName );
+			auto sourceIndex = file.srcFiles.getStaticIndex ( fileName );
 			file.clearSourceIndex ( sourceIndex );
 
 			char const *codeTmp = lsFileCache.getCode ( fileName ).c_str ();
@@ -417,7 +417,7 @@ void languageServerFile::updateSource ()
 			}
 
 			file.setSourceListing ( fileName, code );
-			file.parseFile ( fileName, code, isSlang, isAP, true );
+			file.parseFile ( fileName, code, isSlang, true, isAP, sourceFile::sourceFileType::external );
 			QueryPerformanceCounter ( &parse );
 			free ( code );
 
@@ -454,7 +454,7 @@ void languageServerFile::updateSource ()
 		compiler->genLS ( entryPoint, 0 );
 
 		QueryPerformanceCounter ( &query );
-		compiler->getInfo ( info, file.srcFiles.getIndex ( activeFile ) );
+		compiler->getInfo ( info, file.srcFiles.getStaticIndex ( activeFile ) );
 
 		QueryPerformanceCounter ( &end );
 
@@ -883,7 +883,7 @@ static jsonElement textDocumentHover ( jsonElement const &req, int64_t id, lsJso
 
 	if ( lsFile )
 	{
-		auto sourceIndex = lsFile->file.srcFiles.getIndex ( lsFile->activeFile );
+		auto sourceIndex = lsFile->file.srcFiles.getStaticIndex ( lsFile->activeFile );
 		srcLocation src{sourceIndex, (uint32_t) character + 1, (uint32_t) line + 1, (uint32_t) line + 1};
 
 		if ( !lsFile->info.semanticTokens.empty () )
@@ -970,7 +970,7 @@ static jsonElement textDocumentInlayHint ( jsonElement const &req, int64_t id, l
 
 	if ( lsFile && std::get<bool> ( ls->configFlags.inlayHints ) )
 	{
-		auto sourceIndex = lsFile->file.srcFiles.getIndex ( lsFile->activeFile );
+		auto sourceIndex = lsFile->file.srcFiles.getStaticIndex ( lsFile->activeFile );
 
 		jsonElement const &start = req["range"]["start"];
 		jsonElement const &end = req["range"]["end"];
@@ -1303,7 +1303,7 @@ static jsonElement textDocumentSignatureHelp ( jsonElement const &req, int64_t i
 
 	if ( lsFile )
 	{
-		auto sourceIndex = lsFile->file.srcFiles.getIndex ( lsFile->activeFile );
+		auto sourceIndex = lsFile->file.srcFiles.getStaticIndex ( lsFile->activeFile );
 		srcLocation src{sourceIndex, (uint32_t) character + 1, (uint32_t) line + 1, (uint32_t) line + 1};
 
 		astLSInfo::signatureHelpDef sym{ src, nullptr, nullptr };
@@ -1364,7 +1364,7 @@ static jsonElement textDocumentCompletion ( jsonElement const &req, int64_t id, 
 		rsp["isIncomplete"] = false;
 		rsp["items"] = jsonElement ().makeArray ();
 
-		auto sourceIndex = lsFile->file.srcFiles.getIndex ( lsFile->activeFile );
+		auto sourceIndex = lsFile->file.srcFiles.getStaticIndex ( lsFile->activeFile );
 		srcLocation src{sourceIndex, (uint32_t) character + 1, (uint32_t) line + 1, (uint32_t) line + 1};
 
 		astLSInfo::objectCompletions sym{ src, symVariantType };
@@ -1433,7 +1433,7 @@ static jsonElement textDocumentDocumentSymbol ( jsonElement const &req, int64_t 
 	size_t index = 0;
 	jsonElement rsp;
 
-	auto sourceIndex = lsFile->file.srcFiles.getIndex ( lsFile->activeFile );
+	auto sourceIndex = lsFile->file.srcFiles.getStaticIndex ( lsFile->activeFile );
 
 	std::map<cacheString, std::pair<opFunction *, jsonElement>>	funcSymbolMap;
 
@@ -1601,6 +1601,29 @@ static jsonElement textDocumentDocumentSymbol ( jsonElement const &req, int64_t 
 	return rsp;
 }
 
+static void addSymbolToRsp ( languageServerFile *lsFile, jsonElement &rsp, const stringi &name, languageServerFile::SymbolKind kind, const srcLocation &location, const stringi &containerName )
+{
+	jsonElement tmp;
+
+	if ( containerName.size() )
+	{
+		tmp = {{ "name", name },
+				{ "kind", kind },
+				{ "containerName", containerName },
+				{ "location", { { "uri", fileNameToUri ( lsFile->file.srcFiles.getName ( location.sourceIndex ) ) },
+								{ "range", range ( location ) } }
+				}};
+	} else
+	{
+		tmp = {{ "name", name },
+				{ "kind", kind },
+				{ "location", { { "uri", fileNameToUri ( lsFile->file.srcFiles.getName ( location.sourceIndex ) ) },
+								{ "range", range ( location ) } }
+				}};
+	}
+	rsp.push_back ( std::move ( tmp ) );
+}
+
 static jsonElement workspaceSymbol ( jsonElement const &req, int64_t id, lsJsonRPCServerBase &server, languageServer *ls )
 {
 	stringi const query = req["query"];
@@ -1616,140 +1639,92 @@ static jsonElement workspaceSymbol ( jsonElement const &req, int64_t id, lsJsonR
 
 		for ( auto const &it : lsFile->info.symbolDefinitions )
 		{
-			if ( it.location.sourceIndex )
+			if ( lsFile->file.srcFiles.getFileType ( it.location.sourceIndex ) == sourceFile::sourceFileType::external )
 			{
 				if ( !memcmpi ( query.c_str (), it.name.c_str (), query.size () ) )
 				{
-					rsp[index]["name"] = it.name;
-					rsp[index]["kind"] = languageServerFile::SymbolKind::Class; /* class */
-					rsp[index]["containerName"] = lsFile->file.srcFiles.getName ( it.location.sourceIndex );
-					rsp[index]["location"]["uri"] = fileNameToUri ( lsFile->file.srcFiles.getName ( it.location.sourceIndex ) );
-					rsp[index]["location"]["range"] = range ( it.location );
-					index++;
-				}
+					auto func = it.func;
+					if ( func )
+					{
+						auto &funcSyms = funcSymbolMap[func->name];
 
+						if ( !std::get<0> ( funcSyms ) )
+						{
+							funcSyms = {func, jsonElement ().makeArray ()};
+						}
+						auto &location = it.location;
+
+						addSymbolToRsp ( lsFile, rsp, it.name, languageServerFile::SymbolKind::Function, location, func->name );
+					} else
+					{
+						addSymbolToRsp ( lsFile, rsp, it.name, languageServerFile::SymbolKind::Variable, it.location, "" );
+					}
+				}
 			}
 		}
 
 		for ( auto &it : lsFile->file.classList )
 		{
-			if ( it.second->location.sourceIndex )
+			if ( lsFile->file.srcFiles.getFileType ( it.second->location.sourceIndex ) == sourceFile::sourceFileType::external )
 			{
 				if ( !memcmpi ( query.c_str (), it.second->name.c_str (), query.size () ) )
 				{
-					rsp[index]["name"] = it.second->name;
-					rsp[index]["kind"] = languageServerFile::SymbolKind::Class; /* class */
-					rsp[index]["containerName"] = lsFile->file.srcFiles.getName ( it.second->location.sourceIndex );
-					rsp[index]["location"]["uri"] = fileNameToUri ( lsFile->file.srcFiles.getName ( it.second->location.sourceIndex ) );
-					rsp[index]["location"]["range"] = range ( it.second->location );
-					index++;
+					addSymbolToRsp ( lsFile, rsp, it.second->name, languageServerFile::SymbolKind::Class, it.second->location, "" );
 				}
 
 				jsonElement children;
 				children.makeArray ();
 				for ( auto &elem : it.second->elems )
 				{
-					if ( elem->location.sourceIndex )
+					if ( lsFile->file.srcFiles.getFileType ( elem->location.sourceIndex ) == sourceFile::sourceFileType::external )
 					{
-						jsonElement tmp;
-						switch ( elem->type )
+						if ( !memcmpi ( query.c_str (), elem->name.c_str (), query.size () ) )
 						{
-							case fgxClassElementType::fgxClassType_method:
-								if ( !memcmpi ( query.c_str (), elem->name.c_str (), query.size () ) )
-								{
-									auto func = lsFile->file.functionList.find ( elem->data.method.func )->second;
+							switch ( elem->type )
+							{
+								case fgxClassElementType::fgxClassType_method:
+									{
+										auto func = lsFile->file.functionList.find ( elem->data.method.func )->second;
 
-									rsp[index]["name"] = elem->name;
-									if ( elem->name == lsFile->file.newValue )
-									{
-										rsp[index]["kind"] = languageServerFile::SymbolKind::Constructor; /* constructor */
-									} else
-									{
-										rsp[index]["kind"] = languageServerFile::SymbolKind::Method; /* method */
+										if ( elem->name == lsFile->file.newValue )
+										{
+											addSymbolToRsp ( lsFile, rsp, elem->name, languageServerFile::SymbolKind::Constructor, func->location, it.second->name );
+										} else
+										{
+											addSymbolToRsp ( lsFile, rsp, elem->name, languageServerFile::SymbolKind::Method, func->location, it.second->name );
+										}
 									}
-									rsp[index]["containerName"] = lsFile->file.srcFiles.getName ( func->location.sourceIndex );
-									rsp[index]["location"]["uri"] = fileNameToUri ( lsFile->file.srcFiles.getName ( func->location.sourceIndex ) );
-									rsp[index]["location"]["range"] = range ( func->location );
-									index++;
-								}
-								break;
-							case fgxClassElementType::fgxClassType_iVar:
-							case fgxClassElementType::fgxClassType_static:
-								if ( !memcmpi ( query.c_str (), elem->name.c_str (), query.size () ) )
-								{
-									rsp[index]["name"] = elem->name;
-									rsp[index]["kind"] = languageServerFile::SymbolKind::Field; /* Field  */
-									rsp[index]["containerName"] = lsFile->file.srcFiles.getName ( elem->location.sourceIndex );
-									rsp[index]["location"]["uri"] = fileNameToUri ( lsFile->file.srcFiles.getName ( elem->location.sourceIndex ) );
-									rsp[index]["location"]["range"] = range ( elem->location );
-									index++;
-								}
-								break;
-							case fgxClassElementType::fgxClassType_prop:
-								if ( elem->data.prop.access )
-								{
-									if ( !memcmpi ( query.c_str (), elem->name.c_str (), query.size () ) )
+									break;
+								case fgxClassElementType::fgxClassType_iVar:
+								case fgxClassElementType::fgxClassType_static:
+									addSymbolToRsp ( lsFile, rsp, elem->name, languageServerFile::SymbolKind::Field, elem->location, it.second->name );
+									break;
+								case fgxClassElementType::fgxClassType_prop:
+									if ( elem->data.prop.access )
 									{
 										auto func = lsFile->file.functionList.find ( elem->data.prop.access )->second;
 
-										rsp[index]["name"] = elem->name;
-										rsp[index]["kind"] = languageServerFile::SymbolKind::Property; /* Property   */
-										rsp[index]["containerName"] = lsFile->file.srcFiles.getName ( func->nameLocation.sourceIndex );
-										rsp[index]["location"]["uri"] = fileNameToUri ( lsFile->file.srcFiles.getName ( func->nameLocation.sourceIndex ) );
-										rsp[index]["location"]["range"] = range ( func->nameLocation );
-										index++;
+										addSymbolToRsp ( lsFile, rsp, elem->name, languageServerFile::SymbolKind::Property, func->location, it.second->name );
 									}
-								}
-								if ( elem->data.prop.assign )
-								{
-									if ( !memcmpi ( query.c_str (), elem->name.c_str (), query.size () ) )
+									if ( elem->data.prop.assign )
 									{
 										auto func = lsFile->file.functionList.find ( elem->data.prop.assign )->second;
 
-										rsp[index]["name"] = elem->name;
-										rsp[index]["kind"] = languageServerFile::SymbolKind::Property; /* Property   */
-										rsp[index]["containerName"] = lsFile->file.srcFiles.getName ( func->nameLocation.sourceIndex );
-										rsp[index]["location"]["uri"] = fileNameToUri ( lsFile->file.srcFiles.getName ( func->nameLocation.sourceIndex ) );
-										rsp[index]["location"]["range"] = range ( func->nameLocation );
-										index++;
+										addSymbolToRsp ( lsFile, rsp, elem->name, languageServerFile::SymbolKind::Property, func->location, it.second->name );
 									}
-								}
-								break;
-							case fgxClassElementType::fgxClassType_const:
-								if ( !memcmpi ( query.c_str (), elem->name.c_str (), query.size () ) )
-								{
-									rsp[index]["name"] = elem->name;
-									rsp[index]["kind"] = languageServerFile::SymbolKind::Constant; /* Constant    */
-									rsp[index]["containerName"] = lsFile->file.srcFiles.getName ( elem->location.sourceIndex );
-									rsp[index]["location"]["uri"] = fileNameToUri ( lsFile->file.srcFiles.getName ( elem->location.sourceIndex ) );
-									rsp[index]["location"]["range"] = range ( elem->location );
-									index++;
-								}
-								break;
-							case fgxClassElementType::fgxClassType_inherit:
-								if ( !memcmpi ( query.c_str (), elem->name.c_str (), query.size () ) )
-								{
-									rsp[index]["name"] = elem->name;
-									rsp[index]["kind"] = languageServerFile::SymbolKind::Class; /* class    */
-									rsp[index]["containerName"] = lsFile->file.srcFiles.getName ( elem->location.sourceIndex );
-									rsp[index]["location"]["uri"] = fileNameToUri ( lsFile->file.srcFiles.getName ( elem->location.sourceIndex ) );
-									rsp[index]["location"]["range"] = range ( elem->location );
-									index++;
-								}
-								children[children.size ()] = tmp;
-								break;
-							case fgxClassElementType::fgxClassType_message:
-								if ( !memcmpi ( query.c_str (), elem->name.c_str (), query.size () ) )
-								{
-									rsp[index]["name"] = elem->name;
-									rsp[index]["kind"] = languageServerFile::SymbolKind::Interface; /* message    */
-									rsp[index]["containerName"] = lsFile->file.srcFiles.getName ( elem->location.sourceIndex );
-									rsp[index]["location"]["uri"] = fileNameToUri ( lsFile->file.srcFiles.getName ( elem->location.sourceIndex ) );
-									rsp[index]["location"]["range"] = range ( elem->location );
-									index++;
-								}
-								children[children.size ()] = tmp;
-								break;
+									break;
+								case fgxClassElementType::fgxClassType_const:
+									addSymbolToRsp ( lsFile, rsp, elem->name, languageServerFile::SymbolKind::Constant, elem->location, it.second->name );
+									break;
+								case fgxClassElementType::fgxClassType_inherit:
+									addSymbolToRsp ( lsFile, rsp, elem->name, languageServerFile::SymbolKind::Class, elem->location, it.second->name );
+									addSymbolToRsp ( lsFile, children, elem->name, languageServerFile::SymbolKind::Class, elem->location, it.second->name );
+									break;
+								case fgxClassElementType::fgxClassType_message:
+									addSymbolToRsp ( lsFile, rsp, elem->name, languageServerFile::SymbolKind::Interface, elem->location, it.second->name );
+									addSymbolToRsp ( lsFile, children, elem->name, languageServerFile::SymbolKind::Interface, elem->location, it.second->name );
+									break;
+							}
 						}
 					}
 				}
@@ -1759,14 +1734,9 @@ static jsonElement workspaceSymbol ( jsonElement const &req, int64_t id, lsJsonR
 		{
 			if ( it.second.isExportable )
 			{
-				if ( it.second.location.sourceIndex )
+				if ( lsFile->file.srcFiles.getFileType ( it.second.location.sourceIndex ) == sourceFile::sourceFileType::external )
 				{
-					rsp[index]["name"] = it.second.name;
-					rsp[index]["kind"] = languageServerFile::SymbolKind::Variable; /* variable */
-					rsp[index]["containerName"] = lsFile->file.srcFiles.getName ( it.second.location.sourceIndex );
-					rsp[index]["location"]["uri"] = fileNameToUri ( lsFile->file.srcFiles.getName ( it.second.location.sourceIndex ) );
-					rsp[index]["location"]["range"] = range ( it.second.location );
-					index++;
+					addSymbolToRsp ( lsFile, rsp, it.second.name, languageServerFile::SymbolKind::Variable, it.second.location, it.second.enclosingName ? it.second.enclosingName : "" );
 				}
 			}
 		}
@@ -1828,7 +1798,7 @@ static jsonElement textDocumentSemanticTokensRange ( jsonElement const &req, int
 	{
 		int64_t lastLine = 1;
 		int64_t lastColumn = 1;
-		auto currentSourceIndex = lsFile->file.srcFiles.getIndex ( lsFile->activeFile );
+		auto currentSourceIndex = lsFile->file.srcFiles.getStaticIndex ( lsFile->activeFile );
 
 		jsonElement const &start = req["range"]["start"];
 		jsonElement const &end = req["range"]["end"];
@@ -1939,7 +1909,7 @@ static jsonElement textDocumentSemanticTokens ( jsonElement const &req, int64_t 
 	{
 		int64_t lastLine = 1;
 		int64_t lastColumn = 1;
-		auto currentSourceIndex = lsFile->file.srcFiles.getIndex ( lsFile->activeFile );
+		auto currentSourceIndex = lsFile->file.srcFiles.getStaticIndex ( lsFile->activeFile );
 
 		jsonElement arrValues;
 
@@ -2083,7 +2053,7 @@ static jsonElement textDocumentSelectionRange ( jsonElement const &req, int64_t 
 	{
 		auto &positions = req["positions"];
 
-		auto sourceIndex = lsFile->file.srcFiles.getIndex ( lsFile->activeFile );
+		auto sourceIndex = lsFile->file.srcFiles.getStaticIndex ( lsFile->activeFile );
 
 		for ( auto pos = positions.cbeginArray (); pos != positions.cendArray (); pos++ )
 		{
@@ -2154,7 +2124,7 @@ static jsonElement textDocumentRangeFormatting ( jsonElement const &req, int64_t
 
 	if ( lsFile )
 	{
-		auto sourceIndex = lsFile->file.srcFiles.getIndex ( lsFile->activeFile );
+		auto sourceIndex = lsFile->file.srcFiles.getStaticIndex ( lsFile->activeFile );
 		char const *src = lsFileCache.getCode ( lsFile->activeFile ).c_str ();
 
 		jsonElement const &start = req["range"]["start"];
@@ -2207,7 +2177,7 @@ static jsonElement textDocumentFormatting ( jsonElement const &req, int64_t id, 
 
 	if ( lsFile )
 	{
-		auto sourceIndex = lsFile->file.srcFiles.getIndex ( lsFile->activeFile );
+		auto sourceIndex = lsFile->file.srcFiles.getStaticIndex ( lsFile->activeFile );
 		char const *src = lsFileCache.getCode ( lsFile->activeFile ).c_str ();
 
 		srcLocation loc ( sourceIndex, (uint32_t) 1, (uint32_t) 1, (uint32_t) lsFile->file.languageRegions.rbegin ()->first.columnNumberEnd, (uint32_t) lsFile->file.languageRegions.rbegin ()->first.lineNumberEnd );
@@ -2262,7 +2232,7 @@ static jsonElement textDocumentOnTypeFormatting ( jsonElement const &req, int64_
 			return rsp;
 		}
 
-		auto sourceIndex = lsFile->file.srcFiles.getIndex ( lsFile->activeFile );
+		auto sourceIndex = lsFile->file.srcFiles.getStaticIndex ( lsFile->activeFile );
 		char const *src = lsFileCache.getCode ( lsFile->activeFile ).c_str ();
 
 		int64_t line = req["position"]["line"];
@@ -2335,7 +2305,7 @@ static jsonElement textDocumentDefinition ( jsonElement const &req, int64_t id, 
 	{
 		jsonElement result;
 
-		auto sourceIndex = lsFile->file.srcFiles.getIndex ( lsFile->activeFile );
+		auto sourceIndex = lsFile->file.srcFiles.getStaticIndex ( lsFile->activeFile );
 		srcLocation src{sourceIndex, (uint32_t) character + 1, (uint32_t) line + 1, (uint32_t) line + 1};
 
 		astLSInfo::symbolReference sym{ src };
@@ -2377,7 +2347,7 @@ static jsonElement textDocumentReferences ( jsonElement const &req, int64_t id, 
 		jsonElement result;
 		size_t index = 0;
 
-		auto sourceIndex = lsFile->file.srcFiles.getIndex ( lsFile->activeFile );
+		auto sourceIndex = lsFile->file.srcFiles.getStaticIndex ( lsFile->activeFile );
 		srcLocation src{sourceIndex, (uint32_t) character + 1, (uint32_t) line + 1, (uint32_t) line + 1};
 
 		astLSInfo::symbolReference sym{ src };
@@ -2417,7 +2387,7 @@ static jsonElement textDocumentPrepareTypeHierarchy ( jsonElement const &req, in
 
 	if ( lsFile )
 	{
-		auto sourceIndex = lsFile->file.srcFiles.getIndex ( lsFile->activeFile );
+		auto sourceIndex = lsFile->file.srcFiles.getStaticIndex ( lsFile->activeFile );
 		srcLocation src{sourceIndex, (uint32_t) character + 1, (uint32_t) line + 1, (uint32_t) line + 1};
 
 		if ( !lsFile->info.semanticTokens.empty () )

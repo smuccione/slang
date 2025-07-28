@@ -724,7 +724,7 @@ bool compExecutable::compMakeIterator ( opFile *file, opFunction *func, bool gen
 	elem->name				= file->newValue;
 	expr = "(){\r\nreturn\r\n}";
 	{
-		source src ( &file->srcFiles, file->sCache, "(INTERNAL)", expr, func->location.lineNumberStart );
+		source src ( &file->srcFiles, file->sCache, "(INTERNAL)", expr, sourceFile::sourceFileType::none, func->location.lineNumberStart );
 
 		// 		 return false;
 		// state = -1
@@ -755,7 +755,7 @@ bool compExecutable::compMakeIterator ( opFile *file, opFunction *func, bool gen
 	expr = tmp;
 	sprintf ( tmp, "(){\r\nexcept ( new systemError ( %u ) ); \r\nreturn\r\n}", uint32_t(errorNum::scRESET_NOT_APPLICABLE) );
 	{
-		source src ( &file->srcFiles, file->sCache, "(INTERNAL)", expr, func->location.lineNumberStart );
+		source src ( &file->srcFiles, file->sCache, "(INTERNAL)", expr, sourceFile::sourceFileType::none, func->location.lineNumberStart );
 		newFunc = file->parseMethod ( src, itClass, buildString ( itClass->name.c_str ( ), elem->name, "method" ).c_str ( ), true, false, false, srcLocation () );
 	}
 	file->functionList.insert( { newFunc->name, newFunc } );
@@ -777,7 +777,7 @@ bool compExecutable::compMakeIterator ( opFile *file, opFunction *func, bool gen
 	elem->name				= file->getEnumeratorValue;
 	expr = "(){\r\nreturn self\r\n}";
 	{
-		source src ( &file->srcFiles, file->sCache, "(INTERNAL)", expr, func->location.lineNumberStart );
+		source src ( &file->srcFiles, file->sCache, "(INTERNAL)", expr, sourceFile::sourceFileType::none, func->location.lineNumberStart );
 		newFunc = file->parseMethod ( src, itClass, buildString ( itClass->name.c_str ( ), elem->name, "method" ).c_str ( ), true, false, false, srcLocation () );
 	}
 	file->functionList.insert( { newFunc->name, newFunc } );
@@ -799,7 +799,7 @@ bool compExecutable::compMakeIterator ( opFile *file, opFunction *func, bool gen
 	elem->name				=  file->sCache.get (  "current" );
 	expr = "(){\r\nreturn\r\n}";
 	{
-		source src ( &file->srcFiles, file->sCache, "(INTERNAL)", expr, func->location.lineNumberStart );
+		source src ( &file->srcFiles, file->sCache, "(INTERNAL)", expr, sourceFile::sourceFileType::none, func->location.lineNumberStart );
 		newFunc = file->parseMethod ( src, itClass, buildString ( itClass->name.c_str ( ), elem->name, "access" ).c_str ( ), true, false, false, srcLocation () );
 	}
 	file->functionList.insert( { newFunc->name, newFunc } );
@@ -823,7 +823,7 @@ bool compExecutable::compMakeIterator ( opFile *file, opFunction *func, bool gen
 		elem->name				= file->sCache.get ( "index" );
 		expr = "(){\r\nreturn\r\n}";
 		{
-			source src ( &file->srcFiles, file->sCache, "(INTERNAL)", expr, func->location.lineNumberStart );
+			source src ( &file->srcFiles, file->sCache, "(INTERNAL)", expr, sourceFile::sourceFileType::none, func->location.lineNumberStart );
 			newFunc = file->parseMethod ( src, itClass, buildString ( itClass->name.c_str (), elem->name, "access" ).c_str (), true, false, false, srcLocation () );
 		}
 		file->functionList.insert( { newFunc->name,newFunc } );
@@ -847,7 +847,7 @@ bool compExecutable::compMakeIterator ( opFile *file, opFunction *func, bool gen
 	elem->name			= file->sCache.get ( "moveNext" );
 	expr = "(){\r\nreturn\r\n}";
 	{
-		source src ( &file->srcFiles, file->sCache, file->srcFiles.getName ( func->location.sourceIndex ), expr, func->location.lineNumberStart );
+		source src ( &file->srcFiles, file->sCache, file->srcFiles.getName ( func->location.sourceIndex ), expr, sourceFile::sourceFileType::none, func->location.lineNumberStart );
 		newFunc = file->parseMethod ( src, itClass, buildString ( itClass->name.c_str ( ), elem->name, "method" ).c_str ( ), true, false, false, srcLocation () );
 	}
 	file->functionList.insert( { newFunc->name, newFunc } );
@@ -934,7 +934,7 @@ bool compExecutable::compMakeIterator ( opFile *file, opFunction *func, bool gen
 	bufferPrintf ( &buff, "return _o\r\nend\r\n" );
 	expr = bufferBuff ( &buff );
 	{
-		source src ( &file->srcFiles, file->sCache, "(INTERNAL)", expr, func->location.lineNumberStart );
+		source src ( &file->srcFiles, file->sCache, "(INTERNAL)", expr, sourceFile::sourceFileType::none, func->location.lineNumberStart );
 		func->codeBlock = file->parseBlock ( src, func, false, true, isLS, false, src );
 	}
 	

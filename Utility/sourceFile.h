@@ -10,6 +10,7 @@
 
 #include <vector>
 #include <filesystem>
+#include <tuple>
 #include <stdint.h>
 #include "Utility/buffer.h"
 #include "Utility/stringi.h"
@@ -17,6 +18,241 @@
 
 #define BS_ADVANCE(src) src.bsAdvance();
 #define ADVANCE_EOL(src) src.advanceEOL();
+
+class sourceFile
+{
+	public:
+	enum class sourceFileType : uint8_t
+	{
+		none = 0,		// (INTERNAL)
+		internal,	// no source file available
+		external	// external source file
+	};
+	private:
+	std::vector<std::pair<stringi, sourceFileType>>			 sourceFiles;
+	std::vector<size_t>				 mapping;
+
+	public:
+
+	uint32_t						 lastIndex = 0;
+
+	sourceFile () noexcept
+	{
+		getIndex ( "(INTERNAL)", sourceFileType::none );		// 0th entry is always internal (no source available)
+	}
+
+	sourceFile ( char const **expr )
+	{
+		auto num = *(size_t *)*expr;
+		(*expr) += sizeof ( size_t );
+
+		while ( num-- )
+		{
+			auto fName = stringi ( expr );
+			auto fileType = (sourceFileType)(*(uint8_t *)(*expr));
+			(*expr) += sizeof ( sourceFileType );
+			sourceFiles.emplace_back ( std::make_pair (fName, fileType) );
+		}
+	}
+	sourceFile ( sourceFile const &right ) = delete;
+	sourceFile ( sourceFile &&right ) noexcept
+	{
+		*this = std::move ( right );
+	}
+	sourceFile &operator = ( sourceFile const &right ) = delete;
+	sourceFile &operator = ( sourceFile &&right ) noexcept
+	{
+		std::swap ( sourceFiles, right.sourceFiles );
+		std::swap ( mapping, right.mapping );
+		return *this;
+	}
+
+	~sourceFile ()
+	{}
+
+	auto getFileType ( uint32_t index ) const noexcept
+	{
+		if ( index >= sourceFiles.size () )
+		{
+			return sourceFileType::none;
+		}
+		return sourceFiles[index].second;
+	}
+
+	void serializeCompiled ( BUFFER *buffer )
+	{
+		// number of source files
+		buffer->put ( sourceFiles.size () );
+
+		uint32_t		nameSize = 0;
+		for ( auto it = sourceFiles.begin (); it != sourceFiles.end (); it++ )
+		{
+			nameSize += (uint32_t)it->first.size () + 1;
+			nameSize += sizeof ( it->second );
+		}
+
+		// size of the name region
+		bufferPut32 ( buffer, nameSize );
+
+		// name region
+		for ( auto it = sourceFiles.begin (); it != sourceFiles.end (); it++ )
+		{
+			it->first.serialize ( buffer );
+			buffer->put<sourceFileType> ( it->second );
+		}
+
+		// offset array
+		nameSize = 0;
+		for ( auto it = sourceFiles.begin (); it != sourceFiles.end (); it++ )
+		{
+			bufferPut32 ( buffer, nameSize );
+			nameSize += (uint32_t)it->first.size () + 1;
+			nameSize += sizeof ( it->second );
+		}
+	}
+
+	void serialize ( BUFFER *buffer )
+	{
+		buffer->put ( sourceFiles.size () );
+		for ( auto it = sourceFiles.begin (); it != sourceFiles.end (); it++ )
+		{
+			it->first.serialize ( buffer );
+			buffer->put<sourceFileType> ( it->second );
+		}
+	}
+
+	void addMapping ( char const **expr )
+	{
+		auto num = *((size_t *)*expr);
+		(*expr) += sizeof ( size_t );
+
+		while ( num-- )
+		{
+			auto fName = stringi ( expr );
+			auto fileType = (sourceFileType)(*(uint8_t *)(*expr));
+			(*expr) += sizeof ( sourceFileType );
+
+			size_t loop;
+			for ( loop = 0; loop < sourceFiles.size (); loop++ )
+			{
+				if ( sourceFiles[loop].first == fName )
+				{
+					mapping.push_back ( loop );
+					break;
+				}
+			}
+			if ( loop >= sourceFiles.size () )
+			{
+				mapping.push_back ( sourceFiles.size () );
+				sourceFiles.push_back ( std::make_pair ( fName, fileType ) );
+			}
+		}
+	}
+
+	void freeMapping ( void ) noexcept
+	{
+		mapping.clear ();
+	}
+
+	sourceFileType getFileType ( char const *fName )
+	{
+		stringi file;
+
+		if ( !strccmp ( fName, "(INTERNAL)" ) )
+		{
+			file = fName;
+		} else
+		{
+			std::filesystem::path p ( fName );
+			auto abs = std::filesystem::absolute ( p );
+			file = stringi ( abs.generic_string () );
+		}
+
+		uint32_t	loop;
+
+		for ( loop = 0; loop < sourceFiles.size (); loop++ )
+		{
+			if ( sourceFiles[loop].first == file )
+			{
+				return sourceFiles[loop].second;
+			}
+		}
+		return sourceFileType::none;
+	}
+
+	sourceFileType getFileType (uint32_t index )
+	{
+		return sourceFiles[index].second;
+	}
+
+	uint32_t getIndex ( char const *fName, sourceFileType type )
+	{
+		stringi file;
+		if ( !strccmp ( fName, "(INTERNAL)" ) )
+		{
+			file = fName;
+		} else
+		{
+			std::filesystem::path p ( fName );
+			auto abs = std::filesystem::absolute ( p );
+			file = stringi ( abs.generic_string () );
+		}
+
+		uint32_t	loop;
+
+		for ( loop = 0; loop < sourceFiles.size (); loop++ )
+		{
+			if ( sourceFiles[loop].first == file )
+			{
+				lastIndex = loop;
+				return loop;
+			}
+		}
+		sourceFiles.push_back ( {file, type} );
+		lastIndex = (uint32_t)sourceFiles.size () - 1;
+		return lastIndex;
+	}
+
+	uint32_t getStaticIndex ( char const *fName )
+	{
+		stringi file;
+		if ( !strccmp ( fName, "(INTERNAL)" ) )
+		{
+			file = fName;
+		} else
+		{
+			std::filesystem::path p ( fName );
+			auto abs = std::filesystem::absolute ( p );
+			file = stringi ( abs.generic_string () );
+		}
+
+		for ( uint32_t loop = 0; loop < sourceFiles.size (); loop++ )
+		{
+			if ( sourceFiles[loop].first == file )
+			{
+				lastIndex = loop;
+				return loop;
+			}
+		}
+		return -1;
+
+	}
+
+	uint32_t getMappedIndex ( uint32_t mapIndex ) noexcept
+	{
+		return (uint32_t)mapping[mapIndex];
+	}
+
+	stringi const &getName ( uint32_t index ) noexcept
+	{
+		return sourceFiles[index].first;
+	}
+
+	size_t getCount ( void ) noexcept
+	{
+		return sourceFiles.size ();
+	}
+};
 
 class source
 {
@@ -34,7 +270,7 @@ class source
 	stringCache			&sCache;
 
 public:
-	source ( sourceFile *srcFile, stringCache &sCache, char const *primaryFileName, char const *expr, uint32_t lineNumber = 1 );
+	source ( sourceFile *srcFile, stringCache &sCache, char const *primaryFileName, char const *expr, sourceFile::sourceFileType type, uint32_t lineNumber = 1 );
 	virtual ~source ( )
 	{}
 
@@ -249,185 +485,6 @@ public:
 
 	void bsAdvance ();
 	void bsAdvanceEol ( bool noSemi );
-
-};
-
-class sourceFile {
-	std::vector<stringi>			 sourceFiles;
-	std::vector<size_t>				 mapping;
-
-public:
-	uint32_t						 lastIndex = 0;
-
-	sourceFile() noexcept
-	{
-		getIndex ( "(INTERNAL)" );		// 0th entry is always internal (no source available)
-	}
-
-	sourceFile ( char const ** expr )
-	{
-		auto num = *(size_t *)*expr;
-		(*expr)+= sizeof ( size_t );
-
-		while ( num-- )
-		{
-			sourceFiles.emplace_back ( stringi ( expr ) );
-		}
-	}
-	sourceFile ( sourceFile const &right ) = delete;
-	sourceFile ( sourceFile &&right ) noexcept
-	{
-		*this = std::move ( right );
-	}
-	sourceFile & operator = ( sourceFile const &right ) = delete;
-	sourceFile & operator = ( sourceFile &&right ) noexcept
-	{
-		std::swap ( sourceFiles, right.sourceFiles );
-		std::swap ( mapping, right.mapping );
-		return *this;
-	}
-
-	~sourceFile()
-	{
-	}
-
-	void serialize ( BUFFER *buffer )
-	{
-		buffer->put ( sourceFiles.size () );
-		for ( auto it = sourceFiles.begin(); it != sourceFiles.end(); it++ )
-		{
-			it->serialize ( buffer );
-		}
-	}
-
-	void serializeCompiled ( BUFFER *buffer )
-	{
-		// number of source files
-		bufferPut32 ( buffer, (uint32_t)sourceFiles.size() );
-
-		uint32_t		nameSize = 0;
-		for ( auto it = sourceFiles.begin(); it != sourceFiles.end(); it++ )
-		{
-			nameSize += (uint32_t)it->size() + 1;
-		}
-
-		// size of the name region
-		bufferPut32 ( buffer, nameSize );
-
-		// name region
-		for ( auto it = sourceFiles.begin(); it != sourceFiles.end(); it++ )
-		{
-			bufferWrite( buffer, *it, it->size ( ) + 1 );
-		}
-
-		// offset array
-		nameSize = 0;
-		for ( auto it = sourceFiles.begin(); it != sourceFiles.end(); it++ )
-		{
-			bufferPut32 ( buffer, nameSize );
-			nameSize += (uint32_t) it->size ( ) + 1;
-		}
-	}
-
-
-	void addMapping ( char const ** expr )
-	{
-		auto num = *((size_t *)*expr);
-		(*expr) += sizeof ( size_t );
-
-		while ( num-- )
-		{
-			auto fName = stringi ( expr );
-
-			size_t loop;
-			for ( loop = 0; loop < sourceFiles.size ( ); loop++ )
-			{
-				if ( sourceFiles[loop] == fName )
-				{
-					mapping.push_back ( loop );
-					break;
-				}
-			}
-			if ( loop >= sourceFiles.size ( ) )
-			{
-				mapping.push_back ( sourceFiles.size ( ) );
-				sourceFiles.push_back ( fName );
-			}
-		}
-	}
-
-	void freeMapping ( void ) noexcept
-	{
-		mapping.clear ( );
-	}
-
-	uint32_t getIndex ( char const *fName ) noexcept
-	{
-		stringi file;
-		if ( !strccmp ( fName, "(INTERNAL)" ) )
-		{
-			file = fName;
-		} else
-		{
-			std::filesystem::path p ( fName );
-			auto abs = std::filesystem::absolute ( p );
-			file = stringi ( abs.generic_string () );
-		}
-
-		uint32_t	loop;
-
-		for ( loop = 0; loop < sourceFiles.size(); loop++ )
-		{
-			if ( sourceFiles[loop] == file )
-			{
-				lastIndex = loop;
-				return loop;
-			}
-		}
-		sourceFiles.push_back ( file );
-		lastIndex = (uint32_t)sourceFiles.size() - 1;
-		return lastIndex;
-	}
-
-	uint32_t getStaticIndex ( char const *fName )
-	{
-		stringi file;
-		if ( !strccmp ( fName, "(INTERNAL)" ) )
-		{
-			file = fName;
-		} else
-		{
-			std::filesystem::path p ( fName );
-			auto abs = std::filesystem::absolute ( p );
-			file = stringi ( abs.generic_string () );
-		}
-
-		for ( uint32_t loop = 0; loop < sourceFiles.size(); loop++ )
-		{
-			if ( sourceFiles[loop] == file )
-			{
-				lastIndex = loop;
-				return loop;
-			}
-		}
-		return -1;
-
-	}
-
-	uint32_t getMappedIndex ( uint32_t mapIndex ) noexcept
-	{
-		return (uint32_t) mapping[mapIndex];
-	}
-
-	stringi const &getName ( uint32_t index ) noexcept
-	{
-		return sourceFiles[index];
-	}
-
-	size_t getCount ( void ) noexcept
-	{
-		return sourceFiles.size ( );
-	}
 };
 
 struct srcLocation

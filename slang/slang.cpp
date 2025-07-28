@@ -116,7 +116,7 @@ void compFile ( void *param )
 			{
 				oFile.ns.use ( "fgl" );
 			}
-			oFile.parseFile ( fName, code, cp->isSlang, cp->isAp, false );
+			oFile.parseFile ( fName, code, cp->isSlang, false, cp->isAp, sourceFile::sourceFileType::external );
 		} catch ( errorNum err )
 		{
 			printf ( "error: %u - %s\r\n", err, scCompErrorAsText ( int (err) ).c_str ( ) );

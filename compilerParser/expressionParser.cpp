@@ -905,7 +905,7 @@ astNode *opFile::getNode ( source &src, lastOpType lastOp, opFunction *func, boo
 
 						// now compile it
 						auto expr = buff.data<char *> ();
-						source fSrc ( &srcFiles, sCache, srcFiles.getName ( classDef->location.sourceIndex ), expr, classDef->location.lineNumberStart );
+						source fSrc ( &srcFiles, sCache, srcFiles.getName ( classDef->location.sourceIndex ), expr, sourceFile::sourceFileType::none, classDef->location.lineNumberStart );
 						auto newFunc = parseMethod ( fSrc, classDef, buildString ( classDef->name.c_str (), elem->name, "method" ).c_str (), true, isLS, isAP, node->location );
 						elem->data.method.func = newFunc->name;
 						elem->data.method.virtOverrides.insert ( newFunc );
@@ -1882,6 +1882,8 @@ astNode *opFile::_parseExpr ( source &src, bool sValid, bool onlySimpleExpressio
 
 			source srcSave = src;
 
+			if ( src.getLine () == 42 )
+				printf ( "" );
 			node = getNode ( src, lastOp, func, doSlang, isLS, isAP );
 
 			if ( src.emitDebug() )
@@ -2232,9 +2234,9 @@ astNode *opFile::_parseExpr ( source &src, bool sValid, bool onlySimpleExpressio
 								lastOp = lastOpType::symbol;
 								ioStack.push ( node );
 								break;
-							case astOp::postDec:
-							case astOp::postInc:
-							case astOp::selfSend:
+//							case astOp::postDec:
+//							case astOp::postInc:
+//							case astOp::selfSend:
 								lastOp = lastOpType::symbol;
 								ioStack.push ( node );
 								break;

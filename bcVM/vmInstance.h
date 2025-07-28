@@ -837,9 +837,9 @@ class vmInstance
 
 	int							  outputDesc;
 
-	class atomTable				*atomTable = nullptr;
-	class objectMemory			*om = nullptr;
-	class vmWorkareaTable		*workareaTable = nullptr;
+	class atomTable				 *atomTable = nullptr;
+	class objectMemory			 *om = nullptr;
+	class vmWorkareaTable		 *workareaTable = nullptr;
 
 	bool						  initialized = false;;
 

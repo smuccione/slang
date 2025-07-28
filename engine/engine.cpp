@@ -292,7 +292,7 @@ static UINT __cdecl testCompile ( LPVOID param )
 
 			QueryPerformanceCounter ( &start );
 			{
-				oFile.parseFile ( (*fIt), code, true, false, false );
+				oFile.parseFile ( (*fIt), code, true, false, false, sourceFile::sourceFileType::external );
 				if ( oFile.errHandler.isFatal () )
 				{
 					return 0;
