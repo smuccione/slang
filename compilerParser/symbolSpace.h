@@ -94,11 +94,11 @@ public:
 	virtual stringi const			&getDocumentation		( cacheString const &name, bool isAccess ) { throw errorNum::scINTERNAL; };
 
 	// these functions not only set used, but also register interest in the type of the result.  this allows us to iterate over the changes during type inferencing
-	virtual	void					 setAllLocalAccessed	( accessorType const &acc, unique_queue<accessorType> *scanQueue ) {};
-	virtual	void					 setAccessed			( class opFile *file, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue ) { throw errorNum::scINTERNAL; };
-	virtual	void					 setInlineUsed			( class opFile *file, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue ) {};
-	virtual	symbolTypeClass	const	 getFuncReturnType		( class symbolStack const *sym, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue ) const { throw errorNum::scINTERNAL; };
-	virtual	symbolTypeClass	const	 getMarkFuncReturnType	( class compExecutable *comp, class symbolStack const *sym, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue, bool isLS ) const { throw errorNum::scINTERNAL; };
+	virtual	void					 setAllLocalAccessed	( accessorType const &acc, unique_queue<accessorType> *scanQueue, srcLocation const &loc ) {};
+	virtual	void					 setAccessed			( class opFile *file, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue, srcLocation const &loc ) { throw errorNum::scINTERNAL; };
+	virtual	void					 setInlineUsed			( class opFile *file, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue, srcLocation const &loc ) {};
+	virtual	symbolTypeClass	const	 getFuncReturnType		( class symbolStack const *sym, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue, srcLocation const &loc ) const { throw errorNum::scINTERNAL; };
+	virtual	symbolTypeClass	const	 getMarkFuncReturnType	( class compExecutable *comp, class symbolStack const *sym, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue, bool isLS, srcLocation const &loc ) const { throw errorNum::scINTERNAL; };
 	virtual	symbolTypeClass	const	 getFuncParamType		( cacheString const &name, bool isAccess, int32_t nParam, accessorType const &acc, unique_queue<accessorType> *scanQueue ) const { throw errorNum::scINTERNAL; };
 
 	// these functions can change type or access state and therefore can update a scan queue
@@ -358,8 +358,8 @@ public:
 	cacheString const			 getFuncName			( cacheString const &name, bool isAccess ) const;									// converts from the scoped name to a potentially fully decorated class name
 	class astNode				*getFuncDefaultParam	( cacheString const &name, bool isAccess, int32_t nParam ) const;
 	int32_t						 getFuncNumParams		( cacheString const &name, bool isAccess ) const;
-	symbolTypeClass				 getFuncReturnType		( cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue  ) const;
-	symbolTypeClass				 getMarkFuncReturnType	( class compExecutable *comp, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue, bool isLS ) const;
+	symbolTypeClass				 getFuncReturnType		( cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue, srcLocation const &loc ) const;
+	symbolTypeClass				 getMarkFuncReturnType	( class compExecutable *comp, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue, bool isLS, srcLocation const &loc ) const;
 	size_t						 getFuncSourceIndex		( cacheString const &name, bool isAccess ) const;
 	class astNode				*getInitializer			( cacheString const &name ) const;
 
@@ -368,9 +368,9 @@ public:
 	bool						 getInlineFuncNeedValue	(  ) const;
 
 	// need to pacc accessor to register interest in type changes
-	void						 setAllLocalAccessed	( accessorType const &acc, unique_queue<accessorType> *scanQueue ); // when we have code-blocks we can NOT optimize away any in-scope symbols... we therefore must mark them all as in-use (which they can potentially be)
+	void						 setAllLocalAccessed	( accessorType const &acc, unique_queue<accessorType> *scanQueue, srcLocation const &loc ); // when we have code-blocks we can NOT optimize away any in-scope symbols... we therefore must mark them all as in-use (which they can potentially be)
 	symbolTypeClass				 getFuncParamType		( cacheString const &name, bool isAccess, int32_t nParam, accessorType const &acc, unique_queue<accessorType> *scanQueue ) const;
-	void						 setAccessed			( cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue );
+	void						 setAccessed			( cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue, srcLocation const &loc );
 
 	bool						 setType				( cacheString const &name, bool isAccess, symbolTypeClass const &type, accessorType const &acc, unique_queue<accessorType> *scanQueue );
 	void						 setType				( cacheString const &name, bool isAccess, cacheString const &className );
@@ -383,6 +383,6 @@ public:
 //	template <typename ...T>
 //	friend astNode *astNodeWalk ( astNode *block, class symbolStack *sym, astNode *(*cb) (astNode *node, astNode *parent, symbolStack *sym, bool isAccess, T &&...t), T &&...t );
 
-	friend bool		 inlineBlock ( astNode *block, symbolStack *sym, opFunction *func, std::vector<opFunction *> &inlineNest );
+	friend bool		 inlineBlock ( astNode *block, symbolStack *sym, opFunction *func, std::vector<opFunction *> &inlineNest, bool needValue );
 };
 

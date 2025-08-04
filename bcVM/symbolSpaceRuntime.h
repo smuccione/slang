@@ -31,9 +31,9 @@ public:
 	char const					*getFuncName			( char const *name ) const;
 	size_t						 getFuncNumParams		( char const *name ) const;
 	class astNode				*getFuncDefaultParam	( char const *name, int32_t nParam ) const;
-	symbolTypeClass				 getFuncReturnType		( char const *name, accessorType const &acc, unique_queue<accessorType> *scanQueue ) const;
+	symbolTypeClass				 getFuncReturnType		( char const *name, accessorType const &acc, unique_queue<accessorType> *scanQueue, srcLocation const & ) const;
 	symbolTypeClass				 getFuncParamType		( char const *name, int32_t nParam ) const;
-	fgxFuncCallConvention		getFuncCallingConv		( char const *name ) const;
+	fgxFuncCallConvention		 getFuncCallingConv		( char const *name ) const;
 	bool						 isFunc					( char const *name ) const;
 
 	void						 setAssigned			( char const *name ) { };

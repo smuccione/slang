@@ -1234,5 +1234,5 @@ class astNode final
 	friend void swap ( astNode &first, astNode &second ) noexcept;
 };
 
-extern void markClassMethodsInuse ( class compExecutable *comp, accessorType const &acc, class opClass *cls, symbolStack const *sym, unique_queue<accessorType> *scanQueue, bool isGeneric, bool isLS );
-extern void markClassInuse ( class compExecutable *comp, accessorType const &acc, class opClass *cls, symbolStack const *sym, unique_queue<accessorType> *scanQueue, bool isLS );
+extern void markClassMethodsInuse ( class compExecutable *comp, accessorType const &acc, class opClass *cls, symbolStack const *sym, unique_queue<accessorType> *scanQueue, bool isGeneric, bool isLS, srcLocation const &loc );
+extern void markClassInuse ( class compExecutable *comp, accessorType const &acc, class opClass *cls, symbolStack const *sym, unique_queue<accessorType> *scanQueue, bool isLS, srcLocation const &loc );

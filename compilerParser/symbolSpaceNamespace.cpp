@@ -53,12 +53,12 @@ cacheString const symbolSpaceNamespace::getFuncName ( cacheString const &name, b
 	return cacheString();
 }
 
-void symbolSpaceNamespace::setAccessed ( class opFile *file, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue )
+void symbolSpaceNamespace::setAccessed ( class opFile *file, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue, srcLocation const &loc )
 {
 	auto *func = ns->findFunction( name );
 	if ( func )
 	{
-		func->setAccessed ( acc, scanQueue );
+		func->setAccessed ( acc, scanQueue, loc );
 		return;
 	}
 
@@ -70,7 +70,7 @@ void symbolSpaceNamespace::setAccessed ( class opFile *file, cacheString const &
 			case fgxClassElementType::fgxClassType_method:
 				for ( auto &it : elem->elem->data.method.virtOverrides )
 				{
-					it->setAccessed ( acc, scanQueue );
+					it->setAccessed ( acc, scanQueue, loc );
 				}
 				return;
 			case fgxClassElementType::fgxClassType_prop:
@@ -78,13 +78,13 @@ void symbolSpaceNamespace::setAccessed ( class opFile *file, cacheString const &
 				{
 					for ( auto &it : elem->elem->data.prop.accessVirtOverrides )
 					{
-						it->setAccessed ( acc, scanQueue );
+						it->setAccessed ( acc, scanQueue, loc );
 					}
 				} else
 				{
 					for ( auto &it : elem->elem->data.prop.assignVirtOverrides )
 					{
-						it->setAccessed ( acc, scanQueue );
+						it->setAccessed ( acc, scanQueue, loc );
 					}
 				}
 				return;
@@ -96,7 +96,7 @@ void symbolSpaceNamespace::setAccessed ( class opFile *file, cacheString const &
 	auto sym = ns->findSymbol ( name );
 	if ( ns && sym )
 	{
-		sym->setAccessed ( name, isAccess, acc, scanQueue );
+		sym->setAccessed ( name, isAccess, acc, scanQueue, loc );
 	}
 }
 
@@ -155,7 +155,7 @@ uint32_t symbolSpaceNamespace::getFuncNumParams ( cacheString const &name, bool 
 	}
 }
 
-symbolTypeClass const symbolSpaceNamespace::getFuncReturnType ( class symbolStack const *sym, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue ) const
+symbolTypeClass const symbolSpaceNamespace::getFuncReturnType ( class symbolStack const *sym, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue, srcLocation const &loc ) const
 {
 	auto retType = symUnknownType;
 
@@ -171,7 +171,7 @@ symbolTypeClass const symbolSpaceNamespace::getFuncReturnType ( class symbolStac
 				case fgxClassElementType::fgxClassType_method:
 					for ( auto &it : elem->elem->data.method.virtOverrides )
 					{
-						it->setAccessed ( acc, scanQueue );
+						it->setAccessed ( acc, scanQueue, loc );
 						retType &= it->getReturnType();
 					}
 					return retType;
@@ -180,14 +180,14 @@ symbolTypeClass const symbolSpaceNamespace::getFuncReturnType ( class symbolStac
 					{
 						for ( auto &it : elem->elem->data.prop.accessVirtOverrides )
 						{
-							it->setAccessed ( acc, scanQueue );
+							it->setAccessed ( acc, scanQueue, loc );
 							retType &= it->getReturnType();
 						}
 					} else
 					{
 						for ( auto &it : elem->elem->data.prop.accessVirtOverrides )
 						{
-							it->setAccessed ( acc, scanQueue );
+							it->setAccessed ( acc, scanQueue, loc );
 							retType &= it->getReturnType();
 						}
 					}
@@ -199,12 +199,12 @@ symbolTypeClass const symbolSpaceNamespace::getFuncReturnType ( class symbolStac
 		return symVariantType;
 	} else
 	{
-		func->setAccessed ( acc, scanQueue );
+		func->setAccessed ( acc, scanQueue, loc );
 		return func->getReturnType();
 	}
 }
 
-symbolTypeClass const symbolSpaceNamespace::getMarkFuncReturnType ( class compExecutable *comp, class symbolStack const *sym, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue, bool isLS ) const
+symbolTypeClass const symbolSpaceNamespace::getMarkFuncReturnType ( class compExecutable *comp, class symbolStack const *sym, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue, bool isLS, srcLocation const &loc ) const
 {
 	auto retType = symUnknownType;
 
@@ -220,8 +220,8 @@ symbolTypeClass const symbolSpaceNamespace::getMarkFuncReturnType ( class compEx
 				case fgxClassElementType::fgxClassType_method:
 					for ( auto &it : elem->elem->data.method.virtOverrides )
 					{
-						it->setAccessed ( acc, scanQueue );
-						retType &= it->getMarkReturnType ( comp, sym, acc, scanQueue, isLS );
+						it->setAccessed ( acc, scanQueue, loc );
+						retType &= it->getMarkReturnType ( comp, sym, acc, scanQueue, isLS, loc );
 					}
 					return retType;
 				case fgxClassElementType::fgxClassType_prop:
@@ -229,15 +229,15 @@ symbolTypeClass const symbolSpaceNamespace::getMarkFuncReturnType ( class compEx
 					{
 						for ( auto &it : elem->elem->data.prop.accessVirtOverrides )
 						{
-							it->setAccessed ( acc, scanQueue );
-							retType &= it->getMarkReturnType ( comp, sym, acc, scanQueue, isLS );
+							it->setAccessed ( acc, scanQueue, loc );
+							retType &= it->getMarkReturnType ( comp, sym, acc, scanQueue, isLS, loc );
 						}
 					} else
 					{
 						for ( auto &it : elem->elem->data.prop.accessVirtOverrides )
 						{
-							it->setAccessed ( acc, scanQueue );
-							retType &= it->getMarkReturnType ( comp, sym, acc, scanQueue, isLS );
+							it->setAccessed ( acc, scanQueue, loc );
+							retType &= it->getMarkReturnType ( comp, sym, acc, scanQueue, isLS, loc );
 						}
 					}
 					return retType;
@@ -248,8 +248,8 @@ symbolTypeClass const symbolSpaceNamespace::getMarkFuncReturnType ( class compEx
 		return symVariantType;
 	} else
 	{
-		func->setAccessed ( acc, scanQueue );
-		return func->getMarkReturnType ( comp, sym, acc, scanQueue, isLS );
+		func->setAccessed ( acc, scanQueue, loc );
+		return func->getMarkReturnType ( comp, sym, acc, scanQueue, isLS, loc );
 	}
 }
 
@@ -358,7 +358,7 @@ symbolTypeClass const symbolSpaceNamespace::getFuncParamType ( cacheString const
 	{
 		if ( nParam < (int32_t)func->params.size() )
 		{
-			func->params[nParam]->setAccessed ( acc, scanQueue );
+			func->params[nParam]->setAccessed ( acc, scanQueue, srcLocation {} );
 			return func->params[nParam]->getType ();
 		}
 	}
@@ -974,7 +974,7 @@ void symbolSpaceNamespace::setParameterType	( class compExecutable *comp, class 
 	{
 		func->inUse = true;
 		if ( scanQueue ) scanQueue->push ( func );
-		func->accessors.insert ( acc );
+		func->accessors.insert ( {acc, srcLocation{}} );
 	}
 
 	func->setParamType ( comp, sym, pNum, type, scanQueue );
@@ -1017,7 +1017,7 @@ void symbolSpaceNamespace::setParameterTypeNoThrow ( class compExecutable *comp,
 	{
 		func->inUse = true;
 		if ( scanQueue ) scanQueue->push ( func );
-		func->accessors.insert ( acc );
+		func->accessors.insert ( {acc, srcLocation{}} );
 	}
 
 	func->setParamTypeNoThrow ( comp, sym, pNum, type, scanQueue );

@@ -167,7 +167,7 @@ class symbolParamDef {
 		type ^= newType;
 		localType ^= newType;
 	}
-	void setAccessed ( accessorType const &acc, unique_queue<accessorType> *scanQueue )
+	void setAccessed ( accessorType const &acc, unique_queue<accessorType> *scanQueue, srcLocation const &loc )
 	{
 		accessed = true;
 	}
@@ -351,26 +351,26 @@ public:
 	{
 		return isDefined ( name, isAccess );
 	}
-	void					 setAccessed ( class opFile *file, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue ) override
+	void setAccessed ( class opFile *file, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue, srcLocation const &loc ) override
 	{
 		for ( auto &it : symbols )
 		{
 			if ( it.name == name )
 			{
-				return it.setAccessed ( acc, scanQueue );
+				return it.setAccessed ( acc, scanQueue, loc );
 			}
 		}
 		assert ( 0 );
 	}
-	void					 setAllLocalAccessed ( accessorType const &acc, unique_queue<accessorType> *scanQueue ) override
+	void setAllLocalAccessed ( accessorType const &acc, unique_queue<accessorType> *scanQueue, srcLocation const &loc ) override
 	{
 		for ( auto &it : symbols )
 		{
-			it.setAccessed ( acc, scanQueue );
+			it.setAccessed ( acc, scanQueue, loc );
 		}
 		return;
 	}
-	void					 setClosedOver ( cacheString const &name ) override
+	void setClosedOver ( cacheString const &name ) override
 	{
 		for ( auto &it : symbols )
 		{
@@ -381,7 +381,7 @@ public:
 			}
 		}
 	}
-	bool					 isAccessed ( cacheString const &name, bool isAccess ) const override
+	bool isAccessed ( cacheString const &name, bool isAccess ) const override
 	{
 		for ( auto &it : symbols )
 		{

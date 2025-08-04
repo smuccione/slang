@@ -23,7 +23,8 @@ public:
 	stringi								 documentation;
 
 	std::mutex							 accessorsAccess;
-	std::unordered_set<accessorType>	 accessors;						// for type inferencing in case our type changes
+	std::unordered_multimap<accessorType, srcLocation>	 accessors;						// for type inferencing in case our type changes
+	std::unordered_multimap<accessorType, srcLocation>	 called;						// for type inferencing in case our type changes
 	bool								 typeChanged = false;
 
 	srcLocation							 location;
@@ -143,7 +144,7 @@ public:
 					if ( scanQueue ) scanQueue->push ( acc );
 					for ( auto& it : accessors )
 					{
-						if ( scanQueue ) scanQueue->push ( it );
+						if ( scanQueue ) scanQueue->push ( it.first );
 					}
 					return true;
 				}
@@ -163,7 +164,7 @@ public:
 					if ( scanQueue ) scanQueue->push ( acc );
 					for ( auto& it : accessors )
 					{
-						if ( scanQueue ) scanQueue->push ( it );
+						if ( scanQueue ) scanQueue->push ( it.first );
 					}
 					return true;
 				}
@@ -180,7 +181,7 @@ public:
 		return symType;
 	}
 
-	void setAccessed ( class opFile *file, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue );
+	void setAccessed ( class opFile *file, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue, srcLocation const &loc );
 
 	cacheString getSymbolName ()
 	{

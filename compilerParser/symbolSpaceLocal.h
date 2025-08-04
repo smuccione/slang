@@ -158,7 +158,7 @@ public:
 		assert ( this->name == name );
 		initialized = true;
 	}
-	void setAccessed ( class opFile *file, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue ) override
+	void setAccessed ( class opFile *file, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue, srcLocation const &loc ) override
 	{
 		assert ( this->name == name );
 		accessed = true;
@@ -338,7 +338,7 @@ public:
 		type = symbolTypeClass ( symbolType::symWeakObject, className );
 	};
 
-	void setAllLocalAccessed ( accessorType const &acc, unique_queue<accessorType> *scanQueue ) override
+	void setAllLocalAccessed ( accessorType const &acc, unique_queue<accessorType> *scanQueue, srcLocation const &loc  ) override
 	{
 		accessed = true;
 	}

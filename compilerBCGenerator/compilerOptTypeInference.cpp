@@ -145,9 +145,9 @@ void propagateConst( opFunction* func )
 	func->needScan = false;
 	for ( auto& it : func->accessors )
 	{
-		if ( std::holds_alternative<opFunction*>( it ) )
+		if ( std::holds_alternative<opFunction*>( it.first ) )
 		{
-			auto func = std::get<opFunction*>( it );
+			auto func = std::get<opFunction*>( it.first );
 			if ( func->isConst )
 			{
 				// const has changed so propagate that through all callers
@@ -163,9 +163,9 @@ void propagatePure( opFunction* func )
 	func->needScan = false;
 	for ( auto& it : func->accessors )
 	{
-		if ( std::holds_alternative<opFunction*>( it ) )
+		if ( std::holds_alternative<opFunction*>( it.first ) )
 		{
-			auto func = std::get<opFunction*>( it );
+			auto func = std::get<opFunction*>( it.first );
 			if ( func->isPure )
 			{
 				// const has changed so propagate that through all callers
@@ -234,7 +234,7 @@ void optimizer::makeKnown( unique_queue<accessorType>* scanQueue, bool inUseOnly
 							elem.elem->symType.makeKnown ();
 							for ( auto& acc : elem.elem->accessors )
 							{
-								if ( scanQueue ) scanQueue->push( acc );
+								if ( scanQueue ) scanQueue->push ( acc.first );
 							}
 						}
 						break;
@@ -266,7 +266,7 @@ void optimizer::makeKnown( unique_queue<accessorType>* scanQueue, bool inUseOnly
 				{
 					for ( auto&acc : it->second->accessors )
 					{
-						if ( scanQueue ) scanQueue->push( acc );
+						if ( scanQueue ) scanQueue->push( acc.first );
 					}
 				}
 			}
@@ -279,7 +279,7 @@ void optimizer::makeKnown( unique_queue<accessorType>* scanQueue, bool inUseOnly
 			it->second.type.makeKnown ();
 			for ( auto& acc : it->second.accessors )
 			{
-				if ( scanQueue ) scanQueue->push( acc );
+				if ( scanQueue ) scanQueue->push( acc.first );
 			}
 		}
 	}
@@ -438,7 +438,7 @@ void processScanQueue ( compExecutable *compDef, opFile *file, bool markUsed, bo
 									{
 										for ( auto &it2 : elem->accessors )
 										{
-											scanQueue->push ( it2 );
+											scanQueue->push ( it2.first  );
 										}
 									}
 									s.type = elem->symType;
@@ -984,16 +984,16 @@ void optimizer::doTypeInference( cacheString const& entry, bool isLS )
 	{
 		if ( cls.second->name.c_str()[0] == '$' )
 		{
-			markClassMethodsInuse( compDef, accessorType(), cls.second, &sym, &scanQueue, false, isLS );
+			markClassMethodsInuse ( compDef, accessorType (), cls.second, &sym, &scanQueue, false, isLS, srcLocation {} );
 		}
 	}
 
-	markClassInuse( compDef, accessorType(), file->classList.find ( compDef->file->aArrayValue )->second, &sym, &scanQueue, isLS );
-	file->functionList.find( compDef->file->exceptValue )->second->setAccessed( accessorType(), &scanQueue );
-	markClassMethodsInuse( compDef, accessorType(), file->classList.find( compDef->file->sCache.get( "systemError" ) )->second, &sym, &scanQueue, false, isLS );
+	markClassInuse( compDef, accessorType(), file->classList.find ( compDef->file->aArrayValue )->second, &sym, &scanQueue, isLS, srcLocation {} );
+	file->functionList.find ( compDef->file->exceptValue )->second->setAccessed ( accessorType (), &scanQueue, srcLocation {} );
+	markClassMethodsInuse( compDef, accessorType(), file->classList.find( compDef->file->sCache.get( "systemError" ) )->second, &sym, &scanQueue, false, isLS, srcLocation {} );
 
 	scanQueue.push( file->functionList.find( compDef->file->sCache.get( "main" ) )->second );
-	file->functionList.find( compDef->file->sCache.get( "main" ) )->second->setAccessed( accessorType(), &scanQueue );
+	file->functionList.find ( compDef->file->sCache.get ( "main" ) )->second->setAccessed ( accessorType (), &scanQueue, srcLocation {} );
 
 	startProcessScanQueue( compDef, file, false, true, &scanQueue, isLS );
 
@@ -1013,7 +1013,7 @@ void optimizer::doTypeInference( cacheString const& entry, bool isLS )
 					}
 					if ( funcIt->second->classDef )
 					{
-						markClassInuse ( compDef, accessorType (), funcIt->second->classDef, &sym, &scanQueue, isLS );
+						markClassInuse ( compDef, accessorType (), funcIt->second->classDef, &sym, &scanQueue, isLS, srcLocation {} );
 					}
 				}
 			}
@@ -1075,7 +1075,7 @@ void optimizer::removeUnused ( cacheString const &entry, bool isLS )
 		// which classes will be instantiated is indeterminate
 		for ( auto &it : file->classList )
 		{
-			markClassMethodsInuse ( compDef, accessorType (), it.second, &sym, &scanQueue, true, isLS );
+			markClassMethodsInuse ( compDef, accessorType (), it.second, &sym, &scanQueue, true, isLS, srcLocation {} );
 		}
 	}
 
@@ -1115,7 +1115,7 @@ void optimizer::removeUnused ( cacheString const &entry, bool isLS )
 					if ( funcIt->second->classDef )
 					{
 						// we need to do this as it's possible that a functor can be inlined.   this will leave no new() sites for the class, although the inline will cause the 
-						markClassInuse ( compDef, accessorType (), funcIt->second->classDef, &sym, &scanQueue, isLS );
+						markClassInuse ( compDef, accessorType (), funcIt->second->classDef, &sym, &scanQueue, isLS, srcLocation {} );
 					}
 				}
 			} else if ( funcIt->second->inUse )
@@ -1123,7 +1123,7 @@ void optimizer::removeUnused ( cacheString const &entry, bool isLS )
 				if ( funcIt->second->classDef )
 				{
 					// we need to do this as it's possible that a functor can be inlined.   this will leave no new() sites for the class, although the inline will cause the 
-					markClassInuse ( compDef, accessorType (), funcIt->second->classDef, &sym, &scanQueue, isLS );
+					markClassInuse ( compDef, accessorType (), funcIt->second->classDef, &sym, &scanQueue, isLS, srcLocation {} );
 				}
 			}
 		}
@@ -1141,7 +1141,7 @@ void optimizer::removeUnused ( cacheString const &entry, bool isLS )
 				if ( funcIt->second->classDef )
 				{
 					// we need to do this as it's possible that a functor can be inlined.   this will leave no new() sites for the class, although the inline will cause the 
-					markClassInuse ( compDef, accessorType (), funcIt->second->classDef, &sym, &scanQueue, isLS );
+					markClassInuse ( compDef, accessorType (), funcIt->second->classDef, &sym, &scanQueue, isLS, srcLocation {} );
 				}
 			}
 		}

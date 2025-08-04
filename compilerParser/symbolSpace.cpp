@@ -352,13 +352,13 @@ void symbolStack::setClosedOver ( cacheString const &name )
 	return;
 }
 
-void symbolStack::setAccessed ( cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue )
+void symbolStack::setAccessed ( cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue, srcLocation const &src )
 {
 	for ( auto it = syms.crbegin(); it != syms.crend(); it++ )
 	{
 		if ( (*it)->isDefined ( name, isAccess ) )
 		{
-			(*it)->setAccessed ( file, name, isAccess, acc, scanQueue );
+			(*it)->setAccessed ( file, name, isAccess, acc, scanQueue, src );
 			break;
 		}
 	}
@@ -882,7 +882,7 @@ symbolTypeClass symbolStack::getFuncParamType ( cacheString const &name, bool is
 	throw errorNum::scINTERNAL;
 }
 
-symbolTypeClass symbolStack::getFuncReturnType ( cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue ) const
+symbolTypeClass symbolStack::getFuncReturnType ( cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue, srcLocation const &loc ) const
 {
 	for ( auto it = syms.crbegin(); it != syms.crend(); it++ )
 	{
@@ -896,7 +896,7 @@ symbolTypeClass symbolStack::getFuncReturnType ( cacheString const &name, bool i
 					{
 						if ( (*it)->isFunc ( name, isAccess ) )
 						{
-							return (*it)->getFuncReturnType ( this, name, isAccess, acc, scanQueue );
+							return (*it)->getFuncReturnType ( this, name, isAccess, acc, scanQueue, loc );
 						}
 						throw errorNum::scNOT_A_FUNCTION;
 					}
@@ -908,7 +908,7 @@ symbolTypeClass symbolStack::getFuncReturnType ( cacheString const &name, bool i
 		{
 			if ( (*it)->isFunc ( name, isAccess ) )
 			{
-				return (*it)->getFuncReturnType ( this, name, isAccess, acc, scanQueue );
+				return (*it)->getFuncReturnType ( this, name, isAccess, acc, scanQueue, loc );
 			}
 			throw errorNum::scNOT_A_FUNCTION;
 		}
@@ -916,7 +916,7 @@ symbolTypeClass symbolStack::getFuncReturnType ( cacheString const &name, bool i
 	return symUnknownType;
 }
 
-symbolTypeClass symbolStack::getMarkFuncReturnType ( class compExecutable *comp, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue, bool isLS ) const
+symbolTypeClass symbolStack::getMarkFuncReturnType ( class compExecutable *comp, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue, bool isLS, srcLocation const &loc ) const
 {
 	for ( auto it = syms.crbegin(); it != syms.crend(); it++ )
 	{
@@ -930,7 +930,7 @@ symbolTypeClass symbolStack::getMarkFuncReturnType ( class compExecutable *comp,
 					{
 						if ( (*it)->isFunc ( name, isAccess ) )
 						{
-							return (*it)->getMarkFuncReturnType ( comp, this, name, isAccess, acc, scanQueue, isLS );
+							return (*it)->getMarkFuncReturnType ( comp, this, name, isAccess, acc, scanQueue, isLS, loc );
 						}
 						throw errorNum::scNOT_A_FUNCTION;
 					}
@@ -942,7 +942,7 @@ symbolTypeClass symbolStack::getMarkFuncReturnType ( class compExecutable *comp,
 		{
 			if ( (*it)->isFunc ( name, isAccess ) )
 			{
-				return (*it)->getMarkFuncReturnType ( comp, this, name, isAccess, acc, scanQueue, isLS );
+				return (*it)->getMarkFuncReturnType ( comp, this, name, isAccess, acc, scanQueue, isLS, loc );
 			}
 			throw errorNum::scNOT_A_FUNCTION;
 		}
@@ -1081,13 +1081,13 @@ void symbolStack::setType ( cacheString const &name, bool isAccess, cacheString 
 	throw errorNum::scINTERNAL;
 }
 
-void symbolStack::setAllLocalAccessed ( accessorType const &acc, unique_queue<accessorType> *scanQueue )
+void symbolStack::setAllLocalAccessed ( accessorType const &acc, unique_queue<accessorType> *scanQueue, srcLocation const &loc  )
 {
 	for ( auto it = syms.begin(); it != syms.end(); it++ )
 	{
 		if ( (*it)->isStackBased () )
 		{
-			(*it)->setAllLocalAccessed ( acc, scanQueue );
+			(*it)->setAllLocalAccessed ( acc, scanQueue, loc );
 		}
 	}
 }

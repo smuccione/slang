@@ -214,7 +214,7 @@ void opClassElement::serialize( BUFFER *buff )
 	}
 }
 
-void opClassElement::setAccessed ( class opFile *file, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue )
+void opClassElement::setAccessed ( class opFile *file, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue, srcLocation const &loc )
 {
 	switch ( type )
 	{
@@ -223,20 +223,20 @@ void opClassElement::setAccessed ( class opFile *file, cacheString const &name, 
 			{
 				for ( auto &it : data.prop.accessVirtOverrides )
 				{
-					it->setAccessed ( acc, scanQueue );
+					it->setAccessed ( acc, scanQueue, loc );
 				}
 			} else
 			{
 				for ( auto &it : data.prop.assignVirtOverrides )
 				{
-					it->setAccessed ( acc, scanQueue );
+					it->setAccessed ( acc, scanQueue, loc );
 				}
 			}
 			break;
 		case fgxClassElementType::fgxClassType_method:
 			for ( auto &it : data.method.virtOverrides )
 			{
-				it->setAccessed ( acc, scanQueue );
+				it->setAccessed ( acc, scanQueue, loc );
 			}
 			break;
 		case fgxClassElementType::fgxClassType_iVar:
@@ -247,7 +247,7 @@ void opClassElement::setAccessed ( class opFile *file, cacheString const &name, 
 				{
 					if ( scanQueue ) scanQueue->push ( accessorType ( this ) );
 				}
-				accessors.insert ( acc );
+				accessors.insert ( {acc, loc} );
 			}
 			break;
 		default:

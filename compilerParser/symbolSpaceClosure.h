@@ -80,7 +80,7 @@ class symbolSpaceClosures : public symbol
 		if ( (*this)[name] ) return true;
 		return false;
 	}
-	void					 setAccessed ( class opFile *file, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue ) override
+	void					 setAccessed ( class opFile *file, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue, srcLocation const &loc ) override
 	{
 		throw errorNum::scINTERNAL;
 	}

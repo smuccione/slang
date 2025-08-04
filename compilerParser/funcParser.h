@@ -62,7 +62,8 @@ class opFunction
 	astNode *nonInlinedBlock = nullptr;		// for inlining, so we can get better inline performance when using weights
 
 	std::recursive_mutex			 accessorLock;
-	std::unordered_set<accessorType> accessors;						// for type inferencing in case our type changes
+	std::unordered_multimap<accessorType, srcLocation> accessors;						// for type inferencing in case our type changes = these are callers
+	std::unordered_multimap<accessorType, srcLocation> called;						// for type inferencing in case our type changes = these are called
 
 	std::vector<astNode *>			 initializers;
 
@@ -96,16 +97,17 @@ class opFunction
 	symbolTypeClass const &getParamType ( uint32_t paramNum, accessorType const &acc, unique_queue<accessorType> *scanQueue );
 	void					setParamType ( class compExecutable *comp, class symbolStack *sym, uint32_t paramNum, symbolTypeClass const &type, unique_queue<accessorType> *scanQueue );
 	void					setParamTypeNoThrow ( class compExecutable *comp, class symbolStack *sym, uint32_t paramNum, symbolTypeClass const &type, unique_queue<accessorType> *scanQueue );
-	void					setAccessed ( accessorType const &acc, unique_queue<accessorType> *scanQueue );
-	void					setWeakAccessed ( accessorType const &acc, unique_queue<accessorType> *scanQueue );
-	void					setInlineUsed ( accessorType const &acc, unique_queue<accessorType> *scanQueue );
+	void					setAccessed ( accessorType const &acc, unique_queue<accessorType> *scanQueue, srcLocation const &loc );
+	void					setWeakAccessed ( accessorType const &acc, unique_queue<accessorType> *scanQueue, srcLocation  const &loc );
+	void					setInlineUsed ( accessorType const &acc, unique_queue<accessorType> *scanQueue, srcLocation const &loc );
+	void					setCalled ( accessorType const &acc, srcLocation const &loc );
 
 	symbolTypeClass const   getReturnType ()
 	{
 		return retType.weakify ();
 	}
-	symbolTypeClass const   getMarkReturnType ( class compExecutable *comp, symbolStack const *sym, accessorType const &acc, unique_queue<accessorType> *scanQueue, bool isLS );
-	void					setReturnType ( symbolTypeClass const &type, unique_queue<accessorType> *scanQueue );
+	symbolTypeClass const   getMarkReturnType ( class compExecutable *comp, symbolStack const *sym, accessorType const &acc, unique_queue<accessorType> *scanQueue, bool isLS, srcLocation const &loc );
+	void					setReturnType ( symbolTypeClass const &type, unique_queue<accessorType> *scanQueue, srcLocation const &loc );
 
 	class	 compFunc *cFunc = nullptr;
 

@@ -46,9 +46,9 @@ public:
 	int16_t					 getObjectOffset		( cacheString const &name, bool isAccess ) const override;
 
 	// set interest in type changes
-	void					 setAccessed			( class opFile *file, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue ) override;
-	symbolTypeClass const    getFuncReturnType		( class symbolStack const *sym, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue ) const override;
-	symbolTypeClass const    getMarkFuncReturnType	( class compExecutable *comp, class symbolStack const *sym, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue, bool isLS ) const override;
+	void					 setAccessed			( class opFile *file, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue, srcLocation const &loc ) override;
+	symbolTypeClass const    getFuncReturnType		( class symbolStack const *sym, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue, srcLocation const &loc ) const override;
+	symbolTypeClass const    getMarkFuncReturnType	( class compExecutable *comp, class symbolStack const *sym, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue, bool isLS, srcLocation const &loc ) const override;
 	symbolTypeClass	const	 getFuncParamType		( cacheString const &name, bool isAccess, int32_t nParam, accessorType const &acc, unique_queue<accessorType> *scanQueue ) const override;
 
 	bool					 isMethod				( cacheString const &name, bool isAccess ) const override;

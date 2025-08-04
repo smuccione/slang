@@ -57,12 +57,12 @@ void symbolStatic::setInitializer ( cacheString const &name, astNode *initialize
 	file->symbols.find ( qualName )->second.initializer = initializer;
 }
 
-void symbolStatic::setAllLocalAccessed ( accessorType const &acc, unique_queue<accessorType> *scanQueue )
+void symbolStatic::setAllLocalAccessed ( accessorType const &acc, unique_queue<accessorType> *scanQueue, srcLocation const &loc )
 {
 //	file->symbols.find ( qualName )->second.setAccessed ( qualName, true, acc, scanQueue );
 }
 
-void symbolStatic::setAccessed ( class opFile *file, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue )
+void symbolStatic::setAccessed ( class opFile *file, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue, srcLocation const &loc )
 {
 	assert ( this->name == name );
 //	file->symbols.find ( qualName )->second.setAccessed ( name, isAccess, acc, scanQueue );

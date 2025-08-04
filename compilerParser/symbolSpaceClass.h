@@ -70,9 +70,9 @@ public:
 	bool					 isDefinedNS			( cacheString const &name, bool isAccess ) const override;
 
 	// calling these functions registers interest in type change
-	void					 setAccessed			( class opFile *file, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue ) override;
-	symbolTypeClass const    getFuncReturnType		( class symbolStack const *sym, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue ) const override;
-	symbolTypeClass const    getMarkFuncReturnType	( class compExecutable *compDef, class symbolStack const *sym, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue, bool isLS ) const override;
+	void					 setAccessed			( class opFile *file, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue, srcLocation const &loc ) override;
+	symbolTypeClass const    getFuncReturnType		( class symbolStack const *sym, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue, srcLocation const &loc ) const override;
+	symbolTypeClass const    getMarkFuncReturnType	( class compExecutable *compDef, class symbolStack const *sym, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue, bool isLS, srcLocation const &loc ) const override;
 
 	bool					 setType				( cacheString const &name, bool isAccess, class symbolTypeClass const &type, accessorType const &acc, unique_queue<accessorType> *scanQueue ) override;
 	void					 setType				( cacheString const &name, bool isAccess, cacheString const &className ) override {};

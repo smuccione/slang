@@ -2375,6 +2375,66 @@ static jsonElement textDocumentReferences ( jsonElement const &req, int64_t id, 
 	return rsp;
 }
 
+static jsonElement textDocumentPrepareCallHierarchy ( jsonElement const &req, int64_t id, lsJsonRPCServerBase &server, languageServer *ls )
+{
+	stringi const uri = req["textDocument"]["uri"];
+	int64_t line = req["position"]["line"];
+	int64_t character = req["position"]["character"];
+	auto lsFile = getFile ( server, ls, uri, id );
+
+	jsonElement rsp;
+
+	rsp.makeArray ();
+
+	if ( lsFile )
+	{
+		jsonElement result;
+		size_t index = 0;
+
+		auto sourceIndex = lsFile->file.srcFiles.getStaticIndex ( lsFile->activeFile );
+		srcLocation src {sourceIndex, (uint32_t)character + 1, (uint32_t)line + 1, (uint32_t)line + 1};
+
+		astLSInfo::symbolReference sym {src};
+
+		auto it = lsFile->info.symbolReferences.lower_bound ( sym );
+
+		if ( !(it != lsFile->info.symbolReferences.end () && it->location.encloses ( character + 1, line + 1 )) )
+		{
+			it--;
+		}
+
+		if ( it != lsFile->info.symbolReferences.end () && it->location.encloses ( character + 1, line + 1 ) )
+		{
+			if ( std::holds_alternative<opFunction *>(it->source) )
+			{
+				auto func = lsFile->file.functionList.find ( it->name );
+				if ( func != lsFile->file.functionList.end () )
+				{
+					rsp[index]["name"] = it->name;
+					rsp[index]["kind"] = 12; // Function
+					rsp[index]["tags"] = jsonElement ().makeArray ();
+					rsp[index]["detail"] = getDetail ( &lsFile->file, it->source, true );
+					rsp[index]["uri"] = fileNameToUri ( lsFile->file.srcFiles.getName ( it->location.sourceIndex ) );
+					rsp[index]["range"] = range ( func->second->extendedSelection );
+					rsp[index]["selectionRange"] = range ( func->second->nameLocation );
+					rsp[index]["data"] = reinterpret_cast<int64_t>(func->second);
+					index++;
+				}
+			}
+		}
+	}
+	return rsp;
+}
+
+static jsonElement callHiearchyIncomingCalls ( jsonElement const &req, int64_t id, lsJsonRPCServerBase &server, languageServer *ls )
+{
+	return jsonElement {};
+}
+static jsonElement callHeiarchyOutgoingCalls ( jsonElement const &req, int64_t id, lsJsonRPCServerBase &server, languageServer *ls )
+
+{
+	return jsonElement {};
+}
 static jsonElement textDocumentPrepareTypeHierarchy ( jsonElement const &req, int64_t id, lsJsonRPCServerBase &server, languageServer *ls )
 {
 	stringi const uri = req["textDocument"]["uri"];
@@ -2555,7 +2615,7 @@ static jsonElement initialize ( jsonElement const &req, int64_t id, lsJsonRPCSer
 								{ "selectionRangeProvider", true },
 
 								{ "linkedEditingRangeProvider", false },
-								{ "callHierarchyProvider", false },
+								{ "callHierarchyProvider", true },
 								{ "semanticTokensProvider",	{	{ "full", true },
 																{ "range", true },
 																{ "legend", { "tokenModifiers", { jsonElement::array } } } } },
@@ -2630,6 +2690,10 @@ taskControl *startLanguageServer ( uint16_t port )
 			{ "textDocument/selectionRange",			textDocumentSelectionRange},
 			{ "textDocument/inlayHint",					textDocumentInlayHint },
 			{ "textDocument/prepareTypeHierarchy",		textDocumentPrepareTypeHierarchy },
+			{ "textDocument/prepareCallHierarchy",		textDocumentPrepareCallHierarchy},
+			{ "callHierarchy/incomingCalls",			callHiearchyIncomingCalls },
+			{ "callHierarchy/outgoingCalls",			callHeiarchyOutgoingCalls },
+
 			//							{ "textDocument/documentSymbol",			textDocumentDocumentSymbol},
 			//							{ "textDocument/documentSymbol",			textDocumentDocumentSymbol},
 		}
@@ -2687,6 +2751,9 @@ taskControl *startLanguageServer ()
 			{ "textDocument/selectionRange",			textDocumentSelectionRange },
 			{ "textDocument/inlayHint",					textDocumentInlayHint },
 			{ "textDocument/prepareTypeHierarchy",		textDocumentPrepareTypeHierarchy },
+			{ "textDocument/prepareCallHierarchy",		textDocumentPrepareCallHierarchy},
+			{ "callHierarchy/incomingCalls",			callHiearchyIncomingCalls },
+			{ "callHierarchy/outgoingCalls",			callHeiarchyOutgoingCalls },
 			//							{ "textDocument/documentSymbol",			textDocumentDocumentSymbol},
 		}
 	);

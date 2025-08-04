@@ -35,7 +35,7 @@ symbolTypeClass astNode::getType ( symbolStack *sym )
 					auto elem = &classDef->elements[static_cast<size_t>(classDef->overload[int(fgxOvOp::ovArrayDerefRHS)]) - 1];
 					if ( elem )
 					{
-						return sym->getFuncReturnType ( elem->methodAccess.func->name, true, accessorType(), nullptr );
+						return sym->getFuncReturnType ( elem->methodAccess.func->name, true, accessorType (), nullptr, srcLocation {} );
 					}
 				}
 			}
@@ -60,7 +60,7 @@ symbolTypeClass astNode::getType ( symbolStack *sym )
 					auto elem = &classDef->elements[static_cast<size_t>(classDef->overload[int(opToOvXref[static_cast<size_t>(this->getOp())])]) - 1];
 					if ( elem )
 					{
-						return sym->getFuncReturnType( elem->methodAccess.func->name, true, accessorType(), nullptr );
+						return sym->getFuncReturnType( elem->methodAccess.func->name, true, accessorType(), nullptr, srcLocation {} );
 					}
 				}
 			} else if ( leftType.isAnObject() )
@@ -80,7 +80,7 @@ symbolTypeClass astNode::getType ( symbolStack *sym )
 					auto elem = &classDef->elements[static_cast<size_t>(classDef->overload[int(opToOvXref[static_cast<size_t>(this->getOp())])]) - 1];
 					if ( elem )
 					{
-						return sym->getFuncReturnType( elem->methodAccess.func->name, true, accessorType(), nullptr );
+						return sym->getFuncReturnType( elem->methodAccess.func->name, true, accessorType(), nullptr, srcLocation {} );
 					}
 				}
 			} else if ( leftType.isAnObject() )
@@ -117,7 +117,7 @@ symbolTypeClass astNode::getType ( symbolStack *sym )
 					auto elem = &classDef->elements[static_cast<size_t>(classDef->overload[int(opToOvXref[static_cast<size_t>(this->getOp())])]) - 1];
 					if ( elem )
 					{
-						return sym->getFuncReturnType( elem->methodAccess.func->name, true, accessorType(), nullptr );
+						return sym->getFuncReturnType( elem->methodAccess.func->name, true, accessorType(), nullptr, srcLocation {} );
 					}
 				}
 			} else if ( leftType.isAnObject() )
@@ -137,7 +137,7 @@ symbolTypeClass astNode::getType ( symbolStack *sym )
 					auto elem = &classDef->elements[static_cast<size_t>(classDef->overload[int(opToOvXref[static_cast<size_t>(this->getOp())])]) - 1];
 					if ( elem )
 					{
-						return sym->getFuncReturnType( elem->methodAccess.func->name, true, accessorType(), nullptr );
+						return sym->getFuncReturnType( elem->methodAccess.func->name, true, accessorType(), nullptr, srcLocation {} );
 					}
 				}
 			} else if ( leftType.isAnObject() )
@@ -154,7 +154,7 @@ symbolTypeClass astNode::getType ( symbolStack *sym )
 					auto elem = &classDef->elements[static_cast<size_t>(classDef->overload[int(opToOvXref[static_cast<size_t>(this->getOp())])]) - 1];
 					if ( elem )
 					{
-						return sym->getFuncReturnType( elem->methodAccess.func->name, true, accessorType(), nullptr );
+						return sym->getFuncReturnType( elem->methodAccess.func->name, true, accessorType(), nullptr, srcLocation {} );
 					}
 				}
 			} else if ( leftType.isAnObject() )
@@ -198,7 +198,7 @@ symbolTypeClass astNode::getType ( symbolStack *sym )
 		case astOp::nilValue:
 			 return symWeakVariantType;
 		case astOp::range:
-			return sym->getFuncReturnType ( sym->file->rangeValue, true, accessorType (), nullptr );
+			return sym->getFuncReturnType ( sym->file->rangeValue, true, accessorType (), nullptr, srcLocation {} );
 		case astOp::getEnumerator:
 			{
 				auto leftType = left->getType ( sym );
@@ -222,7 +222,7 @@ symbolTypeClass astNode::getType ( symbolStack *sym )
 					auto elem = classDef->getElement( sym->file->getEnumeratorValue );
 					if ( elem )
 					{
-						return sym->getFuncReturnType( elem->methodAccess.func->name, true, accessorType(), nullptr );
+						return sym->getFuncReturnType( elem->methodAccess.func->name, true, accessorType(), nullptr, srcLocation {} );
 					}
 				}
 				return symWeakObjectType;
@@ -249,7 +249,7 @@ symbolTypeClass astNode::getType ( symbolStack *sym )
 					return symWeakVariantType;
 				} else
 				{
-					auto retType = sym->getFuncReturnType ( left->symbolValue(), true, accessorType(), nullptr );
+					auto retType = sym->getFuncReturnType ( left->symbolValue(), true, accessorType(), nullptr, srcLocation {} );
 
 					if ( (const symbolTypeClass)retType != symUnknownType )
 					{
@@ -313,7 +313,7 @@ symbolTypeClass astNode::getType ( symbolStack *sym )
 					// pseudo object calls
 					if ( ((left->right->getOp () == astOp::nameValue) || (left->right->getOp () == astOp::atomValue)) )
 					{
-						auto retType = sym->getFuncReturnType ( left->right->symbolValue (), true, accessorType (), nullptr );
+						auto retType = sym->getFuncReturnType ( left->right->symbolValue (), true, accessorType (), nullptr, srcLocation {} );
 
 						if ( (const symbolTypeClass)retType != symUnknownType )
 						{
@@ -332,7 +332,7 @@ func_call_by_type:
 						auto elem = &classDef->elements[static_cast<size_t>(classDef->overload[int(fgxOvOp::ovFuncCall)]) - 1];
 						if ( elem )
 						{
-							return sym->getFuncReturnType( elem->methodAccess.func->name, true, accessorType(), nullptr );
+							return sym->getFuncReturnType( elem->methodAccess.func->name, true, accessorType(), nullptr, srcLocation {} );
 						}
 					}
 					return symWeakVariantType;
@@ -391,7 +391,7 @@ func_call_by_type:
 				{
 					if ( left->getOp ( ) == astOp::atomValue )
 					{
-						symbolTypeClass const retType = sym->getFuncReturnType ( right->symbolValue(), true, accessorType(), nullptr );
+						symbolTypeClass const retType = sym->getFuncReturnType ( right->symbolValue(), true, accessorType(), nullptr, srcLocation {} );
 
 						if ( retType != symUnknownType )
 						{

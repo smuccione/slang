@@ -47,8 +47,8 @@ public:
 	bool								 inUse = false;
 	bool								 needScan = false;
 
-	std::mutex							 accessorsAccess;
-	std::unordered_set<accessorType>	 accessors;						// for type inferencing in case our type changes
+	std::mutex										 accessorsAccess;
+	std::unordered_multimap<accessorType, srcLocation>	 accessors;						// for type inferencing in case our type changes
 
 	opSymbol ( opSymbol::symbolClass cls, cacheString const &name, srcLocation const &location, symbolTypeClass const &type, class astNode *init, bool loadTimeInitializable, bool isExportable, bool isInterface, stringi const &documentation ) : symClass ( cls ), name ( name ), documentation ( documentation ), location ( location ), type ( type ), initializer ( init ), loadTimeInitializable ( loadTimeInitializable ), isExportable ( isExportable ), isInterface ( isInterface )
 	{
@@ -146,19 +146,19 @@ public:
 
 			for ( auto &it : accessors )
 			{
-				if ( scanQueue ) scanQueue->push ( it );
+				if ( scanQueue ) scanQueue->push ( it.first );
 			}
 			return true;
 		}
 		return false;
 	}
 
-	void setAccessed ( cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue )
+	void setAccessed ( cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue, srcLocation const &loc )
 	{
 		if ( isAccess )
 		{
 			std::lock_guard g1 ( accessorsAccess );
-			accessors.insert ( acc );
+			accessors.insert ( {acc, loc} );
 		}
 	}
 };

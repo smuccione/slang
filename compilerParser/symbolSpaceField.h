@@ -88,7 +88,7 @@ public:
 		assert ( this->name == name );
 		return documentation;
 	}
-	void setAccessed ( class opFile *file, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue ) override
+	void setAccessed ( class opFile *file, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue, srcLocation const &loc ) override
 	{
 		// NOTE: we don't care about accessors... our type will never change... it's ALWAYS variant
 		return;

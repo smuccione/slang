@@ -147,8 +147,8 @@ public:
 	void resetType ( class opFile * ) override ;
 	size_t size ( ) const override { return 1; };
 
-	void setAccessed ( class opFile *file, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue ) override;
-	void setAllLocalAccessed ( accessorType const &acc, unique_queue<accessorType> *scanQueue ) override;
+	void setAccessed ( class opFile *file, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue, srcLocation const &loc ) override;
+	void setAllLocalAccessed ( accessorType const &acc, unique_queue<accessorType> *scanQueue, srcLocation const &loc ) override;
 
 	bool setType			( cacheString const &name, bool isAccess, class symbolTypeClass const &type, accessorType const &acc, unique_queue<accessorType> *scanQueue ) override;
 	void setInitType		( cacheString const &name, bool isAccess, symbolTypeClass const &type, accessorType const &acc, unique_queue<accessorType> *scanQueue ) override;

@@ -120,9 +120,9 @@ class symbolSpaceLocalAdd : public symbol
 		if ( (*this)[name] ) return true;
 		return false;
 	}
-	void					 setAccessed ( class opFile *file, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue ) override
+	void					 setAccessed ( class opFile *file, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue, srcLocation const &loc ) override
 	{
-		return (*this)[name]->setAccessed ( file, name, isAccess, acc, scanQueue );
+		return (*this)[name]->setAccessed ( file, name, isAccess, acc, scanQueue, loc );
 	}
 	void					 setClosedOver ( cacheString const &name ) override
 	{

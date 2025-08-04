@@ -204,28 +204,33 @@ opFunction::~opFunction ()
 	}
 }
 
-void opFunction::setAccessed ( accessorType const &acc, unique_queue<accessorType> *scanQueue )
+void opFunction::setCalled ( accessorType const &acc, srcLocation const &loc )
+{
+	called.insert ( {acc, loc} );
+}
+
+void opFunction::setAccessed ( accessorType const &acc, unique_queue<accessorType> *scanQueue, srcLocation const &loc )
 {
 	std::lock_guard g1 ( accessorLock );
 	if ( !inUse )
 	{
 		for ( auto &it : accessors )
 		{
-			if ( scanQueue ) scanQueue->push ( it );
+			if ( scanQueue ) scanQueue->push ( it.first );
 		}
 		inUse = true;
 		if ( scanQueue ) scanQueue->push ( this );
 	}
-	accessors.insert ( acc );
+	accessors.insert ( {acc, loc} );
 }
 
-void opFunction::setWeakAccessed ( accessorType const &acc, unique_queue<accessorType> *scanQueue )
+void opFunction::setWeakAccessed ( accessorType const &acc, unique_queue<accessorType> *scanQueue, srcLocation  const &loc )
 {
 	std::lock_guard g1 ( accessorLock );
-	accessors.insert ( acc );
+	accessors.insert ( {acc, loc} );
 }
 
-void opFunction::setInlineUsed ( accessorType const &acc, unique_queue<accessorType> *scanQueue )
+void opFunction::setInlineUsed ( accessorType const &acc, unique_queue<accessorType> *scanQueue, srcLocation  const &loc )
 {
 	if ( !inlineUse )
 	{
@@ -233,17 +238,17 @@ void opFunction::setInlineUsed ( accessorType const &acc, unique_queue<accessorT
 	}
 }
 
-symbolTypeClass const opFunction::getMarkReturnType ( class compExecutable *comp, symbolStack const *sym, accessorType const &acc, unique_queue<accessorType> *scanQueue, bool isLS )
+symbolTypeClass const opFunction::getMarkReturnType ( class compExecutable *comp, symbolStack const *sym, accessorType const &acc, unique_queue<accessorType> *scanQueue, bool isLS, srcLocation const &loc )
 {
 	compClass *classDef;
 	if ( retType.hasClass () && (classDef = sym->findClass ( retType.getClass () )) )
 	{
-		markClassInuse ( comp, acc, classDef->oClass, sym, scanQueue, isLS );
+		markClassInuse ( comp, acc, classDef->oClass, sym, scanQueue, isLS, loc );
 	}
 	return retType.weakify ();
 }
 
-void opFunction::setReturnType ( symbolTypeClass const &type, unique_queue<accessorType> *scanQueue )
+void opFunction::setReturnType ( symbolTypeClass const &type, unique_queue<accessorType> *scanQueue, srcLocation const &loc )
 {
 	std::lock_guard g1 ( accessorLock );
 	assert ( !isProcedure );
@@ -251,7 +256,7 @@ void opFunction::setReturnType ( symbolTypeClass const &type, unique_queue<acces
 	{
 		for ( auto &it : accessors )
 		{
-			if ( scanQueue ) scanQueue->push ( it );
+			if ( scanQueue ) scanQueue->push ( it.first );
 		}
 	}
 }
@@ -270,7 +275,7 @@ void opFunction::setParamType ( class compExecutable *comp, symbolStack *sym, ui
 	if ( (conv == fgxFuncCallConvention::opFuncType_cDecl) && type.hasClass () )
 	{
 		auto classDef = sym->findClass ( type.getClass () );
-		markClassMethodsInuse ( comp, this, classDef->oClass, sym, scanQueue, true, false );
+		markClassMethodsInuse ( comp, this, classDef->oClass, sym, scanQueue, true, false, srcLocation {} );
 	}
 
 	if ( isVariantParam )
@@ -298,7 +303,7 @@ void opFunction::setParamTypeNoThrow ( class compExecutable *comp, symbolStack *
 	if ( (conv == fgxFuncCallConvention::opFuncType_cDecl) && type.hasClass () )
 	{
 		auto classDef = sym->findClass ( type.getClass () );
-		markClassMethodsInuse ( comp, this, classDef->oClass, sym, scanQueue, true, false );
+		markClassMethodsInuse ( comp, this, classDef->oClass, sym, scanQueue, true, false, srcLocation {} );
 	}
 
 	if ( isVariantParam )

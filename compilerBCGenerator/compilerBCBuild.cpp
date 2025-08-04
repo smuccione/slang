@@ -116,7 +116,7 @@ void compExecutable::processGlobals ( int64_t sourceIndex, bool isLS )
 								//						(*it2)->data.iVar.initializer = 0;	// hack to keep from having to make a copy... we move ownership to the globals vector
 								file->ns.add ( opSymbol::symbolClass::symbolClass_classStatic, (*it2)->data.iVar.symbolName, new astNode ( *(*it2)->data.iVar.initializer ), (*it2)->location, false, (*it).second->isInterface, isLS, stringi () );
 								// these symbols must always be present if we're the definer
-								file->symbols.find ( (*it2)->data.iVar.symbolName )->second.accessors.insert ( accessorType () );
+								file->symbols.find ( (*it2)->data.iVar.symbolName )->second.accessors.insert ( {accessorType (), srcLocation{}} );
 							}
 						}
 						break;
@@ -130,7 +130,7 @@ void compExecutable::processGlobals ( int64_t sourceIndex, bool isLS )
 								//							(*it2)->data.iVar.initializer = 0;	// hack to keep from having to make a copy... we move ownership to the globals vector
 								file->ns.add ( opSymbol::symbolClass::symbolClass_classConst, (*it2)->data.iVar.symbolName, new astNode ( *(*it2)->data.iVar.initializer ), (*it2)->location, true, (*it).second->isInterface, isLS, stringi () );
 								// these symbols must always be present if we're the definer
-								file->symbols.find ( (*it2)->data.iVar.symbolName )->second.accessors.insert ( accessorType () );
+								file->symbols.find ( (*it2)->data.iVar.symbolName )->second.accessors.insert ( {accessorType (), srcLocation{}} );
 							}
 						}
 						break;

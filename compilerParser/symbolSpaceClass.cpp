@@ -195,7 +195,7 @@ int16_t symbolClass::getVtabEntry ( cacheString const &name, bool isAccess ) con
 	}
 }
 
-void symbolClass::setAccessed ( class opFile *file, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue )
+void symbolClass::setAccessed ( class opFile *file, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue, srcLocation const &loc )
 {
 	auto const elem = (*this)[name];
 	std::lock_guard g1 ( elem->elem->accessorsAccess );
@@ -207,18 +207,18 @@ void symbolClass::setAccessed ( class opFile *file, cacheString const &name, boo
 			{
 				for ( auto &it : elem->elem->data.prop.accessVirtOverrides )
 				{
-					it->setAccessed ( acc, scanQueue );
+					it->setAccessed ( acc, scanQueue, loc );
 				}
 			} else
 			{
 				for ( auto &it : elem->elem->data.prop.assignVirtOverrides )
 				{
-					it->setAccessed ( acc, scanQueue );
+					it->setAccessed ( acc, scanQueue, loc );
 				}
 			}
 			break;
 		case fgxClassElementType::fgxClassType_method:
-			return elem->methodAccess.func->setAccessed ( acc, scanQueue );
+			return elem->methodAccess.func->setAccessed ( acc, scanQueue, loc );
 		case fgxClassElementType::fgxClassType_iVar:
 		case fgxClassElementType::fgxClassType_static:
 			if ( isAccess )
@@ -227,7 +227,7 @@ void symbolClass::setAccessed ( class opFile *file, cacheString const &name, boo
 				{
 					if ( scanQueue ) scanQueue->push ( elem->elem );
 				}
-				elem->elem->accessors.insert ( acc );
+				elem->elem->accessors.insert ( {acc, loc} );
 			}
 			break;
 		default:
@@ -392,7 +392,7 @@ uint32_t symbolClass::getFuncNumParams ( cacheString const &name, bool isAccess 
 			return 0;
 	}
 }
-symbolTypeClass	const symbolClass::getFuncReturnType ( class symbolStack const *sym, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue ) const
+symbolTypeClass	const symbolClass::getFuncReturnType ( class symbolStack const *sym, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue, srcLocation const &loc ) const
 {
 	opFunction *func;
 	auto const elem = (*this)[name];
@@ -413,11 +413,11 @@ symbolTypeClass	const symbolClass::getFuncReturnType ( class symbolStack const *
 		default:
 			return symWeakVariantType;
 	}
-	func->accessors.insert ( acc );
+	func->accessors.insert ( {acc, loc} );
 	return func->getReturnType ();
 }
 
-symbolTypeClass	const symbolClass::getMarkFuncReturnType ( class compExecutable *compDef, class symbolStack const *sym, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue, bool isLS ) const
+symbolTypeClass	const symbolClass::getMarkFuncReturnType ( class compExecutable *compDef, class symbolStack const *sym, cacheString const &name, bool isAccess, accessorType const &acc, unique_queue<accessorType> *scanQueue, bool isLS, srcLocation const &loc ) const
 {
 	opFunction *func;
 	auto const elem = (*this)[name];
@@ -438,8 +438,8 @@ symbolTypeClass	const symbolClass::getMarkFuncReturnType ( class compExecutable 
 		default:
 			return symWeakVariantType;
 	}
-	func->accessors.insert ( acc );
-	return func->getMarkReturnType ( compDef, sym, acc, scanQueue, isLS );
+	func->accessors.insert ( {acc, loc} );
+	return func->getMarkReturnType ( compDef, sym, acc, scanQueue, isLS, loc );
 }
 
 symbolTypeClass const symbolClass::getFuncParamType ( cacheString const &name, bool isAccess, int32_t nParam, accessorType const &acc, unique_queue<accessorType> *scanQueue ) const

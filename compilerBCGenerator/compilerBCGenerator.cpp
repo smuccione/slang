@@ -2351,7 +2351,7 @@ class symbolTypeClass compExecutable::compEmitFunc( opFunction *funcDef, class a
 								ret = compEmitCast ( node->pList().param[0]->getType ( sym ), needType );
 							} else
 							{
-								ret = compEmitCast ( sym->getFuncReturnType ( funcName, true, accessorType (), nullptr ), needType );
+								ret = compEmitCast ( sym->getFuncReturnType ( funcName, true, accessorType (), nullptr, srcLocation {} ), needType );
 							}
 						}
 						break;
@@ -2555,7 +2555,7 @@ class symbolTypeClass compExecutable::compEmitFunc( opFunction *funcDef, class a
 								if ( needValue )
 								{
 									sym->pushStack ( );	// push a value since the non-pop version will push one onto the stack
-									ret = compEmitCast ( sym->getFuncReturnType ( elem->methodAccess.func->name, true, accessorType(), nullptr ), needType );
+									ret = compEmitCast ( sym->getFuncReturnType ( elem->methodAccess.func->name, true, accessorType(), nullptr, srcLocation {} ), needType );
 								}
 							} else
 							{
@@ -2625,7 +2625,7 @@ class symbolTypeClass compExecutable::compEmitFunc( opFunction *funcDef, class a
 								compEmitFuncCall( funcDef, elem->methodAccess.func->name, true, node, sym, needValue, nParamsSent, tailCall, node->left->right->nameValue().find ( "::" ) == stringi::npos ? elem : nullptr );
 								if ( needValue )
 								{
-									ret = compEmitCast ( sym->getFuncReturnType ( elem->methodAccess.func->name, true, accessorType(), nullptr ), needType );
+									ret = compEmitCast ( sym->getFuncReturnType ( elem->methodAccess.func->name, true, accessorType(), nullptr, srcLocation {} ), needType );
 								}
 							}
 							break;
@@ -2713,7 +2713,7 @@ class symbolTypeClass compExecutable::compEmitFunc( opFunction *funcDef, class a
 						nParamsSent = nParamsSent + 2 < nParamsNeeded ? nParamsNeeded : nParamsSent + 2;
 						// call the code
 						compEmitFuncCall( funcDef, elem->methodAccess.func->name, true, node, sym, needValue, nParamsSent, tailCall, nullptr );
-						ret = compEmitCast ( sym->getFuncReturnType ( elem->methodAccess.func->name, true, accessorType(), nullptr ), needType );
+						ret = compEmitCast ( sym->getFuncReturnType ( elem->methodAccess.func->name, true, accessorType(), nullptr, srcLocation {} ), needType );
 						break;
 					} else
 					{

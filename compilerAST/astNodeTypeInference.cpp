@@ -100,7 +100,7 @@ void typeInferParams ( cacheString &funcName, astNode *funcCallNode, size_t numH
 	}
 }
 
-void markOvOp ( class compExecutable *comp, astOp op, symbolStack *sym, accessorType const &acc, symbolTypeClass const &rightType, bool interProcedural, unique_queue<accessorType> *scanQueue, bool isLS )
+void markOvOp ( class compExecutable *comp, astOp op, symbolStack *sym, accessorType const &acc, symbolTypeClass const &rightType, bool interProcedural, unique_queue<accessorType> *scanQueue, bool isLS, srcLocation &loc )
 {
 	auto opDef = opToOpDef[(size_t) op];
 
@@ -112,11 +112,30 @@ void markOvOp ( class compExecutable *comp, astOp op, symbolStack *sym, accessor
 		{
 			if ( interProcedural && func->classDef->inUse )
 			{
-				func->setAccessed ( acc, scanQueue );
+				func->setAccessed ( acc, scanQueue, loc );
 				if ( opDef->opCat == astOpCat::opBinary )
 				{
 					func->setParamTypeNoThrow ( comp, sym, 1, rightType, scanQueue );
 				}
+			}
+		}
+	}
+	return;
+}
+
+void setOvOpCalled ( class compExecutable *comp, astOp op, accessorType const &acc, bool isLS, srcLocation &loc )
+{
+	if ( isLS && std::holds_alternative<opFunction *> ( acc ) )
+	{
+		auto opDef = opToOpDef[(size_t)op];
+
+		if ( opDef->overloadOp == fgxOvOp::ovNone ) return;
+
+		for ( auto &elem : comp->opOverloads[int ( opDef->overloadOp )] )
+		{
+			for ( auto &func : elem->elem->data.method.virtOverrides )
+			{
+				std::get<opFunction *> ( acc )->setCalled ( acc, loc );
 			}
 		}
 	}
@@ -144,7 +163,18 @@ bool isFuncMarkable ( opFile *file, opFunction *func, accessorType const &acc )
 	return true;
 }
 
-void markClassInuse ( class compExecutable *comp, accessorType const &acc, class opClass *cls, symbolStack const *sym, unique_queue<accessorType> *scanQueue, bool isLS )
+void setCalled ( accessorType const &acc, opFunction *func, bool isLS, srcLocation &loc  )
+{
+	if ( isLS )
+	{
+		if ( std::holds_alternative<opFunction *> ( acc ) )
+		{
+			std::get<opFunction *> ( acc )->setCalled ( acc, loc );
+		}
+	}
+}
+
+void markClassInuse ( class compExecutable *comp, accessorType const &acc, class opClass *cls, symbolStack const *sym, unique_queue<accessorType> *scanQueue, bool isLS, srcLocation const &loc )
 {
 	if ( !cls->inUse )
 	{
@@ -165,7 +195,7 @@ void markClassInuse ( class compExecutable *comp, accessorType const &acc, class
 						auto base = sym->findClass ( elem->name );
 						if ( base )
 						{
-							markClassInuse ( comp, acc, base->oClass, sym, scanQueue, isLS );
+							markClassInuse ( comp, acc, base->oClass, sym, scanQueue, isLS, loc );
 						}
 					}
 					break;
@@ -179,7 +209,7 @@ void markClassInuse ( class compExecutable *comp, accessorType const &acc, class
 			if ( base )
 			{
 			// mark everything as used... these are FFI used and therefore transparent to us
-				markClassMethodsInuse ( comp, acc, base->oClass, sym, scanQueue, false, isLS );
+				markClassMethodsInuse ( comp, acc, base->oClass, sym, scanQueue, false, isLS, loc );
 			}
 		}
 
@@ -209,8 +239,8 @@ void markClassInuse ( class compExecutable *comp, accessorType const &acc, class
 					case fgxClassElementType::fgxClassType_method:
 						{
 							auto callee = elem->methodAccess.func;
-							callee->getMarkReturnType ( comp, sym, acc, scanQueue, isLS );
-							callee->setAccessed ( acc, scanQueue );
+							callee->getMarkReturnType ( comp, sym, acc, scanQueue, isLS, loc);
+							callee->setAccessed ( acc, scanQueue, loc );
 						}
 						break;
 					case fgxClassElementType::fgxClassType_prop:
@@ -218,14 +248,14 @@ void markClassInuse ( class compExecutable *comp, accessorType const &acc, class
 							if ( elem->methodAccess.func )
 							{
 								auto callee = elem->methodAccess.func;
-								callee->getMarkReturnType ( comp, sym, acc, scanQueue, isLS );
-								callee->setAccessed ( acc, scanQueue );
+								callee->getMarkReturnType ( comp, sym, acc, scanQueue, isLS, loc );
+								callee->setAccessed ( acc, scanQueue, loc );
 							}
 							if ( elem->assign.func )
 							{
 								auto callee = elem->assign.func;
-								callee->getMarkReturnType ( comp, sym, acc, scanQueue, isLS );
-								callee->setAccessed ( acc, scanQueue );
+								callee->getMarkReturnType ( comp, sym, acc, scanQueue, isLS, loc );
+								callee->setAccessed ( acc, scanQueue, loc );
 							}
 						}
 						break;
@@ -239,8 +269,8 @@ void markClassInuse ( class compExecutable *comp, accessorType const &acc, class
 		{
 			auto elem = &cls->cClass->elements[static_cast<size_t>(cls->cClass->overload[int(fgxOvOp::ovFuncCall)]) - 1];
 			auto callee = elem->methodAccess.func;
-			callee->getMarkReturnType ( comp, sym, acc, scanQueue, isLS );
-			callee->setAccessed ( acc, scanQueue );
+			callee->getMarkReturnType ( comp, sym, acc, scanQueue, isLS, loc);
+			callee->setAccessed ( acc, scanQueue, loc );
 		}
 
 		auto it = cls->cClass->getElement ( sym->file->getEnumeratorValue );
@@ -255,24 +285,24 @@ void markClassInuse ( class compExecutable *comp, accessorType const &acc, class
 					auto cls = sym->findClass ( sym->file->queryableValue );
 					if ( cls )
 					{
-						markClassMethodsInuse ( comp, acc, cls->oClass, sym, scanQueue, true, isLS );
+						markClassMethodsInuse ( comp, acc, cls->oClass, sym, scanQueue, true, isLS, loc );
 					}
 				}
 			} else if ( callee )
 			{
 				cls->inUse = true;
-				markClassInuse ( comp, acc, callee->classDef, sym, scanQueue, isLS );
+				markClassInuse ( comp, acc, callee->classDef, sym, scanQueue, isLS, loc );
 			}
 			if ( callee )
 			{
-				callee->setAccessed ( acc, scanQueue );
+				callee->setAccessed ( acc, scanQueue, loc );
 			}
 		}
 		cls->inUse = true;
 	}
 }
 
-void markClassMethodsInuse ( class compExecutable *comp, accessorType const &acc, opClass *cls, symbolStack const *sym, unique_queue<accessorType> *scanQueue, bool genericIterators, bool isLS )
+void markClassMethodsInuse ( class compExecutable *comp, accessorType const &acc, opClass *cls, symbolStack const *sym, unique_queue<accessorType> *scanQueue, bool genericIterators, bool isLS, srcLocation const &loc )
 {
 	std::lock_guard g1( cls->accessorAccess );
 
@@ -295,14 +325,14 @@ void markClassMethodsInuse ( class compExecutable *comp, accessorType const &acc
 					auto base = sym->findClass ( elem->name );
 					if ( base )
 					{
-						markClassInuse ( comp, acc, base->oClass, sym, scanQueue, isLS );
+						markClassInuse ( comp, acc, base->oClass, sym, scanQueue, isLS, loc );
 					}
 				}
 				break;
 			case fgxClassElementType::fgxClassType_method:
 				{
 					auto callee = sym->file->functionList.find( elem->data.method.func )->second;
-					callee->setAccessed ( acc, scanQueue );
+					callee->setAccessed ( acc, scanQueue, loc );
 					if ( std::holds_alternative<opFunction *> ( acc ) && std::get<opFunction *> ( acc ) != callee )
 					{
 						if ( scheduleMakeIterator ( sym->file, callee, genericIterators, acc, scanQueue, isLS ) )
@@ -312,7 +342,7 @@ void markClassMethodsInuse ( class compExecutable *comp, accessorType const &acc
 								auto cls = sym->findClass ( sym->file->queryableValue );
 								if ( cls )
 								{
-									markClassMethodsInuse ( comp, acc, cls->oClass, sym, scanQueue, true, isLS );
+									markClassMethodsInuse ( comp, acc, cls->oClass, sym, scanQueue, true, isLS, loc );
 								}
 							}
 						}
@@ -324,12 +354,12 @@ void markClassMethodsInuse ( class compExecutable *comp, accessorType const &acc
 					if ( elem->data.prop.access.size () )
 					{
 						auto callee = sym->file->functionList.find( elem->data.prop.access )->second;
-						callee->setAccessed ( acc, scanQueue );
+						callee->setAccessed ( acc, scanQueue, loc );
 					}
 					if ( elem->data.prop.assign.size () )
 					{
 						auto callee = sym->file->functionList.find( elem->data.prop.assign )->second;
-						callee->setAccessed ( acc, scanQueue );
+						callee->setAccessed ( acc, scanQueue, loc );
 					}
 				}
 				break;
@@ -342,14 +372,14 @@ void markClassMethodsInuse ( class compExecutable *comp, accessorType const &acc
 		auto base = sym->findClass ( name );
 		if ( base )
 		{
-			markClassInuse ( comp, acc, base->oClass, sym, scanQueue, isLS );
+			markClassInuse ( comp, acc, base->oClass, sym, scanQueue, isLS, loc );
 		}
 	}
 	for ( auto &it : cls->opOverload )
 	{
 		if ( it )
 		{
-			sym->file->functionList.find( it->data.method.func)->second->setAccessed ( acc, scanQueue );
+			sym->file->functionList.find( it->data.method.func)->second->setAccessed ( acc, scanQueue, loc );
 		}
 	}
 }
@@ -392,7 +422,7 @@ symbolTypeClass astNode::typeInfer ( compExecutable *comp, accessorType const &a
 				case symbolSpaceType::symTypeClass:
 					{
 						auto cls = dynamic_cast<symbolClass *>(symbolDef ());
-						markClassInuse ( comp, acc, cls->getClass ()->oClass, sym, scanQueue, isLS );
+						markClassInuse ( comp, acc, cls->getClass ()->oClass, sym, scanQueue, isLS, location );
 						sym->insert ( symbolDef (), cls->insertPos );
 					}
 					break;
@@ -465,7 +495,7 @@ symbolTypeClass astNode::typeInfer ( compExecutable *comp, accessorType const &a
 			{
 				errorLocality e ( err, this, true );
 				auto func = sym->file->functionList.find ( inlineFunc ().funcName )->second;
-				func->setInlineUsed ( acc, scanQueue );
+				func->setInlineUsed ( acc, scanQueue, location );
 				inlineFunc ().node->typeInfer ( comp, acc, err, sym, &inlineFunc ().retType, interProcedural, false, markUsed, scanQueue, isLS );
 			}
 			return inlineFunc ().retType;
@@ -499,8 +529,8 @@ symbolTypeClass astNode::typeInfer ( compExecutable *comp, accessorType const &a
 			{
 				auto func = std::get<opFunction *> ( acc );
 				symbolTypeClass newType = returnData ().node->typeInfer ( comp, acc, err, sym, inlineRetType, interProcedural, true, markUsed, scanQueue, isLS );
-				func->setReturnType ( newType, scanQueue );
-				return func->getMarkReturnType ( comp, sym, acc, scanQueue, isLS );
+				func->setReturnType ( newType, scanQueue, location );
+				return func->getMarkReturnType ( comp, sym, acc, scanQueue, isLS, location );
 			}
 			return symWeakVariantType;
 		case astOp::btInlineRet:
@@ -563,15 +593,17 @@ symbolTypeClass astNode::typeInfer ( compExecutable *comp, accessorType const &a
 											sym->setParameterType ( comp, sym, elem->methodAccess.func->name, true, 1, rightType, acc, scanQueue );
 										}
 									}
-									sym->setAccessed ( elem->methodAccess.func->name, false, acc, scanQueue );
+									setCalled ( acc, elem->methodAccess.func, isLS, location );
+									sym->setAccessed ( elem->methodAccess.func->name, false, acc, scanQueue, location );
 									if ( std::holds_alternative<opFunction *>( acc ) ) std::get<opFunction *>( acc )->isConst &= sym->isConst( elem->methodAccess.func->name, false );
 									if ( std::holds_alternative<opFunction *>( acc ) ) std::get<opFunction *>( acc )->isPure &= sym->isPure( elem->methodAccess.func->name, false );
-									return elem->methodAccess.func->getMarkReturnType ( comp, sym, acc, scanQueue, isLS );
+									return elem->methodAccess.func->getMarkReturnType ( comp, sym, acc, scanQueue, isLS, location );
 								}
 							}
 						} else if ( leftType.isAnObject () )
 						{
-							markOvOp ( comp, this->getOp (), sym, acc, rightType, interProcedural, scanQueue, isLS );
+							setOvOpCalled ( comp, this->getOp(), acc, isLS, location );
+							markOvOp ( comp, this->getOp (), sym, acc, rightType, interProcedural, scanQueue, isLS, location );
 							if ( std::holds_alternative<opFunction *> ( acc ) ) std::get<opFunction *> ( acc )->isConst = false;
 							if ( std::holds_alternative<opFunction *> ( acc ) ) std::get<opFunction *> ( acc )->isPure = false;
 						}
@@ -590,7 +622,7 @@ symbolTypeClass astNode::typeInfer ( compExecutable *comp, accessorType const &a
 					case symbolSpaceScope::symClassStatic:
 						if ( std::holds_alternative<opFunction *> ( acc ) )
 						{
-							sym->setAccessed ( sym->file->selfValue, true, acc, scanQueue );
+							sym->setAccessed ( sym->file->selfValue, true, acc, scanQueue, location );
 						}
 						if ( interProcedural )
 						{
@@ -599,7 +631,7 @@ symbolTypeClass astNode::typeInfer ( compExecutable *comp, accessorType const &a
 						if ( std::holds_alternative<opFunction *> ( acc ) ) std::get<opFunction *> ( acc )->isConst = false;
 						return sym->getType ( left->symbolValue (), false );
 					case symbolSpaceScope::symClassIVar:
-						sym->setAccessed ( sym->file->selfValue, true, acc, scanQueue );
+						sym->setAccessed ( sym->file->selfValue, true, acc, scanQueue, location );
 						if ( interProcedural )
 						{
 							sym->setType ( left->symbolValue (), false, rightType, acc, scanQueue );
@@ -609,7 +641,7 @@ symbolTypeClass astNode::typeInfer ( compExecutable *comp, accessorType const &a
 					case symbolSpaceScope::symClassAssign:
 						{
 							auto elem = sym->findClass ( sym->getType ( sym->file->selfValue, true ).getClass () )->getElement ( left->symbolValue () );
-							sym->setAccessed ( sym->file->selfValue, true, acc, scanQueue );
+							sym->setAccessed ( sym->file->selfValue, true, acc, scanQueue, location );
 							if ( interProcedural )
 							{
 								errorLocality e ( err, left );
@@ -621,10 +653,11 @@ symbolTypeClass astNode::typeInfer ( compExecutable *comp, accessorType const &a
 									sym->setParameterType ( comp, sym, left->symbolValue (), false, 1, rightType, acc, scanQueue );
 								}
 							}
-							sym->setAccessed ( left->symbolValue (), false, acc, scanQueue );
+							setCalled ( acc, elem->assign.func, isLS, location );
+							sym->setAccessed ( left->symbolValue (), false, acc, scanQueue, location );
 							if ( std::holds_alternative<opFunction *>( acc ) ) std::get<opFunction *>( acc )->isConst &= sym->isConst( elem->assign.func->name, false );
 							if ( std::holds_alternative<opFunction *>( acc ) ) std::get<opFunction *>( acc )->isPure &= sym->isPure( elem->assign.func->name, false );
-							return elem->assign.func->getMarkReturnType ( comp, sym, acc, scanQueue, isLS );
+							return elem->assign.func->getMarkReturnType ( comp, sym, acc, scanQueue, isLS, location );
 						}
 					default:
 						{
@@ -702,13 +735,14 @@ symbolTypeClass astNode::typeInfer ( compExecutable *comp, accessorType const &a
 											symbolTypeClass retType = symUnknownType;
 											for ( auto &func : elem->elem->data.prop.assignVirtOverrides )
 											{
-												func->setAccessed ( acc, scanQueue );
+												func->setAccessed ( acc, scanQueue, location );
 												if ( interProcedural )
 												{
 													errorLocality e ( err, left );
 													func->setParamType ( comp, sym, 1, rightType, scanQueue );
 												}
-												retType &= func->getMarkReturnType ( comp, sym, acc, scanQueue, isLS );
+												retType &= func->getMarkReturnType ( comp, sym, acc, scanQueue, isLS, location );
+												setCalled ( acc, func, isLS, location );
 											}
 										}
 										break;
@@ -758,8 +792,9 @@ symbolTypeClass astNode::typeInfer ( compExecutable *comp, accessorType const &a
 											sym->setParameterType ( comp, sym, elem->assign.func->name, false, 2, rightType, acc, scanQueue );
 										}
 									}
-									elem->assign.func->setAccessed ( acc, scanQueue );
-									return elem->assign.func->getMarkReturnType ( comp, sym, acc, scanQueue, isLS );
+									elem->assign.func->setAccessed ( acc, scanQueue, location );
+									setCalled ( acc, elem->assign.func, isLS, location );
+									return elem->assign.func->getMarkReturnType ( comp, sym, acc, scanQueue, isLS, location );
 								}
 							} else
 							{
@@ -790,9 +825,9 @@ symbolTypeClass astNode::typeInfer ( compExecutable *comp, accessorType const &a
 												if ( it.assign.func )
 												{
 													errorLocality e ( err, left );
-													sym->setAccessed ( it.assign.func->name, false, acc, scanQueue );
+													sym->setAccessed ( it.assign.func->name, false, acc, scanQueue, location );
 													sym->setParameterTypeNoThrow ( comp, sym, it.assign.func->name, false, 1, rightType, acc, scanQueue );
-													it.assign.func->getMarkReturnType ( comp, sym, acc, scanQueue, isLS );
+													it.assign.func->getMarkReturnType ( comp, sym, acc, scanQueue, isLS, location );
 												}
 											}
 											break;
@@ -841,9 +876,9 @@ symbolTypeClass astNode::typeInfer ( compExecutable *comp, accessorType const &a
 														if ( elem->assign.func )
 														{
 															errorLocality e ( err, this );
-															elem->assign.func->setAccessed ( acc, scanQueue );
+															elem->assign.func->setAccessed ( acc, scanQueue, location );
 															elem->assign.func->setParamTypeNoThrow ( comp, sym, 1, rightType, scanQueue );
-															elem->assign.func->getMarkReturnType ( comp, sym, acc, scanQueue, isLS );
+															elem->assign.func->getMarkReturnType ( comp, sym, acc, scanQueue, isLS, location );
 														}
 														break;
 													case fgxClassElementType::fgxClassType_iVar:
@@ -851,7 +886,7 @@ symbolTypeClass astNode::typeInfer ( compExecutable *comp, accessorType const &a
 														break;
 													case fgxClassElementType::fgxClassType_static:
 														elem->elem->symType ^= rightType;
-														sym->setAccessed ( elem->symbolName, false, acc, scanQueue );
+														sym->setAccessed ( elem->symbolName, false, acc, scanQueue, location );
 														break;
 													default:
 														break;
@@ -884,7 +919,7 @@ symbolTypeClass astNode::typeInfer ( compExecutable *comp, accessorType const &a
 															if ( elem.assign.func )
 															{
 																errorLocality e ( err, this );
-																elem.assign.func->setAccessed ( acc, scanQueue );
+																elem.assign.func->setAccessed ( acc, scanQueue, location );
 																elem.assign.func->setParamTypeNoThrow ( comp, sym, 1, symWeakVariantType, scanQueue );
 															}
 															break;
@@ -893,7 +928,7 @@ symbolTypeClass astNode::typeInfer ( compExecutable *comp, accessorType const &a
 															break;
 														case fgxClassElementType::fgxClassType_static:
 															elem.elem->symType ^= rightType;
-															sym->setAccessed ( elem.symbolName, false, acc, scanQueue );
+															sym->setAccessed ( elem.symbolName, false, acc, scanQueue, location );
 															break;
 														default:
 															break;
@@ -929,7 +964,7 @@ symbolTypeClass astNode::typeInfer ( compExecutable *comp, accessorType const &a
 				if ( left->left->getOp () == astOp::symbolValue )
 				{
 					sym->setType ( left->left->symbolValue (), true, symUnknownType, acc, scanQueue );
-					sym->setAccessed ( left->left->symbolValue (), true, acc, scanQueue );
+					sym->setAccessed ( left->left->symbolValue (), true, acc, scanQueue, location );
 				}
 				leftType = left->left->typeInfer ( comp, acc, err, sym, inlineRetType, interProcedural, true, markUsed, scanQueue, isLS );
 				if ( std::holds_alternative<opFunction *> ( acc ) ) std::get<opFunction *> ( acc )->isConst = false;
@@ -957,13 +992,15 @@ symbolTypeClass astNode::typeInfer ( compExecutable *comp, accessorType const &a
 									sym->setParameterType ( comp, sym, elem->methodAccess.func->name, true, 2, rightType, acc, scanQueue );
 								}
 							}
-							sym->setAccessed ( elem->methodAccess.func->name, false, acc, scanQueue );
-							return elem->methodAccess.func->getMarkReturnType ( comp, sym, acc, scanQueue, isLS );
+							setCalled ( acc, elem->methodAccess.func, isLS, location );
+							sym->setAccessed ( elem->methodAccess.func->name, false, acc, scanQueue, location );
+							return elem->methodAccess.func->getMarkReturnType ( comp, sym, acc, scanQueue, isLS, location );
 						}
 					}
 				} else if ( leftType.isAnObject () )
 				{
-					markOvOp ( comp, left->getOp (), sym, acc, rightType, interProcedural, scanQueue, isLS );
+					setOvOpCalled ( comp, left->getOp (), acc, isLS, location );
+					markOvOp ( comp, left->getOp (), sym, acc, rightType, interProcedural, scanQueue, isLS, location );
 					if ( std::holds_alternative<opFunction *> ( acc ) ) std::get<opFunction *> ( acc )->isConst = false;
 					if ( std::holds_alternative<opFunction *> ( acc ) ) std::get<opFunction *> ( acc )->isPure = false;
 				}
@@ -983,7 +1020,7 @@ symbolTypeClass astNode::typeInfer ( compExecutable *comp, accessorType const &a
 				// only need to do this the first time a range is encountered... this constructs the iterator
 				if ( scheduleMakeIterator ( sym->file, sym->file->findFunc ( sym->file->rangeValue ), false, acc, scanQueue, isLS ) )
 				{
-					markClassMethodsInuse ( comp, acc, sym->findClass ( sym->file->queryableValue )->oClass, sym, scanQueue, true, isLS );
+					markClassMethodsInuse ( comp, acc, sym->findClass ( sym->file->queryableValue )->oClass, sym, scanQueue, true, isLS, location );
 				}
 			}
 			if ( left && right )
@@ -1004,28 +1041,28 @@ symbolTypeClass astNode::typeInfer ( compExecutable *comp, accessorType const &a
 			}
 			return symWeakVariantType;
 		case astOp::symbolValue:
-			sym->setAccessed ( symbolValue (), true, acc, scanQueue );
+			sym->setAccessed ( symbolValue (), true, acc, scanQueue, location );
 			switch ( sym->getScope ( symbolValue (), true ) )
 			{
 				case symbolSpaceScope::symClassConst:
 				case symbolSpaceScope::symClassStatic:
 					if ( std::holds_alternative<opFunction *> ( acc ) )
 					{
-						sym->setAccessed ( sym->file->selfValue, true, acc, scanQueue );
+						sym->setAccessed ( sym->file->selfValue, true, acc, scanQueue, location );
 					}
 					break;
 				case symbolSpaceScope::symClassAssign:
 				case symbolSpaceScope::symClassAccess:
 					if ( std::holds_alternative<opFunction *>( acc ) ) std::get<opFunction *>( acc )->isConst = false;
 					if ( std::holds_alternative<opFunction *>( acc ) ) std::get<opFunction *>( acc )->isPure = false;
-					sym->setAccessed( sym->file->selfValue, true, acc, scanQueue );
+					sym->setAccessed( sym->file->selfValue, true, acc, scanQueue, location );
 					break;
 				case symbolSpaceScope::symClassMethod:
 				case symbolSpaceScope::symClassInherit:
-					sym->setAccessed ( sym->file->selfValue, true, acc, scanQueue );
+					sym->setAccessed ( sym->file->selfValue, true, acc, scanQueue, location );
 					break;
 				case symbolSpaceScope::symClassIVar:
-					sym->setAccessed ( sym->file->selfValue, true, acc, scanQueue );
+					sym->setAccessed ( sym->file->selfValue, true, acc, scanQueue, location );
 					if ( std::holds_alternative<opFunction *> ( acc ) ) std::get<opFunction *> ( acc )->isConst = false;
 					if ( std::holds_alternative<opFunction *> ( acc ) ) std::get<opFunction *> ( acc )->isPure = false;
 					break;
@@ -1033,12 +1070,14 @@ symbolTypeClass astNode::typeInfer ( compExecutable *comp, accessorType const &a
 				case symbolSpaceScope::symLocalField:
 					if ( std::holds_alternative<opFunction *> ( acc ) ) std::get<opFunction *> ( acc )->isPure = false;
 					break;
+				case symbolSpaceScope::symFunction:
+					setCalled ( acc, sym->file->functionList.find ( symbolValue () )->second, isLS, location );
+					break;
 				case symbolSpaceScope::symClass:
 				case symbolSpaceScope::symLocalParam:
 				case symbolSpaceScope::symPCall:
 				case symbolSpaceScope::symLocalConst:
 				case symbolSpaceScope::symScopeUnknown:
-				case symbolSpaceScope::symFunction:
 					//  TODO: SSA needs to be done here so we can get proper assignment/access information on branches/goto's... REALLY need the CFG!
 				case symbolSpaceScope::symLocal:
 				case symbolSpaceScope::symLocalStatic:
@@ -1068,7 +1107,7 @@ symbolTypeClass astNode::typeInfer ( compExecutable *comp, accessorType const &a
 			{
 				if ( arrayData ().nodes[0]->getOp () == astOp::pairValue )
 				{
-					markClassMethodsInuse ( comp, acc, sym->file->classList.find ( sym->file->aArrayValue )->second, sym, scanQueue, false, isLS );
+					markClassMethodsInuse ( comp, acc, sym->file->classList.find ( sym->file->aArrayValue )->second, sym, scanQueue, false, isLS, location );
 					return symbolTypeClass ( symbolType::symWeakObject, sym->file->aArrayValue );
 				}
 				return symWeakArrayType;
@@ -1082,7 +1121,7 @@ symbolTypeClass astNode::typeInfer ( compExecutable *comp, accessorType const &a
 			{
 				if ( left->symbolValue () == sym->file->newValue )
 				{
-					sym->file->functionList.find( sym->file->newValue )->second->setAccessed ( acc, scanQueue );
+					sym->file->functionList.find( sym->file->newValue )->second->setAccessed ( acc, scanQueue, location );
 					if ( pList ().param.size () )
 					{
 						if ( (pList ().param[0]->getOp () == astOp::nameValue) )
@@ -1108,7 +1147,8 @@ symbolTypeClass astNode::typeInfer ( compExecutable *comp, accessorType const &a
 											if ( (*it) ) (*it)->typeInfer ( comp, acc, err, sym, inlineRetType, interProcedural, true, markUsed, scanQueue, isLS );
 										}
 									}
-									destFunc->setAccessed ( acc, scanQueue );
+									setCalled ( acc, destFunc, isLS, location );
+									destFunc->setAccessed ( acc, scanQueue, location );
 									if ( std::holds_alternative<opFunction *>( acc ) ) std::get<opFunction *>( acc )->isConst &= sym->isConst( destFunc->name, false );
 									if ( std::holds_alternative<opFunction *>( acc ) ) std::get<opFunction *>( acc )->isPure &= sym->isPure( destFunc->name, false );
 								} else
@@ -1118,7 +1158,7 @@ symbolTypeClass astNode::typeInfer ( compExecutable *comp, accessorType const &a
 										if ( it ) it->typeInfer ( comp, acc, err, sym, inlineRetType, interProcedural, true, markUsed, scanQueue, isLS );
 									}
 								}
-								markClassInuse ( comp, acc, cl->oClass, sym, scanQueue, isLS );
+								markClassInuse ( comp, acc, cl->oClass, sym, scanQueue, isLS, location );
 								return symbolTypeClass ( symbolType::symWeakObject, cl->oClass->name );
 							} else
 							{
@@ -1139,7 +1179,7 @@ symbolTypeClass astNode::typeInfer ( compExecutable *comp, accessorType const &a
 						{
 							if ( !cls.second->inUse )
 							{
-								markClassInuse ( comp, acc, cls.second, sym, scanQueue, isLS);
+								markClassInuse ( comp, acc, cls.second, sym, scanQueue, isLS, location );
 							}
 						}
 						for ( auto &it : pList ().param )
@@ -1172,7 +1212,8 @@ symbolTypeClass astNode::typeInfer ( compExecutable *comp, accessorType const &a
 					{
 						if ( it ) it->typeInfer ( comp, acc, err, sym, inlineRetType, interProcedural, true, markUsed, scanQueue, isLS );
 					}
-					sym->file->functionList.find( sym->file->exceptValue )->second->setAccessed ( acc, scanQueue );
+					sym->file->functionList.find( sym->file->exceptValue )->second->setAccessed ( acc, scanQueue, location );
+					setCalled ( acc, sym->file->functionList.find ( sym->file->exceptValue )->second, isLS, location );
 					return symWeakVariantType;
 				} else if ( left->symbolValue () == sym->file->typeValue || left->symbolValue () == sym->file->typeXValue || left->symbolValue () == sym->file->typeOfValue )
 				{
@@ -1197,7 +1238,8 @@ symbolTypeClass astNode::typeInfer ( compExecutable *comp, accessorType const &a
 // so the question is why???
 //						sym->setType ( pList ().param[0]->symbolValue (), true, symWeakVariantType, acc, scanQueue );
 					}
-					sym->file->functionList.find( sym->file->typeValue )->second->setAccessed ( acc, scanQueue );
+					setCalled ( acc, sym->file->functionList.find ( sym->file->typeValue )->second, isLS, location );
+					sym->file->functionList.find( sym->file->typeValue )->second->setAccessed ( acc, scanQueue, location );
 					return symWeakStringType;
 				} else if ( left->symbolValue () == sym->file->paramValue )
 				{
@@ -1216,6 +1258,7 @@ symbolTypeClass astNode::typeInfer ( compExecutable *comp, accessorType const &a
 						if ( it ) it->typeInfer ( comp, acc, err, sym, inlineRetType, interProcedural, true, markUsed, scanQueue, isLS );
 					}
 					if ( std::holds_alternative<opFunction *> ( acc ) ) std::get<opFunction *> ( acc )->isPcountParam = true;
+					setCalled ( acc, sym->file->functionList.find ( sym->file->paramValue )->second, isLS, location );
 					return symWeakStringType;
 				} else if ( left->symbolValue () == sym->file->pcountValue )
 				{
@@ -1224,6 +1267,7 @@ symbolTypeClass astNode::typeInfer ( compExecutable *comp, accessorType const &a
 						if ( it ) it->typeInfer ( comp, acc, err, sym, inlineRetType, interProcedural, true, markUsed, scanQueue, isLS );
 					}
 					if ( std::holds_alternative<opFunction *> ( acc ) ) std::get<opFunction *> ( acc )->isPcountParam = true;
+					setCalled ( acc, sym->file->functionList.find ( sym->file->pcountValue )->second, isLS, location );
 					return symWeakStringType;
 				} else if ( left->symbolValue () == sym->file->varCopyValue )
 				{
@@ -1239,7 +1283,7 @@ symbolTypeClass astNode::typeInfer ( compExecutable *comp, accessorType const &a
 					// objects may have copy methods which we can't currently reason about
 					if ( std::holds_alternative<opFunction *> ( acc ) ) std::get<opFunction *> ( acc )->isConst = false;
 					if ( std::holds_alternative<opFunction *> ( acc ) ) std::get<opFunction *> ( acc )->isPure = false;
-					sym->file->functionList.find( sym->file->varCopyValue )->second->setAccessed ( acc, scanQueue );
+					sym->file->functionList.find( sym->file->varCopyValue )->second->setAccessed ( acc, scanQueue, location );
 					if ( pList ().param.size () )
 					{
 						for ( auto &it : pList ().param )
@@ -1248,6 +1292,7 @@ symbolTypeClass astNode::typeInfer ( compExecutable *comp, accessorType const &a
 						}
 						return (*pList ().param.begin ())->typeInfer ( comp, acc, err, sym, inlineRetType, interProcedural, true, markUsed, scanQueue, isLS );
 					}
+					setCalled ( acc, sym->file->functionList.find ( sym->file->varCopyValue )->second, isLS, location );
 				} else if ( left->symbolValue () == sym->file->unpackValue )
 				{
 					if ( pList ().param.empty () )
@@ -1267,14 +1312,15 @@ symbolTypeClass astNode::typeInfer ( compExecutable *comp, accessorType const &a
 					{
 						if ( !cls.second->inUse )
 						{
-							markClassInuse ( comp, acc, cls.second, sym, scanQueue, isLS );
+							markClassInuse ( comp, acc, cls.second, sym, scanQueue, isLS, location );
 						}
 					}
 					for ( auto &it : pList ().param )
 					{
 						if ( it ) it->typeInfer ( comp, acc, err, sym, inlineRetType, interProcedural, true, markUsed, scanQueue, isLS );
 					}
-					sym->file->functionList.find( sym->file->unpackValue )->second->setAccessed ( acc, scanQueue );
+					sym->file->functionList.find( sym->file->unpackValue )->second->setAccessed ( acc, scanQueue, location );
+					setCalled ( acc, sym->file->functionList.find ( sym->file->unpackValue )->second, isLS, location );
 					return symWeakVariantType;
 				} else
 				{
@@ -1285,16 +1331,17 @@ symbolTypeClass astNode::typeInfer ( compExecutable *comp, accessorType const &a
 						{
 							if ( scheduleMakeIterator ( sym->file, sym->file->findFunc ( left->symbolValue () ), false, acc, scanQueue, isLS ) )
 							{
-								markClassMethodsInuse ( comp, acc, sym->findClass ( sym->file->queryableValue )->oClass, sym, scanQueue, true, isLS );
+								markClassMethodsInuse ( comp, acc, sym->findClass ( sym->file->queryableValue )->oClass, sym, scanQueue, true, isLS, location );
 							}
 						}
-						if ( sym->isMethod ( left->symbolValue (), true ) ) sym->setAccessed ( sym->file->selfValue, true, acc, scanQueue );
-						sym->setAccessed ( left->symbolValue (), true, acc, scanQueue );
+						if ( sym->isMethod ( left->symbolValue (), true ) ) sym->setAccessed ( sym->file->selfValue, true, acc, scanQueue, location );
+						sym->setAccessed ( left->symbolValue (), true, acc, scanQueue, location );
+						setCalled ( acc, sym->file->findFunc ( left->symbolValue () ), isLS, location );
 						typeInferParams ( left->symbolValue (), this, sym->isMethod ( left->symbolValue (), true ) ? 1 : 0, comp, acc, err, sym, inlineRetType, interProcedural, needValue, markUsed, scanQueue, isLS );
 
 						if ( std::holds_alternative<opFunction *>( acc ) ) std::get<opFunction *>( acc )->isConst &= sym->isConst ( left->symbolValue(), false );
 						if ( std::holds_alternative<opFunction *>( acc ) ) std::get<opFunction *>( acc )->isPure &= sym->isPure( left->symbolValue(), false );
-						return sym->getMarkFuncReturnType ( comp, left->symbolValue (), true, acc, scanQueue, isLS );
+						return sym->getMarkFuncReturnType ( comp, left->symbolValue (), true, acc, scanQueue, isLS, location );
 					} else
 					{
 						switch ( sym->getScope ( left->symbolValue (), true ) )
@@ -1342,7 +1389,7 @@ symbolTypeClass astNode::typeInfer ( compExecutable *comp, accessorType const &a
 							{
 								{
 									std::lock_guard g1 ( elem->elem->accessorsAccess );
-									elem->elem->accessors.insert ( acc );
+									elem->elem->accessors.insert ( {acc, location} );
 								}
 
 								symbolTypeClass retType = symUnknownType;
@@ -1357,7 +1404,7 @@ symbolTypeClass astNode::typeInfer ( compExecutable *comp, accessorType const &a
 											{
 												if ( scheduleMakeIterator ( sym->file, func, false, acc, scanQueue, isLS ) )
 												{
-													markClassMethodsInuse ( comp, acc, sym->findClass ( sym->file->queryableValue )->oClass, sym, scanQueue, true, isLS );
+													markClassMethodsInuse ( comp, acc, sym->findClass ( sym->file->queryableValue )->oClass, sym, scanQueue, true, isLS, location );
 												}
 											}
 											if ( func->isStatic )
@@ -1376,12 +1423,13 @@ symbolTypeClass astNode::typeInfer ( compExecutable *comp, accessorType const &a
 											{
 												typeInferParams ( func->name, this, 1, comp, acc, err, sym, inlineRetType, interProcedural, needValue, markUsed, scanQueue, isLS );
 											}
-											func->setAccessed ( acc, scanQueue );
+											func->setAccessed ( acc, scanQueue, location );
+											setCalled ( acc, func, isLS, location );
 
 											// this code is here entirely to support native functions that return known object types.
 											// normally we would be able to detect an instantiation of any class in BC code... however we don't have that ability for native code
 											// and we don't simply want to drag every possibilty in.  so if we see something returning a known object type we need to mark it as in use
-											retType &= func->getMarkReturnType ( comp, sym, acc, scanQueue, isLS );
+											retType &= func->getMarkReturnType ( comp, sym, acc, scanQueue, isLS, location );
 
 											if ( std::holds_alternative<opFunction *>( acc ) ) std::get<opFunction *>( acc )->isConst &= func->isConst;
 											if ( std::holds_alternative<opFunction *>( acc ) ) std::get<opFunction *>( acc )->isPure &= func->isPure;
@@ -1420,9 +1468,10 @@ symbolTypeClass astNode::typeInfer ( compExecutable *comp, accessorType const &a
 								auto func = elem->methodAccess.func;
 								func->isForcedVariant = true;
 								func->params.forceVariant ( 1 );
-								sym->setAccessed ( elem->methodAccess.func->name, true, acc, scanQueue );
+								sym->setAccessed ( elem->methodAccess.func->name, true, acc, scanQueue, location );
+								setCalled ( acc, elem->methodAccess.func, isLS, location );
 
-								leftType = func->getMarkReturnType ( comp, sym, acc, scanQueue, isLS );
+								leftType = func->getMarkReturnType ( comp, sym, acc, scanQueue, isLS, location );
 								goto func_call_by_type;
 							}
 							if ( !isLS )
@@ -1488,7 +1537,7 @@ symbolTypeClass astNode::typeInfer ( compExecutable *comp, accessorType const &a
 															auto func = elem->methodAccess.func;
 															func->isForcedVariant = true;
 															func->params.forceVariant ( 1 );
-															sym->setAccessed ( func->name, true, acc, scanQueue );
+															sym->setAccessed ( func->name, true, acc, scanQueue, location );
 														}
 														break;
 													default:
@@ -1509,11 +1558,11 @@ symbolTypeClass astNode::typeInfer ( compExecutable *comp, accessorType const &a
 									{
 										if ( scheduleMakeIterator ( sym->file, sym->file->findFunc ( left->right->symbolValue () ), false, acc, scanQueue, isLS ) )
 										{
-											markClassMethodsInuse ( comp, acc, sym->findClass ( sym->file->queryableValue )->oClass, sym, scanQueue, true, isLS );
+											markClassMethodsInuse ( comp, acc, sym->findClass ( sym->file->queryableValue )->oClass, sym, scanQueue, true, isLS, location );
 										}
 									}
 									errorLocality e ( err, this );
-									sym->setAccessed ( left->right->symbolValue (), true, acc, scanQueue );
+									sym->setAccessed ( left->right->symbolValue (), true, acc, scanQueue, location );
 									sym->setParameterTypeNoThrow ( comp, sym, left->right->symbolValue (), true, 0, type, acc, scanQueue );
 									typeInferParams ( left->right->symbolValue (), this, 1, comp, acc, err, sym, inlineRetType, interProcedural, needValue, markUsed, scanQueue, isLS );
 								}
@@ -1539,7 +1588,7 @@ symbolTypeClass astNode::typeInfer ( compExecutable *comp, accessorType const &a
 																auto func = elem.methodAccess.func;
 																func->isForcedVariant = true;
 																func->params.forceVariant ( 1 );
-																sym->setAccessed ( func->name, true, acc, scanQueue );
+																sym->setAccessed ( func->name, true, acc, scanQueue, location );
 															}
 															break;
 														default:
@@ -1558,7 +1607,7 @@ symbolTypeClass astNode::typeInfer ( compExecutable *comp, accessorType const &a
 									{
 										func.second->isForcedVariant = true;
 										func.second->params.forceVariant ( 1 );
-										sym->setAccessed ( func.second->name, true, acc, scanQueue );
+										sym->setAccessed ( func.second->name, true, acc, scanQueue, location );
 									}
 								}
 							}
@@ -1584,10 +1633,10 @@ symbolTypeClass astNode::typeInfer ( compExecutable *comp, accessorType const &a
 							{
 								if ( scheduleMakeIterator ( sym->file, sym->file->findFunc ( left->right->symbolValue () ), false, acc, scanQueue, isLS ) )
 								{
-									markClassMethodsInuse ( comp, acc, sym->findClass ( sym->file->queryableValue )->oClass, sym, scanQueue, true, isLS );
+									markClassMethodsInuse ( comp, acc, sym->findClass ( sym->file->queryableValue )->oClass, sym, scanQueue, true, isLS, location );
 								}
 							}
-							sym->setAccessed ( left->right->symbolValue (), true, acc, scanQueue );
+							sym->setAccessed ( left->right->symbolValue (), true, acc, scanQueue, location );
 							if ( interProcedural )
 							{
 								errorLocality e ( err, this );
@@ -1601,7 +1650,7 @@ symbolTypeClass astNode::typeInfer ( compExecutable *comp, accessorType const &a
 							}
 							typeInferParams ( left->right->symbolValue (), this, 1, comp, acc, err, sym, inlineRetType, interProcedural, needValue, markUsed, scanQueue, isLS );
 						} 
-						return sym->getMarkFuncReturnType ( comp, left->right->symbolValue (), true, acc, scanQueue, isLS );
+						return sym->getMarkFuncReturnType ( comp, left->right->symbolValue (), true, acc, scanQueue, isLS, location );
 					}
 					if ( std::holds_alternative<opFunction *> ( acc ) ) std::get<opFunction *> ( acc )->isPure = false;
 					if ( std::holds_alternative<opFunction *> ( acc ) ) std::get<opFunction *> ( acc )->isConst = false;
@@ -1620,9 +1669,9 @@ symbolTypeClass astNode::typeInfer ( compExecutable *comp, accessorType const &a
 								if ( !it.second->isForcedVariant && !it.second->classDef )
 								{
 									it.second->params.forceVariant ( 1 );
-									it.second->setAccessed ( acc, scanQueue );
+									it.second->setAccessed ( acc, scanQueue, location );
 									it.second->isForcedVariant = true;
-									it.second->getMarkReturnType ( comp, sym, acc, scanQueue, isLS );				// ensures we bring all return class types in
+									it.second->getMarkReturnType ( comp, sym, acc, scanQueue, isLS, location );				// ensures we bring all return class types in
 								}
 							}
 						}
@@ -1649,10 +1698,11 @@ func_call_by_type:
 						if ( elem )
 						{
 							typeInferParams( elem->methodAccess.func->name, this, 1, comp, acc, err, sym, inlineRetType, interProcedural, needValue, markUsed, scanQueue, isLS );
-							sym->setAccessed( elem->methodAccess.func->name, false, acc, scanQueue );
+							sym->setAccessed( elem->methodAccess.func->name, false, acc, scanQueue, location );
+							setCalled ( acc, elem->methodAccess.func, isLS, location );
 							if ( std::holds_alternative<opFunction *>( acc ) ) std::get<opFunction *>( acc )->isConst &= elem->methodAccess.func->isConst;
 							if ( std::holds_alternative<opFunction *>( acc ) ) std::get<opFunction *>( acc )->isPure &= elem->methodAccess.func->isPure;
-							return elem->methodAccess.func->getMarkReturnType( comp, sym, acc, scanQueue, isLS );
+							return elem->methodAccess.func->getMarkReturnType( comp, sym, acc, scanQueue, isLS, location );
 						}
 					}
 					if ( !isLS )
@@ -1683,8 +1733,8 @@ func_call_by_type:
 									{
 										elem->methodAccess.func->params.forceVariant ( 1 );
 									}
-									elem->methodAccess.func->setAccessed ( acc, scanQueue );
-									elem->methodAccess.func->getMarkReturnType ( comp, sym, acc, scanQueue, isLS );
+									elem->methodAccess.func->setAccessed ( acc, scanQueue, location );
+									elem->methodAccess.func->getMarkReturnType ( comp, sym, acc, scanQueue, isLS, location );
 								}
 							}
 						} else
@@ -1716,17 +1766,17 @@ func_call_by_type:
 						{
 							if ( isFuncMarkable ( sym->file, (*it).second, acc ) )
 							{
-								(*it).second->setAccessed ( acc, scanQueue );
+								(*it).second->setAccessed ( acc, scanQueue, location );
 								if ( !it->second->isForcedVariant && !it->second->classDef )
 								{
 									(*it).second->params.forceVariant ( 0 );
 									(*it).second->isForcedVariant = true;
 									if ( scheduleMakeIterator ( sym->file, (*it).second, true, acc, scanQueue, isLS ) )
 									{
-										markClassMethodsInuse ( comp, acc, sym->findClass ( sym->file->queryableValue )->oClass, sym, scanQueue, true, isLS );
+										markClassMethodsInuse ( comp, acc, sym->findClass ( sym->file->queryableValue )->oClass, sym, scanQueue, true, isLS, location );
 									}
 								}
-								it->second->getMarkReturnType ( comp, sym, acc, scanQueue, isLS );
+								it->second->getMarkReturnType ( comp, sym, acc, scanQueue, isLS, location );
 							}
 						}
 					}
@@ -1752,13 +1802,13 @@ func_call_by_type:
 			switch ( leftType.compType () )
 			{
 				case symbolType::symArray:
-					markClassInuse ( comp, acc, sym->file->classList.find( sym->file->fixedArrayEnumeratorValue )->second, sym, scanQueue, isLS );
+					markClassInuse ( comp, acc, sym->file->classList.find( sym->file->fixedArrayEnumeratorValue )->second, sym, scanQueue, isLS, location );
 					return symbolTypeClass ( symbolType::symWeakObject, sym->file->fixedArrayEnumeratorValue );
 				case symbolType::symVArray:
-					markClassInuse ( comp, acc, sym->file->classList.find( sym->file->sparseArrayEnumeratorValue )->second, sym, scanQueue, isLS );
+					markClassInuse ( comp, acc, sym->file->classList.find( sym->file->sparseArrayEnumeratorValue )->second, sym, scanQueue, isLS, location );
 					return symbolTypeClass ( symbolType::symWeakObject, sym->file->sparseArrayEnumeratorValue );
 				case symbolType::symString:
-					markClassInuse ( comp, acc, sym->file->classList.find( sym->file->stringEnumeratorValue )->second, sym, scanQueue, isLS );
+					markClassInuse ( comp, acc, sym->file->classList.find( sym->file->stringEnumeratorValue )->second, sym, scanQueue, isLS, location );
 					return symbolTypeClass ( symbolType::symWeakObject, sym->file->stringEnumeratorValue );
 				default:
 					break;
@@ -1785,9 +1835,9 @@ func_call_by_type:
 			if ( !(leftType == symUnknownType) )
 			{
 				// can't determine what we're enumerating... so mark the three enumerators called by the VM
-				markClassInuse ( comp, acc, sym->file->classList.find( sym->file->fixedArrayEnumeratorValue )->second, sym, scanQueue, isLS );
-				markClassInuse ( comp, acc, sym->file->classList.find( sym->file->sparseArrayEnumeratorValue )->second, sym, scanQueue, isLS );
-				markClassInuse ( comp, acc, sym->file->classList.find( sym->file->stringEnumeratorValue )->second, sym, scanQueue, isLS );
+				markClassInuse ( comp, acc, sym->file->classList.find ( sym->file->fixedArrayEnumeratorValue )->second, sym, scanQueue, isLS, location );
+				markClassInuse ( comp, acc, sym->file->classList.find( sym->file->sparseArrayEnumeratorValue )->second, sym, scanQueue, isLS, location );
+				markClassInuse ( comp, acc, sym->file->classList.find( sym->file->stringEnumeratorValue )->second, sym, scanQueue, isLS, location );
 
 				if ( !isLS )
 				{
@@ -1811,8 +1861,8 @@ func_call_by_type:
 												func->isForcedVariant = true;
 												func->params.forceVariant ( 1 );
 											}
-											func->setAccessed ( acc, scanQueue );
-											func->getMarkReturnType ( comp, sym, acc, scanQueue, isLS );
+											func->setAccessed ( acc, scanQueue, location );
+											func->getMarkReturnType ( comp, sym, acc, scanQueue, isLS, location );
 										}
 										break;
 									default:
@@ -1838,7 +1888,7 @@ func_call_by_type:
 			if ( left->getOp () == astOp::symbolValue )
 			{
 				sym->setType ( left->symbolValue (), true, symUnknownType, acc, scanQueue );
-				sym->setAccessed ( left->symbolValue (), true, acc, scanQueue );
+				sym->setAccessed ( left->symbolValue (), true, acc, scanQueue, location );
 			}
 			leftType = left->typeInfer ( comp, acc, err, sym, inlineRetType, interProcedural, true, markUsed, scanQueue, isLS );
 
@@ -1853,13 +1903,13 @@ func_call_by_type:
 					auto elem = &classDef->elements[static_cast<size_t>(classDef->overload[int(fgxOvOp::ovArrayDerefRHS)]) - 1];
 					if ( elem )
 					{
-						elem->methodAccess.func->setAccessed ( acc, scanQueue );
-						return elem->methodAccess.func->getMarkReturnType ( comp, sym, acc, scanQueue, isLS );
+						elem->methodAccess.func->setAccessed ( acc, scanQueue, location );
+						return elem->methodAccess.func->getMarkReturnType ( comp, sym, acc, scanQueue, isLS, location );
 					}
 				}
 			} else if ( leftType.isAnObject () )
 			{
-				markOvOp ( comp, this->getOp (), sym, acc, rightType, interProcedural, scanQueue, isLS );
+				markOvOp ( comp, this->getOp (), sym, acc, rightType, interProcedural, scanQueue, isLS, location );
 				if ( std::holds_alternative<opFunction *> ( acc ) ) std::get<opFunction *> ( acc )->isConst = false;
 				if ( std::holds_alternative<opFunction *> ( acc ) ) std::get<opFunction *> ( acc )->isPure = false;
 			}
@@ -1885,14 +1935,14 @@ func_call_by_type:
 			if ( std::holds_alternative<opFunction *> ( acc ) ) std::get<opFunction *> ( acc )->isPure = false;
 			if ( std::holds_alternative<opFunction *> ( acc ) ) std::get<opFunction *> ( acc )->isConst = false;
 			if ( std::holds_alternative<opFunction *> ( acc ) ) std::get<opFunction *> ( acc )->unknownFunctionCall = true;
-			sym->setAllLocalAccessed ( acc, scanQueue );
+			sym->setAllLocalAccessed ( acc, scanQueue, location );
 			if ( markUsed )
 			{
 				for ( auto &it : sym->file->functionList )
 				{
 					if ( !it.second->isForcedVariant && !it.second->classDef && !it.second->isIterator )
 					{
-						it.second->setAccessed ( acc, scanQueue );
+						it.second->setAccessed ( acc, scanQueue, location );
 						it.second->params.forceVariant ( 0 );
 						it.second->isForcedVariant = true;
 					}
@@ -1904,14 +1954,14 @@ func_call_by_type:
 			if ( std::holds_alternative<opFunction *> ( acc ) ) std::get<opFunction *> ( acc )->isPure = false;
 			if ( std::holds_alternative<opFunction *> ( acc ) ) std::get<opFunction *> ( acc )->isConst = false;
 			if ( std::holds_alternative<opFunction *> ( acc ) ) std::get<opFunction *> ( acc )->unknownFunctionCall = true;
-			sym->setAllLocalAccessed ( acc, scanQueue );
+			sym->setAllLocalAccessed ( acc, scanQueue, location );
 			if ( markUsed )
 			{
 				for ( auto &it : sym->file->functionList )
 				{
 					if ( !it.second->isForcedVariant && !it.second->classDef && !it.second->isIterator )
 					{
-						it.second->setAccessed ( acc, scanQueue );
+						it.second->setAccessed ( acc, scanQueue, location );
 						it.second->params.forceVariant ( 0 );
 						it.second->isForcedVariant = true;
 					}
@@ -1926,7 +1976,7 @@ func_call_by_type:
 			if ( std::holds_alternative<opFunction *> ( acc ) ) std::get<opFunction *> ( acc )->isPure = false;
 			return symWeakVariantType;
 		case astOp::atomValue:
-			sym->setAccessed ( symbolValue (), true, acc, scanQueue );
+			sym->setAccessed ( symbolValue (), true, acc, scanQueue, location );
 			return symWeakAtomType;
 		case astOp::refPromote:
 		case astOp::refCreate:
@@ -1965,7 +2015,7 @@ func_call_by_type:
 						{
 							{
 								std::lock_guard g1 ( elem->elem->accessorsAccess );
-								elem->elem->accessors.insert ( acc );
+								elem->elem->accessors.insert ( {acc, location} );
 							}
 							switch ( elem->type )
 							{
@@ -1985,8 +2035,8 @@ func_call_by_type:
 
 										for ( auto &func : elem->elem->data.method.virtOverrides )
 										{
-											sym->setAccessed ( func->name, false, acc, scanQueue );
-											retType &= func->getMarkReturnType ( comp, sym, acc, scanQueue, isLS );
+											sym->setAccessed ( func->name, false, acc, scanQueue, location );
+											retType &= func->getMarkReturnType ( comp, sym, acc, scanQueue, isLS, location );
 										}
 										return retType;
 									}
@@ -2001,14 +2051,14 @@ func_call_by_type:
 
 										for ( auto &func : elem->elem->data.prop.accessVirtOverrides )
 										{
-											sym->setAccessed ( func->name, false, acc, scanQueue );
-											retType &= func->getMarkReturnType ( comp, sym, acc, scanQueue, isLS );
+											sym->setAccessed ( func->name, false, acc, scanQueue, location );
+											retType &= func->getMarkReturnType ( comp, sym, acc, scanQueue, isLS, location );
 										}
 										return retType;
 									}
 									break;
 								case fgxClassElementType::fgxClassType_const:
-									sym->setAccessed ( elem->symbolName, true, acc, scanQueue );
+									sym->setAccessed ( elem->symbolName, true, acc, scanQueue, location );
 									if ( interProcedural )
 									{
 										return elem->elem->symType;
@@ -2026,7 +2076,7 @@ func_call_by_type:
 										return symWeakVariantType;
 									}
 								case fgxClassElementType::fgxClassType_static:
-									sym->setAccessed ( elem->symbolName, true, acc, scanQueue );
+									sym->setAccessed ( elem->symbolName, true, acc, scanQueue, location );
 									std::get<opFunction *> ( acc )->isPure = false;
 									if ( interProcedural )
 									{
@@ -2062,8 +2112,8 @@ func_call_by_type:
 
 							for ( auto &func : elem->elem->data.prop.accessVirtOverrides )
 							{
-								sym->setAccessed ( func->name, false, acc, scanQueue );
-								retType &= func->getMarkReturnType ( comp, sym, acc, scanQueue, isLS );
+								sym->setAccessed ( func->name, false, acc, scanQueue, location );
+								retType &= func->getMarkReturnType ( comp, sym, acc, scanQueue, isLS, location );
 							}
 							return retType;
 						} else
@@ -2078,7 +2128,7 @@ func_call_by_type:
 					} else
 					{
 						right->typeInfer ( comp, acc, err, sym, inlineRetType, interProcedural, true, markUsed, scanQueue, isLS );
-						markClassMethodsInuse ( comp, acc, classDef->oClass, sym, scanQueue, true, isLS );
+						markClassMethodsInuse ( comp, acc, classDef->oClass, sym, scanQueue, true, isLS, location );
 					}
 				} else
 				{
@@ -2112,7 +2162,7 @@ func_call_by_type:
 									{
 										// accessing a constant or static from outside the object (via the class)
 										errorLocality e ( err, this );
-										elem->elem->setAccessed ( sym->file, right->nameValue(), true, acc, scanQueue );
+										elem->elem->setAccessed ( sym->file, right->nameValue(), true, acc, scanQueue, location );
 										return elem->elem->symType;
 									}
 								}
@@ -2137,7 +2187,7 @@ func_call_by_type:
 										if ( elem->methodAccess.func )
 										{
 											errorLocality e ( err, this );
-											elem->methodAccess.func->setAccessed ( acc, scanQueue );
+											elem->methodAccess.func->setAccessed ( acc, scanQueue, location );
 											elem->methodAccess.func->setParamTypeNoThrow ( comp, sym, 1, rightType, scanQueue );
 										}
 										break;
@@ -2146,7 +2196,7 @@ func_call_by_type:
 										break;
 									case fgxClassElementType::fgxClassType_static:
 										elem->elem->symType ^= rightType;
-										sym->setAccessed ( elem->symbolName, false, acc, scanQueue );
+										sym->setAccessed ( elem->symbolName, false, acc, scanQueue, location );
 										break;
 									default:
 										break;
@@ -2163,7 +2213,7 @@ func_call_by_type:
 								}
 								for ( auto &func : elem->elem->data.prop.accessVirtOverrides )
 								{
-									sym->setAccessed ( func->name, false, acc, scanQueue );
+									sym->setAccessed ( func->name, false, acc, scanQueue, location );
 								}
 							}
 						} else
@@ -2294,8 +2344,8 @@ func_call_by_type:
 								sym->setParameterType ( comp, sym, elem->methodAccess.func->name, true, 1, rightType, acc, scanQueue );
 							}
 						}
-						sym->setAccessed ( elem->methodAccess.func->name, false, acc, scanQueue );
-						return sym->getMarkFuncReturnType ( comp, elem->methodAccess.func->name, true, acc, scanQueue, isLS );
+						sym->setAccessed ( elem->methodAccess.func->name, false, acc, scanQueue, location );
+						return sym->getMarkFuncReturnType ( comp, elem->methodAccess.func->name, true, acc, scanQueue, isLS, location );
 					}
 				}
 			} else if ( leftType.isAnObject () )
@@ -2304,7 +2354,7 @@ func_call_by_type:
 				{
 					sym->setType ( left->symbolValue (), false, leftType, acc, scanQueue );
 				}
-				markOvOp ( comp, this->getOp (), sym, acc, rightType, interProcedural, scanQueue, isLS );
+				markOvOp ( comp, this->getOp (), sym, acc, rightType, interProcedural, scanQueue, isLS, location );
 				if ( std::holds_alternative<opFunction *> ( acc ) ) std::get<opFunction *> ( acc )->isConst = false;
 				if ( std::holds_alternative<opFunction *> ( acc ) ) std::get<opFunction *> ( acc )->isPure = false;
 				return symWeakVariantType;
@@ -2355,8 +2405,8 @@ func_call_by_type:
 								sym->setParameterType ( comp, sym, elem->methodAccess.func->name, true, 1, rightType, acc, scanQueue );
 							}
 						}
-						sym->setAccessed ( elem->methodAccess.func->name, false, acc, scanQueue );
-						return sym->getMarkFuncReturnType ( comp, elem->methodAccess.func->name, true, acc, scanQueue, isLS );
+						sym->setAccessed ( elem->methodAccess.func->name, false, acc, scanQueue, location );
+						return sym->getMarkFuncReturnType ( comp, elem->methodAccess.func->name, true, acc, scanQueue, isLS, location );
 					}
 				}
 			} else if ( leftType.isAnObject () )
@@ -2365,7 +2415,7 @@ func_call_by_type:
 				{
 					sym->setType ( left->symbolValue (), false, leftType, acc, scanQueue );
 				}
-				markOvOp ( comp, this->getOp (), sym, acc, rightType, interProcedural, scanQueue, isLS );
+				markOvOp ( comp, this->getOp (), sym, acc, rightType, interProcedural, scanQueue, isLS, location );
 				if ( std::holds_alternative<opFunction *> ( acc ) ) std::get<opFunction *> ( acc )->isConst = false;
 				if ( std::holds_alternative<opFunction *> ( acc ) ) std::get<opFunction *> ( acc )->isPure = false;
 				return symWeakVariantType;
@@ -2411,8 +2461,8 @@ func_call_by_type:
 								sym->setParameterType ( comp, sym, elem->methodAccess.func->name, true, 1, right->typeInfer ( comp, acc, err, sym, inlineRetType, interProcedural, true, markUsed, scanQueue, isLS ), acc, scanQueue );
 							}
 						}
-						sym->setAccessed ( elem->methodAccess.func->name, false, acc, scanQueue );
-						return sym->getMarkFuncReturnType ( comp, elem->methodAccess.func->name, true, acc, scanQueue, isLS );
+						sym->setAccessed ( elem->methodAccess.func->name, false, acc, scanQueue, location );
+						return sym->getMarkFuncReturnType ( comp, elem->methodAccess.func->name, true, acc, scanQueue, isLS, location );
 					}
 				}
 			} else if ( leftType.isAnObject () )
@@ -2421,7 +2471,7 @@ func_call_by_type:
 				{
 					sym->setType ( left->symbolValue (), false, leftType, acc, scanQueue );
 				}
-				markOvOp ( comp, this->getOp (), sym, acc, rightType, interProcedural, scanQueue, isLS );
+				markOvOp ( comp, this->getOp (), sym, acc, rightType, interProcedural, scanQueue, isLS, location );
 				if ( std::holds_alternative<opFunction *> ( acc ) ) std::get<opFunction *> ( acc )->isConst = false;
 				if ( std::holds_alternative<opFunction *> ( acc ) ) std::get<opFunction *> ( acc )->isPure = false;
 				return symWeakVariantType;
@@ -2483,8 +2533,8 @@ func_call_by_type:
 						auto elem = &classDef->elements[static_cast<size_t>(classDef->overload[int(opToOvXref[static_cast<size_t>(this->getOp ())])]) - 1];
 						if ( elem )
 						{
-							sym->setAccessed ( elem->methodAccess.func->name, false, acc, scanQueue );
-							return sym->getMarkFuncReturnType ( comp, elem->methodAccess.func->name, true, acc, scanQueue, isLS );
+							sym->setAccessed ( elem->methodAccess.func->name, false, acc, scanQueue, location );
+							return sym->getMarkFuncReturnType ( comp, elem->methodAccess.func->name, true, acc, scanQueue, isLS, location );
 						}
 					}
 				} else if ( leftType.isAnObject () )
@@ -2493,7 +2543,7 @@ func_call_by_type:
 					{
 						sym->setType ( left->symbolValue (), false, leftType, acc, scanQueue );
 					}
-					markOvOp ( comp, this->getOp (), sym, acc, symUnknownType, interProcedural, scanQueue, isLS );
+					markOvOp ( comp, this->getOp (), sym, acc, symUnknownType, interProcedural, scanQueue, isLS, location );
 					if ( std::holds_alternative<opFunction *> ( acc ) ) std::get<opFunction *> ( acc )->isConst = false;
 					if ( std::holds_alternative<opFunction *> ( acc ) ) std::get<opFunction *> ( acc )->isPure = false;
 					return symWeakVariantType;
@@ -2513,13 +2563,13 @@ func_call_by_type:
 					auto elem = &classDef->elements[static_cast<size_t>(classDef->overload[int(opToOvXref[static_cast<size_t>(this->getOp ())])]) - 1];
 					if ( elem )
 					{
-						sym->setAccessed ( elem->methodAccess.func->name, false, acc, scanQueue );
-						return sym->getMarkFuncReturnType ( comp, elem->methodAccess.func->name, true, acc, scanQueue, isLS );
+						sym->setAccessed ( elem->methodAccess.func->name, false, acc, scanQueue, location );
+						return sym->getMarkFuncReturnType ( comp, elem->methodAccess.func->name, true, acc, scanQueue, isLS, location );
 					}
 				}
 			} else if ( leftType.isAnObject () )
 			{
-				markOvOp ( comp, this->getOp (), sym, acc, symUnknownType, interProcedural, scanQueue, isLS );
+				markOvOp ( comp, this->getOp (), sym, acc, symUnknownType, interProcedural, scanQueue, isLS, location );
 				if ( std::holds_alternative<opFunction *> ( acc ) ) std::get<opFunction *> ( acc )->isConst = false;
 				if ( std::holds_alternative<opFunction *> ( acc ) ) std::get<opFunction *> ( acc )->isPure = false;
 				return symWeakVariantType;
@@ -2552,13 +2602,13 @@ func_call_by_type:
 									sym->setParameterType ( comp, sym, elem->methodAccess.func->name, true, 1, right->typeInfer ( comp, acc, err, sym, inlineRetType, interProcedural, true, markUsed, scanQueue, isLS ), acc, scanQueue );
 								}
 							}
-							sym->setAccessed ( elem->methodAccess.func->name, false, acc, scanQueue );
-							return sym->getMarkFuncReturnType ( comp, elem->methodAccess.func->name, true, acc, scanQueue, isLS );
+							sym->setAccessed ( elem->methodAccess.func->name, false, acc, scanQueue, location );
+							return sym->getMarkFuncReturnType ( comp, elem->methodAccess.func->name, true, acc, scanQueue, isLS, location );
 						}
 					}
 				} else if ( leftType.isAnObject () )
 				{
-					markOvOp ( comp, this->getOp (), sym, acc, rightType, interProcedural, scanQueue, isLS );
+					markOvOp ( comp, this->getOp (), sym, acc, rightType, interProcedural, scanQueue, isLS, location );
 					if ( std::holds_alternative<opFunction *> ( acc ) ) std::get<opFunction *> ( acc )->isConst = false;
 					if ( std::holds_alternative<opFunction *> ( acc ) ) std::get<opFunction *> ( acc )->isPure = false;
 				}
@@ -2611,7 +2661,7 @@ void astNode::markInUse ( class compExecutable *comp, accessorType const &acc, e
 				case symbolSpaceType::symTypeClass:
 					{
 						auto cls = dynamic_cast<symbolClass *>(symbolDef ());
-						markClassInuse ( comp, acc, cls->getClass ()->oClass, sym, scanQueue, isLS );
+						markClassInuse ( comp, acc, cls->getClass ()->oClass, sym, scanQueue, isLS, location );
 						sym->insert ( symbolDef (), cls->insertPos );
 					}
 					break;
@@ -2673,7 +2723,7 @@ void astNode::markInUse ( class compExecutable *comp, accessorType const &acc, e
 			ifData ().elseBlock->markInUse ( comp, acc, err, sym, interProcedural, scanQueue, isLS );
 			break;
 		case astOp::btInline:
-			sym->file->functionList.find( inlineFunc ().funcName )->second->setInlineUsed ( acc, scanQueue );
+			sym->file->functionList.find( inlineFunc ().funcName )->second->setInlineUsed ( acc, scanQueue, location );
 			inlineFunc ().node->markInUse ( comp, acc, err, sym, interProcedural, scanQueue, isLS );
 			break;
 		case astOp::btFor:
@@ -2744,7 +2794,7 @@ void astNode::markInUse ( class compExecutable *comp, accessorType const &acc, e
 							auto cl = sym->findClass ( pList ().param[0]->nameValue () );
 							if ( cl )
 							{
-								markClassMethodsInuse ( comp, acc, cl->oClass, sym, scanQueue, false, isLS );
+								markClassMethodsInuse ( comp, acc, cl->oClass, sym, scanQueue, false, isLS, location );
 							}
 							break;
 						}
@@ -2765,17 +2815,17 @@ void astNode::markInUse ( class compExecutable *comp, accessorType const &acc, e
 										case fgxClassElementType::fgxClassType_method:
 											for ( auto &func : it.elem->data.method.virtOverrides )
 											{
-												func->setAccessed ( acc, scanQueue );
+												func->setAccessed ( acc, scanQueue, location );
 											}
 											break;
 										case fgxClassElementType::fgxClassType_prop:
 											for ( auto &func : it.elem->data.prop.assignVirtOverrides )
 											{
-												func->setAccessed ( acc, scanQueue );
+												func->setAccessed ( acc, scanQueue, location );
 											}
 											for ( auto &func : it.elem->data.prop.accessVirtOverrides )
 											{
-												func->setAccessed ( acc, scanQueue );
+												func->setAccessed ( acc, scanQueue, location );
 											}
 											break;
 										default:
@@ -2803,11 +2853,11 @@ void astNode::markInUse ( class compExecutable *comp, accessorType const &acc, e
 										// don't worry about inherit errors here, that'll be detected during makeClass
 										break;
 									case fgxClassElementType::fgxClassType_method:
-										it.methodAccess.func->setAccessed ( acc, scanQueue );
+										it.methodAccess.func->setAccessed ( acc, scanQueue, location );
 										break;
 									case fgxClassElementType::fgxClassType_prop:
-										if ( it.methodAccess.func ) it.methodAccess.func->setAccessed ( acc, scanQueue );
-										if ( it.assign.func ) it.assign.func->setAccessed ( acc, scanQueue );
+										if ( it.methodAccess.func ) it.methodAccess.func->setAccessed ( acc, scanQueue, location );
+										if ( it.assign.func ) it.assign.func->setAccessed ( acc, scanQueue, location );
 										break;
 									default:
 										break;
@@ -2826,12 +2876,12 @@ void astNode::markInUse ( class compExecutable *comp, accessorType const &acc, e
 								auto cl = sym->findClass ( left->symbolValue () );
 								if ( cl )
 								{
-									markClassInuse ( comp, acc, cl->oClass, sym, scanQueue, isLS );
+									markClassInuse ( comp, acc, cl->oClass, sym, scanQueue, isLS, location );
 								}
 							}
 							break;
 						default:
-							sym->setAccessed ( left->symbolValue (), true, acc, scanQueue );
+							sym->setAccessed ( left->symbolValue (), true, acc, scanQueue, location );
 							for ( auto it = pList ().param.begin (); it != pList ().param.end (); it++ )
 							{
 								if ( (*it) ) (*it)->markInUse ( comp, acc, err, sym, interProcedural, scanQueue, isLS );
@@ -2852,14 +2902,14 @@ void astNode::markInUse ( class compExecutable *comp, accessorType const &acc, e
 		case astOp::funcValue:
 			{
 				auto f = sym->file->functionList.find( symbolValue () )->second;
-				f->setAccessed ( f, scanQueue );
+				f->setAccessed ( f, scanQueue, location );
 				if ( f->classDef )
 				{
 					// need to do this just in case astOp::we're reference a static class function
 					auto cls = sym->findClass ( f->classDef->name );
 					if ( cls )
 					{
-						markClassInuse ( comp, acc, cls->oClass, sym, scanQueue, isLS );
+						markClassInuse ( comp, acc, cls->oClass, sym, scanQueue, isLS, location );
 					}
 				}
 			}

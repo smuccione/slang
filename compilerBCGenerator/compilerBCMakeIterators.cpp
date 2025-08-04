@@ -619,7 +619,7 @@ bool compExecutable::compMakeIterator ( opFile *file, opFunction *func, bool gen
 
 	if ( func->classDef )
 	{
-		markClassInuse ( this, acc, func->classDef, &sym, scanQueue, false );
+		markClassInuse ( this, acc, func->classDef, &sym, scanQueue, false, srcLocation {} );
 	}
 
 	doesReturnIndex = hasNVReturn( func->codeBlock, &sym );
