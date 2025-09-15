@@ -81,6 +81,7 @@ opFunction::opFunction ( class opFile *file, sourceFile *srcFile, char const **e
 	name = file->sCache.get ( expr );
 	parentClosure = file->sCache.get ( expr );
 	documentation = stringi ( expr );
+	returnDocumentation = stringi ( expr );
 
 	location = srcLocation ( srcFile, expr );
 	nameLocation = srcLocation ( srcFile, expr );
@@ -130,8 +131,12 @@ opFunction::opFunction ( opFunction const &old )
 	isBaseMethod = old.isBaseMethod;
 	isAutoMain = old.isAutoMain;
 	weight = old.weight;
-	unknownClassInstantiation = old.unknownClassInstantiation;
 	unknownFunctionCall = old.unknownFunctionCall;
+	unknownClassInstantiation = old.unknownClassInstantiation;
+
+	documentation = old.documentation;
+	returnDocumentation = old.returnDocumentation;
+
 	if ( old.codeBlock ) codeBlock = new astNode ( *old.codeBlock );
 	for ( auto &it : old.initializers )
 	{
@@ -162,6 +167,7 @@ void opFunction::serialize ( BUFFER *buff, bool serializeFunctionBody )
 	name.serialize ( buff );
 	parentClosure.serialize ( buff );
 	documentation.serialize ( buff );
+	returnDocumentation.serialize ( buff );
 
 	location.serialize ( buff );
 	nameLocation.serialize ( buff );

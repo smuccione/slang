@@ -324,7 +324,7 @@ public:
 
 	symbolParamDef *operator [] ( size_t index )
 	{
-		return &symbols[index];
+		return &symbols[index ];
 	}
 
 	bool getFgxSymbol ( visibleSymbols &fgxSym, size_t index ) const override

@@ -9,7 +9,7 @@ SLANG support functions
 #include "vmNativeInterface.h"
 #include "vmAllocator.h"
 
-static VAR_STR vmLtrim ( class vmInstance *instance, VAR_STR *val)
+static VAR_STR vmLtrim ( class vmInstance *instance, VAR_STR *val )
 {
 	auto src = val->dat.str.c;
 	while ( (*src == ' ') || (*src == '\t') )
@@ -66,7 +66,7 @@ static VAR_STR vmAlltrim ( class vmInstance *instance, VAR_STR *val )
 
 static VAR_STR vmUntrim ( class vmInstance *instance, VAR_STR *val, int len )
 {
-	char const	*src;
+	char const *src;
 	BUFFER		 buff;
 	int			 loop;
 
@@ -77,7 +77,7 @@ static VAR_STR vmUntrim ( class vmInstance *instance, VAR_STR *val, int len )
 		buff.put ( *(src++) );
 	}
 
-	for (; loop < len; loop++ )
+	for ( ; loop < len; loop++ )
 	{
 		buff.put ( ' ' );
 	}
@@ -87,7 +87,7 @@ static VAR_STR vmUntrim ( class vmInstance *instance, VAR_STR *val, int len )
 
 static VAR_STR vmLjust ( class vmInstance *instance, VAR_STR *val )
 {
-	char const	*src;
+	char const *src;
 	BUFFER		 buff;
 	int		     cnt;
 
@@ -116,14 +116,14 @@ static VAR_STR vmLjust ( class vmInstance *instance, VAR_STR *val )
 
 static VAR_STR vmRjust ( class vmInstance *instance, VAR_STR *val )
 {
-	char const	*src;
-	char	*dst;
-	char	*ret;
+	char const *src;
+	char *dst;
+	char *ret;
 	int		 cnt;
 
 	if ( !val->dat.str.len )
 	{
-		return ( "" );
+		return ("");
 	}
 
 	ret = (char *)instance->om->alloc ( val->dat.str.len + 1 );
@@ -153,7 +153,7 @@ static VAR_STR vmRjust ( class vmInstance *instance, VAR_STR *val )
 	return ret;
 }
 
-static VAR_STR vmMid( class vmInstance *instance, VAR_STR *var, size_t i, size_t l )
+static VAR_STR vmMid ( class vmInstance *instance, VAR_STR *var, size_t i, size_t l )
 {
 	VAR_STR	ret;
 
@@ -168,7 +168,7 @@ static VAR_STR vmLeft ( class vmInstance *instance, VAR_STR *var, size_t i )
 {
 	VAR_STR	ret;
 
-	i = (i > var->dat.str.len ? var->dat.str.len : i );
+	i = (i > var->dat.str.len ? var->dat.str.len : i);
 
 	return VAR_STR ( instance, var->dat.str.c, i );
 }
@@ -189,7 +189,7 @@ static VAR_STR vmSpace ( class vmInstance *instance, size_t i )
 		throw errorNum::scINVALID_PARAMETER;
 	}
 
-	char *ret  = (char *)instance->om->alloc ( sizeof ( char ) * (i + 1) );
+	char *ret = (char *)instance->om->alloc ( sizeof ( char ) * (i + 1) );
 	memset ( ret, ' ', i );
 	ret[i] = 0;
 
@@ -198,10 +198,10 @@ static VAR_STR vmSpace ( class vmInstance *instance, size_t i )
 
 static VAR_STR vmLower ( class vmInstance *instance, VAR_STR *val )
 {
-	char const	*src;
-	char		*dst;
+	char const *src;
+	char *dst;
 	size_t		 loop;
-	char *		 ret;
+	char *ret;
 
 	ret = (char *)instance->om->alloc ( val->dat.str.len + 1 );
 
@@ -225,12 +225,12 @@ static VAR_STR vmLower ( class vmInstance *instance, VAR_STR *val )
 
 static VAR_STR vmUpper ( class vmInstance *instance, VAR_STR *val )
 {
-	char const	*src;
-	char		*dst;
+	char const *src;
+	char *dst;
 	size_t		 loop;
 	char *ret;
 
-	ret = (char *)instance->om->alloc( val->dat.str.len + 1 );
+	ret = (char *)instance->om->alloc ( val->dat.str.len + 1 );
 
 	src = val->dat.str.c;
 	dst = ret;
@@ -251,7 +251,7 @@ static VAR_STR vmUpper ( class vmInstance *instance, VAR_STR *val )
 
 static VAR_STR vmStrCapFirst ( class vmInstance *instance, VAR_STR *val )
 {
-	auto ret =  (char *)instance->om->alloc ( val->dat.str.len + 1 );
+	auto ret = (char *)instance->om->alloc ( val->dat.str.len + 1 );
 
 	_strcapfirst ( val->dat.str.c, ret );
 
@@ -260,15 +260,15 @@ static VAR_STR vmStrCapFirst ( class vmInstance *instance, VAR_STR *val )
 
 static VAR_STR vmTrimPunct ( class vmInstance *instance, VAR_STR *val )
 {
-	auto ret = (char *) instance->om->alloc ( val->dat.str.len + 1 );
-	trimpunct( val->dat.str.c, ret );
+	auto ret = (char *)instance->om->alloc ( val->dat.str.len + 1 );
+	trimpunct ( val->dat.str.c, ret );
 
 	return VAR_STR ( ret, val->dat.str.len );
 }
 
-static VAR_STR vmChrSwap ( class vmInstance *instance, VAR_STR *pStr, VAR_STR *pOldChar, VAR_STR *pNewChar)
+static VAR_STR vmChrSwap ( class vmInstance *instance, VAR_STR *pStr, VAR_STR *pOldChar, VAR_STR *pNewChar )
 {
-	auto ret = (char *)instance->om->alloc( pStr->dat.str.len + 1 );
+	auto ret = (char *)instance->om->alloc ( pStr->dat.str.len + 1 );
 	auto str = pStr->dat.str.c;
 	auto len = pStr->dat.str.len;
 	char oldChr = *pOldChar->dat.str.c;
@@ -292,7 +292,7 @@ static VAR_STR vmChrSwap ( class vmInstance *instance, VAR_STR *pStr, VAR_STR *p
 	return VAR_STR ( ret, pStr->dat.str.len );
 }
 
-static VAR_STR vmString( class vmInstance *instance, size_t len, VAR *var )
+static VAR_STR vmString ( class vmInstance *instance, size_t len, VAR *var )
 {
 	unsigned char  chr;
 
@@ -317,7 +317,7 @@ static VAR_STR vmString( class vmInstance *instance, size_t len, VAR *var )
 		throw errorNum::scINVALID_PARAMETER;
 	}
 
-	auto ret = (char *)instance->om->alloc( len + 1 );
+	auto ret = (char *)instance->om->alloc ( len + 1 );
 	memset ( ret, chr, len );
 	ret[len] = 0;
 
@@ -341,36 +341,36 @@ static VAR_STR vmReplicate ( class vmInstance *instance, VAR_STR str, int64_t co
 
 static int isalpha_ ( VAR *val )
 {
-   switch ( TYPE( val ) )
-   {
-      case slangType::eSTRING:
-         return ( _isalpha ( val->dat.str.c, (int)val->dat.str.len ) );
-         break;
+	switch ( TYPE ( val ) )
+	{
+		case slangType::eSTRING:
+			return (_isalpha ( val->dat.str.c, (int)val->dat.str.len ));
+			break;
 
-      default:
-         throw errorNum::scINVALID_PARAMETER;
-   }
+		default:
+			throw errorNum::scINVALID_PARAMETER;
+	}
 }
 
 static int isdigit_ ( VAR *val )
 {
 	unsigned      loop;
 
-	switch ( TYPE( val ) )
+	switch ( TYPE ( val ) )
 	{
 		case slangType::eSTRING:
 			for ( loop = 0; loop < val->dat.str.len; loop++ )
 			{
 				if ( !_isdigit ( val->dat.str.c + loop ) )
 				{
-					return ( 0 );
+					return (0);
 				}
 			}
-			return ( 1 );
+			return (1);
 			break;
 		case slangType::eLONG:
 		case slangType::eDOUBLE:
-			return ( 1 );
+			return (1);
 
 		default:
 			throw errorNum::scINVALID_PARAMETER;
@@ -381,21 +381,21 @@ static int isnum_ ( VAR *val )
 {
 	unsigned      loop;
 
-	switch ( TYPE( val ) )
+	switch ( TYPE ( val ) )
 	{
 		case slangType::eSTRING:
 			for ( loop = 0; loop < val->dat.str.len; loop++ )
 			{
 				if ( !_isnum ( val->dat.str.c + loop ) )
 				{
-					return ( 0 );
+					return (0);
 				}
 			}
-			return ( 1 );
+			return (1);
 			break;
 		case slangType::eLONG:
 		case slangType::eDOUBLE:
-			return ( 1 );
+			return (1);
 		default:
 			throw errorNum::scINVALID_PARAMETER;
 	}
@@ -403,35 +403,35 @@ static int isnum_ ( VAR *val )
 
 static int islower_ ( VAR *val )
 {
-   switch ( TYPE( val ) )
-   {
-      case slangType::eSTRING:
-         return ( _islower ( val->dat.str.c, (int)val->dat.str.len ) );
-         break;
+	switch ( TYPE ( val ) )
+	{
+		case slangType::eSTRING:
+			return (_islower ( val->dat.str.c, (int)val->dat.str.len ));
+			break;
 
-      default:
-         throw errorNum::scINVALID_PARAMETER;
-   }
+		default:
+			throw errorNum::scINVALID_PARAMETER;
+	}
 }
 
 static int isupper_ ( VAR *val )
 {
-   switch ( TYPE( val ) )
-   {
-      case slangType::eSTRING:
-         return ( _isupper ( val->dat.str.c, (int) val->dat.str.len ) );
-         break;
+	switch ( TYPE ( val ) )
+	{
+		case slangType::eSTRING:
+			return (_isupper ( val->dat.str.c, (int)val->dat.str.len ));
+			break;
 
-      default:
-         throw errorNum::scINVALID_PARAMETER;
-   }
+		default:
+			throw errorNum::scINVALID_PARAMETER;
+	}
 }
 
 static int strempty ( VAR *val )
 {
-	char const	*tmpC;
-	
-	switch ( TYPE( val ) )
+	char const *tmpC;
+
+	switch ( TYPE ( val ) )
 	{
 		case slangType::eSTRING:
 			tmpC = val->dat.str.c;
@@ -442,16 +442,16 @@ static int strempty ( VAR *val )
 				{
 					if ( *tmpC != ' ' )
 					{
-						return ( 0 );
+						return (0);
 					}
 				}
 			} else
 			{
-				return ( 0 );
+				return (0);
 			}
-			return ( 1 );
+			return (1);
 		case slangType::eNULL:
-			return ( 1 );
+			return (1);
 		default:
 			throw errorNum::scINVALID_PARAMETER;
 	}
@@ -459,20 +459,20 @@ static int strempty ( VAR *val )
 
 static VAR_STR strcommas ( class vmInstance *instance, VAR *val )
 {
-	char		*res;
-	char		*res2;
+	char *res;
+	char *res2;
 	char		 tmpStr[256] = "";
-	char		*tmp;
-	char		*tmp2;
-	char		*decPt;
+	char *tmp;
+	char *tmp2;
+	char *decPt;
 	ptrdiff_t	 size;
 	int			 ctr;
 	int			 sgn;
-	
+
 	tmp = tmpStr;
 
-	switch ( TYPE( val ) )
-	{	
+	switch ( TYPE ( val ) )
+	{
 		case slangType::eLONG:
 			_snprintf_s ( tmp, sizeof ( tmp ), _TRUNCATE, "%zi", val->dat.l );
 			break;
@@ -499,7 +499,7 @@ static VAR_STR strcommas ( class vmInstance *instance, VAR *val )
 				tmp[val->dat.str.len] = 0;
 			}
 			break;
-			
+
 		default:
 			throw errorNum::scINVALID_PARAMETER;
 	}
@@ -551,7 +551,7 @@ static VAR_STR strcommas ( class vmInstance *instance, VAR *val )
 	if ( *decPt == '.' )
 	{
 		/* copy off decimal portion */
-		strcat_s ( res, sizeof ( tmpStr ) , decPt );
+		strcat_s ( res, sizeof ( tmpStr ), decPt );
 	}
 
 	return VAR_STR ( res, strlen ( res ) );
@@ -569,14 +569,14 @@ static size_t ati ( VAR_STR substr, VAR_STR str, uint32_t offset )
 	{
 		throw errorNum::scINVALID_PARAMETER;
 	}
-	
+
 	searchLen = (ptrdiff_t)str.dat.str.len - (ptrdiff_t)substr.dat.str.len + 1;
 
 	for ( matchPos = offset; matchPos < searchLen; matchPos++ )
 	{
 		if ( !_memicmp ( str.dat.str.c + matchPos, substr.dat.str.c, substr.dat.str.len ) )
 		{
-			return (size_t)( matchPos + 1 );
+			return (size_t)(matchPos + 1);
 		}
 	}
 	return 0;
@@ -615,7 +615,7 @@ static size_t stratnext ( char const *subStr, char const *str, size_t occur, siz
 
 	if ( startpos > strlen ( str ) )
 	{
-		return ( 0 );
+		return (0);
 	}
 
 	if ( startpos < 1 )
@@ -631,7 +631,7 @@ static size_t stratnext ( char const *subStr, char const *str, size_t occur, siz
 		{
 			if ( !--occur )
 			{
-				return ( addr );
+				return (addr);
 			}
 		}
 		str++;
@@ -649,12 +649,12 @@ static size_t stratnexti ( char const *subStr, char const *str, size_t occur, si
 
 	if ( startpos > strlen ( str ) )
 	{
-		return ( 0 );
+		return (0);
 	}
 
 	if ( startpos < 1 )
 	{
-		return ( 0 );
+		return (0);
 	}
 
 	addr = startpos;
@@ -665,13 +665,13 @@ static size_t stratnexti ( char const *subStr, char const *str, size_t occur, si
 		{
 			if ( !--occur )
 			{
-				return ( addr );
+				return (addr);
 			}
 		}
 		str++;
 		addr++;
 	}
-	return ( 0 );
+	return (0);
 }
 
 static size_t stratprev ( char const *subStr, char const *str, int occur, int startpos )
@@ -682,20 +682,20 @@ static size_t stratprev ( char const *subStr, char const *str, int occur, int st
 
 	if ( !len )
 	{
-		return ( 0 );
+		return (0);
 	}
 
 	while ( --startpos > 0 )
 	{
-		if ( !strncmp ( str + startpos, subStr, len) )
+		if ( !strncmp ( str + startpos, subStr, len ) )
 		{
 			if ( !--occur )
 			{
-				return (static_cast<size_t>(startpos) + 1 );
+				return (static_cast<size_t>(startpos) + 1);
 			}
 		}
 	}
-	return ( 0 );
+	return (0);
 }
 
 static size_t stratprevi ( char const *subStr, char const *str, int occur, int startpos )
@@ -706,12 +706,12 @@ static size_t stratprevi ( char const *subStr, char const *str, int occur, int s
 
 	if ( !len )
 	{
-		return ( 0 );
+		return (0);
 	}
 
 	while ( --startpos > 0 )
 	{
-		if ( !_memicmp ( str + startpos, subStr, len) )
+		if ( !_memicmp ( str + startpos, subStr, len ) )
 		{
 			if ( !--occur )
 			{
@@ -719,7 +719,7 @@ static size_t stratprevi ( char const *subStr, char const *str, int occur, int s
 			}
 		}
 	}
-	return ( 0 );
+	return (0);
 }
 
 static int atdiff ( char const *str1, char const *const str2 )
@@ -730,10 +730,10 @@ static int atdiff ( char const *str1, char const *const str2 )
 	{
 		if ( str1[loop] != str2[loop] )
 		{
-			return ( loop + 1 );
+			return (loop + 1);
 		}
 	}
-	return ( 0 );
+	return (0);
 }
 
 static int atdiffi ( char const *str1, char const *str2 )
@@ -742,12 +742,12 @@ static int atdiffi ( char const *str1, char const *str2 )
 
 	for ( loop = 0; str1[loop] || str2[loop]; loop++ )
 	{
-		if ( caseInsenstiveTable[static_cast<unsigned char>(str1[loop])] !=  caseInsenstiveTable[static_cast<unsigned char>(str2[loop])] )
+		if ( caseInsenstiveTable[static_cast<unsigned char>(str1[loop])] != caseInsenstiveTable[static_cast<unsigned char>(str2[loop])] )
 		{
-			return ( loop + 1 );
+			return (loop + 1);
 		}
 	}
-	return ( 0 );
+	return (0);
 }
 
 static int atlast ( char const *substr, char const *str )
@@ -760,15 +760,15 @@ static int atlast ( char const *substr, char const *str )
 
 	if ( !*str )
 	{
-		return ( -1 );
+		return (-1);
 	}
 	if ( !*substr )
 	{
-		return ( -1 );
+		return (-1);
 	}
-	
+
 	foundPos = -1;
-	
+
 	subStrLen = (int)strlen ( substr );
 	strLen = (int)strlen ( str );
 
@@ -782,7 +782,7 @@ static int atlast ( char const *substr, char const *str )
 		}
 	}
 
-	return ( foundPos );
+	return (foundPos);
 }
 
 static int atlasti ( char const *substr, char const *str )
@@ -795,15 +795,15 @@ static int atlasti ( char const *substr, char const *str )
 
 	if ( !*str )
 	{
-		return ( -1 );
+		return (-1);
 	}
 	if ( !*substr )
 	{
-		return ( -1 );
+		return (-1);
 	}
-	
+
 	foundPos = -1;
-	
+
 	subStrLen = (int)strlen ( substr );
 	strLen = (int)strlen ( str );
 
@@ -817,7 +817,7 @@ static int atlasti ( char const *substr, char const *str )
 		}
 	}
 
-	return ( foundPos );
+	return (foundPos);
 }
 
 static int atnext ( char const *substr, char const *str, int occur )
@@ -829,13 +829,13 @@ static int atnext ( char const *substr, char const *str, int occur )
 
 	if ( !*str )
 	{
-		return ( -1 );
+		return (-1);
 	}
 	if ( !*substr )
 	{
-		return ( -1 );
+		return (-1);
 	}
-	
+
 	subStrLen = (int)strlen ( substr );
 	strLen = (int)strlen ( str );
 
@@ -847,12 +847,12 @@ static int atnext ( char const *substr, char const *str, int occur )
 		{
 			if ( !--occur )
 			{
-				return ( matchPos );
+				return (matchPos);
 			}
 		}
 	}
 
-	return ( -1 );
+	return (-1);
 }
 
 static int atnexti ( char const *substr, char const *str, int occur )
@@ -864,13 +864,13 @@ static int atnexti ( char const *substr, char const *str, int occur )
 
 	if ( !*str )
 	{
-		return ( -1 );
+		return (-1);
 	}
 	if ( !*substr )
 	{
-		return ( -1 );
+		return (-1);
 	}
-	
+
 	subStrLen = (int)strlen ( substr );
 	strLen = (int)strlen ( str );
 
@@ -882,27 +882,27 @@ static int atnexti ( char const *substr, char const *str, int occur )
 		{
 			if ( !--occur )
 			{
-				return ( matchPos );
+				return (matchPos);
 			}
 		}
 	}
 
-	return ( -1 );
+	return (-1);
 }
 
 static int attoken ( char const *str, char const *token, int num )
 {
 	int		 count;
-	char const	*tokenPtr;
+	char const *tokenPtr;
 	int		 pos;
 
 	count = 0;
 
 	if ( !*str )
 	{
-		return ( -1 );
+		return (-1);
 	}
-	
+
 	if ( !token )
 	{
 		token = "\x09\x0C\x1A\x20\x8A\x8D";
@@ -919,7 +919,7 @@ static int attoken ( char const *str, char const *token, int num )
 			{
 				if ( *str == *tokenPtr )
 				{
-					return ( pos );
+					return (pos);
 				}
 				tokenPtr++;
 			}
@@ -952,7 +952,7 @@ static int attoken ( char const *str, char const *token, int num )
 					/* skip until next non-token */
 					while ( *str )
 					{
-						tokenPtr= token;
+						tokenPtr = token;
 						while ( *tokenPtr )
 						{
 							if ( *tokenPtr == *str )
@@ -969,13 +969,13 @@ static int attoken ( char const *str, char const *token, int num )
 						pos++;
 					}
 
-					return ( pos );
+					return (pos);
 				}
 
 				/* skip until next non-token */
 				while ( *str )
 				{
-					tokenPtr= token;
+					tokenPtr = token;
 					while ( *tokenPtr )
 					{
 						if ( *tokenPtr == *str )
@@ -1003,7 +1003,7 @@ static int attoken ( char const *str, char const *token, int num )
 		str++;
 		pos++;
 	}
-	return ( -1 );
+	return (-1);
 }
 
 static int wildcard ( char const *searchStr, char const *str )
@@ -1018,7 +1018,7 @@ static int wildcard ( char const *searchStr, char const *str )
 				{
 					if ( wildcard ( searchStr, str ) )
 					{
-						return ( 1 );
+						return (1);
 					}
 					str++;
 				}
@@ -1028,7 +1028,7 @@ static int wildcard ( char const *searchStr, char const *str )
 				}
 				if ( *searchStr )
 				{
-					return ( 0 );
+					return (0);
 				}
 				break;
 			case '?':
@@ -1038,7 +1038,7 @@ static int wildcard ( char const *searchStr, char const *str )
 			default:
 				if ( *searchStr != *str )
 				{
-					return ( 0 );
+					return (0);
 				}
 				str++;
 				searchStr++;
@@ -1053,9 +1053,9 @@ static int wildcard ( char const *searchStr, char const *str )
 	}
 	if ( !*searchStr && !*str )
 	{
-		return ( 1 );
+		return (1);
 	}
-	return ( 0 );
+	return (0);
 }
 
 static int strcount ( char const *str2, char const *str1 )
@@ -1069,7 +1069,7 @@ static int strcount ( char const *str2, char const *str1 )
 
 	if ( len2 > len1 )
 	{
-		return ( 0 );
+		return (0);
 	}
 
 	len1 = len1 - len2 + 1;
@@ -1085,7 +1085,7 @@ static int strcount ( char const *str2, char const *str1 )
 		len1--;
 	}
 
-	return ( cnt );
+	return (cnt);
 }
 
 static int strcounti ( char const *str2, char const *str1 )
@@ -1099,7 +1099,7 @@ static int strcounti ( char const *str2, char const *str1 )
 
 	if ( len2 > len1 )
 	{
-		return ( 0 );
+		return (0);
 	}
 
 	len1 = len1 - len2 + 1;
@@ -1115,7 +1115,7 @@ static int strcounti ( char const *str2, char const *str1 )
 		len1--;
 	}
 
-	return ( cnt );
+	return (cnt);
 }
 
 static int vmChrcount ( char const *chr, char const *str )
@@ -1124,11 +1124,11 @@ static int vmChrcount ( char const *chr, char const *str )
 
 	if ( !*chr )
 	{
-		return ( 0 );
+		return (0);
 	}
 	if ( *(chr + 1) )
 	{
-		return ( 0 );
+		return (0);
 	}
 
 	loop = 0;
@@ -1140,7 +1140,7 @@ static int vmChrcount ( char const *chr, char const *str )
 			loop++;
 		}
 	}
-	return ( loop );
+	return (loop);
 
 }
 
@@ -1151,11 +1151,11 @@ static int vmChrcounti ( char const *chr, char const *str )
 
 	if ( !*chr )
 	{
-		return ( 0 );
+		return (0);
 	}
 	if ( *(chr + 1) )
 	{
-		return ( 0 );
+		return (0);
 	}
 
 	loop = 0;
@@ -1169,17 +1169,17 @@ static int vmChrcounti ( char const *chr, char const *str )
 		}
 		str++;
 	}
-	return ( loop );
+	return (loop);
 
 }
 
 static int vmCheckScript ( VAR_STR *p1 )
 {
-	uint8_t			*str;
+	uint8_t *str;
 	uint8_t			 chr;
 	size_t			 state;
-	uint8_t	const	*scriptUc = (uint8_t const *)"<SCRIPT";
-	uint8_t	const	*scriptLc = (uint8_t const *)"<script";
+	uint8_t	const *scriptUc = (uint8_t const *)"<SCRIPT";
+	uint8_t	const *scriptLc = (uint8_t const *)"<script";
 
 	str = (uint8_t *)p1->dat.str.c;
 
@@ -1189,7 +1189,7 @@ static int vmCheckScript ( VAR_STR *p1 )
 		chr = *str;
 		if ( chr == '%' )
 		{
-			chr = static_cast<char>((hexEncodingTable[(size_t) str[1]] << 4) + hexEncodingTable[(size_t) str[2]]);
+			chr = static_cast<char>((hexEncodingTable[(size_t)str[1]] << 4) + hexEncodingTable[(size_t)str[2]]);
 			str += 3;
 		}
 		switch ( state )
@@ -1201,7 +1201,7 @@ static int vmCheckScript ( VAR_STR *p1 )
 				if ( chr == 's' || chr == 'S' )
 				{
 					state = 2;
-				} else if ( !_isspace ( &chr ) ) 
+				} else if ( !_isspace ( &chr ) )
 				{
 					state = 0;
 				}
@@ -1231,8 +1231,8 @@ static VAR_STR vmBase64Encode ( class vmInstance *instance, VAR_STR *p1 )
 {
 	size_t		 loop;
 	size_t		 outLen;
-	uint8_t		*in ;
-	uint8_t		*out;
+	uint8_t *in;
+	uint8_t *out;
 
 	instance->result.type = slangType::eNULL;
 
@@ -1241,19 +1241,19 @@ static VAR_STR vmBase64Encode ( class vmInstance *instance, VAR_STR *p1 )
 		return "";
 	}
 
-	outLen = ( (p1->dat.str.len - 1) / 3 + 1 ) * 4; /* round len to greatest 3rd and multiply by 4 */
+	outLen = ((p1->dat.str.len - 1) / 3 + 1) * 4; /* round len to greatest 3rd and multiply by 4 */
 
-	out = (uint8_t *) instance->om->alloc ( sizeof ( char ) * (outLen + 3 + 1) );
+	out = (uint8_t *)instance->om->alloc ( sizeof ( char ) * (outLen + 3 + 1) );
 
-	instance->result.type			= slangType::eSTRING;
-	instance->result.dat.str.len	= outLen;
-	instance->result.dat.str.c		= (char *)out;
+	instance->result.type = slangType::eSTRING;
+	instance->result.dat.str.len = outLen;
+	instance->result.dat.str.c = (char *)out;
 
 	in = (uint8_t *)p1->dat.str.c;
 
 	for ( loop = 0; loop < p1->dat.str.len; loop += 3 )
 	{
-		unsigned char in2[3]{};
+		unsigned char in2[3] {};
 		in2[0] = in[0];
 		in2[1] = loop + 1 < p1->dat.str.len ? in[1] : 0;
 		in2[2] = loop + 2 < p1->dat.str.len ? in[2] : 0;
@@ -1290,8 +1290,8 @@ static VAR_STR vmBase64Decode ( class vmInstance *instance, VAR_STR *p1 )
 {
 	size_t		 decodedLen;
 	size_t		 loop;
-	uint8_t		*in ;
-	uint8_t		*out;
+	uint8_t *in;
+	uint8_t *out;
 	uint8_t		 tmp[4] = "";
 
 	in = (uint8_t *)p1->dat.str.c;
@@ -1309,7 +1309,7 @@ static VAR_STR vmBase64Decode ( class vmInstance *instance, VAR_STR *p1 )
 		decodedLen--;
 	}
 
-	auto ret = out = (uint8_t *) instance->om->alloc ( sizeof ( char ) * (decodedLen + 2 + 1) );
+	auto ret = out = (uint8_t *)instance->om->alloc ( sizeof ( char ) * (decodedLen + 2 + 1) );
 
 	for ( loop = 0; loop < p1->dat.str.len; loop += 4 )
 	{
@@ -1325,7 +1325,7 @@ static VAR_STR vmBase64Decode ( class vmInstance *instance, VAR_STR *p1 )
 
 		/* advance pointers */
 		out += 3;
-		in  += 4;
+		in += 4;
 	}
 	ret[decodedLen] = 0;
 	return VAR_STR ( (char *)ret, decodedLen );
@@ -1333,23 +1333,23 @@ static VAR_STR vmBase64Decode ( class vmInstance *instance, VAR_STR *p1 )
 
 static VAR vmVal ( vmInstance *instance, char const *p )
 {
-   if ( _chrany ( ".", p ) )
-   {
-      instance->result.type         = slangType::eDOUBLE;
-      instance->result.dat.d        = atof ( p );
-   } else
-   {
-      instance->result.type        = slangType::eLONG;
-      instance->result.dat.l       = atol ( p );
-   }
-   return instance->result;
+	if ( _chrany ( ".", p ) )
+	{
+		instance->result.type = slangType::eDOUBLE;
+		instance->result.dat.d = atof ( p );
+	} else
+	{
+		instance->result.type = slangType::eLONG;
+		instance->result.dat.l = atol ( p );
+	}
+	return instance->result;
 }
 
 static VAR_STR vmStr ( vmInstance *instance, VAR *var )
 {
 	char  buff[64] = "";
 	char const *dest = buff;
-	
+
 	switch ( TYPE ( var ) )
 	{
 		case slangType::eSTRING:
@@ -1388,7 +1388,7 @@ static uint8_t vmAsc ( char const *p )
 	return *(uint8_t const *)p;
 }
 
-static VAR_STR vmChr ( vmInstance *instance, uint8_t val  )
+static VAR_STR vmChr ( vmInstance *instance, uint8_t val )
 {
 	char tmp[2] = "";
 	tmp[0] = static_cast<char>(val);
@@ -1398,7 +1398,7 @@ static VAR_STR vmChr ( vmInstance *instance, uint8_t val  )
 
 static VAR_STR vmDecodeUrl ( class vmInstance *instance, VAR_STR *var )
 {
-	uint8_t		*src;
+	uint8_t *src;
 	size_t		 len;
 	int			 val;
 	BUFFER		 buffer;
@@ -1413,10 +1413,10 @@ static VAR_STR vmDecodeUrl ( class vmInstance *instance, VAR_STR *var )
 			src++;
 			if ( len-- )
 			{
-				val = hexDecodingTable[(size_t)*(src++)] << 4;
+				val = hexDecodingTable[(size_t) * (src++)] << 4;
 				if ( len-- )
 				{
-					val |= hexDecodingTable[(size_t) *(src++)];
+					val |= hexDecodingTable[(size_t) * (src++)];
 					bufferPut8 ( &buffer, val );
 				} else
 				{
@@ -1433,7 +1433,7 @@ static VAR_STR vmDecodeUrl ( class vmInstance *instance, VAR_STR *var )
 		} else
 		{
 			bufferPut8 ( &buffer, *(src++) );
-		}		
+		}
 	}
 
 	return VAR_STR ( instance, bufferBuff ( &buffer ), bufferSize ( &buffer ) );
@@ -1442,7 +1442,7 @@ static VAR_STR vmDecodeUrl ( class vmInstance *instance, VAR_STR *var )
 static VAR_STR vmEncodeUrl ( class vmInstance *instance, VAR_STR *var )
 {
 	BUFFER		 buffer;
-	uint8_t		*src;
+	uint8_t *src;
 	size_t		 len;
 
 	src = (uint8_t *)var->dat.str.c;
@@ -1458,7 +1458,7 @@ static VAR_STR vmEncodeUrl ( class vmInstance *instance, VAR_STR *var )
 			bufferPrintf ( &buffer, "%%%02X", *src );
 		} else
 		{
-			bufferPut8 (&buffer, (char)*src );
+			bufferPut8 ( &buffer, (char)*src );
 		}
 		src++;
 	}
@@ -1469,7 +1469,7 @@ static VAR_STR vmEncodeUrl ( class vmInstance *instance, VAR_STR *var )
 static VAR_STR vmEncodeDAV ( class vmInstance *instance, VAR_STR *var )
 {
 	BUFFER		 buffer;
-	uint8_t		*src;
+	uint8_t *src;
 	size_t		 len;
 
 	src = (uint8_t *)var->dat.str.c;
@@ -1482,7 +1482,7 @@ static VAR_STR vmEncodeDAV ( class vmInstance *instance, VAR_STR *var )
 			bufferPrintf ( &buffer, "%%%02X", *src );
 		} else
 		{
-			bufferPut8 (&buffer, (char)*src );
+			bufferPut8 ( &buffer, (char)*src );
 		}
 		src++;
 	}
@@ -1495,8 +1495,8 @@ static char sxConvert[] = "01230120022455012623010202";
 
 static VAR_STR vmSoundex ( class vmInstance *instance, VAR *var, size_t length )
 {
-	char const	*src;
-	char		*dest;
+	char const *src;
+	char *dest;
 	uint8_t		 last;
 	uint8_t		 chr;
 	size_t		 numOut;
@@ -1554,7 +1554,7 @@ static VAR_STR vmSoundex ( class vmInstance *instance, VAR *var, size_t length )
 				/* only output six characters */
 				if ( numOut < length )
 				{
-					*(dest++) = static_cast<char>(chr);
+					*(dest++) = static_cast<char> ( chr );
 					numOut++;
 				} else
 				{
@@ -1576,24 +1576,24 @@ static VAR_STR vmSoundex ( class vmInstance *instance, VAR *var, size_t length )
 
 static VAR vmDescend ( class vmInstance *instance, VAR *val )
 {
-	char		*pPtr;
-	char		*pRet;
+	char *pPtr;
+	char *pRet;
 	size_t		 ctr;
 
-	switch ( TYPE( val ) )
+	switch ( TYPE ( val ) )
 	{
 		case slangType::eSTRING:
 			{
-				auto ret = (char *) instance->om->alloc ( sizeof ( char ) * (val->dat.str.len + 1) );
+				auto ret = (char *)instance->om->alloc ( sizeof ( char ) * (val->dat.str.len + 1) );
 
-				pPtr = (char *) val->dat.str.c;
+				pPtr = (char *)val->dat.str.c;
 				pRet = ret;
 				ctr = val->dat.str.len;
 
 				/* reverse characters */
 				while ( ctr-- )
 				{
-					*(pRet++) = static_cast<char>((unsigned char) 255 - *(pPtr++));
+					*(pRet++) = static_cast<char>((unsigned char)255 - *(pPtr++));
 				}
 
 				/* null terminate string */
@@ -1617,32 +1617,32 @@ static VAR vmDescend ( class vmInstance *instance, VAR *val )
 
 static uint32_t vmEmpty ( VAR *val )
 {
-   uint32_t loop;
+	uint32_t loop;
 
-   switch ( TYPE( val ) )
-   {
-      case slangType::eSTRING:
-         for ( loop = 0; loop < val->dat.str.len; loop++ )
-         {
-            if ( val->dat.str.c[loop] != ' ' ) return 0;
-         }
-		 return 1;
+	switch ( TYPE ( val ) )
+	{
+		case slangType::eSTRING:
+			for ( loop = 0; loop < val->dat.str.len; loop++ )
+			{
+				if ( val->dat.str.c[loop] != ' ' ) return 0;
+			}
+			return 1;
 
-      case slangType::eLONG:
-         return val->dat.l == 0;
+		case slangType::eLONG:
+			return val->dat.l == 0;
 
-      case slangType::eDOUBLE:
-         return val->dat.d == 0;
+		case slangType::eDOUBLE:
+			return val->dat.d == 0;
 
-      default:
-         throw errorNum::scINVALID_PARAMETER;
-   }
+		default:
+			throw errorNum::scINVALID_PARAMETER;
+	}
 }
 
 static VAR_STR vmToken ( vmInstance *instance, VAR_STR *str, VAR_STR *token, int64_t num )
 {
-	const char	*tokenPtr;
-	char const	*strPtr = str->dat.str.c;
+	const char *tokenPtr;
+	char const *strPtr = str->dat.str.c;
 
 	if ( !str->dat.str.len )
 	{
@@ -1713,8 +1713,8 @@ static VAR_STR vmToken ( vmInstance *instance, VAR_STR *str, VAR_STR *token, int
 static int64_t vmNumToken ( VAR_STR *str, VAR_STR *token )
 {
 	int			 count;
-	char const	*tokenPtr;
-	char const  *strPtr = str->dat.str.c;
+	char const *tokenPtr;
+	char const *strPtr = str->dat.str.c;
 	count = 0;
 
 	while ( *strPtr )
@@ -1793,10 +1793,11 @@ VAR_STR vmStrSwapI ( class vmInstance *instance, VAR_STR *str, VAR_STR *toSwap, 
 	return VAR_STR ( instance, res );
 }
 
-struct outVector {
+struct outVector
+{
 	uint32_t data[8];
 
-	outVector ( )
+	outVector ()
 	{
 		memset ( data, 0, sizeof ( data ) );
 	}
@@ -1817,13 +1818,14 @@ struct outVector {
 		data[index >> 5] |= (1 << (index & 31));
 		data[255 >> 5] |= (1 << (255 & 31));
 	}
-	bool isEmpty ( )
+	bool isEmpty ()
 	{
 		return (*this)[255] ? 0 : 1;
 	}
 };
 
-struct matchingEngine {
+struct matchingEngine
+{
 	uint32_t	 MAXS = 1;
 	uint32_t	 nKeywords;
 
@@ -1832,12 +1834,12 @@ struct matchingEngine {
 
 	uint32_t	 MAXC;
 
-	unsigned char	*str;
+	unsigned char *str;
 	bool			 doDelete = false;
 
-	outVector		*out;			// output state
-	int				*f;				// failure function
-	int				*g;				// Goto function, or -1 if fail.
+	outVector *out;			// output state
+	int *f;				// failure function
+	int *g;				// Goto function, or -1 if fail.
 
 	private:
 
@@ -1845,10 +1847,10 @@ struct matchingEngine {
 	{
 		for ( auto &i : words )
 		{
-			MAXS += (uint32_t)i.size ( );
+			MAXS += (uint32_t)i.size ();
 		}
 
-		nKeywords = (uint32_t)words.size ( );
+		nKeywords = (uint32_t)words.size ();
 		size_t	size;
 		size = sizeof ( MAXS ) + sizeof ( MAXC ) + sizeof ( nKeywords );
 		size += MAXS * sizeof ( *out );				// out
@@ -1860,29 +1862,29 @@ struct matchingEngine {
 
 		memset ( str, 0, size );
 
-		out = (outVector *) (str + sizeof ( MAXS ) + sizeof ( MAXC ) + sizeof ( nKeywords ));
+		out = (outVector *)(str + sizeof ( MAXS ) + sizeof ( MAXC ) + sizeof ( nKeywords ));
 		for ( size_t loop = 0; loop < MAXS; loop++ )
 		{
 			out[loop] = outVector ();
 		}
-		f = (int *) (str + sizeof ( MAXS ) + sizeof ( MAXC ) + sizeof ( nKeywords ) + sizeof ( *out ) * MAXS);
-		g = (int *) (str + sizeof ( MAXS ) + sizeof ( MAXC ) + sizeof ( nKeywords ) + sizeof ( *out ) * MAXS + sizeof ( *f ) * MAXS);
+		f = (int *)(str + sizeof ( MAXS ) + sizeof ( MAXC ) + sizeof ( nKeywords ) + sizeof ( *out ) * MAXS);
+		g = (int *)(str + sizeof ( MAXS ) + sizeof ( MAXC ) + sizeof ( nKeywords ) + sizeof ( *out ) * MAXS + sizeof ( *f ) * MAXS);
 
-		memset ( g, -1, static_cast<size_t>(MAXC) * MAXS * sizeof ( *g ) );
+		memset ( g, -1, static_cast<size_t> ( MAXC ) * MAXS * sizeof ( *g ) );
 
 		size_t states = 1; // Initially, we just have the 0 state
-		for ( size_t i = 0; i < words.size ( ); ++i )
+		for ( size_t i = 0; i < words.size (); ++i )
 		{
 			const std::string &keyword = words[i];
 			size_t currentState = 0;
-			for ( size_t j = 0; j < keyword.size ( ); ++j )
+			for ( size_t j = 0; j < keyword.size (); ++j )
 			{
 				int c = keyword[j] - lowestChar;
-				if ( g[static_cast<size_t>(c) * MAXS + currentState] == -1 )
+				if ( g[static_cast<size_t> ( c ) * MAXS + currentState] == -1 )
 				{ // Allocate a new node
-					g[static_cast<size_t>(c) * MAXS + currentState] = static_cast<int>(states++);
+					g[static_cast<size_t> ( c ) * MAXS + currentState] = static_cast<int> ( states++ );
 				}
-				currentState = static_cast<size_t>(g[static_cast<size_t>(c) * MAXS + currentState]);
+				currentState = static_cast<size_t> ( g[static_cast<size_t> ( c ) * MAXS + currentState] );
 			}
 			out[currentState].set ( (uint32_t)i ); // There's a match of keywords[i] at node currentState.
 		}
@@ -1907,10 +1909,10 @@ struct matchingEngine {
 				q.push ( g[c * MAXS + 0] );
 			}
 		}
-		while ( q.size ( ) )
+		while ( q.size () )
 		{
-			int state = q.front ( );
-			q.pop ( );
+			int state = q.front ();
+			q.pop ();
 			for ( int c = 0; c <= highestChar - lowestChar; ++c )
 			{
 				if ( g[c * MAXS + state] != -1 )
@@ -1930,7 +1932,7 @@ struct matchingEngine {
 	}
 
 	public:
-	virtual ~matchingEngine ( )
+	virtual ~matchingEngine ()
 	{
 		if ( doDelete )
 		{
@@ -1953,12 +1955,12 @@ struct matchingEngine {
 		doDelete = false;
 		str = strP;
 
-		MAXS = ((int *) str)[0];
-		MAXC = ((int *) str)[1];
-		nKeywords = ((int *) str)[2];
-		out = ((outVector *) (str + sizeof ( MAXS ) + sizeof ( MAXC ) + sizeof ( nKeywords )));
-		f = (int *) (str + sizeof ( MAXS ) + sizeof ( MAXC ) + sizeof ( nKeywords ) + sizeof ( *out ) * MAXS);
-		g = (int *) (str + sizeof ( MAXS ) + sizeof ( MAXC ) + sizeof ( nKeywords ) + sizeof ( *out ) * MAXS + sizeof ( *f ) * MAXS);
+		MAXS = ((int *)str)[0];
+		MAXC = ((int *)str)[1];
+		nKeywords = ((int *)str)[2];
+		out = ((outVector *)(str + sizeof ( MAXS ) + sizeof ( MAXC ) + sizeof ( nKeywords )));
+		f = (int *)(str + sizeof ( MAXS ) + sizeof ( MAXC ) + sizeof ( nKeywords ) + sizeof ( *out ) * MAXS);
+		g = (int *)(str + sizeof ( MAXS ) + sizeof ( MAXC ) + sizeof ( nKeywords ) + sizeof ( *out ) * MAXS + sizeof ( *f ) * MAXS);
 	}
 
 	VAR_STR serialize ( vmInstance *instance )
@@ -1971,14 +1973,14 @@ struct matchingEngine {
 
 		VAR_STR	res;
 
-		auto ret = (char *) instance->om->alloc ( size + 1 );
+		auto ret = (char *)instance->om->alloc ( size + 1 );
 
-		((int*) ret)[0] = static_cast<int>(MAXS);
-		((int*) ret)[1] = static_cast<int>(MAXC);
-		((int*) ret)[2] = static_cast<int>(nKeywords);
+		((int *)ret)[0] = static_cast<int>(MAXS);
+		((int *)ret)[1] = static_cast<int>(MAXC);
+		((int *)ret)[2] = static_cast<int>(nKeywords);
 		memcpy ( ret + sizeof ( MAXS ) + sizeof ( MAXC ) + sizeof ( nKeywords ), out, sizeof ( *out ) * MAXS );
 		memcpy ( ret + sizeof ( MAXS ) + sizeof ( MAXS ) + sizeof ( nKeywords ) + sizeof ( *out ) * MAXS, f, sizeof ( *f ) * MAXS );
-		memcpy ( ret + sizeof ( MAXS ) + sizeof ( MAXS ) + sizeof ( nKeywords ) + sizeof ( *out ) * MAXS + sizeof ( *f ) * MAXS, g, sizeof ( *g ) * MAXS *MAXC );
+		memcpy ( ret + sizeof ( MAXS ) + sizeof ( MAXS ) + sizeof ( nKeywords ) + sizeof ( *out ) * MAXS + sizeof ( *f ) * MAXS, g, sizeof ( *g ) * MAXS * MAXC );
 
 		ret[size] = 0;
 		return VAR_STR ( ret, size );
@@ -2023,7 +2025,7 @@ static VAR_STR multiPatternBuild ( vmInstance *instance, VAR *arr )
 		index++;
 	}
 
-	if ( keywords.size ( ) > 255 ) throw errorNum::scINVALID_PARAMETER;
+	if ( keywords.size () > 255 ) throw errorNum::scINVALID_PARAMETER;
 
 	matchingEngine matcher ( keywords );
 
@@ -2044,7 +2046,7 @@ static int multiPatternFind ( VAR_STR *strP, VAR_STR *pattern, uint32_t maxMatch
 	for ( int i = 0; str[0]; str++, i++ )
 	{
 		currentState = static_cast<int>(matcher.findNextState ( currentState, *str ));
-		if ( matcher.out[currentState].isEmpty ( ) )
+		if ( matcher.out[currentState].isEmpty () )
 			continue; // Nothing new, let's move on to the next character.
 		for ( uint32_t j = 0; j < matcher.nKeywords; ++j )
 		{
@@ -2106,9 +2108,10 @@ static VAR_STR multiPatternNormalize ( vmInstance *instance, VAR_STR *strP )
 	}
 	return VAR_STR ( instance, dest );
 }
-static inline VAR *DEREF2 ( VAR *x ) { 
-			while ( TYPE ( x ) == slangType::eREFERENCE ) x = x->dat.ref.v; 
-			return x; 
+static inline VAR *DEREF2 ( VAR *x )
+{
+	while ( TYPE ( x ) == slangType::eREFERENCE ) x = x->dat.ref.v;
+	return x;
 }
 
 VAR_STR strTemplate ( vmInstance *instance, VAR_STR *str, VAR *arr )
@@ -2132,7 +2135,7 @@ VAR_STR strTemplate ( vmInstance *instance, VAR_STR *str, VAR *arr )
 
 		if ( !a ) break;
 		keywords.push_back ( DEREF2 ( (*a)[1] )->dat.str.c );
-		replacement.push_back ( DEREF2  ( (*a)[2] )->dat.str.c );
+		replacement.push_back ( DEREF2 ( (*a)[2] )->dat.str.c );
 		index++;
 	}
 
@@ -2143,11 +2146,11 @@ VAR_STR strTemplate ( vmInstance *instance, VAR_STR *str, VAR *arr )
 	int currentState = 0;
 	BUFFER buff;
 
-	unsigned char *s = (unsigned char *) str->dat.str.c;
+	unsigned char *s = (unsigned char *)str->dat.str.c;
 	for ( int i = 0; s[0]; s++, i++ )
 	{
 		currentState = static_cast<int>(matcher.findNextState ( currentState, *s ));
-		if ( matcher.out[currentState].isEmpty ( ) )
+		if ( matcher.out[currentState].isEmpty () )
 		{
 			// no match, emit character
 			buff.put ( *s );
@@ -2157,8 +2160,8 @@ VAR_STR strTemplate ( vmInstance *instance, VAR_STR *str, VAR *arr )
 		{
 			if ( matcher.out[currentState][j] )
 			{
-				bufferUnWrite ( &buff, keywords[j].size ( ) - 1 );
-				buff.write ( replacement[j].c_str ( ), replacement[j].size ( ) );
+				bufferUnWrite ( &buff, keywords[j].size () - 1 );
+				buff.write ( replacement[j].c_str (), replacement[j].size () );
 			}
 		}
 	}
@@ -2175,7 +2178,7 @@ VAR vmSplitString2 ( vmInstance *instance, VAR_STR *string, VAR_STR *sep, VAR_ST
 	{
 		// name
 		auto offsetStart = offset;
-		while ( string->dat.str.c[offset]  && !strchr ( sep->dat.str.c, string->dat.str.c[offset] ) && !strchr ( sep2->dat.str.c, string->dat.str.c[offset] ) )
+		while ( string->dat.str.c[offset] && !strchr ( sep->dat.str.c, string->dat.str.c[offset] ) && !strchr ( sep2->dat.str.c, string->dat.str.c[offset] ) )
 		{
 			offset++;
 		}
@@ -2268,8 +2271,8 @@ VAR_STR vmStrextract ( vmInstance *instance, VAR_STR *strParam, VAR_STR *delim, 
 {
 	char		 leftDelim;
 	char		 rightDelim;
-	const char	*str;
-	const char	*start;
+	const char *str;
+	const char *start;
 	int			 startFound;
 	BUFFER		 dest;
 
@@ -2389,7 +2392,7 @@ VAR_STR vmSubToken ( vmInstance *instance, VAR_STR *strParam, VAR_STR *token, VA
 {
 	char const
 		*tmpC;
-	char const	*str = strParam->dat.str.c;
+	char const *str = strParam->dat.str.c;
 
 	if ( delim->dat.str.len != 1 || token->dat.str.len != 1 ) throw errorNum::scINVALID_PARAMETER;
 
@@ -2424,8 +2427,8 @@ VAR_STR vmSubToken ( vmInstance *instance, VAR_STR *strParam, VAR_STR *token, VA
 
 VAR_STR vmSubTokenI ( vmInstance *instance, VAR_STR *strParam, VAR_STR *token, VAR_STR *delim, VAR_STR *value )
 {
-	char const	*tmpC;
-	char const	*str = strParam->dat.str.c;
+	char const *tmpC;
+	char const *str = strParam->dat.str.c;
 
 	if ( delim->dat.str.len != 1 || token->dat.str.len != 1 ) throw errorNum::scINVALID_PARAMETER;
 
@@ -2526,12 +2529,12 @@ static VAR_STR vmConvertFilterString ( vmInstance *instance, char const *str, VA
 			bool found = false;
 			for ( auto &it : keywords )
 			{
-				if ( it.length ( ) == str - start )
+				if ( it.length () == str - start )
 				{
-					if ( !_memicmp ( it.c_str ( ), start, it.length ( ) ) )
+					if ( !_memicmp ( it.c_str (), start, it.length () ) )
 					{
 						buff.write ( "arr[\"", 5 );
-						buff.write ( it.c_str ( ), it.length ( ) );
+						buff.write ( it.c_str (), it.length () );
 						buff.write ( "\"]", 2 );
 						found = true;
 
@@ -2604,8 +2607,8 @@ VAR_STR vmGUID ( vmInstance *instance )
 	GUID guid;
 	CoCreateGuid ( &guid );
 
-	BYTE * str;
-	UuidToString ( (UUID*) &guid, &str );
+	BYTE *str;
+	UuidToString ( (UUID *)&guid, &str );
 
 	VAR_STR ret ( instance, (char *)str );
 
@@ -2614,7 +2617,7 @@ VAR_STR vmGUID ( vmInstance *instance )
 	return ret;
 }
 
-VAR_STR vmChrswapall ( vmInstance *instance, char* str, char* search, char* repl )
+VAR_STR vmChrswapall ( vmInstance *instance, char *str, char *search, char *repl )
 {
 	BUFFER buff;
 
@@ -2625,7 +2628,7 @@ VAR_STR vmChrswapall ( vmInstance *instance, char* str, char* search, char* repl
 
 	while ( *str )
 	{
-		char* s = search;
+		char *s = search;
 		while ( *s )
 		{
 			if ( *str == *s )
@@ -2647,7 +2650,7 @@ VAR_STR vmChrswapall ( vmInstance *instance, char* str, char* search, char* repl
 	return VAR_STR ( instance, buff );
 }
 
-VAR_STR vmChrswapalli ( vmInstance* instance, char* str, char* search, char* repl )
+VAR_STR vmChrswapalli ( vmInstance *instance, char *str, char *search, char *repl )
 {
 	BUFFER buff;
 
@@ -2658,7 +2661,7 @@ VAR_STR vmChrswapalli ( vmInstance* instance, char* str, char* search, char* rep
 
 	while ( *str )
 	{
-		char* s = search;
+		char *s = search;
 		while ( *s )
 		{
 			char s1 = *s;
@@ -2688,7 +2691,7 @@ VAR_STR vmChrswapalli ( vmInstance* instance, char* str, char* search, char* rep
 
 void builtinStringInit ( class vmInstance *instance, opFile *file )
 {
-	REGISTER( instance, file );
+	REGISTER ( instance, file );
 		FUNC ( "ltrim", vmLtrim ) CONST PURE;
 		FUNC ( "rtrim", vmRtrim ) CONST PURE;
 		FUNC ( "alltrim", vmAlltrim ) CONST PURE;
@@ -2725,104 +2728,442 @@ void builtinStringInit ( class vmInstance *instance, opFile *file )
 		FUNC ( "chrSwap", vmChrSwap ) CONST PURE;
 		FUNC ( "trimPunct", vmTrimPunct ) CONST PURE;
 
-		FUNC ( "checkScript", vmCheckScript ) CONST PURE;
-		FUNC ( "base64Encode", vmBase64Encode ) CONST PURE;
-		FUNC ( "base64Decode", vmBase64Decode ) CONST PURE;
+	FUNC ( "checkScript", vmCheckScript ) CONST PURE;
+	FUNC ( "base64Encode", vmBase64Encode ) CONST PURE;
+	FUNC ( "base64Decode", vmBase64Decode ) CONST PURE;
 
-		FUNC ( "webDecodeUrl", vmDecodeUrl ) CONST PURE;
-		FUNC ( "webEncodeUrl", vmEncodeUrl ) CONST PURE;
-		FUNC ( "webEncodeDav", vmEncodeDAV ) CONST PURE;
+	FUNC ( "webDecodeUrl", vmDecodeUrl ) CONST PURE;
+	FUNC ( "webEncodeUrl", vmEncodeUrl ) CONST PURE;
+	FUNC ( "webEncodeDav", vmEncodeDAV ) CONST PURE;
 
-		FUNC ( "val", vmVal ) CONST PURE;
-		FUNC ( "str", vmStr ) CONST PURE;
-		FUNC ( "asc", vmAsc ) CONST PURE;
-		FUNC ( "chr", vmChr ) CONST PURE;
+	FUNC ( "val", vmVal ) CONST PURE;
+	FUNC ( "str", vmStr ) CONST PURE;
+	FUNC ( "asc", vmAsc ) CONST PURE;
+	FUNC ( "chr", vmChr ) CONST PURE;
 
-		FUNC ( "soundEx", vmSoundex, DEF ( 2, "5" ) ) CONST PURE;
+	FUNC ( "soundEx", vmSoundex, DEF ( 2, "5" ) ) CONST PURE;
 
-		FUNC ( "descend", vmDescend ) CONST PURE;
-		FUNC ( "empty", vmEmpty ) CONST PURE;
-		
-		FUNC ( "token", vmToken ) CONST PURE;
-		FUNC ( "numToken", vmNumToken, DEF ( 2, "' \t='" ) ) CONST PURE;
+	FUNC ( "descend", vmDescend ) CONST PURE;
+	FUNC ( "empty", vmEmpty ) CONST PURE;
 
-		FUNC ( "strSwap", vmStrSwap ) CONST PURE;
-		FUNC ( "strSwapI", vmStrSwapI ) CONST PURE;
+	FUNC ( "token", vmToken ) CONST PURE;
+	FUNC ( "numToken", vmNumToken, DEF ( 2, "' \t='" ) ) CONST PURE;
 
-		FUNC ( "split", vmSplitString ) CONST PURE;
-		FUNC ( "split2", vmSplitString2 ) CONST PURE;
-		FUNC ( "substr", vmSubstr ) CONST PURE;
+	FUNC ( "strSwap", vmStrSwap ) CONST PURE;
+	FUNC ( "strSwapI", vmStrSwapI ) CONST PURE;
 
-		FUNC ( "strextract", vmStrextract ) CONST PURE;
-		FUNC ( "subToken", vmSubToken ) CONST PURE;
-		FUNC ( "subTokenI", vmSubTokenI ) CONST PURE;
+	FUNC ( "split", vmSplitString ) CONST PURE;
+	FUNC ( "split2", vmSplitString2 ) CONST PURE;
+	FUNC ( "substr", vmSubstr ) CONST PURE;
 
-		FUNC ( "at", at, DEF ( 3, "1" ) ) CONST PURE;
-		FUNC ( "atI", ati, DEF ( 3, "1" ) ) CONST PURE;
-		FUNC ( "atDiff", atdiff ) CONST PURE;
-		FUNC ( "atDiffI", atdiffi ) CONST PURE;
-		FUNC ( "atLast", atlast ) CONST PURE;
-		FUNC ( "atLastI", atlasti ) CONST PURE;
-		FUNC ( "atNext", atnext ) CONST PURE;
-		FUNC ( "atNextI", atnexti ) CONST PURE;
-		FUNC ( "attoken", attoken ) CONST PURE;
-		DOC ( R"(
-					@func at returns the offset of the first occurence of substring in string beginning at [offset=1]
-						@param param1(substr) string to search for
-						@param param2(str) specifies the string to search
-						@param param3(offset) starting offset to search
-					@func atI returns the case insensitive offset of the first occurence of substring in string beginning at [offset=1]
-						@param param1(substr) string to search for
-						@param param2(str) specifies the string to search
-						@param param3(offset) starting offset to search
-					@func atDiff returns the offset of the first difference between string1 and string1
-						@param param1(str1)
-						@param param2(str2)
-					@func atDiffI returns the case insensitive offset of the first difference between string1 and string1
-						@param param1(str1)
-						@param param2(str2)
-					@func atLast returns the offset of the last occurence of substr in string
-						@param param1(str)
-						@param param2(substr)
-					@func atLastI returns the case insensitive offset of the last occurence of substr in string
-						@param param1(str)
-						@param param2(substr)
-					@func atNext returns the offset of the index'th occurence of substr in str
-						@param param1(str)
-						@param param2(substr)
-						@param param3(index)
-					@func atNextI returns the case insensitive offset of the index'th occurence of substr in str
-						@param param1(str)
-						@param param2(substr)
-						@param param3(index)
-					@func atToken returns the offset of the index'th token in string 
-						@param param1(str)
-						@param param2(token)
-						@param param3(index)
-				)" );
+	FUNC ( "strextract", vmStrextract ) CONST PURE;
+	FUNC ( "subToken", vmSubToken ) CONST PURE;
+	FUNC ( "subTokenI", vmSubTokenI ) CONST PURE;
 
-		FUNC ( "strAt", at, DEF( 3, "1" ) ) CONST PURE;
-		FUNC ( "strAtI", ati, DEF( 3, "1" ) ) CONST PURE;
-		FUNC ( "strAtNext", stratnext, DEF( 3, "1" ), DEF( 4, "1" ) ) CONST PURE;
-		FUNC ( "strAtNextI", stratnexti, DEF( 3, "1" ), DEF( 4, "1" ) ) CONST PURE;
-		FUNC ( "strAtPrev", stratprev, DEF( 3, "1" ), DEF( 4, "1" ) ) CONST PURE;
-		FUNC ( "strAtPrevI", stratprevi, DEF( 3, "1" ), DEF( 4, "1" ) ) CONST PURE;
+	FUNC ( "at", at, DEF ( 3, "1" ) ) CONST PURE;
+	FUNC ( "atI", ati, DEF ( 3, "1" ) ) CONST PURE;
+	FUNC ( "atDiff", atdiff ) CONST PURE;
+	FUNC ( "atDiffI", atdiffi ) CONST PURE;
+	FUNC ( "atLast", atlast ) CONST PURE;
+	FUNC ( "atLastI", atlasti ) CONST PURE;
+	FUNC ( "atNext", atnext ) CONST PURE;
+	FUNC ( "atNextI", atnexti ) CONST PURE;
+	FUNC ( "attoken", attoken ) CONST PURE;
 
-		FUNC ( "strMultiPatternBuild", multiPatternBuild ) CONST PURE;
-		FUNC ( "strMultiPatternFind", multiPatternFind, DEF ( 3, "-1" ) ) CONST PURE;
-		FUNC ( "strMultiPatternNormalize", multiPatternNormalize ) CONST PURE;
-		FUNC ( "strTemplate", strTemplate ) CONST PURE;
+	FUNC ( "strAt", at, DEF ( 3, "1" ) ) CONST PURE;
+	FUNC ( "strAtI", ati, DEF ( 3, "1" ) ) CONST PURE;
+	FUNC ( "strAtNext", stratnext, DEF ( 3, "1" ), DEF ( 4, "1" ) ) CONST PURE;
+	FUNC ( "strAtNextI", stratnexti, DEF ( 3, "1" ), DEF ( 4, "1" ) ) CONST PURE;
+	FUNC ( "strAtPrev", stratprev, DEF ( 3, "1" ), DEF ( 4, "1" ) ) CONST PURE;
+	FUNC ( "strAtPrevI", stratprevi, DEF ( 3, "1" ), DEF ( 4, "1" ) ) CONST PURE;
 
-		FUNC ( "convertFilterString", vmConvertFilterString );
+	FUNC ( "strMultiPatternBuild", multiPatternBuild ) CONST PURE;
+	FUNC ( "strMultiPatternFind", multiPatternFind, DEF ( 3, "-1" ) ) CONST PURE;
+	FUNC ( "strMultiPatternNormalize", multiPatternNormalize ) CONST PURE;
+	FUNC ( "strTemplate", strTemplate ) CONST PURE;
 
-		FUNC ( "webHeader", vmWebHeader ) CONST PURE;
-		FUNC ( "webFooter", vmWebFooter ) CONST PURE;
+	FUNC ( "convertFilterString", vmConvertFilterString );
 
-		FUNC ( "dec2hex", vmDec2hex ) CONST PURE;
+	FUNC ( "webHeader", vmWebHeader ) CONST PURE;
+	FUNC ( "webFooter", vmWebFooter ) CONST PURE;
 
-		FUNC ( "genGuid", vmGUID );
+	FUNC ( "dec2hex", vmDec2hex ) CONST PURE;
 
-		FUNC ( "_chrSwapAll", vmChrswapall ) CONST PURE;
-		FUNC ( "_chrSwapAllI", vmChrswapalli ) CONST PURE;
+	FUNC ( "genGuid", vmGUID );
+
+	FUNC ( "chrSwapAll", vmChrswapall ) CONST PURE;
+	FUNC ( "chrSwapAllI", vmChrswapalli ) CONST PURE;
+
+/**
+*
+* Generated using:
+* comment the function using doxygen and pass the comment to a function xxx as a multi line string and pass the function name as a string as the first parameter, do it for the entire file, put the new functions at the end of the file
+*/
+	DOC ( "Ltrim", R"(
+ @brief Removes leading whitespace (spaces and tabs) from a string.
+ @param val the string to trim.
+ @return A new string with leading whitespace removed.
+)" );
+	DOC ( "Rtrim", R"(
+ @brief Removes trailing whitespace (spaces and tabs) from a string.
+ @param val the string to trim.
+ @return A new string with trailing whitespace removed.
+)" );
+	DOC ( "Alltrim", R"(
+ @brief Removes both leading and trailing whitespace (spaces and tabs) from a string.
+ @param val the string to trim.
+ @return A new string with leading and trailing whitespace removed.
+)" );
+	DOC ( "Untrim", R"(
+ @brief Pads or truncates a string to a specified length, filling with spaces if needed.
+ @param val the string to untrim.
+ @param len Desired length of the result string.
+ @return A new string of the specified length.
+)" );
+	DOC ( "Ljust", R"(
+ @brief Left-justifies a string by moving leading spaces to the end.
+ @param val the string to justify.
+ @return A new left-justified string.
+)" );
+	DOC ( "Rjust", R"(
+ @brief Right-justifies a string by moving trailing spaces to the beginning.
+ @param val the string to justify.
+ @return A new right-justified string.
+)" );
+	DOC ( "Mid", R"(
+ @brief Extracts a substring from a string, starting at a given position and length.
+ @param var the source string.
+ @param i Starting position (1-based).
+ @param l Length of the substring.
+ @return The extracted substring.
+)" );
+	DOC ( "Left", R"(
+ @brief Returns the leftmost i characters of a string.
+ @param var the source string.
+ @param i Number of characters to return.
+ @return The leftmost i characters.
+)" );
+	DOC ( "Right", R"(
+ @brief Returns the rightmost i characters of a string.
+ @param var the source string.
+ @param i Number of characters to return.
+ @return The rightmost i characters.
+)" );
+	DOC ( "Space", R"(
+ @brief Returns a string consisting of i space characters.
+ @param i Number of spaces.
+ @return String of spaces.
+)" );
+	DOC ( "Lower", R"(
+ @brief Converts all uppercase characters in a string to lowercase.
+ @param val the string to convert.
+ @return Lowercase version of the string.
+)" );
+	DOC ( "Upper", R"(
+ @brief Converts all lowercase characters in a string to uppercase.
+ @param val the string to convert.
+ @return Uppercase version of the string.
+)" );
+	DOC ( "StrCapFirst", R"(
+ @brief Capitalizes the first character of a string.
+ @param val the string.
+ @return String with the first character capitalized.
+)" );
+	DOC ( "TrimPunct", R"(
+ @brief Removes punctuation from a string.
+ @param val the string.
+ @return String with punctuation removed.
+)" );
+	DOC ( "ChrSwap", R"(
+ @brief Replaces all occurrences of a character in a string with another character.
+ @param pStr the string.
+ @param pOldChar the character to replace.
+ @param pNewChar the replacement character.
+ @return Modified string.
+)" );
+	DOC ( "String", R"(
+ @brief Returns a string of a specified length, filled with a given character.
+ @param len Length of the string.
+ @param var Pointer to the VAR specifying the character.
+ @return String of specified length and character.
+)" );
+	DOC ( "Replicate", R"(
+ @brief Replicates a string a specified number of times.
+ @param str The string to replicate.
+ @param count Number of times to replicate.
+ @return Replicated string.
+)" );
+	DOC ( "isalpha", R"(
+ @brief Checks if the given string contains only alphabetic characters.
+ @param val Pointer to the VAR containing the string to check.
+ @returnint Non-zero if the string is alphabetic, 0 otherwise.
+)" );
+	DOC ( "isdigit", R"(
+ @brief Checks if the given string contains only numeric digits.
+ @param val Pointer to the VAR containing the string to check.
+ @returnint Non-zero if the string is numeric, 0 otherwise.
+)" );
+	DOC ( "isnum", R"(
+ @brief Checks if the given string is a valid number (integer or floating-point).
+ @param val Pointer to the VAR containing the string to check.
+ @returnint Non-zero if the string is a number, 0 otherwise.
+)" );
+	DOC ( "islower", R"(
+ @brief Checks if the given string contains only lowercase alphabetic characters.
+ @param val Pointer to the VAR containing the string to check.
+ @returnint Non-zero if the string is lowercase, 0 otherwise.
+)" );
+	DOC ( "isupper", R"(
+ @brief Checks if the given string contains only uppercase alphabetic characters.
+ @param val Pointer to the VAR containing the string to check.
+ @returnint Non-zero if the string is uppercase, 0 otherwise.
+)" );
+	DOC ( "strempty", R"(
+ @brief Checks if the given string is empty or contains only whitespace.
+ @param val Pointer to the VAR containing the string to check.
+ @returnint Non-zero if the string is empty or whitespace, 0 otherwise.
+)" );
+	DOC ( "strcommas", R"(
+ @brief Formats a number as a string with commas as thousands separators.
+ @param val Pointer to the VAR containing the number to format.
+ @return Formatted number string with commas.
+)" );
+	DOC ( "ati", R"(
+ @brief Returns the offset of the first occurence of a substring in a string, starting the search at a specified position.
+ @param substr The substring to search for.
+ @param str The string to search in.
+ @param offset The position to start the search from.
+ @returnsize_t The offset of the first occurence of the substring, or 0 if not found.
+)" );
+	DOC ( "at", R"(
+ @brief Returns the offset of the first occurence of a substring in a string, starting the search at a specified position.
+ @param substr The substring to search for.
+ @param str The string to search in.
+ @param offset The position to start the search from.
+ @returnsize_t The offset of the first occurence of the substring, or 0 if not found.
+)" );
+	DOC ( "stratnext", R"(
+ @brief Returns the position of the next occurence of a substring in a string, based on an occurrence index.
+ @param subStr The substring to search for.
+ @param str The string to search in.
+ @param occur The occurrence index (1-based).
+ @param startpos The position to start the search from.
+ @returnsize_t The position of the next occurence of the substring, or 0 if not found.
+)" );
+	DOC ( "stratnexti", R"(
+ @brief Returns the position of the next occurence of a substring in a string, based on an occurrence index.
+ @param subStr The substring to search for.
+ @param str The string to search in.
+ @param occur The occurrence index (1-based).
+ @param startpos The position to start the search from.
+ @returnsize_t The position of the next occurence of the substring, or 0 if not found.
+)" );
+	DOC ( "stratprev", R"(
+ @brief Returns the position of the previous occurence of a substring in a string, based on an occurrence index.
+ @param subStr The substring to search for.
+ @param str The string to search in.
+ @param occur The occurrence index (1-based).
+ @param startpos The position to start the search from.
+ @returnsize_t The position of the previous occurence of the substring, or 0 if not found.
+)" );
+	DOC ( "stratprevi", R"(
+ @brief Returns the position of the previous occurence of a substring in a string, based on an occurrence index.
+ @param subStr The substring to search for.
+ @param str The string to search in.
+ @param occur The occurrence index (1-based).
+ @param startpos The position to start the search from.
+ @returnsize_t The position of the previous occurence of the substring, or 0 if not found.
+)" );
+	DOC ( "attoken", R"(
+ @brief Returns the offset of the index'th token in a string, using specified delimiters.
+ @param str The string to search in.
+ @param token The delimiters for tokenization.
+ @param num The index of the token to find (1-based).
+ @returnint The offset of the token, or -1 if not found.
+)" );
+	DOC ( "wildcard", R"(
+ @brief Checks if a string matches a wildcard pattern.
+ @param searchStr The wildcard pattern.
+ @param str The string to compare.
+ @returnint Non-zero if the string matches the pattern, 0 otherwise.
+)" );
+	DOC ( "strcount", R"(
+ @brief Counts the number of occurrences of a substring in a string.
+ @param str2 The substring to count.
+ @param str1 The string to search in.
+ @returnint The number of occurrences of the substring in the string.
+)" );
+	DOC ( "strcounti", R"(
+ @brief Case-insensitively counts the number of occurrences of a substring in a string.
+ @param str2 The substring to count.
+ @param str1 The string to search in.
+ @returnint The number of occurrences of the substring in the string.
+)" );
+	DOC ( "Chrcount", R"(
+ @brief Counts the number of occurrences of a specific character in a string.
+ @param chr The character to count.
+ @param str The string to search in.
+ @returnint The number of occurrences of the character in the string.
+)" );
+	DOC ( "Chrcounti", R"(
+ @brief Case-insensitively counts the number of occurrences of a specific character in a string.
+ @param chr The character to count.
+ @param str The string to search in.
+ @returnint The number of occurrences of the character in the string.
+)" );
+	DOC ( "CheckScript", R"(
+ @brief Checks if a string contains a script tag.
+ @param p1 The string to check.
+ @returnint Non-zero if the string contains a script tag, 0 otherwise.
+)" );
+	DOC ( "Base64Encode", R"(
+ @brief Encodes a string to Base64 format.
+ @param p1 the string to encode.
+ @return Base64-encoded string.
+)" );
+	DOC ( "Base64Decode", R"(
+ @brief Decodes a Base64-encoded string.
+ @param p1 the Base64 string to decode.
+ @return Decoded string.
+)" );
+	DOC ( "WebDecodeUrl", R"(
+ @brief Decodes a URL-encoded string.
+ @param var the URL-encoded string.
+ @return Decoded string.
+)" );
+	DOC ( "WebEncodeUrl", R"(
+ @brief Encodes a string as a URL component.
+ @param var the string to encode.
+ @return URL-encoded string.
+)" );
+	DOC ( "WebEncodeDAV", R"(
+ @brief Encodes a string for use in a WebDAV URL.
+ @param var the string to encode.
+ @return Encoded string.
+)" );
+	DOC ( "Soundex", R"(
+ @brief Computes the Soundex code of a string.
+ @param var Pointer to the VAR containing the string.
+ @param length The length of the Soundex code to generate.
+ @return The Soundex code.
+)" );
+	DOC ( "Descend", R"(
+ @brief Reverses the characters in a string or negates a number.
+ @param val Pointer to the VAR containing the string or number.
+ @return Resulting VAR after reversal or negation.
+)" );
+	DOC ( "Empty", R"(
+ @brief Checks if a string or number is "empty" (string is all spaces, number is zero).
+ @param val Pointer to the VAR to check.
+ @returnuint32_t Non-zero if the VAR is empty, 0 otherwise.
+)" );
+	DOC ( "Token", R"(
+ @brief Returns the substring from a string that is delimited by specified token characters.
+ @param str the source string.
+ @param token the token characters.
+ @param num The occurrence number of the token to retrieve (1-based).
+ @return The extracted token substring.
+)" );
+	DOC ( "NumToken", R"(
+ @brief Returns the number of times a token occurs in a string, delimited by specified characters.
+ @param str the source string.
+ @param token the token characters.
+ @returnint64_t The number of token occurrences.
+)" );
+	DOC ( "StrSwap", R"(
+ @brief Replaces occurrences of a substring within a string with another substring.
+ @param str the source string.
+ @param toSwap the substring to be replaced.
+ @param swapWith the replacement substring.
+ @return The resulting string with the swaps made.
+)" );
+	DOC ( "StrSwapI", R"(
+ @brief Case-insensitively replaces occurrences of a substring within a string with another substring.
+ @param str the source string.
+ @param toSwap the substring to be replaced.
+ @param swapWith the replacement substring.
+ @return The resulting string with the swaps made.
+)" );
+	DOC ( "Split", R"(
+ @brief Splits a string into an array of substrings based on a delimiter.
+ @param string the source string.
+ @param sep the delimiter.
+ @return The array containing the split substrings.
+)" );
+	DOC ( "Split2", R"(
+ @brief Splits a string into an array of named values based on two delimiters.
+ @param string the source string.
+ @param sep the primary delimiter.
+ @param sep2 the secondary delimiter.
+ @return The array containing the split name-value pairs.
+)" );
+	DOC ( "Substr", R"(
+ @brief Extracts a substring from a string, starting at a given position and length.
+ @param src the source string.
+ @param start Starting position for the substring extraction.
+ @param n Length of the substring to extract.
+ @return The extracted substring.
+)" );
+	DOC ( "Strextract", R"(
+ @brief Extracts a portion of a string enclosed by delimiters based on occurrence.
+ @param strParam the source string.
+ @param delim the delimiter characters.
+ @param occur The occurrence index of the delimiter pair to extract between.
+ @return The extracted string portion.
+)" );
+	DOC ( "SubToken", R"(
+ @brief Extracts a substring following a specific separator and preceding a token.
+ @param strParam the source string.
+ @param token the token character.
+ @param delim the delimiter character.
+ @param value the value to search for.
+ @return The extracted substring.
+)" );
+	DOC ( "SubTokenI", R"(
+ @brief Extracts a substring following a specific separator and preceding a token, case-insensitively.
+ @param strParam the source string.
+ @param token the token character.
+ @param delim the delimiter character.
+ @param value the value to search for.
+ @return The extracted substring.
+)" );
+	DOC ( "WebHeader", R"(
+ @brief Generates the opening HTML tags for a web page.
+ @return The opening HTML tags.
+)" );
+	DOC ( "WebFooter", R"(
+ @brief Generates the closing HTML tags for a web page.\n
+ @return The closing HTML tags.
+)" );
+	DOC ( "Dec2hex", R"(
+ @brief Converts a decimal number to its hexadecimal representation.
+ @param num The decimal number to convert.
+ @return The hexadecimal representation of the number.
+)" );
+	DOC ( "ConvertFilterString", R"(
+@brief Converts a filter string into a format that can be used in queries.
+@param instance Pointer to the current virtual machine instance.
+@param str The filter string to convert.
+@param arr The array containing field names and values.
+@return The converted filter string.
+)" );
+	DOC ( "genGuid", R"(
+ @brief Generates a globally unique identifier (GUID).
+ @return The generated GUID.
+)" );
+	DOC ( "Chrswapall", R"(
+ @brief Swaps all occurrences of specified characters in a string.
+ @param str The source string.
+ @param search The characters to search for.
+ @param repl The replacement characters.
+ @return The string with characters swapped.
+)" );
+	DOC ( "Chrswapalli", R"(
+ @brief Case-insensitively swaps all occurrences of specified characters in a string.
+ @param str The source string.
+ @param search The characters to search for.
+ @param repl The replacement characters.
+ @return The string with characters swapped.
+)" );
 	END;
 }

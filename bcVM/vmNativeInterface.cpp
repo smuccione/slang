@@ -35,7 +35,8 @@
 
 #define docElementDef \
 DEF ("@param", Param ) \
-DEF ("@func", Func ) \
+DEF ("@brief", Brief ) \
+DEF ("@return", Return ) \
 DEF ("@class", Class) \
 DEF ("@assign", Assign ) \
 DEF ("@access", Access ) \
@@ -85,12 +86,25 @@ static stringi getDocumentation ( source &src )
 	return result;
 }
 
-static void commentParser ( opFile &file, char const *comment )
+static void commentParser ( opFile &file, char const *funcName, char const *comment )
 {
 	sourceFile fileMap;
 	source src ( &fileMap, file.sCache, "internal", comment, sourceFile::sourceFileType::none, 1 );
 	stringi	currentClass;
 	opFunction *currentFunc = nullptr;
+
+	auto cFuncName = file.sCache.get ( funcName );
+	auto f = file.functionList.find ( cFuncName );
+	if ( f != file.functionList.end () )
+	{
+		currentFunc = f->second;	
+	} else
+	{
+		throw errorNum::scINTERNAL;
+		currentFunc = nullptr;
+	}
+
+	size_t paramIndex = currentFunc->classDef ? 1 : 0;
 
 	while ( *src )
 	{
@@ -104,58 +118,21 @@ static void commentParser ( opFile &file, char const *comment )
 			src.bsAdvanceEol ( true );
 			switch ( it->second.type )
 			{
-				case docElemType::Func:
-					{
-						stringi funcName = getSymbol ( src );
-						src.bsAdvanceEol ( true );
-						auto documentation = getDocumentation ( src );
-						auto cFuncName = file.sCache.get ( funcName );
-						auto f = file.functionList.find ( cFuncName );
-						if ( f != file.functionList.end () )
-						{
-							currentFunc = f->second;
-							currentFunc->documentation = documentation;
-						} else
-						{
-							throw errorNum::scINTERNAL;
-							currentFunc = nullptr;
-						}
-					}
+				case docElemType::Brief:
+					currentFunc->documentation = getDocumentation ( src );
 					break;
+				case docElemType::Return:
+					currentFunc->returnDocumentation = getDocumentation ( src );
+					break;				
 				case docElemType::Param:
-					if ( currentFunc )
+					if ( paramIndex < currentFunc->params.size () )
 					{
-						auto paramName = file.sCache.get ( getSymbol ( src ) );
-						stringi newParamName;
-						src.bsAdvance ();
-						if ( *src == '(' )
-						{
-							src++;
-							newParamName = getSymbol ( src );
-							src.bsAdvance ();
-							if ( *src != ')' )
-							{
-								throw errorNum::scINTERNAL;
-							}
-							src++;
-							src.bsAdvanceEol ( false );
-						}
-						auto documentation = getDocumentation ( src );
-						for ( uint32_t loop = 0; loop < currentFunc->params.size (); loop++ )
-						{
-							auto def = currentFunc->params[loop];
-							if ( def->getName () == paramName )
-							{
-								if ( newParamName.size () )
-								{
-									def->name = file.sCache.get ( newParamName );
-								}
-								def->documentation = documentation;
-							}
-						}
+						currentFunc->params[paramIndex]->documentation = getDocumentation ( src );
+						paramIndex++;
 					} else
 					{
-						throw errorNum::scINTERNAL;
+						// eat the line, but we have no place to put it
+						getDocumentation ( src );
 					}
 					break;
 				default:
@@ -941,9 +918,9 @@ void vmNativeInterface::nativeClass::registerInspectorCb ( class vmInspectList *
 	classDef->cInspectorCB = cInspectorCB;
 }
 
-void vmNativeInterface::document ( char const *documentation )
+void vmNativeInterface::document ( char const *funcName, char const *documentation )
 {
-	commentParser ( *file, documentation );
+	commentParser ( *file, funcName, documentation );
 }
 
 opFunction *vmNativeInterface::function ( char const *funcName, bool makeFunc, vmDispatcher *disp, ... )

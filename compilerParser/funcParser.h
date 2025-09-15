@@ -27,6 +27,7 @@ class opFunction
 
 	cacheString						 name;
 	stringi							 documentation;
+	stringi							 returnDocumentation;
 
 	srcLocation						 location;
 	srcLocation						 extendedSelection;

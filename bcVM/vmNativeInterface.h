@@ -746,7 +746,7 @@ class vmNativeInterface
 	class opFunction   *function ( char const *funcName, bool makeFunc, vmDispatcher*disp, ... );
 	void				compile ( int cls, char const *code, std::source_location loc = std::source_location::current () );
 	void				compile ( vmNativeInterface::nativeClass &cls, char const *code, std::source_location loc = std::source_location::current () );
-	void				document ( char const *documentation );
+	void				document ( char const *funcName, char const *documentation );
 };
 
 // if NO_CALL is defined, it allows us to use all the registrations as interfaces only... the routines will NOT be referenced and
@@ -829,7 +829,7 @@ static void cGenericCopyCb ( class vmInstance *instance, VAR *val, vmCopyCB copy
 #define FUNC(name, func,...)	 vm.function ( name, true, new nativeDispatch<decltype(func)>(CALLABLE(func)), ##__VA_ARGS__, -1 )
 #define FUNC_RPC(name, func,...) vm.function ( name, true, new nativeDispatch<decltype(func::operator())>(CALLABLE(func)), ##__VA_ARGS__, -1 )
 
-#define DOC(doc) vm.document ( doc );
+#define DOC(funcName, doc) vm.document ( funcName, doc );
 
 /* note: for this macro to work correctly the opening ( MUST be on the same line as the string defining the code and the closing ) MUST be on the last line of the string */
 //#define CODE(code) vm2.compile ( cls, __LINE__, std::filesystem::absolute ( __FILE__ ).generic_string ( ).c_str(), code );

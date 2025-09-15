@@ -95,7 +95,7 @@ private:
 	jsonElement dispatch( stringi const &method, jsonElement const &req, int64_t id ) 
 	{
 		// start everything off for this call
-//		printf ( "calling: %I64i   %s\r\n", id, method.c_str () );
+		printf ( "calling: %I64i   %s\r\n", id, method.c_str () );
 		funcType func = funcs[method];
 		if ( func )
 		{

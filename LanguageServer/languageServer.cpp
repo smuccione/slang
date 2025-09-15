@@ -291,7 +291,30 @@ static stringi getDocumentation ( opFile *file, symbolSource const &source, bool
 	if ( std::holds_alternative<class opFunction *> ( source ) )
 	{
 		auto func = std::get<class opFunction *> ( source );
-		return func->documentation;
+		stringi documentation;
+		documentation += stringi ( "<h4>" ) + func->documentation + "<h4><br><br>";
+		for ( int index = 0; index < func->params.size (); index++ )
+		{
+			if ( func->classDef && !index )
+			{
+				// skip self
+				continue;
+			}
+			auto const &param = func->params[index];
+			if ( param->documentation.size () )
+			{
+				documentation += "<br>@param ";
+				documentation += param->getName ();
+				documentation += " ";
+				documentation += param->getDocumentation();
+			}
+		}
+		if ( func->returnDocumentation.size() )
+		{
+			documentation += "<br>@return ";
+			documentation += func->returnDocumentation;
+		}
+		return documentation;
 	} else if ( std::holds_alternative<class opSymbol *> ( source ) )
 	{
 		auto sym = std::get<class opSymbol *> ( source );
