@@ -491,7 +491,7 @@
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
+      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
       <AdditionalDependencies>Ws2_32.lib;Mswsock.lib;Nafxcw.lib;Libcmt.lib;version.lib;imm32.lib;Dbghelp.lib;Rpcrt4.lib;Mpr.lib;netapi32.lib;Winhttp.lib;gdiplus.lib;comsuppwd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <StackReserveSize>67108864</StackReserveSize>

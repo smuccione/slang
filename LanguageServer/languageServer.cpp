@@ -292,7 +292,7 @@ static stringi getDocumentation ( opFile *file, symbolSource const &source, bool
 	{
 		auto func = std::get<class opFunction *> ( source );
 		stringi documentation;
-		documentation += stringi ( "<h4>" ) + func->documentation + "<h4><br><br>";
+		documentation += func->documentation + "\n\n";
 		for ( int index = 0; index < func->params.size (); index++ )
 		{
 			if ( func->classDef && !index )
@@ -303,7 +303,7 @@ static stringi getDocumentation ( opFile *file, symbolSource const &source, bool
 			auto const &param = func->params[index];
 			if ( param->documentation.size () )
 			{
-				documentation += "<br>@param ";
+				documentation += "\n@param ";
 				documentation += param->getName ();
 				documentation += " ";
 				documentation += param->getDocumentation();
@@ -311,7 +311,7 @@ static stringi getDocumentation ( opFile *file, symbolSource const &source, bool
 		}
 		if ( func->returnDocumentation.size() )
 		{
-			documentation += "<br>@return ";
+			documentation += "\n@return ";
 			documentation += func->returnDocumentation;
 		}
 		return documentation;

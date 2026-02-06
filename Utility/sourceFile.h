@@ -82,7 +82,7 @@ class sourceFile
 	void serializeCompiled ( BUFFER *buffer )
 	{
 		// number of source files
-		buffer->put ( sourceFiles.size () );
+		buffer->put ( (uint32_t) sourceFiles.size () );
 
 		uint32_t		nameSize = 0;
 		for ( auto it = sourceFiles.begin (); it != sourceFiles.end (); it++ )

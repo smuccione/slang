@@ -516,7 +516,7 @@
     <Link>
       <AdditionalDependencies>kernel32.lib;ws2_32.lib;gdi32.lib;gdiplus.lib;nafxcw.lib;comctl32.lib;dnsapi.lib;version.lib;imm32.lib;Dbghelp.lib;Rpcrt4.lib;Mpr.lib;netapi32.lib;Winhttp.lib;winspool.lib;comdlg32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
+      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
