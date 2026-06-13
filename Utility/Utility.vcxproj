@@ -39,7 +39,7 @@
     <CharacterSet>NotSet</CharacterSet>
     <WholeProgramOptimization>false</WholeProgramOptimization>
     <UseOfMfc>Static</UseOfMfc>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <EnableASAN>false</EnableASAN>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Linux|x64'" Label="Configuration">
@@ -48,7 +48,7 @@
     <CharacterSet>NotSet</CharacterSet>
     <WholeProgramOptimization>false</WholeProgramOptimization>
     <UseOfMfc>Static</UseOfMfc>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <EnableASAN>false</EnableASAN>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Static Analysis|x64'" Label="Configuration">
@@ -57,7 +57,7 @@
     <CharacterSet>NotSet</CharacterSet>
     <WholeProgramOptimization>false</WholeProgramOptimization>
     <UseOfMfc>Static</UseOfMfc>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <EnableASAN>false</EnableASAN>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Address Sanitizer|x64'" Label="Configuration">
@@ -66,7 +66,7 @@
     <CharacterSet>NotSet</CharacterSet>
     <WholeProgramOptimization>false</WholeProgramOptimization>
     <UseOfMfc>Static</UseOfMfc>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <EnableASAN>true</EnableASAN>
     <EnableFuzzer>false</EnableFuzzer>
   </PropertyGroup>
@@ -78,7 +78,7 @@
     <UseOfAtl>Static</UseOfAtl>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <EnableASAN>false</EnableASAN>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <PreferredToolArchitecture>x64</PreferredToolArchitecture>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_No_Inline|x64'" Label="Configuration">
@@ -87,7 +87,7 @@
     <CharacterSet>NotSet</CharacterSet>
     <UseOfMfc>Static</UseOfMfc>
     <UseOfAtl>Static</UseOfAtl>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <EnableASAN>false</EnableASAN>
   </PropertyGroup>
@@ -226,6 +226,7 @@
       <EnableModules>false</EnableModules>
       <RemoveUnreferencedCodeData>false</RemoveUnreferencedCodeData>
       <BuildStlModules>false</BuildStlModules>
+      <DisableSpecificWarnings>;4099</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

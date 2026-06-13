@@ -888,6 +888,7 @@ void opFile::_parseFile ( source &src, bool doBraces, bool isLS, bool isAP )
 								name = sCache.get ( stringi ( "errorName" ) + nameLocation.columnNumber + ":" + nameLocation.lineNumberStart );
 							}
 							nameLocation.setEnd ( src );
+							if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::property, nameLocation ) );
 							func = parseFunc ( src, name, doBraces, isLS, isAP, statementLocation );
 							func->nameLocation = nameLocation;
 							func->retType = it->second.type == statementType::stIterator ? symVariantType : symUnknownType;

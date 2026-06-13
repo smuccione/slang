@@ -41,11 +41,20 @@
 
 #include <afxsock.h>            // MFC socket extensions
 
-
-
-
-
-
+// Headers moved into PCH to reduce repeated parsing across engine source files
+#include "compilerParser/fileParser.h"
+#include "bcVM/bcVM.h"
+#include "bcVM/bcVMBuiltin.h"
+#include "bcVM/vmDebug.h"
+#include "bcVM/bcVMObject.h"
+#include "Target/vmTask.h"
+#include "Target/vmConf.h"
+#include "Target/fileCache.h"
+#include "webServer/webServer.h"
+#include "webServer/webServerIOCP.h"
+#include "webServer/webServerTaskControl.h"
+#include "fglDatabase/dbIoServer.h"
+#include "LanguageServer/languageServer.h"
 
 #ifdef _UNICODE
 #if defined _M_IX86

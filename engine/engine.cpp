@@ -1,6 +1,6 @@
+#include "stdafx.h"
 #include "Utility/settings.h"
 
-#include "stdafx.h"
 #include "engine.h"
 
 #include "compilerBCGenerator/compilerBCGenerator.h"

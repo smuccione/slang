@@ -46,6 +46,14 @@
 
 #endif // _AFX_NO_AFXCMN_SUPPORT
 
+// Add frequently-used, expensive headers to PCH to reduce repeated parsing
+#include "compilerParser/fileParser.h"
+#include "compilerParser/symbolSpace.h"
+#include "Utility/stringCache.h"
+#include "Utility/buffer.h"
+#include "bcVM/bcVMBuiltin.h"
+#include "bcVM/bcVM.h"
+
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.
 #endif // !defined(AFX_STDAFX_H__EFC14262_1DC0_4861_B05E_25ABBA9FD593__INCLUDED_)

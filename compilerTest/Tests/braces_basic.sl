@@ -29,7 +29,7 @@ function stringBuild ( sep, iter )
 		if (first)
 		{
 			first = false;
-				ret = i;
+			ret = i;
 		} else
 		{
 			ret = ret + sep + i
@@ -75,22 +75,24 @@ function main ( )
 	{
 		println ( a )
 	}
-		println ( a, " should be 99" )
+	println ( a, " should be 99" )
 
 	local first = "steve";
 	local last = "muccione";
 	{
 		local first;
-			first = "Donna";
-			println ( $"first = {first}, last = {last}" );
+		first = "Donna";
+		println ( $"first = {first}, last = {last}" );
 	}
 	println ( $"first = {first}, last = {last}" );
 
 	local x = new common;
 
-		x.x = 1
-		printf ( "x.a = %i\r\n", x.a )
+	x.x = 1
+	printf ( "x.a = %i\r\n", x.a )
 
-		println ( $"double(4) = {double ( 4 )}\r\n" );
+	println ( $"double(4) = {double ( 4 )}\r\n" );
+
+	x.a = 5;
 }
 

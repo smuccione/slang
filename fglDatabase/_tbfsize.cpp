@@ -32,4 +32,4 @@ size_t _tbFieldSize( TABLE *dbf, TABLE_CONNECTION *tblConn, size_t count )
 	
 	return r;
 }
- 
+ 

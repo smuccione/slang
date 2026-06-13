@@ -2,7 +2,7 @@
   "name": "slang",
   "displayName": "slang",
   "description": "Slang IntelliSense, debugging, and code browsing.",
-  "version": "1.2.0",
+  "version": "1.2.2",
   "publisher": "smuccione",
   "readme": "README.md",
   "author": {
@@ -812,15 +812,17 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "npm run esbuild-base -- --minify",
+    "vscode:prepublish": "npm run package",
     "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=out/main.js --external:vscode --format=cjs --platform=node",
     "esbuild": "npm run esbuild-base -- --sourcemap",
     "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
     "test-compile": "tsc -p ./",
+    "check-types": "tsc --noEmit",
     "compile": "webpack --mode production --env vscode_nls",
     "compile-dev": "webpack --mode development",
     "compile-watch": "webpack --mode production --env vscode_nls --watch --progress",
-    "compile-dev-watch": "webpack --mode development --watch --progress"
+    "compile-dev-watch": "webpack --mode development --watch --progress",
+    "package": "node esbuild.js --production --minify"
   },
   "devDependencies": {
     "@octokit/rest": "^21.0.2",
@@ -839,7 +841,7 @@
     "@typescript-eslint/eslint-plugin-tslint": "^4.22.0",
     "@typescript-eslint/parser": "^4.22.0",
     "async-child-process": "^1.1.1",
-    "esbuild": "^0.13.15",
+    "esbuild":  "0.17.x || ^0.18.x",
     "eslint": "^7.24.0",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-jsdoc": "^32.3.0",

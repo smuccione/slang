@@ -840,6 +840,7 @@ bool opFile::parseInnerClass ( source &src, bool doBraces, opClass *classDef, bo
 								srcLocation nameLocation = src;
 								auto tmpName = sCache.get ( getSymbol ( src ) );
 								nameLocation.setEnd ( src );
+								if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::property, nameLocation ) );
 
 								if ( !tmpName.size () )
 								{
@@ -922,6 +923,9 @@ bool opFile::parseInnerClass ( source &src, bool doBraces, opClass *classDef, bo
 									{
 										if ( !isLS ) throw errorNum::scUNSUPPORTED;
 										errors.push_back ( std::make_unique<astNode> ( errorNum::scUNSUPPORTED, nameLocation ) );
+									} else
+									{
+										if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::property, nameLocation ) );
 									}
 									BS_ADVANCE_COMMENT ( this, isLS, src );
 									if ( !doBraces && _iseol ( src ) )
@@ -1002,6 +1006,7 @@ bool opFile::parseInnerClass ( source &src, bool doBraces, opClass *classDef, bo
 								srcLocation nameLocation = src;
 								auto tmpName = sCache.get ( getSymbol ( src ) );
 								nameLocation.setEnd ( src );
+								if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::property, nameLocation ) );
 								if ( !tmpName.size () )
 								{
 									if ( !isLS ) throw errorNum::scMISSING_SYMBOL;
@@ -1120,6 +1125,7 @@ bool opFile::parseInnerClass ( source &src, bool doBraces, opClass *classDef, bo
 								srcLocation nameLocation = src;
 								auto tmpName = sCache.get ( getSymbol ( src ) );
 								nameLocation.setEnd ( src );
+								if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::property, nameLocation ) );
 
 								if ( !tmpName.size () )
 								{
@@ -1193,6 +1199,7 @@ bool opFile::parseInnerClass ( source &src, bool doBraces, opClass *classDef, bo
 								srcLocation nameLocation = src;
 								auto tmpName = sCache.get ( getSymbol ( src ) );
 								nameLocation.setEnd ( src );
+								if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::property, nameLocation ) );
 
 								if ( !tmpName.size () )
 								{
@@ -1329,6 +1336,7 @@ process_local:
 								srcLocation nameLocation = src;
 								auto tmpName = sCache.get ( parseOperator ( src ) );
 								nameLocation.setEnd ( src );
+								if ( isLS ) statements.push_back ( std::make_unique<astNode> ( astLSInfo::semanticSymbolType::property, nameLocation ) );
 
 								func = parseMethod ( src, classDef, buildString ( (char *)classDef->name.c_str (), tmpName, "operator" ).c_str (), doBraces, isLS, isAP, statementLocation);
 

@@ -1069,6 +1069,66 @@ static VAR *pavl_t_index( struct pavl_traverser *trav )
 	return trav->pavl_node != NULL ? trav->pavl_node->index : NULL;
 }
 
+void aArrayNew ( vmInstance *instance, int64_t nPairs )
+{
+	pavl_table			 *table;
+	pavl_node			 *node;
+	bcClass				 *callerClass;
+	VAR					 *varTmp;
+	VAR					 *obj;
+	VAR					 *params;
+	VAR					 *nodeVal;
+	char				 *tmpPtr;
+	VAR					 *newVar;
+	GRIP				  g1 ( instance );
+
+	VAR *destAddr = instance->stack - nPairs * 2;
+
+	callerClass = instance->atomTable->atomGetClass ( "aArray" );
+	
+	tmpPtr = (char *)instance->om->alloc ( sizeof ( pavl_table ) + 16 + sizeof ( pavl_node ) * nPairs );
+	newVar = instance->om->allocVar( nPairs * 2 + 2 + callerClass->numVars );
+
+	obj = newVar++;
+
+	// SPECIAL CASE: this object is guaranteed to have no instance variables and does not inherit.   we could use the 
+	obj->type    = slangType::eOBJECT;
+	obj->dat.obj.classDef = callerClass;
+	obj->dat.obj.vPtr = callerClass->vTable;
+
+	newVar->type = slangType::eOBJECT_ROOT;
+	newVar->dat.ref.v = obj;
+	newVar->dat.ref.obj = obj;
+	newVar++;
+
+	varTmp				= instance->stack++;
+	varTmp->type		= slangType::eOBJECT_ROOT;
+	varTmp->dat.ref.v	= obj;
+	varTmp->dat.ref.obj = obj;
+
+	obj->dat.obj.cargo		= pseudoAlloc ( &tmpPtr, sizeof ( pavl_table )  + 16 );
+	*(size_t *)obj->dat.obj.cargo = sizeof ( pavl_table );
+
+	table = (pavl_table *)classGetCargo ( varTmp );
+	memset ( table, 0, sizeof ( pavl_table ) );
+
+	table->varCompare		= varCompare;
+
+	params = instance->stack - 2 * nPairs - 1;
+	for (; nPairs; nPairs-- )
+	{
+		nodeVal		= newVar++;
+		*nodeVal	= (*params++);
+		if ( !(node = pavl_probe_pseudo ( instance, varTmp, nodeVal, &tmpPtr, &newVar )) )
+		{
+			throw errorNum::scINTERNAL;
+		}
+		*node->data	= *(params++);;
+	}
+	*destAddr = *(instance->stack - 1);
+	instance->stack = destAddr + 1;
+}
+
 //******************  garbage collection routines
 
 static pavl_node *cBtreeMove ( vmInstance *instance, pavl_table *table, pavl_node *oldNode, objectMemory::collectionVariables *col )
@@ -1645,66 +1705,6 @@ static VAR cBTreeRename ( vmInstance *instance, VAR_OBJ *obj, VAR *oldIndex, VAR
 		return *obj;
 	}
 	return VAR_NULL ( );
-}
-
-void aArrayNew ( vmInstance *instance, int64_t nPairs )
-{
-	pavl_table			 *table;
-	pavl_node			 *node;
-	bcClass				 *callerClass;
-	VAR					 *varTmp;
-	VAR					 *obj;
-	VAR					 *params;
-	VAR					 *nodeVal;
-	char				 *tmpPtr;
-	VAR					 *newVar;
-	GRIP				  g1 ( instance );
-
-	VAR *destAddr = instance->stack - nPairs * 2;
-
-	callerClass = instance->atomTable->atomGetClass ( "aArray" );
-	
-	tmpPtr = (char *)instance->om->alloc ( sizeof ( pavl_table ) + 16 + sizeof ( pavl_node ) * nPairs );
-	newVar = instance->om->allocVar( nPairs * 2 + 2 + callerClass->numVars );
-
-	obj = newVar++;
-
-	// SPECIAL CASE: this object is guaranteed to have no instance variables and does not inherit.   we could use the 
-	obj->type    = slangType::eOBJECT;
-	obj->dat.obj.classDef = callerClass;
-	obj->dat.obj.vPtr = callerClass->vTable;
-
-	newVar->type = slangType::eOBJECT_ROOT;
-	newVar->dat.ref.v = obj;
-	newVar->dat.ref.obj = obj;
-	newVar++;
-
-	varTmp				= instance->stack++;
-	varTmp->type		= slangType::eOBJECT_ROOT;
-	varTmp->dat.ref.v	= obj;
-	varTmp->dat.ref.obj = obj;
-
-	obj->dat.obj.cargo		= pseudoAlloc ( &tmpPtr, sizeof ( pavl_table )  + 16 );
-	*(size_t *)obj->dat.obj.cargo = sizeof ( pavl_table );
-
-	table = (pavl_table *)classGetCargo ( varTmp );
-	memset ( table, 0, sizeof ( pavl_table ) );
-
-	table->varCompare		= varCompare;
-
-	params = instance->stack - 2 * nPairs - 1;
-	for (; nPairs; nPairs-- )
-	{
-		nodeVal		= newVar++;
-		*nodeVal	= (*params++);
-		if ( !(node = pavl_probe_pseudo ( instance, varTmp, nodeVal, &tmpPtr, &newVar )) )
-		{
-			throw errorNum::scINTERNAL;
-		}
-		*node->data	= *(params++);;
-	}
-	*destAddr = *(instance->stack - 1);
-	instance->stack = destAddr + 1;
 }
 
 static VAR_OBJ_TYPE<"aArrayEnumerator"> cBTreeGetEnumerator ( vmInstance *instance, VAR *object )
@@ -2642,5 +2642,45 @@ void builtinAArrayInit( vmInstance *instance, opFile *file )
 		FUNC( "aSize", arraySize );
 
 		FUNC( "arrayToNameValue", _arrayToNameValue );
+
+    DOC("aAdd", R"doc(
+@brief Append a new element to a fixed array, returning the new array.
+@param arr Reference to the array to modify.
+@param newElem Element to append.
+@return VAR The modified array reference.
+)doc");
+
+    DOC("aSize", R"doc(
+@brief Resize a fixed array to the given size.
+If the new size is greater than the old, new slots are initialized to `null`.
+@param param Reference to the array to resize.
+@param size New size for the array (must be > 0).
+@return VAR The resized array.
+)doc");
+
+    DOC("array", R"doc(
+@brief Create a fixed array with the given start/end or length and optional default value.
+@param num Parameter pack describing start/length/default as per API.
+@return VAR The created array root reference.
+)doc");
+
+    DOC("stableSort", R"doc(
+@brief Perform a stable sort on a single-dimensional array.
+@param param Array to sort (can be fixed or sparse).
+@param expr Optional comparison expression or function.
+@param userParam Optional user parameter passed to comparator.
+@return VAR Sorted array (copy).
+)doc");
+
+
+    DOC("sort", R"doc(
+@brief In-place stable sort for arrays with additional options.
+@param param Array to sort.
+@param isDescend Whether to sort descending.
+@param column Column/index when sorting arrays-of-arrays.
+@param isCaseSensitive Case sensitivity for string comparisons.
+@return VAR The original (possibly modified) array root.
+)doc");
 	END;
+
 }

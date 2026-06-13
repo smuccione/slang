@@ -23,13 +23,20 @@
 #include <fstream>
 #include <sstream>
 
+// Forward declare types to avoid heavy includes in header
+class opFunction;
+class opClass;
+class opSymbol;
+class compClassElementSearch;
+class compExecutable;
+
 #include "symbolSpace.h"
 #include "errorHandler.h"
 #include "nameSpace.h"
 #include "funcParser.h"
-#include "funcParser.h"
 #include "classParser.h"
 #include "opSymbol.h"
+
 #include "Utility/buffer.h"
 #include "Utility/sourceFile.h"
 #include "Utility/stringCache.h"

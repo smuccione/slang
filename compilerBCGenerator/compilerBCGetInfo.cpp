@@ -140,7 +140,7 @@ static astNode *getInfoCB( astNode *node, astNode *parent, symbolStack *sym, boo
 							{
 								auto elem = cls->getElement( node->left->right->nameValue() );
 
-								if ( node->pList ().paramRegion.size () )
+								if ( elem && node->pList ().paramRegion.size () )
 								{
 									srcLocation	callLoc = node->pList ().paramRegion.front ();
 									callLoc.setEnd ( node->pList ().paramRegion.back () );

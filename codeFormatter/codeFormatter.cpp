@@ -724,6 +724,34 @@ std::tuple<stringi, int64_t, srcLocation> formatCode ( opFile *file, astLSInfo c
 			// load any text for this node;
 			auto txt = code.getText ( (*it)->location );
 
+			/*
+			*		Handle line breaks
+			*
+			*			the first thing we check is if we have a manually inserted break (e.g. the lineNumberStart is greater than the current line).
+			*			    however we also don't want to simply ALWAYS do this.  There are times when we want to not emite a break, regardless and that is when
+			*				we may want to do K&R (open brace after condition) or open-empty-close on same line
+			*			if we haven't already emitted a line break we then check to see if we need to emit one by rule
+			*
+			*			when we do emite a line break we also clear any pending space needed std::get<bool>(flags.
+)			*/
+			if ( firstBreak || currentLine < (*it)->location.lineNumberStart )
+			{
+				firstBreak = false;
+				while ( currentLine < (*it)->location.lineNumberStart )
+				{
+					rsp.write ( "\r\n" );
+					currentLine++;
+					if ( currentLine < (*it)->location.lineNumberStart )
+					{
+						auto blankText = code.getText ( { loc.sourceIndex, 1, currentLine, 1 + (uint32_t)code.lineLength[currentLine - 1], currentLine } );
+						rsp.write ( blankText );
+					}
+					lineBreakEmitted = true;
+					needSpace = false;
+					lastSpace = true;
+				}
+			}
+
 			// we're at the start of a line... we need to adjust the indentation points... we do NOT indent here, just push the value onto the stack!
 			switch ( (*it)->getOp () )
 			{
@@ -947,34 +975,6 @@ std::tuple<stringi, int64_t, srcLocation> formatCode ( opFile *file, astLSInfo c
 			if ( indentStack.empty () )
 			{
 				indentStack.push ( code.getIndent ( (*it)->location.lineNumberStart ) );
-			}
-
-			/*
-			*		Handle line breaks
-			*
-			*			the first thing we check is if we have a manually inserted break (e.g. the lineNumberStart is greater than the current line).
-			*			    however we also don't want to simply ALWAYS do this.  There are times when we want to not emite a break, regardless and that is when
-			*				we may want to do K&R (open brace after condition) or open-empty-close on same line
-			*			if we haven't already emitted a line break we then check to see if we need to emit one by rule
-			*
-			*			when we do emite a line break we also clear any pending space needed std::get<bool>(flags.
-)			*/
-			if ( firstBreak || currentLine < (*it)->location.lineNumberStart )
-			{
-				firstBreak = false;
-				while ( currentLine < (*it)->location.lineNumberStart )
-				{
-					rsp.write ( "\r\n" );
-					currentLine++;
-					if ( currentLine < (*it)->location.lineNumberStart )
-					{
-						auto blankText = code.getText ( { loc.sourceIndex, 1, currentLine, 1 + (uint32_t)code.lineLength[currentLine - 1], currentLine } );
-						rsp.write ( blankText );
-					}
-					lineBreakEmitted = true;
-					needSpace = false;
-					lastSpace = true;
-				}
 			}
 
 			if ( (*it)->getOp () == astOp::btStatement && (*it)->getSemanticType () == astLSInfo::semanticSymbolType::info )

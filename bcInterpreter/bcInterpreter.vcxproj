@@ -41,7 +41,7 @@
     <CLRSupport>false</CLRSupport>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <EnableASAN>false</EnableASAN>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <PreferredToolArchitecture>x64</PreferredToolArchitecture>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_No_Inline|x64'" Label="Configuration">
@@ -50,7 +50,7 @@
     <UseOfAtl>false</UseOfAtl>
     <CharacterSet>NotSet</CharacterSet>
     <CLRSupport>false</CLRSupport>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <EnableASAN>false</EnableASAN>
   </PropertyGroup>
@@ -60,7 +60,7 @@
     <UseOfAtl>false</UseOfAtl>
     <CharacterSet>NotSet</CharacterSet>
     <CLRSupport>false</CLRSupport>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <WholeProgramOptimization>false</WholeProgramOptimization>
     <UseDebugLibraries>true</UseDebugLibraries>
     <EnableASAN>false</EnableASAN>
@@ -71,7 +71,7 @@
     <UseOfAtl>false</UseOfAtl>
     <CharacterSet>NotSet</CharacterSet>
     <CLRSupport>false</CLRSupport>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <WholeProgramOptimization>false</WholeProgramOptimization>
     <UseDebugLibraries>true</UseDebugLibraries>
     <EnableASAN>false</EnableASAN>
@@ -82,7 +82,7 @@
     <UseOfAtl>false</UseOfAtl>
     <CharacterSet>NotSet</CharacterSet>
     <CLRSupport>false</CLRSupport>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <WholeProgramOptimization>false</WholeProgramOptimization>
     <UseDebugLibraries>true</UseDebugLibraries>
     <EnableASAN>false</EnableASAN>
@@ -93,7 +93,7 @@
     <UseOfAtl>false</UseOfAtl>
     <CharacterSet>NotSet</CharacterSet>
     <CLRSupport>false</CLRSupport>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <WholeProgramOptimization>false</WholeProgramOptimization>
     <UseDebugLibraries>true</UseDebugLibraries>
     <EnableASAN>true</EnableASAN>
@@ -243,6 +243,7 @@
       <EnableModules>false</EnableModules>
       <RemoveUnreferencedCodeData>false</RemoveUnreferencedCodeData>
       <BuildStlModules>false</BuildStlModules>
+      <DisableSpecificWarnings>;4099</DisableSpecificWarnings>
     </ClCompile>
     <Lib />
     <Lib />
